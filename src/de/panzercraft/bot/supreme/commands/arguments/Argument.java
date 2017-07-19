@@ -1,7 +1,5 @@
 package de.panzercraft.bot.supreme.commands.arguments;
 
-import de.panzercraft.bot.supreme.util.Util;
-
 /**
  * Argument
  *
@@ -9,53 +7,48 @@ import de.panzercraft.bot.supreme.util.Util;
  */
 public class Argument {
 
-    private final String prefix;
+    private final String[] prefixes;
     private final String argument;
 
     public Argument(String argument) {
-        this("", argument);
+        this(argument, new String[0]);
     }
 
-    public Argument(String prefix, String argument) {
-        this.prefix = prefix;
+    public Argument(String argument, String... prefixes) {
         this.argument = argument;
+        this.prefixes = prefixes;
     }
 
-    public final String getPrefix() {
-        return prefix;
+    public final boolean hasPrefixes() {
+        return prefixes != null && prefixes.length > 0;
+    }
+    
+    public final int getPrefixesLength() {
+        return hasPrefixes() ? prefixes.length : -1;
+    }
+    
+    public final String[] getPrefixes() {
+        return prefixes;
     }
 
     public final String getArgument() {
         return argument;
     }
 
-    public final String getCompleteArgument() {
-        return prefix + argument;
+    public final String getCompleteArgument(int prefix) {
+        if (prefixes == null || prefix < 0) {
+            return argument;
+        }
+        return prefixes[prefix] + argument;
     }
 
     @Override
     public final String toString() {
-        return getCompleteArgument();
+        return getCompleteArgument(0);
     }
     
     public static final Argument ofString(String argument) {
         return new Argument(argument);
-    }
-    
-    public static final Argument ofString(String argument, String... prefixes) {
-        if (prefixes == null || prefixes.length == 0) {
-            return new Argument(argument);
-        } else {
-            Util.contains(prefixes, null, argument);
-            final int index = Util.indexOf(prefixes, (entry) -> {
-                return argument.startsWith(entry);
-            });
-            if (index == -1) {
-                return new Argument(argument);
-            } else {
-                return new Argument(argument.substring(0, prefixes[index].length()), argument.substring(prefixes[index].length()));
-            }
-        }
     }
 
 }

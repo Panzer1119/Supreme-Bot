@@ -30,15 +30,12 @@ public class Standard {
     public static final String COMMAND_DELIMITER_STRING = " ";
     public static final int STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED = 10;
     public static final int PLAYLIST_LIMIT = 1000;
-    public static final Argument ARGUMENT_GLOBAL = new Argument("-", "global");
-    public static final Argument ARGUMENT_DIRECT = new Argument("-", "direct");
-    public static final Argument ARGUMENT_PRIVATE = new Argument("-", "private");
-    
+
     public static final String STANDARD_SETTINGS_PATH = "settings.txt";
     public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_SETTINGS_PATH);
     public static final Settings STANDARD_SETTINGS = new Settings(STANDARD_SETTINGS_FILE);
     private static long AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = -1;
-    
+
     public static final boolean reloadSettings() {
         STANDARD_SETTINGS.loadSettings();
         try {
@@ -71,21 +68,21 @@ public class Standard {
         STANDARD_SETTINGS.setProperty("autoDeleteCommandNotFoundMessageDelay", "" + autoDeleteCommandNotFoundMessageDelay);
         return true;
     }
-    
+
     public static final byte[] getToken() {
         return TOKEN;
     }
-    
+
     public static final boolean setToken(byte[] token) {
         Standard.TOKEN = token;
         STANDARD_SETTINGS.setProperty("token", new String(TOKEN));
         return true;
     }
-    
+
     public static final String getStandardCommandPrefix() {
         return STANDARD_COMMAND_PREFIX;
     }
-    
+
     public static final boolean setStandardCommandPrefix(String commandPrefix) {
         if (commandPrefix.contains("\\")) {
             return false;
@@ -94,7 +91,7 @@ public class Standard {
         STANDARD_SETTINGS.setProperty("command_prefix", STANDARD_COMMAND_PREFIX);
         return true;
     }
-    
+
     public static final boolean loadCommandPrefixesForGuilds() {
         final Enumeration properties = STANDARD_SETTINGS.getSettings().propertyNames();
         while (properties.hasMoreElements()) {
@@ -107,11 +104,11 @@ public class Standard {
         }
         return true;
     }
-    
+
     public static final String getCommandPrefixByGuild(Guild guild) {
         return getCommandPrefixByGuild(guild.getId());
     }
-    
+
     public static final String getCommandPrefixByGuild(String guild_id) {
         String commandPrefix = COMMAND_PREFIXES.get(guild_id);
         if (commandPrefix == null) {
@@ -120,11 +117,11 @@ public class Standard {
         }
         return commandPrefix;
     }
-    
+
     public static final boolean setCommandPrefixForGuild(Guild guild, String commandPrefix) {
         return setCommandPrefixForGuild(guild.getId(), commandPrefix);
     }
-    
+
     public static final boolean setCommandPrefixForGuild(String guild_id, String commandPrefix) {
         if (commandPrefix.contains("\\")) {
             return false;
@@ -137,15 +134,15 @@ public class Standard {
     public static final Message getNoPermissionMessage(User user, String extra) {
         return new MessageBuilder().append(String.format(":warning: Sorry %s, you don't have the permissions to use this %s!", user.getAsMention(), extra)).build();
     }
-    
+
     public static final EmbedBuilder getMessageEmbed(Color color, String message) {
         return new EmbedBuilder().setColor(color).setDescription(message);
     }
-    
+
     public static final EmbedBuilder getMessageEmbed(Color color, String format, Object... args) {
         return getMessageEmbed(color, String.format(format, args));
     }
-    
+
     public static final boolean sendErrorMessage(MessageReceivedEvent event, String content) {
         event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.RED, content).build()).queue();
         return true;
@@ -168,5 +165,12 @@ public class Standard {
         }
         return user.getId().equals(super_owner);
     }
+
+    public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/"};
+    public static final Argument ARGUMENT_GLOBAL = new Argument("global", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_DIRECT = new Argument("direct", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_PRIVATE = new Argument("private", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_SETTINGS = new Argument("settings", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_PERMISSIONS = new Argument("permissions", STANDARD_ARGUMENT_PREFIXES);
 
 }

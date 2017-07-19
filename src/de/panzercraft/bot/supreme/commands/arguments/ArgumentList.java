@@ -111,7 +111,29 @@ public class ArgumentList {
             if (argument_raw == null) {
                 continue;
             }
-            if ((type.isIgnoreCase()&& (argument_raw.equalsIgnoreCase(argument.getArgument()) || argument_raw.equalsIgnoreCase(argument.getCompleteArgument()))) || (!type.isIgnoreCase()&& (argument_raw.equals(argument.getArgument()) || argument_raw.equals(argument.getCompleteArgument())))) {
+            boolean take = false;
+            if (type.isIgnoreCase()) {
+                take = argument_raw.equalsIgnoreCase(argument.getArgument());
+                if (!take && argument.hasPrefixes()) {
+                    for (int i = 0; i < argument.getPrefixesLength(); i++) {
+                        if (argument_raw.equalsIgnoreCase(argument.getCompleteArgument(i))) {
+                            take = true;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                take = argument_raw.equals(argument.getArgument());
+                if (!take && argument.hasPrefixes()) {
+                    for (int i = 0; i < argument.getPrefixesLength(); i++) {
+                        if (argument_raw.equals(argument.getCompleteArgument(i))) {
+                            take = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (take) {
                 times_found++;
                 if (type.isConsume()) {
                     arguments_raw_iterator.remove();
