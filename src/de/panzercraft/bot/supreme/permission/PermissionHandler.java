@@ -11,8 +11,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
  */
 public class PermissionHandler {
 
-    public static boolean check(PermissionRole minimumPermission, MessageReceivedEvent event) {
-        if (minimumPermission == null) {
+    public static boolean check(PermissionRoleFilter filter, MessageReceivedEvent event) {
+        if (filter == null) {
             return true;
         }
         if (event == null) {
@@ -20,12 +20,12 @@ public class PermissionHandler {
         }
         for (Role role : event.getGuild().getMember(event.getAuthor()).getRoles()) {
             final PermissionRole temp = PermissionRole.getPermissionRoleByGuildAndRoleId(event.getGuild(), role.getId());
-            if (temp != null && temp.isThisHigherOrEqual(minimumPermission)) {
+            if (temp != null && filter.isPermissionGranted(temp, event.getMember())) {
                 return true;
             }
         }
         event.getTextChannel().sendMessage(Standard.getNoPermissionMessage(event.getAuthor(), "command")).queue();
         return false;
     }
-
+    
 }

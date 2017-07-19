@@ -1,6 +1,7 @@
 package de.panzercraft.bot.supreme.commands;
 
 import de.panzercraft.bot.supreme.permission.PermissionRole;
+import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -36,7 +37,7 @@ public class PingCommand implements Command {
     }
 
     @Override
-    public PermissionRole getMinimumPermissionRole() {
+    public final PermissionRoleFilter getPermissionRoleFilter() {
         return null;
     }
     

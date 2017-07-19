@@ -8,6 +8,7 @@ import java.util.HashMap;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -133,6 +134,24 @@ public class Standard {
     public static final boolean sendErrorMessage(MessageReceivedEvent event, String content) {
         event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.RED, content).build()).queue();
         return true;
+    }
+
+    public static boolean isSuperOwner(Member member) {
+        if (member == null) {
+            return false;
+        }
+        return isSuperOwner(member.getUser());
+    }
+
+    public static boolean isSuperOwner(User user) {
+        if (user == null) {
+            return false;
+        }
+        final String super_owner = STANDARD_SETTINGS.getProperty("super_owner");
+        if (super_owner == null) {
+            return true;
+        }
+        return user.getId().equals(super_owner);
     }
 
 }

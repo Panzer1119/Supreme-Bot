@@ -13,6 +13,7 @@ import de.panzercraft.bot.supreme.audio.core.AudioInfo;
 import de.panzercraft.bot.supreme.audio.core.PlayerSendHandler;
 import de.panzercraft.bot.supreme.audio.core.TrackManager;
 import de.panzercraft.bot.supreme.permission.PermissionRole;
+import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
 import de.panzercraft.bot.supreme.util.Standard;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -236,7 +237,7 @@ public class MusicCommand implements Command {
     }
 
     @Override
-    public final PermissionRole getMinimumPermissionRole() {
+    public final PermissionRoleFilter getPermissionRoleFilter() {
         return null; //FIXME Change this
     }
 

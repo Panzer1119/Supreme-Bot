@@ -1,6 +1,7 @@
 package de.panzercraft.bot.supreme.commands;
 
 import de.panzercraft.bot.supreme.permission.PermissionRole;
+import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
 import de.panzercraft.bot.supreme.util.Standard;
 import de.panzercraft.bot.supreme.util.Util;
 import java.awt.Color;
@@ -81,8 +82,9 @@ public class ManagingCommands {
         }
 
         @Override
-        public final PermissionRole getMinimumPermissionRole() {
-            return PermissionRole.getPermissionRoleByName("Admin");
+        public final PermissionRoleFilter getPermissionRoleFilter() {
+            final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
+            return (role, member) -> role.isThisHigherOrEqual(admin);
         }
         
     }
@@ -135,8 +137,14 @@ public class ManagingCommands {
         }
 
         @Override
-        public final PermissionRole getMinimumPermissionRole() {
-            return PermissionRole.getPermissionRoleByName("Owner");
+        public final PermissionRoleFilter getPermissionRoleFilter() {
+            final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
+            return (role, member) -> {
+                if (!Standard.isSuperOwner(member)) {
+                    return false;
+                }
+                return role.isThisHigherOrEqual(owner);
+            };
         }
         
     }
@@ -179,8 +187,9 @@ public class ManagingCommands {
         }
 
         @Override
-        public final PermissionRole getMinimumPermissionRole() {
-            return PermissionRole.getPermissionRoleByName("Admin");
+        public final PermissionRoleFilter getPermissionRoleFilter() {
+            final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
+            return (role, member) -> role.isThisHigherOrEqual(admin);
         }
         
     }
@@ -213,7 +222,7 @@ public class ManagingCommands {
         }
 
         @Override
-        public final PermissionRole getMinimumPermissionRole() {
+        public final PermissionRoleFilter getPermissionRoleFilter() {
             return null;
         }
 
@@ -282,8 +291,9 @@ public class ManagingCommands {
         }
 
         @Override
-        public final PermissionRole getMinimumPermissionRole() {
-            return PermissionRole.getPermissionRoleByName("Admin");
+        public final PermissionRoleFilter getPermissionRoleFilter() {
+            final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
+            return (role, member) -> role.isThisHigherOrEqual(admin);
         }
         
     }

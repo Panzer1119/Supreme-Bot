@@ -1,6 +1,6 @@
 package de.panzercraft.bot.supreme.commands;
 
-import de.panzercraft.bot.supreme.permission.PermissionRole;
+import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -19,13 +19,12 @@ public interface Command {
     public void executed(boolean success, MessageReceivedEvent event);
 
     public String getHelp();
-
+    
     /**
-     * If null then @everyone can use this command
      * e.g. PermissionRole.getPermissionRoleByName("Admin");
-     *
-     * @return
+     * @param role PermissionRole
+     * @return <tt>true</tt> or <tt>false</tt>
      */
-    public PermissionRole getMinimumPermissionRole();
+    public PermissionRoleFilter getPermissionRoleFilter();
 
 }

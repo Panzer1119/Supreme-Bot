@@ -1,9 +1,7 @@
 package de.panzercraft.bot.supreme.commands;
 
 import de.panzercraft.bot.supreme.permission.PermissionHandler;
-import de.panzercraft.bot.supreme.permission.PermissionRole;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * CommandHandler
@@ -21,8 +19,7 @@ public class CommandHandler {
             }
             final Command command = getCommandByInvoke(commandContainer.invoke);
             if (command != null) {
-                final PermissionRole minimum = command.getMinimumPermissionRole();
-                if (!PermissionHandler.check(minimum, commandContainer.event)) {
+                if (!PermissionHandler.check(command.getPermissionRoleFilter(), commandContainer.event)) {
                     return false;
                 }
                 final boolean safe = command.called(commandContainer.invoke, commandContainer.args, commandContainer.event);
