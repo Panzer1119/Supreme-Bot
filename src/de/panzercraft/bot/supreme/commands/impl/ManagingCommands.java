@@ -320,7 +320,7 @@ public class ManagingCommands {
 
     }
 
-    public static class GetFileCommand implements Command {
+    public static class GetFileCommand implements Command { //TODO Einen UploadFileCommand machen, mit dem man files auf den Bot hochladen kann, um zum Beispiel die settings.txt oder permissions.txt zu ueberschreiben
 
         @Override
         public final String[] getInvokes() {
