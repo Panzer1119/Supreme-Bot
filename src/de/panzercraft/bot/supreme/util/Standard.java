@@ -1,5 +1,6 @@
 package de.panzercraft.bot.supreme.util;
 
+import de.panzercraft.bot.supreme.commands.arguments.Argument;
 import de.panzercraft.bot.supreme.settings.Settings;
 import java.awt.Color;
 import java.io.File;
@@ -28,8 +29,8 @@ public class Standard {
     public static final String COMMAND_ESCAPE_SPACE_STRING = "\"";
     public static final String COMMAND_DELIMITER_STRING = " ";
     public static final int STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED = 10;
-    
     public static final int PLAYLIST_LIMIT = 1000;
+    public static final Argument ARGUMENT_GLOBAL = new Argument("-", "global");
     
     public static final String STANDARD_SETTINGS_PATH = "settings.txt";
     public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_SETTINGS_PATH);
