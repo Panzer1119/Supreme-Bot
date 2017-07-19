@@ -24,15 +24,16 @@ import org.apache.commons.io.FileUtils;
 public class Standard {
 
     public static final String VERSION = "0.1";
-    private static byte[] TOKEN = null;
-    private static String STANDARD_COMMAND_PREFIX = "!";
-    private static final HashMap<String, String> COMMAND_PREFIXES = new HashMap<>();
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String COMMAND_ESCAPE_SPACE_STRING = "\"";
     public static final String COMMAND_DELIMITER_STRING = " ";
     public static final int STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED = 10;
     public static final int PLAYLIST_LIMIT = 1000;
+    private static final HashMap<String, String> COMMAND_PREFIXES = new HashMap<>();
+    private static byte[] TOKEN = null;
+    private static String STANDARD_COMMAND_PREFIX = "!";
     private static long AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = -1;
+    private static boolean AUTO_DELETE_COMMAND = false;
 
     public static final String STANDARD_SETTINGS_FILE_PATH = "settings.txt";
     public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_SETTINGS_FILE_PATH);
@@ -57,6 +58,10 @@ public class Standard {
                 STANDARD_SETTINGS.setProperty("autoDeleteCommandNotFoundMessageDelay", "-1");
             }
             AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = Long.parseLong(STANDARD_SETTINGS.getProperty("autoDeleteCommandNotFoundMessageDelay", "-1")); //FIXME Bei den Settings was einbauen wie getPropertyAsBoolean(String key, Boolean defaultValue) {} und so
+            if (STANDARD_SETTINGS.getProperty("autoDeletingCommand") == null) {
+                STANDARD_SETTINGS.setProperty("autoDeletingCommand", "false");
+            }
+            AUTO_DELETE_COMMAND = Boolean.parseBoolean(STANDARD_SETTINGS.getProperty("autoDeletingCommand", "false"));
             loadCommandPrefixesForGuilds();
             System.out.println("Reloaded Settings!");
             return true;
@@ -91,6 +96,16 @@ public class Standard {
         }
     }
 
+    public static final boolean isAutoDeletingCommand() {
+        return AUTO_DELETE_COMMAND;
+    }
+    
+    public static final boolean setAutoDeletingCommand(boolean autoDeletingCommand) {
+        Standard.AUTO_DELETE_COMMAND = autoDeletingCommand;
+        STANDARD_SETTINGS.setProperty("autoDeletingCommand", "" + autoDeletingCommand);
+        return true;
+    }
+    
     public static final long getAutoDeleteCommandNotFoundMessageDelay() {
         return AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY;
     }
