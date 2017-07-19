@@ -135,6 +135,7 @@ public class SupremeBot {
                 jda.shutdown();
             }
             running = false;
+            Standard.init();
             return true;
         } catch (Exception ex) {
             System.err.println(ex);
@@ -147,7 +148,6 @@ public class SupremeBot {
     
     public static final boolean restartJDA(boolean now) {
         stopJDA(now);
-        Standard.init();
         return startJDA();
     }
     
