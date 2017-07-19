@@ -1,6 +1,7 @@
 package de.panzercraft.bot.supreme.core;
 
 import de.panzercraft.bot.supreme.commands.CommandHandler;
+import de.panzercraft.bot.supreme.commands.impl.HelpCommand;
 import de.panzercraft.bot.supreme.commands.impl.ManagingCommands;
 import de.panzercraft.bot.supreme.commands.impl.MusicCommand;
 import de.panzercraft.bot.supreme.commands.impl.PingCommand;
@@ -71,8 +72,9 @@ public class SupremeBot {
         CommandHandler.registerCommand(new ManagingCommands.GetFileCommand());
         CommandHandler.registerCommand(new ManagingCommands.SayCommand());
         CommandHandler.registerCommand(new ManagingCommands.ClearCommand());
-        CommandHandler.registerCommand(new MusicCommand());
         CommandHandler.registerCommand(new ManagingCommands.ReloadCommand());
+        CommandHandler.registerCommand(new MusicCommand());
+        CommandHandler.registerCommand(new HelpCommand());
         return true;
     }
     
