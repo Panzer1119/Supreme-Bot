@@ -141,10 +141,10 @@ public class ManagingCommands {
             final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
             final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
             return (role, member) -> {
-                if (!Standard.isSuperOwner(member)) {
-                    return false;
+                if (role.isThisHigherOrEqual(owner) || role.isThisEqual(bot_commander)) {
+                    return true;
                 }
-                return role.isThisHigherOrEqual(owner) || role.isThisEqual(bot_commander);
+                return Standard.isSuperOwner(member);
             };
         }
         
