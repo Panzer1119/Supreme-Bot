@@ -6,6 +6,7 @@ import de.panzercraft.bot.supreme.util.Util;
 import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
  * CommandHandler
@@ -33,7 +34,7 @@ public class CommandHandler {
                 if (safe) {
                     command.action(commandContainer.invoke, commandContainer.arguments, commandContainer.event);
                 } else {
-                    commandContainer.event.getTextChannel().sendMessage(command.getHelp(new EmbedBuilder().setDescription(commandContainer.event.getAuthor().getAsMention() + " usage: ")).build()).queue();
+                    sendHelpMessage(commandContainer.event, command);
                 }
                 command.executed(safe, commandContainer.event);
                 return safe;
@@ -72,7 +73,7 @@ public class CommandHandler {
         }
         for (Command command : commands) {
             for (String temp : command.getInvokes()) {
-                if ((temp != null) && temp.equals(invoke)) {
+                if ((temp != null) && (temp.equals(invoke) || temp.equalsIgnoreCase(invoke))) {
                     return command;
                 }
             }
@@ -108,6 +109,11 @@ public class CommandHandler {
         } else {
             return false;
         }
+    }
+    
+    public static final boolean sendHelpMessage(MessageReceivedEvent event, Command command) {
+        event.getTextChannel().sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+        return true;
     }
 
 }

@@ -117,24 +117,12 @@ public class ArgumentList {
             return false;
         }
         boolean take = false;
-        if (type.isIgnoreCase()) {
-            take = argument_raw.equalsIgnoreCase(argument.getArgument());
-            if (!take && argument.hasPrefixes()) {
-                for (int i = 0; i < argument.getPrefixesLength(); i++) {
-                    if (argument_raw.equalsIgnoreCase(argument.getCompleteArgument(i))) {
-                        take = true;
-                        break;
-                    }
-                }
-            }
-        } else {
-            take = argument_raw.equals(argument.getArgument());
-            if (!take && argument.hasPrefixes()) {
-                for (int i = 0; i < argument.getPrefixesLength(); i++) {
-                    if (argument_raw.equals(argument.getCompleteArgument(i))) {
-                        take = true;
-                        break;
-                    }
+        take = argument_raw.equalsIgnoreCase(argument.getArgument());
+        if (!take && argument.hasPrefixes()) {
+            for (int i = 0; i < argument.getPrefixesLength(); i++) {
+                if ((type.isIgnoreCase() && argument_raw.equalsIgnoreCase(argument.getCompleteArgument(i))) || argument_raw.equals(argument.getCompleteArgument(i))) {
+                    take = true;
+                    break;
                 }
             }
         }
@@ -165,24 +153,12 @@ public class ArgumentList {
                 continue;
             }
             boolean take = false;
-            if (type.isIgnoreCase()) {
-                take = argument_raw.equalsIgnoreCase(argument.getArgument());
-                if (!take && argument.hasPrefixes()) {
-                    for (int i = 0; i < argument.getPrefixesLength(); i++) {
-                        if (argument_raw.equalsIgnoreCase(argument.getCompleteArgument(i))) {
-                            take = true;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                take = argument_raw.equals(argument.getArgument());
-                if (!take && argument.hasPrefixes()) {
-                    for (int i = 0; i < argument.getPrefixesLength(); i++) {
-                        if (argument_raw.equals(argument.getCompleteArgument(i))) {
-                            take = true;
-                            break;
-                        }
+            take = argument_raw.equalsIgnoreCase(argument.getArgument());
+            if (!take && argument.hasPrefixes()) {
+                for (int i = 0; i < argument.getPrefixesLength(); i++) {
+                    if ((type.isIgnoreCase() && argument_raw.equalsIgnoreCase(argument.getCompleteArgument(i))) || argument_raw.equals(argument.getCompleteArgument(i))) {
+                        take = true;
+                        break;
                     }
                 }
             }
