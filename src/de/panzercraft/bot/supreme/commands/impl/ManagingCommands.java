@@ -34,18 +34,28 @@ public class ManagingCommands {
 
         @Override
         public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+            final boolean global = (arguments == null ? false : arguments.isConsumed(Standard.ARGUMENT_GLOBAL, ArgumentConsumeType.ALL_IGNORE_CASE));
             switch (invoke) {
                 case "changeCommandPrefix":
-                    return arguments != null && arguments.isSize(1, 2);
+                    if (arguments == null) {
+                        return false;
+                    }
+                    return (global && (arguments.isSize(2))) || (!global && (arguments.isSize(1)));
                 case "getCommandPrefix":
-                    return true;
+                    if (arguments == null) {
+                        return true;
+                    }
+                    return (global && (arguments.isSize(1))) || (!global && (arguments.isSize(0)));
             }
             return false;
         }
 
         @Override
         public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
-            boolean global = arguments.isConsumed(Standard.ARGUMENT_GLOBAL, ArgumentConsumeType.ALL_IGNORE_CASE);
+            final boolean global = arguments.isConsumed(Standard.ARGUMENT_GLOBAL, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+            if (!global && arguments.isSize(2, -1)) {
+                return;
+            }
             switch (invoke) {
                 case "changeCommandPrefix":
                     final String commandPrefix = arguments.consumeFirst();

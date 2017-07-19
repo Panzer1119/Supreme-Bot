@@ -91,25 +91,9 @@ public class ArgumentList {
         arguments_raw.remove(index);
         return temp;
     }
-
-    public final boolean isConsumedAll(Argument argument) {
-        return isConsumed(argument, ArgumentConsumeType.ALL_IGNORE_CASE);
-    }
-
-    public final boolean isConsumed(Argument argument) {
-        return isConsumed(argument, ArgumentConsumeType.FIRST_IGNORE_CASE);
-    }
     
     public final boolean isConsumed(Argument argument, ArgumentConsumeType type) {
         return consume(argument, type) > 0;
-    }
-
-    public final int consumeAll(Argument argument) {
-        return consume(argument, ArgumentConsumeType.ALL_IGNORE_CASE);
-    }
-
-    public final int consume(Argument argument) {
-        return consume(argument, ArgumentConsumeType.FIRST_IGNORE_CASE);
     }
 
     public final int consume(Argument argument, ArgumentConsumeType type) {
@@ -123,10 +107,12 @@ public class ArgumentList {
             if (argument_raw == null) {
                 continue;
             }
-            if ((type.isIgnoringCase() && (argument_raw.equalsIgnoreCase(argument.getArgument()) || argument_raw.equalsIgnoreCase(argument.getCompleteArgument()))) || (!type.isIgnoringCase() && (argument_raw.equals(argument.getArgument()) || argument_raw.equals(argument.getCompleteArgument())))) {
+            if ((type.isIgnoreCase()&& (argument_raw.equalsIgnoreCase(argument.getArgument()) || argument_raw.equalsIgnoreCase(argument.getCompleteArgument()))) || (!type.isIgnoreCase()&& (argument_raw.equals(argument.getArgument()) || argument_raw.equals(argument.getCompleteArgument())))) {
                 times_found++;
-                arguments_raw_iterator.remove();
-                if (!type.isConsumingAll()) {
+                if (type.isConsume()) {
+                    arguments_raw_iterator.remove();
+                }
+                if (!type.isAll()) {
                     return times_found;
                 }
             }
