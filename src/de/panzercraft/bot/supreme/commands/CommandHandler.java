@@ -1,7 +1,10 @@
 package de.panzercraft.bot.supreme.commands;
 
 import de.panzercraft.bot.supreme.permission.PermissionHandler;
+import de.panzercraft.bot.supreme.util.Standard;
+import de.panzercraft.bot.supreme.util.Util;
 import java.util.ArrayList;
+import net.dv8tion.jda.core.entities.Message;
 
 /**
  * CommandHandler
@@ -11,7 +14,7 @@ import java.util.ArrayList;
 public class CommandHandler {
 
     public static final ArrayList<Command> commands = new ArrayList<>();
-    
+
     public static final boolean handleCommand(CommandContainer commandContainer) {
         try {
             if (commandContainer == null) {
@@ -31,7 +34,11 @@ public class CommandHandler {
                 command.executed(safe, commandContainer.event);
                 return safe;
             } else {
-                commandContainer.event.getTextChannel().sendMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", commandContainer.event.getAuthor().getAsMention(), commandContainer.invoke).queue();
+                final Message message = commandContainer.event.getTextChannel().sendMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", commandContainer.event.getAuthor().getAsMention(), commandContainer.invoke).complete();
+                final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelay();
+                if (delay != -1) {
+                    Util.deleteMessage(message, delay);
+                }
                 return false;
             }
         } catch (Exception ex) {
@@ -40,11 +47,11 @@ public class CommandHandler {
             return false;
         }
     }
-    
+
     public static final boolean existsCommand(String... invokes) {
         return getCommandByInvokes(invokes) != null;
     }
-    
+
     public static final Command getCommandByInvokes(String... invokes) {
         for (String invoke : invokes) {
             final Command command = getCommandByInvoke(invoke);
@@ -54,7 +61,7 @@ public class CommandHandler {
         }
         return null;
     }
-    
+
     public static final Command getCommandByInvoke(String invoke) {
         if (invoke == null) {
             return null;
@@ -68,7 +75,7 @@ public class CommandHandler {
         }
         return null;
     }
-    
+
     public static final boolean registerCommand(Command command) {
         String[] invokes = null;
         if (command == null || (invokes = command.getInvokes()) == null || invokes.length == 0) {
@@ -81,11 +88,11 @@ public class CommandHandler {
             return false;
         }
     }
-    
+
     public static final boolean unregisterCommand(String... invokes) {
         return unregisterCommand(getCommandByInvokes(invokes));
     }
-    
+
     public static final boolean unregisterCommand(Command command) {
         String[] invokes = null;
         if (command == null || (invokes = command.getInvokes()) == null || invokes.length == 0) {

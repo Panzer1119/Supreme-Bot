@@ -1,12 +1,16 @@
 package de.panzercraft.bot.supreme.util;
 
+import java.util.Timer;
+import java.util.TimerTask;
+import net.dv8tion.jda.core.entities.Message;
+
 /**
  * Util
  *
  * @author Panzer1119
  */
 public class Util {
-    
+
     public static <T> int indexOf(T[] array, T toTest) {
         if (array == null || array.length == 0 || toTest == null) {
             return -1;
@@ -22,7 +26,7 @@ public class Util {
         }
         return -1;
     }
-    
+
     public static <T> int indexOf(T[] array, FilterSimplex<T> filter) {
         if (array == null || array.length == 0 || filter == null) {
             return -1;
@@ -115,11 +119,27 @@ public class Util {
         }
 
     }
-    
-    public interface FilterSimplex<T> {
-        
+
+    public static interface FilterSimplex<T> {
+
         public boolean filter(T entry);
-        
+
+    }
+
+    public static final boolean deleteMessage(Message message, long delayInMillis) {
+        if (delayInMillis < 0) {
+            return false;
+        } else if (delayInMillis == 0) {
+            message.delete().queue();
+            return true;
+        }
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                message.delete().queue();
+            }
+        }, delayInMillis);
+        return true;
     }
 
 }

@@ -31,29 +31,44 @@ public class Standard {
     public static final int STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED = 10;
     public static final int PLAYLIST_LIMIT = 1000;
     public static final Argument ARGUMENT_GLOBAL = new Argument("-", "global");
+    public static final Argument ARGUMENT_DIRECT = new Argument("-", "direct");
+    public static final Argument ARGUMENT_PRIVATE = new Argument("-", "private");
     
     public static final String STANDARD_SETTINGS_PATH = "settings.txt";
     public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_SETTINGS_PATH);
     public static final Settings STANDARD_SETTINGS = new Settings(STANDARD_SETTINGS_FILE);
+    private static long AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = -1;
     
     public static final boolean init() {
         try {
             if (STANDARD_SETTINGS.getProperty("standard_command_prefix") == null) {
-                setStandardCommandPrefix(STANDARD_COMMAND_PREFIX);
+                STANDARD_SETTINGS.setProperty("standard_command_prefix", "!");
             }
-            STANDARD_COMMAND_PREFIX = STANDARD_SETTINGS.getProperty("standard_command_prefix", STANDARD_COMMAND_PREFIX);
-            System.out.println(String.format("Loaded \"%s\" as Standard Command Invoker", STANDARD_COMMAND_PREFIX));
+            STANDARD_COMMAND_PREFIX = STANDARD_SETTINGS.getProperty("standard_command_prefix", "!");
             if (STANDARD_SETTINGS.getProperty("token") == null) {
                 STANDARD_SETTINGS.setProperty("token", "Put your token here!");
             }
             TOKEN = STANDARD_SETTINGS.getProperty("token").getBytes();
-            System.out.println(String.format("Loaded \"%s\" as Token", new String(TOKEN)));
+            if (STANDARD_SETTINGS.getProperty("autoDeleteCommandNotFoundMessageDelay") == null) {
+                STANDARD_SETTINGS.setProperty("autoDeleteCommandNotFoundMessageDelay", "-1");
+            }
+            AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = Long.parseLong(STANDARD_SETTINGS.getProperty("autoDeleteCommandNotFoundMessageDelay", "-1")); //FIXME Bei den Settings was einbauen wie getPropertyAsBoolean(String key, Boolean defaultValue) {} und so
             loadCommandPrefixesForGuilds();
             return true;
         } catch (Exception ex) {
             System.err.println(ex);
             return false;
         }
+    }
+
+    public static final long getAutoDeleteCommandNotFoundMessageDelay() {
+        return AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY;
+    }
+
+    public static final boolean setAutoDeleteCommandNotFoundMessageDelay(long autoDeleteCommandNotFoundMessageDelay) {
+        Standard.AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = autoDeleteCommandNotFoundMessageDelay;
+        STANDARD_SETTINGS.setProperty("autoDeleteCommandNotFoundMessageDelay", "" + autoDeleteCommandNotFoundMessageDelay);
+        return true;
     }
     
     public static final byte[] getToken() {
@@ -63,7 +78,6 @@ public class Standard {
     public static final boolean setToken(byte[] token) {
         Standard.TOKEN = token;
         STANDARD_SETTINGS.setProperty("token", new String(TOKEN));
-        System.out.println(String.format("Setted \"%s\" as Token", new String(TOKEN)));
         return true;
     }
     
@@ -77,7 +91,6 @@ public class Standard {
         }
         Standard.STANDARD_COMMAND_PREFIX = commandPrefix;
         STANDARD_SETTINGS.setProperty("command_prefix", STANDARD_COMMAND_PREFIX);
-        System.out.println(String.format("Setted \"%s\" as Standard Command Invoker", STANDARD_COMMAND_PREFIX));
         return true;
     }
     

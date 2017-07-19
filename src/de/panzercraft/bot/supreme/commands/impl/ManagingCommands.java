@@ -183,7 +183,7 @@ public class ManagingCommands {
                                 public void run() {
                                     stopCompletely(0);
                                 }
-                            }, 500);
+                            }, 1000);
                         }
                     }, (long) (delayStopInSeconds * 1000.0 + 0.5));
                     return;
