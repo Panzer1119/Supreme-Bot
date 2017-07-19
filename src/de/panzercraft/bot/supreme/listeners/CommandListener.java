@@ -16,7 +16,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 public class CommandListener extends ListenerAdapter {
     
     @Override
-    public final void onMessageReceived(MessageReceivedEvent event) {
+    public final void onMessageReceived(MessageReceivedEvent event) { //FIXME Bug mit privaten Nachrichten
         try {
             if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
                 return;

@@ -533,5 +533,7 @@ public class ManagingCommands {
         }
 
     }
+    
+    //TODO Info command hinzufuegen (der vielleicht noch je nach permission level mehr informationen anzeigt (ueber einen channel/member(/user)))
 
 }
