@@ -44,6 +44,10 @@ public class ArgumentList {
         return arguments_raw.toArray(new String[arguments_raw.size()]);
     }
     
+    public final boolean hasArguments() {
+        return size() > 0;
+    }
+    
     public final boolean isEmpty() {
         return size() == 0;
     }

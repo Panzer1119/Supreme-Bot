@@ -476,6 +476,15 @@ public class ManagingCommands {
         @Override
         public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             if (arguments != null && arguments.size() >= 1) {
+                while (arguments.hasArguments()) {
+                    if (arguments.isConsumed(Standard.ARGUMENT_ALL, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
+                        SupremeBot.reload();
+                    } else if (arguments.isConsumed(Standard.ARGUMENT_SETTINGS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
+                        SupremeBot.reloadSettings();
+                    } else if (arguments.isConsumed(Standard.ARGUMENT_PERMISSIONS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
+                        SupremeBot.reloadPermissions();
+                    }
+                }
             } else {
                 SupremeBot.reload();
             }
