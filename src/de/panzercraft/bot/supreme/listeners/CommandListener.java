@@ -23,7 +23,7 @@ public class CommandListener extends ListenerAdapter {
         } else {
             final List<Attachment> attachments = event.getMessage().getAttachments();
             if (attachments == null || attachments.isEmpty()) {
-                System.out.println(String.format("%s: %s", event.getAuthor().getName(), message));
+                System.out.println(String.format("[%s] [%s] %s: %s", event.getGuild().getName(), event.getTextChannel().getName(), event.getAuthor().getName(), message));
             } else {
                 String text = "";
                 for (Attachment attachment : attachments) {
@@ -34,7 +34,7 @@ public class CommandListener extends ListenerAdapter {
                         text += String.format("+FILE: \"%s\" (ID: %s) (URL: %s)", attachment.getFileName(), attachment.getId(), attachment.getUrl());
                     }
                 }
-                System.out.println(String.format("%s: %s%s", event.getAuthor().getName(), message, text));
+                System.out.println(String.format("[%s] [%s] %s: %s%s", event.getGuild().getName(), event.getTextChannel().getName(), event.getAuthor().getName(), message, text));
             }
         }
     }
