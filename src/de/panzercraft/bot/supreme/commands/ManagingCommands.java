@@ -23,44 +23,61 @@ public class ManagingCommands {
 
         @Override
         public final String[] getInvokes() {
-            return new String[] {"changeCommandPrefix"};
+            return new String[] {"changeCommandPrefix", "getCommandPrefix"};
         }
 
         @Override
         public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
-            return args != null && (args.length == 1 || args.length == 2);
+            switch (invoke) {
+                case "changeCommandPrefix":
+                    return args != null && (args.length == 1 || args.length == 2);
+                case "getCommandPrefix":
+                    return true;
+            }
+            return false;
         }
 
         @Override
         public final void action(String invoke, String[] args, MessageReceivedEvent event) {
             int index = Util.indexOf(args, "global");
-            String temp = args[0];
-            if (args.length == 2 && index != -1) {
-                if (index == 0) {
-                    temp = args[1];
-                }
-                if (Standard.setStandardCommandPrefix(temp)) {
-                    event.getTextChannel().sendMessageFormat("Changed Gloval Command Prefix to \"%s\"", temp).queue();
-                } else {
-                    event.getTextChannel().sendMessageFormat("Global Command Prefix wasn't changed, it's still \"%s\"", Standard.getStandardCommandPrefix()).queue();
-                }
-            } else {
-                if (Standard.setCommandPrefixForGuild(event.getGuild(), temp)) {
-                    event.getTextChannel().sendMessageFormat("Changed Command Prefix to \"%s\"", temp).queue();
-                } else {
-                    event.getTextChannel().sendMessageFormat("Command Prefix wasn't changed, it's still \"%s\"", Standard.getCommandPrefixByGuild(event.getGuild())).queue();
-                }
+            switch (invoke) {
+                case "changeCommandPrefix":
+                    String temp = args[0];
+                    if (args.length == 2 && index != -1) {
+                        if (index == 0) {
+                            temp = args[1];
+                        }
+                        if (Standard.setStandardCommandPrefix(temp)) {
+                            event.getTextChannel().sendMessageFormat("Changed Gloval Command Prefix to \"%s\"", temp).queue();
+                        } else {
+                            event.getTextChannel().sendMessageFormat("Global Command Prefix wasn't changed, it's still \"%s\"", Standard.getStandardCommandPrefix()).queue();
+                        }
+                    } else {
+                        if (Standard.setCommandPrefixForGuild(event.getGuild(), temp)) {
+                            event.getTextChannel().sendMessageFormat("Changed Command Prefix to \"%s\"", temp).queue();
+                        } else {
+                            event.getTextChannel().sendMessageFormat("Command Prefix wasn't changed, it's still \"%s\"", Standard.getCommandPrefixByGuild(event.getGuild())).queue();
+                        }
+                    }
+                    break;
+                case "getCommandPrefix":
+                    if (index != -1) {
+                        event.getTextChannel().sendMessageFormat("Global Command Prefix is \"%s\"", Standard.getStandardCommandPrefix()).queue();
+                    } else {
+                        event.getTextChannel().sendMessageFormat("Command Prefix for this Guild is \"%s\"", Standard.getCommandPrefixByGuild(event.getGuild())).queue();
+                    }
+                    break;
             }
         }
 
         @Override
         public final void executed(boolean success, MessageReceivedEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' wurde ausgeführt!");
+            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
         @Override
         public final String getHelp() {
-            return "<New Command Prefix> [global]";
+            return String.format("%n`%s <New Command Prefix> [global]`%n`%s [global]`", getInvokes()[0], getInvokes()[1]);
         }
 
         @Override
@@ -109,7 +126,7 @@ public class ManagingCommands {
 
         @Override
         public final void executed(boolean success, MessageReceivedEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' wurde ausgeführt!");
+            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
         @Override
@@ -133,7 +150,7 @@ public class ManagingCommands {
 
         @Override
         public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
-            return args != null && args.length == 1 || args.length == 2;
+            return args != null && (args.length == 1 || args.length == 2);
         }
 
         @Override
@@ -153,12 +170,12 @@ public class ManagingCommands {
 
         @Override
         public final void executed(boolean success, MessageReceivedEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' wurde ausgeführt!");
+            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
         @Override
         public final String getHelp() {
-            return "<File Path> [Visible File Name]";
+            return String.format("%n`%s <File Path> [Visible File Name]`", getInvokes()[0]);
         }
 
         @Override
@@ -187,7 +204,7 @@ public class ManagingCommands {
 
         @Override
         public final void executed(boolean success, MessageReceivedEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' wurde ausgeführt!");
+            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
         @Override
@@ -256,7 +273,7 @@ public class ManagingCommands {
 
         @Override
         public final void executed(boolean success, MessageReceivedEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' wurde ausgeführt!");
+            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
         @Override

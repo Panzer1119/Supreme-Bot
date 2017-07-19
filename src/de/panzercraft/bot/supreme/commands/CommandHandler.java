@@ -29,12 +29,12 @@ public class CommandHandler {
                 if (safe) {
                     command.action(commandContainer.invoke, commandContainer.args, commandContainer.event);
                 } else {
-                    commandContainer.event.getTextChannel().sendMessageFormat("%s, usage of %s: %s", commandContainer.event.getAuthor().getAsMention(), Arrays.toString(command.getInvokes()), command.getHelp()).queue();
+                    commandContainer.event.getTextChannel().sendMessageFormat("%s usage: %s", commandContainer.event.getAuthor().getAsMention(), command.getHelp()).queue();
                 }
                 command.executed(safe, commandContainer.event);
                 return safe;
             } else {
-                System.out.println("Command not found! \"" + commandContainer.invoke + "\"");
+                commandContainer.event.getTextChannel().sendMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", commandContainer.event.getAuthor().getAsMention(), commandContainer.invoke).queue();
                 return false;
             }
         } catch (Exception ex) {

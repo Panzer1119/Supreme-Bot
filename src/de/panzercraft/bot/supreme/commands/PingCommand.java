@@ -27,7 +27,7 @@ public class PingCommand implements Command {
 
     @Override
     public final void executed(boolean success, MessageReceivedEvent event) {
-        System.out.println("[INFO] Command '" + getInvokes()[0] + "' wurde ausgeführt!");
+        System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
     }
 
     @Override

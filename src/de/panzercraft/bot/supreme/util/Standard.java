@@ -119,7 +119,7 @@ public class Standard {
     }
 
     public static final Message getNoPermissionMessage(User user, String extra) {
-        return new MessageBuilder().append(String.format(":warning: Sorry, %s you don't have the permissions to use this %s!", user.getAsMention(), extra)).build();
+        return new MessageBuilder().append(String.format(":warning: Sorry %s, you don't have the permissions to use this %s!", user.getAsMention(), extra)).build();
     }
     
     public static final EmbedBuilder getMessageEmbed(Color color, String message) {
