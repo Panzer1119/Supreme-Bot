@@ -100,6 +100,55 @@ public class ArgumentList {
         return temp;
     }
     
+    public final boolean consumeFirst(Argument argument, ArgumentConsumeType type) {
+        return consume(argument, type, 0);
+    }
+    
+    public final boolean consumeLast(Argument argument, ArgumentConsumeType type) {
+        return consume(argument, type, arguments_raw.size() - 1);
+    }
+    
+    public final boolean consume(Argument argument, ArgumentConsumeType type, int index) {
+        if (argument == null || arguments_raw.isEmpty() || index < 0 || index >= arguments_raw.size()) {
+            return false;
+        }
+        final String argument_raw = arguments_raw.get(index);
+        if (argument_raw == null) {
+            return false;
+        }
+        boolean take = false;
+        if (type.isIgnoreCase()) {
+            take = argument_raw.equalsIgnoreCase(argument.getArgument());
+            if (!take && argument.hasPrefixes()) {
+                for (int i = 0; i < argument.getPrefixesLength(); i++) {
+                    if (argument_raw.equalsIgnoreCase(argument.getCompleteArgument(i))) {
+                        take = true;
+                        break;
+                    }
+                }
+            }
+        } else {
+            take = argument_raw.equals(argument.getArgument());
+            if (!take && argument.hasPrefixes()) {
+                for (int i = 0; i < argument.getPrefixesLength(); i++) {
+                    if (argument_raw.equals(argument.getCompleteArgument(i))) {
+                        take = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (take) {
+            if (type.isConsume()) {
+                arguments_raw.remove(index);
+            }
+            if (type.isAll()) {
+                return consume(argument, type, index);
+            }
+        }
+        return take;
+    }
+    
     public final boolean isConsumed(Argument argument, ArgumentConsumeType type) {
         return consume(argument, type) > 0;
     }

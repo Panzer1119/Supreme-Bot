@@ -198,7 +198,7 @@ public class Standard {
         return user.getId().equals(super_owner);
     }
 
-    public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/"};
+    public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/", "!"};
     public static final Argument ARGUMENT_GLOBAL = new Argument("global", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_DIRECT = new Argument("direct", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_PRIVATE = new Argument("private", STANDARD_ARGUMENT_PREFIXES);

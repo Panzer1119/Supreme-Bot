@@ -477,16 +477,20 @@ public class ManagingCommands {
         public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             if (arguments != null && arguments.size() >= 1) {
                 while (arguments.hasArguments()) {
-                    if (arguments.isConsumed(Standard.ARGUMENT_ALL, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
+                    if (arguments.consumeFirst(Standard.ARGUMENT_ALL, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
                         SupremeBot.reload();
-                    } else if (arguments.isConsumed(Standard.ARGUMENT_SETTINGS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
+                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded all!", event.getAuthor().getAsMention()).build()).queue();
+                    } else if (arguments.consumeFirst(Standard.ARGUMENT_SETTINGS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
                         SupremeBot.reloadSettings();
-                    } else if (arguments.isConsumed(Standard.ARGUMENT_PERMISSIONS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
+                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded settings!", event.getAuthor().getAsMention()).build()).queue();
+                    } else if (arguments.consumeFirst(Standard.ARGUMENT_PERMISSIONS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
                         SupremeBot.reloadPermissions();
+                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded permissions!", event.getAuthor().getAsMention()).build()).queue();
                     }
                 }
             } else {
                 SupremeBot.reload();
+                event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded all!", event.getAuthor().getAsMention()).build()).queue();
             }
         }
 

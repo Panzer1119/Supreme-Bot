@@ -200,7 +200,6 @@ public class PermissionRole {
         if (reader == null) {
             return false;
         }
-        System.out.println("Loading PermissionRoles");
         try {
             roles.clear();
             String line = null;
@@ -223,7 +222,6 @@ public class PermissionRole {
                             }
                         }
                         roles.add(role);
-                        System.out.println("Added " + role);
                     }
                 } catch (Exception ex) {
                 }

@@ -18,6 +18,12 @@ public class ReadyListener extends ListenerAdapter {
     @Override
     public final void onReady(ReadyEvent event) {
         final JDA jda = event.getJDA();
+        for (Guild guild : jda.getGuilds()) {
+            guild.getTextChannels().get(0).sendMessage("Hello!").queue();
+        }
+        if (true) {
+            return;
+        }
         String out = "\nThis Bot is running on following Servers: \n";
         for (Guild guild : jda.getGuilds()) {
             out += guild.getName() + " (" + guild.getId() + ") \n";
@@ -27,9 +33,6 @@ public class ReadyListener extends ListenerAdapter {
             out += "\n";
         }
         System.out.println(out);
-        for (Guild guild : jda.getGuilds()) {
-            guild.getTextChannels().get(0).sendMessage("Hello!").queue();
-        }
     }
 
     @Override
