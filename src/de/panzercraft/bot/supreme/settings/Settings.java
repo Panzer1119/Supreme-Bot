@@ -1,6 +1,5 @@
 package de.panzercraft.bot.supreme.settings;
 
-import de.panzercraft.bot.supreme.util.Standard;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -141,14 +140,6 @@ public class Settings {
 
     public final Properties getSettings() {
         return settings;
-    }
-    
-    public static final boolean loadStandardSettings() {
-        return Standard.STANDARD_SETTINGS.loadSettings();
-    }
-    
-    public static final boolean saveStandardSettings() {
-        return Standard.STANDARD_SETTINGS.saveSettings();
     }
     
     protected static final String generateComment() {

@@ -39,7 +39,8 @@ public class Standard {
     public static final Settings STANDARD_SETTINGS = new Settings(STANDARD_SETTINGS_FILE);
     private static long AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = -1;
     
-    public static final boolean init() {
+    public static final boolean reloadSettings() {
+        STANDARD_SETTINGS.loadSettings();
         try {
             if (STANDARD_SETTINGS.getProperty("standard_command_prefix") == null) {
                 STANDARD_SETTINGS.setProperty("standard_command_prefix", "!");

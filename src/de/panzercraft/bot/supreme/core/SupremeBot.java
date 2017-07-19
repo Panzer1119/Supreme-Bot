@@ -31,11 +31,10 @@ public class SupremeBot {
     private static boolean running = false;
     
     public static final void main(String[] args) {
-        Settings.loadStandardSettings();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            Settings.saveStandardSettings();
+            Standard.STANDARD_SETTINGS.saveSettings();
         }));
-        Standard.init();
+        Standard.reloadSettings();
         builder = new JDABuilder(AccountType.BOT);
         builder.setAutoReconnect(true);
         builder.setStatus(OnlineStatus.ONLINE);
@@ -135,7 +134,7 @@ public class SupremeBot {
                 jda.shutdown();
             }
             running = false;
-            Standard.init();
+            reloadSettings();
             return true;
         } catch (Exception ex) {
             System.err.println(ex);
@@ -149,6 +148,11 @@ public class SupremeBot {
     public static final boolean restartJDA(boolean now) {
         stopJDA(now);
         return startJDA();
+    }
+    
+    public static final boolean reloadSettings() {
+        Standard.reloadSettings();
+        return true;
     }
     
 }
