@@ -18,7 +18,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public class Standard {
 
     public static final String VERSION = "0.1";
-    public static final String TOKEN = "MzM2ODcyNjIxMzc3NDU0MDgw.DE-omw.2l2RGdhshEpuEnSN87Vlc0gTges";
+    private static byte[] TOKEN = null;
     private static String COMMAND_PREFIX = "!";
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String COMMAND_ESCAPE_SPACE_STRING = "\"";
@@ -38,11 +38,20 @@ public class Standard {
             }
             COMMAND_PREFIX = STANDARD_SETTINGS.getProperty("command_prefix", COMMAND_PREFIX);
             System.out.println(String.format("Loaded \"%s\" as Command Invoker", COMMAND_PREFIX));
+            if (STANDARD_SETTINGS.getProperty("token") == null) {
+                STANDARD_SETTINGS.setProperty("token", "Put your token here!");
+            }
+            TOKEN = STANDARD_SETTINGS.getProperty("token").getBytes();
+            System.out.println(String.format("Loaded \"%s\" as Token", new String(TOKEN)));
             return true;
         } catch (Exception ex) {
             System.err.println(ex);
             return false;
         }
+    }
+    
+    public static final byte[] getToken() {
+        return TOKEN;
     }
     
     public static final String getCommandPrefix() {

@@ -28,8 +28,13 @@ public class SupremeBot {
     public static JDA jda = null;
     
     public static final void main(String[] args) {
+        Settings.loadStandardSettings();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Settings.saveStandardSettings();
+        }));
+        Standard.init();
         builder = new JDABuilder(AccountType.BOT);
-        builder.setToken(Standard.TOKEN);
+        builder.setToken(new String(Standard.getToken()));
         builder.setAutoReconnect(true);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setGame(new Game() {
@@ -48,11 +53,6 @@ public class SupremeBot {
                 return null;
             }
         });
-        Settings.loadStandardSettings();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            Settings.saveStandardSettings();
-        }));
-        Standard.init();
         initListeners();
         initCommands();
         initPermissions();
