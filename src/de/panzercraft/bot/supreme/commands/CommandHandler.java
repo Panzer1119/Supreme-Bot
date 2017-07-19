@@ -21,6 +21,9 @@ public class CommandHandler {
                 return false;
             }
             final Command command = getCommandByInvoke(commandContainer.invoke);
+            if (Standard.isAutoDeletingCommand()) {
+                commandContainer.event.getMessage().delete().queue();
+            }
             if (command != null) {
                 if (!PermissionHandler.check(command.getPermissionRoleFilter(), commandContainer.event)) {
                     return false;
