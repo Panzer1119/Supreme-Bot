@@ -22,6 +22,19 @@ public class Util {
         }
         return -1;
     }
+    
+    public static <T> int indexOf(T[] array, FilterSimplex<T> filter) {
+        if (array == null || array.length == 0 || filter == null) {
+            return -1;
+        }
+        for (int i = 0; i < array.length; i++) {
+            final T t = array[i];
+            if (filter.filter(t)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     public static <T> boolean contains(T[] array, T toTest) {
         if (array == null || array.length == 0 || toTest == null) {
@@ -42,12 +55,12 @@ public class Util {
         return contains(array, null, toTest);
     }
 
-    public static <T> boolean contains(T[] array, Filter<T> filter, T... toTest) {
+    public static <T> boolean contains(T[] array, FilterDuplex<T> filter, T... toTest) {
         if (array == null || array.length == 0 || toTest == null) {
             return false;
         }
         if (filter == null) {
-            filter = Filter.createFilterEquals();
+            filter = FilterDuplex.createFilterEquals();
         }
         if (toTest.length == 0) {
             return true;
@@ -67,11 +80,11 @@ public class Util {
         return true;
     }
 
-    public interface Filter<T> {
+    public interface FilterDuplex<T> {
 
         public boolean filter(T arrayEntry, T toTestEntry);
 
-        public static <T> Filter<T> createFilterEquals() {
+        public static <T> FilterDuplex<T> createFilterEquals() {
             return (T arrayEntry, T toTestEntry) -> {
                 if (arrayEntry == null || toTestEntry == null) {
                     return false;
@@ -80,7 +93,7 @@ public class Util {
             };
         }
 
-        public static Filter<String> createStringFilterEqualsIgnoreCase() {
+        public static FilterDuplex<String> createStringFilterEqualsIgnoreCase() {
             return (String arrayEntry, String toTestEntry) -> {
                 if (arrayEntry == null || toTestEntry == null) {
                     return false;
@@ -89,18 +102,24 @@ public class Util {
             };
         }
 
-        public static <T> Filter<T> createFilterAlways() {
+        public static <T> FilterDuplex<T> createFilterAlways() {
             return (T arrayEntry, T toTestEntry) -> {
                 return true;
             };
         }
 
-        public static <T> Filter<T> createFilterNever() {
+        public static <T> FilterDuplex<T> createFilterNever() {
             return (T arrayEntry, T toTestEntry) -> {
                 return false;
             };
         }
 
+    }
+    
+    public interface FilterSimplex<T> {
+        
+        public boolean filter(T entry);
+        
     }
 
 }

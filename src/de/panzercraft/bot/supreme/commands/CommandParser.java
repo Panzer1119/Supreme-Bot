@@ -1,5 +1,6 @@
 package de.panzercraft.bot.supreme.commands;
 
+import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
 import de.panzercraft.bot.supreme.util.Standard;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,8 +19,9 @@ public class CommandParser {
         final String invoke = beheaded_split[0];
         final ArrayList<String> split = new ArrayList<>(Arrays.asList(beheaded_split));
         final String[] args = split.subList(1, split.size()).toArray(new String[split.size() - 1]);
+        final ArgumentList arguments = new ArgumentList(args);
         split.clear();
-        return new CommandContainer(raw, beheaded, beheaded_split, invoke, args, event);
+        return new CommandContainer(raw, beheaded, beheaded_split, invoke, arguments, event);
     }
     
     public static final String[] getArguments(String arguments) {

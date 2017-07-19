@@ -1,6 +1,7 @@
-package de.panzercraft.bot.supreme.commands;
+package de.panzercraft.bot.supreme.commands.impl;
 
-import de.panzercraft.bot.supreme.permission.PermissionRole;
+import de.panzercraft.bot.supreme.commands.Command;
+import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
 import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -17,12 +18,12 @@ public class PingCommand implements Command {
     }
 
     @Override
-    public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
+    public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
         return true;
     }
 
     @Override
-    public final void action(String invoke, String[] args, MessageReceivedEvent event) {
+    public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
         event.getTextChannel().sendMessage("Pong!").queue();
     }
 

@@ -1,9 +1,9 @@
 package de.panzercraft.bot.supreme.core;
 
 import de.panzercraft.bot.supreme.commands.CommandHandler;
-import de.panzercraft.bot.supreme.commands.ManagingCommands;
-import de.panzercraft.bot.supreme.commands.MusicCommand;
-import de.panzercraft.bot.supreme.commands.PingCommand;
+import de.panzercraft.bot.supreme.commands.impl.ManagingCommands;
+import de.panzercraft.bot.supreme.commands.impl.MusicCommand;
+import de.panzercraft.bot.supreme.commands.impl.PingCommand;
 import de.panzercraft.bot.supreme.listeners.CommandListener;
 import de.panzercraft.bot.supreme.listeners.MemberListener;
 import de.panzercraft.bot.supreme.listeners.ReadyListener;

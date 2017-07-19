@@ -1,5 +1,7 @@
-package de.panzercraft.bot.supreme.commands;
+package de.panzercraft.bot.supreme.commands.impl;
 
+import de.panzercraft.bot.supreme.commands.Command;
+import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
 import de.panzercraft.bot.supreme.core.SupremeBot;
 import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
@@ -8,7 +10,6 @@ import de.panzercraft.bot.supreme.util.Standard;
 import de.panzercraft.bot.supreme.util.Util;
 import java.awt.Color;
 import java.io.File;
-import java.time.Instant;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -32,7 +33,7 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             switch (invoke) {
                 case "changeCommandPrefix":
                     return args != null && (args.length == 1 || args.length == 2);
@@ -43,7 +44,7 @@ public class ManagingCommands {
         }
 
         @Override
-        public final void action(String invoke, String[] args, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             int index = Util.indexOf(args, "global");
             switch (invoke) {
                 case "changeCommandPrefix":
@@ -101,12 +102,12 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             return args == null || (args.length == 0 || args.length == 1);
         }
 
         @Override
-        public final void action(String invoke, String[] args, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             if (args != null && args.length >= 1) {
                 try {
                     final double delayInSeconds = Double.parseDouble(args[0]);
@@ -162,12 +163,12 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             return args == null || (args.length == 0 || args.length == 1);
         }
 
         @Override
-        public final void action(String invoke, String[] args, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             if (args != null && args.length >= 1) {
                 try {
                     final double delayInSeconds = Double.parseDouble(args[0]);
@@ -246,12 +247,12 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             return args != null && (args.length == 1 || args.length == 2);
         }
 
         @Override
-        public final void action(String invoke, String[] args, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             final File file = new File(args[0]);
             if (file.exists() && file.isFile()) {
                 final Message message = new MessageBuilder().appendFormat("%s here is your requested file:", event.getAuthor().getAsMention()).build();
@@ -291,12 +292,12 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             return true;
         }
 
         @Override
-        public final void action(String invoke, String[] args, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             event.getTextChannel().sendMessage("Say!").queue();
         }
 
@@ -325,12 +326,12 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             return args == null || (args.length == 0 || args.length == 1);
         }
 
         @Override
-        public final void action(String invoke, String[] args, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             int clearLines = -1;
             if (args != null && args.length >= 1) {
                 try {

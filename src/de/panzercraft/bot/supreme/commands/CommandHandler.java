@@ -22,9 +22,9 @@ public class CommandHandler {
                 if (!PermissionHandler.check(command.getPermissionRoleFilter(), commandContainer.event)) {
                     return false;
                 }
-                final boolean safe = command.called(commandContainer.invoke, commandContainer.args, commandContainer.event);
+                final boolean safe = command.called(commandContainer.invoke, commandContainer.arguments, commandContainer.event);
                 if (safe) {
-                    command.action(commandContainer.invoke, commandContainer.args, commandContainer.event);
+                    command.action(commandContainer.invoke, commandContainer.arguments, commandContainer.event);
                 } else {
                     commandContainer.event.getTextChannel().sendMessageFormat("%s usage: %s", commandContainer.event.getAuthor().getAsMention(), command.getHelp()).queue();
                 }

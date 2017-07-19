@@ -1,4 +1,4 @@
-package de.panzercraft.bot.supreme.commands;
+package de.panzercraft.bot.supreme.commands.impl;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -12,6 +12,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import de.panzercraft.bot.supreme.audio.core.AudioInfo;
 import de.panzercraft.bot.supreme.audio.core.PlayerSendHandler;
 import de.panzercraft.bot.supreme.audio.core.TrackManager;
+import de.panzercraft.bot.supreme.commands.Command;
+import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
 import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
 import de.panzercraft.bot.supreme.util.Standard;
@@ -137,19 +139,19 @@ public class MusicCommand implements Command {
     }
 
     @Override
-    public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
-        return args != null && args.length >= 1;
+    public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        return arguments != null && arguments.size() >= 1;
     }
 
     @Override
-    public final void action(String invoke, String[] args, MessageReceivedEvent event) {
+    public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
         TrackManager manager_;
         try {
             guild = event.getGuild();
-            switch (args[0]) {
+            switch (arguments.get(0)) {
                 case "play":
                 case "p":
-                    String input = Arrays.asList(args).stream().skip(1).map(s -> " " + s).collect(Collectors.joining()).substring(1);
+                    String input = arguments.stream().skip(1).map(s -> " " + s).collect(Collectors.joining()).substring(1);
                     if (!input.startsWith("http://") && input.startsWith("https://")) {
                         input = "ytsearch: " + input;
                     }
@@ -162,7 +164,7 @@ public class MusicCommand implements Command {
                     if (isIdle(guild)) {
                         return;
                     }
-                    for (int i = (args.length > 1 ? Integer.parseInt(args[1]) : 1); i == 1; i--) {
+                    for (int i = (arguments.size() > 1 ? Integer.parseInt(arguments.get(1)) : 1); i == 1; i--) {
                         skip(guild);
                     }
                     break;
@@ -183,8 +185,8 @@ public class MusicCommand implements Command {
                 case "loop":
                 case "l":
                     manager_ = getManager(guild);
-                    if (args.length >= 2) {
-                        manager_.setLoop(Boolean.parseBoolean(args[1]));
+                    if (arguments.size() >= 2) {
+                        manager_.setLoop(Boolean.parseBoolean(arguments.get(1)));
                     } else {
                         manager_.setLoop(!manager_.isLoop());
                     }
@@ -203,7 +205,7 @@ public class MusicCommand implements Command {
                         return;
                     }
                     manager_ = getManager(guild);
-                    final int sideNumber = args.length > 1 ? Integer.parseInt(args[1]) : 1;
+                    final int sideNumber = arguments.size() > 1 ? Integer.parseInt(arguments.get(1)) : 1;
                     final ArrayList<String> tracks = new ArrayList<>();
                     List<String> tracksSublist;
                     manager_.getQueue().forEach((audioInfo) -> {
