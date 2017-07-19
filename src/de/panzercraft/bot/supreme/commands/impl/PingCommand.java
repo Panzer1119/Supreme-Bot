@@ -3,6 +3,7 @@ package de.panzercraft.bot.supreme.commands.impl;
 import de.panzercraft.bot.supreme.commands.Command;
 import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
 import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -33,8 +34,9 @@ public class PingCommand implements Command {
     }
 
     @Override
-    public final String getHelp() {
-        return null;
+    public final EmbedBuilder getHelp(EmbedBuilder builder) {
+        builder.addField("ping", "Returns a \"Pong!\" with the ping in milliseconds.", false);
+        return builder;
     }
 
     @Override

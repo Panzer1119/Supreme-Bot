@@ -4,6 +4,7 @@ import de.panzercraft.bot.supreme.permission.PermissionHandler;
 import de.panzercraft.bot.supreme.util.Standard;
 import de.panzercraft.bot.supreme.util.Util;
 import java.util.ArrayList;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 
 /**
@@ -32,7 +33,7 @@ public class CommandHandler {
                 if (safe) {
                     command.action(commandContainer.invoke, commandContainer.arguments, commandContainer.event);
                 } else {
-                    commandContainer.event.getTextChannel().sendMessageFormat("%s usage: %s", commandContainer.event.getAuthor().getAsMention(), command.getHelp()).queue();
+                    commandContainer.event.getTextChannel().sendMessage(command.getHelp(new EmbedBuilder().setDescription(commandContainer.event.getAuthor().getAsMention() + " usage: ")).build()).queue();
                 }
                 command.executed(safe, commandContainer.event);
                 return safe;

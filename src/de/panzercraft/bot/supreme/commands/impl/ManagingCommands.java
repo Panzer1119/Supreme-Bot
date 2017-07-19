@@ -90,8 +90,10 @@ public class ManagingCommands {
         }
 
         @Override
-        public final String getHelp() {
-            return String.format("%n`%s <New Command Prefix> [global]`%n`%s [global]`", getInvokes()[0], getInvokes()[1]);
+        public final EmbedBuilder getHelp(EmbedBuilder builder) {
+            builder.addField(String.format("%s <New Command Prefix> [%s]", getInvokes()[0], Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Sets the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
+            builder.addField(String.format("%s [%s]", getInvokes()[1], Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Returns the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
+            return builder;
         }
 
         @Override
@@ -204,8 +206,11 @@ public class ManagingCommands {
         }
 
         @Override
-        public final String getHelp() {
-            return String.format("%n`%s/%s [Time in Seconds the Bot waits until its stops]`", getInvokes()[0], getInvokes()[1]);
+        public final EmbedBuilder getHelp(EmbedBuilder builder) {
+            for (String invoke : getInvokes()) {
+                builder.addField(invoke + " [Delay]", "Stops the bot immediately or after the given delay in seconds.", false);
+            }
+            return builder;
         }
 
         @Override
@@ -294,8 +299,11 @@ public class ManagingCommands {
         }
 
         @Override
-        public final String getHelp() {
-            return String.format("%n`%s/%s [Time in Seconds the Bot waits until its stops] [Time in Seconds the Bot waits until its starting again]`", getInvokes()[0], getInvokes()[1]);
+        public final EmbedBuilder getHelp(EmbedBuilder builder) {
+            for (String invoke : getInvokes()) {
+                builder.addField(invoke + " [Delay 1] [Delay 2]", "Restarts the bot immediately or after the first given delay in seconds. The second delay is the time the bot should wait before starting again.", false);
+            }
+            return builder;
         }
 
         @Override
@@ -345,8 +353,9 @@ public class ManagingCommands {
         }
 
         @Override
-        public final String getHelp() {
-            return String.format("%n`%s <File Path> [Visible File Name]`", getInvokes()[0]);
+        public final EmbedBuilder getHelp(EmbedBuilder builder) {
+            builder.addField(getInvokes()[0] + " <File Path> [Visible File Name]", "Uploads a file from the bot to the current channel with optionally custom filename.", false);
+            return builder;
         }
 
         @Override
@@ -371,7 +380,7 @@ public class ManagingCommands {
 
         @Override
         public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
-            event.getTextChannel().sendMessage("Say!").queue();
+            event.getTextChannel().sendMessage(event.getMessage().getContent()).queue();
         }
 
         @Override
@@ -380,8 +389,9 @@ public class ManagingCommands {
         }
 
         @Override
-        public final String getHelp() {
-            return null;
+        public final EmbedBuilder getHelp(EmbedBuilder builder) {
+            builder.addField(getInvokes()[0], "Currently no function.", false);
+            return builder;
         }
 
         @Override
@@ -449,8 +459,11 @@ public class ManagingCommands {
         }
 
         @Override
-        public final String getHelp() {
-            return "[Number of Lines to get cleared (-1 = Standard (" + Standard.STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED + "))]";
+        public final EmbedBuilder getHelp(EmbedBuilder builder) {
+            for (String invoke : getInvokes()) {
+                builder.addField(invoke + " [Number of Lines]", String.format("Clears the last %d lines, or the last 1 to 100 lines, in the current channel.", Standard.STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED), false);
+            }
+            return builder;
         }
 
         @Override
@@ -500,8 +513,11 @@ public class ManagingCommands {
         }
 
         @Override
-        public final String getHelp() {
-            return String.format("%n`%s [Tag 1 to reload] [Tag 2 to reload]...`", getInvokes()[0]);
+        public final EmbedBuilder getHelp(EmbedBuilder builder) {
+            for (String invoke : getInvokes()) {
+                builder.addField(invoke + " [Tag 1] [Tag 2] [Tag 3]...", "Reloads everything or all given tags.", false);
+            }
+            return builder;
         }
 
         @Override

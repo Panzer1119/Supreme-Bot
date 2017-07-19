@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -234,8 +235,8 @@ public class MusicCommand implements Command {
     }
 
     @Override
-    public final String getHelp() {
-        return null;
+    public final EmbedBuilder getHelp(EmbedBuilder builder) {
+        return builder;
     }
 
     @Override

@@ -2,6 +2,7 @@ package de.panzercraft.bot.supreme.commands;
 
 import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
 import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -19,7 +20,7 @@ public interface Command {
 
     public void executed(boolean success, MessageReceivedEvent event);
 
-    public String getHelp();
+    public EmbedBuilder getHelp(EmbedBuilder builder);
     
     /**
      * e.g. PermissionRole.getPermissionRoleByName("Admin");
