@@ -13,7 +13,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public class CommandParser {
 
     public static final CommandContainer parser(String raw, MessageReceivedEvent event) {
-        final String beheaded = raw.replaceFirst(Standard.getCommandPrefix(), "");
+        final String beheaded = raw.replaceFirst(Standard.getCommandPrefixByGuild(event.getGuild()), "");
         final String[] beheaded_split = getArguments(beheaded);
         final String invoke = beheaded_split[0];
         final ArrayList<String> split = new ArrayList<>(Arrays.asList(beheaded_split));

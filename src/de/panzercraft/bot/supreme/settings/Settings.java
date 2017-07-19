@@ -138,6 +138,10 @@ public class Settings {
         this.file = file;
         return this;
     }
+
+    public final Properties getSettings() {
+        return settings;
+    }
     
     public static final boolean loadStandardSettings() {
         return Standard.STANDARD_SETTINGS.loadSettings();

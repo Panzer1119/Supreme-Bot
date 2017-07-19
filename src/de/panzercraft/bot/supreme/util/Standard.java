@@ -3,10 +3,12 @@ package de.panzercraft.bot.supreme.util;
 import de.panzercraft.bot.supreme.settings.Settings;
 import java.awt.Color;
 import java.io.File;
+import java.util.Enumeration;
+import java.util.HashMap;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -19,7 +21,8 @@ public class Standard {
 
     public static final String VERSION = "0.1";
     private static byte[] TOKEN = null;
-    private static String COMMAND_PREFIX = "!";
+    private static String STANDARD_COMMAND_PREFIX = "!";
+    private static final HashMap<String, String> COMMAND_PREFIXES = new HashMap<>();
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String COMMAND_ESCAPE_SPACE_STRING = "\"";
     public static final String COMMAND_DELIMITER_STRING = " ";
@@ -33,16 +36,17 @@ public class Standard {
     
     public static final boolean init() {
         try {
-            if (STANDARD_SETTINGS.getProperty("command_prefix") == null) {
-                setCommandPrefix(COMMAND_PREFIX);
+            if (STANDARD_SETTINGS.getProperty("standard_command_prefix") == null) {
+                setStandardCommandPrefix(STANDARD_COMMAND_PREFIX);
             }
-            COMMAND_PREFIX = STANDARD_SETTINGS.getProperty("command_prefix", COMMAND_PREFIX);
-            System.out.println(String.format("Loaded \"%s\" as Command Invoker", COMMAND_PREFIX));
+            STANDARD_COMMAND_PREFIX = STANDARD_SETTINGS.getProperty("standard_command_prefix", STANDARD_COMMAND_PREFIX);
+            System.out.println(String.format("Loaded \"%s\" as Standard Command Invoker", STANDARD_COMMAND_PREFIX));
             if (STANDARD_SETTINGS.getProperty("token") == null) {
                 STANDARD_SETTINGS.setProperty("token", "Put your token here!");
             }
             TOKEN = STANDARD_SETTINGS.getProperty("token").getBytes();
             System.out.println(String.format("Loaded \"%s\" as Token", new String(TOKEN)));
+            loadCommandPrefixesForGuilds();
             return true;
         } catch (Exception ex) {
             System.err.println(ex);
@@ -54,17 +58,63 @@ public class Standard {
         return TOKEN;
     }
     
-    public static final String getCommandPrefix() {
-        return COMMAND_PREFIX;
+    public static final boolean setToken(byte[] token) {
+        Standard.TOKEN = token;
+        STANDARD_SETTINGS.setProperty("token", new String(TOKEN));
+        System.out.println(String.format("Setted \"%s\" as Token", new String(TOKEN)));
+        return true;
     }
     
-    public static final boolean setCommandPrefix(String commandPrefix) {
+    public static final String getStandardCommandPrefix() {
+        return STANDARD_COMMAND_PREFIX;
+    }
+    
+    public static final boolean setStandardCommandPrefix(String commandPrefix) {
         if (commandPrefix.contains("\\")) {
             return false;
         }
-        Standard.COMMAND_PREFIX = commandPrefix;
-        STANDARD_SETTINGS.setProperty("command_prefix", COMMAND_PREFIX);
-        System.out.println(String.format("Setted \"%s\" as Command Invoker", COMMAND_PREFIX));
+        Standard.STANDARD_COMMAND_PREFIX = commandPrefix;
+        STANDARD_SETTINGS.setProperty("command_prefix", STANDARD_COMMAND_PREFIX);
+        System.out.println(String.format("Setted \"%s\" as Standard Command Invoker", STANDARD_COMMAND_PREFIX));
+        return true;
+    }
+    
+    public static final boolean loadCommandPrefixesForGuilds() {
+        final Enumeration properties = STANDARD_SETTINGS.getSettings().propertyNames();
+        while (properties.hasMoreElements()) {
+            final String property = (String) properties.nextElement();
+            if (property != null && !property.isEmpty() && property.startsWith("guild_command_prefix_")) {
+                final String guild_id = property.replaceFirst("guild_command_prefix_", "");
+                final String commandPrefix = STANDARD_SETTINGS.getProperty(property);
+                setCommandPrefixForGuild(guild_id, commandPrefix);
+            }
+        }
+        return true;
+    }
+    
+    public static final String getCommandPrefixByGuild(Guild guild) {
+        return getCommandPrefixByGuild(guild.getId());
+    }
+    
+    public static final String getCommandPrefixByGuild(String guild_id) {
+        String commandPrefix = COMMAND_PREFIXES.get(guild_id);
+        if (commandPrefix == null) {
+            commandPrefix = getStandardCommandPrefix();
+            setCommandPrefixForGuild(guild_id, commandPrefix);
+        }
+        return commandPrefix;
+    }
+    
+    public static final boolean setCommandPrefixForGuild(Guild guild, String commandPrefix) {
+        return setCommandPrefixForGuild(guild.getId(), commandPrefix);
+    }
+    
+    public static final boolean setCommandPrefixForGuild(String guild_id, String commandPrefix) {
+        if (commandPrefix.contains("\\")) {
+            return false;
+        }
+        COMMAND_PREFIXES.put(guild_id, commandPrefix);
+        STANDARD_SETTINGS.setProperty("guild_command_prefix_" + guild_id, commandPrefix);
         return true;
     }
 

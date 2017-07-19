@@ -2,6 +2,7 @@ package de.panzercraft.bot.supreme.commands;
 
 import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.util.Standard;
+import de.panzercraft.bot.supreme.util.Util;
 import java.awt.Color;
 import java.io.File;
 import java.util.List;
@@ -27,15 +28,28 @@ public class ManagingCommands {
 
         @Override
         public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
-            return args != null && args.length == 1;
+            return args != null && (args.length == 1 || args.length == 2);
         }
 
         @Override
         public final void action(String invoke, String[] args, MessageReceivedEvent event) {
-            if (Standard.setCommandPrefix(args[0])) {
-                event.getTextChannel().sendMessageFormat("Changed Command Prefix to \"%s\"", args[0]).queue();
+            int index = Util.indexOf(args, "global");
+            String temp = args[0];
+            if (args.length == 2 && index != -1) {
+                if (index == 0) {
+                    temp = args[1];
+                }
+                if (Standard.setStandardCommandPrefix(temp)) {
+                    event.getTextChannel().sendMessageFormat("Changed Gloval Command Prefix to \"%s\"", temp).queue();
+                } else {
+                    event.getTextChannel().sendMessageFormat("Global Command Prefix wasn't changed, it's still \"%s\"", Standard.getStandardCommandPrefix()).queue();
+                }
             } else {
-                event.getTextChannel().sendMessageFormat("Command Prefix wasn't changed, it's still \"%s\"", Standard.getCommandPrefix()).queue();
+                if (Standard.setCommandPrefixForGuild(event.getGuild(), temp)) {
+                    event.getTextChannel().sendMessageFormat("Changed Command Prefix to \"%s\"", temp).queue();
+                } else {
+                    event.getTextChannel().sendMessageFormat("Command Prefix wasn't changed, it's still \"%s\"", Standard.getCommandPrefixByGuild(event.getGuild())).queue();
+                }
             }
         }
 
@@ -46,7 +60,7 @@ public class ManagingCommands {
 
         @Override
         public final String getHelp() {
-            return null;
+            return "<New Command Prefix> [global]";
         }
 
         @Override

@@ -25,7 +25,7 @@ public class CommandListener extends ListenerAdapter {
         if (event.getMessage().getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
             return false;
         }
-        return message.startsWith(Standard.getCommandPrefix());
+        return message.startsWith(Standard.getCommandPrefixByGuild(event.getGuild()));
     }
     
 }
