@@ -177,7 +177,7 @@ public class ManagingCommands {
                         public void run() {
                             timer.purge();
                             timerTask.cancel();
-                            message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build()).queue();
+                            message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build()).queue(); //FIXME Das funzt immer noch nicht
                             new Timer().schedule(new TimerTask() {
                                 @Override
                                 public void run() {
