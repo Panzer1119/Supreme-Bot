@@ -82,6 +82,7 @@ public class Settings {
         try {
             settings.clear();
             settings.load(inputStream);
+            inputStream.close();
             return true;
         } catch (Exception ex) {
             System.err.println(ex);
@@ -121,6 +122,7 @@ public class Settings {
         }
         try {
             settings.store(outputStream, generateComment());
+            outputStream.close();
             return true;
         } catch (Exception ex) {
             System.err.println(ex);

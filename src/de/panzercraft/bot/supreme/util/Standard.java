@@ -1,6 +1,7 @@
 package de.panzercraft.bot.supreme.util;
 
 import de.panzercraft.bot.supreme.commands.arguments.Argument;
+import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.settings.Settings;
 import java.awt.Color;
 import java.io.File;
@@ -13,6 +14,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Standard
@@ -30,11 +32,15 @@ public class Standard {
     public static final String COMMAND_DELIMITER_STRING = " ";
     public static final int STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED = 10;
     public static final int PLAYLIST_LIMIT = 1000;
-
-    public static final String STANDARD_SETTINGS_PATH = "settings.txt";
-    public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_SETTINGS_PATH);
-    public static final Settings STANDARD_SETTINGS = new Settings(STANDARD_SETTINGS_FILE);
     private static long AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = -1;
+
+    public static final String STANDARD_SETTINGS_FILE_PATH = "settings.txt";
+    public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_SETTINGS_FILE_PATH);
+    public static final Settings STANDARD_SETTINGS = new Settings(STANDARD_SETTINGS_FILE);
+    
+    public static final String STANDARD_PERMISSIONS_FILE_PATH = "permissions.txt";
+    public static final File STANDARD_PERMISSIONS_FILE = new File(STANDARD_PERMISSIONS_FILE_PATH);
+    public static final String STANDARD_PERMISSIONS_PATH = "/de/panzercraft/bot/supreme/permission/permissions.txt";
 
     public static final boolean reloadSettings() {
         STANDARD_SETTINGS.loadSettings();
@@ -52,9 +58,35 @@ public class Standard {
             }
             AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = Long.parseLong(STANDARD_SETTINGS.getProperty("autoDeleteCommandNotFoundMessageDelay", "-1")); //FIXME Bei den Settings was einbauen wie getPropertyAsBoolean(String key, Boolean defaultValue) {} und so
             loadCommandPrefixesForGuilds();
+            System.out.println("Reloaded Settings!");
             return true;
         } catch (Exception ex) {
-            System.err.println(ex);
+            System.err.println("Not Reloaded Settings: " + ex);
+            return false;
+        }
+    }
+    
+    public static final boolean reloadPermissions() {
+        try {
+            if (STANDARD_PERMISSIONS_FILE.exists() && STANDARD_PERMISSIONS_FILE.isFile()) {
+                PermissionRole.loadPermissionRoles(STANDARD_PERMISSIONS_FILE);
+            } else if (!STANDARD_PERMISSIONS_FILE.exists()) {
+                try {
+                    FileUtils.copyInputStreamToFile(Standard.class.getResourceAsStream(STANDARD_PERMISSIONS_PATH), STANDARD_PERMISSIONS_FILE);
+                    PermissionRole.loadPermissionRoles(STANDARD_PERMISSIONS_FILE);
+                } catch (Exception ex) {
+                    System.err.println(ex);
+                    PermissionRole.loadPermissionRoles(STANDARD_PERMISSIONS_PATH);
+                }
+            } else if(!STANDARD_PERMISSIONS_FILE.isFile()) {
+                PermissionRole.loadPermissionRoles(STANDARD_PERMISSIONS_PATH);
+            } else {
+                return false;
+            }
+            System.out.println("Reloaded Permissions!");
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Not Reloaded Permissions: " + ex);
             return false;
         }
     }

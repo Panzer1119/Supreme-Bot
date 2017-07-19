@@ -461,4 +461,48 @@ public class ManagingCommands {
 
     }
 
+    public static class ReloadCommand implements Command {
+
+        @Override
+        public final String[] getInvokes() {
+            return new String[]{"reload"};
+        }
+
+        @Override
+        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+            return true;
+        }
+
+        @Override
+        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+            if (arguments != null && arguments.size() >= 1) {
+            } else {
+                SupremeBot.reload();
+            }
+        }
+
+        @Override
+        public final void executed(boolean success, MessageReceivedEvent event) {
+            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+        }
+
+        @Override
+        public final String getHelp() {
+            return String.format("%n`%s [Tag 1 to reload] [Tag 2 to reload]...`", getInvokes()[0]);
+        }
+
+        @Override
+        public final PermissionRoleFilter getPermissionRoleFilter() {
+            final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
+            final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
+            return (role, member) -> {
+                if (role.isThisHigherOrEqual(owner) || role.isThisEqual(bot_commander)) {
+                    return true;
+                }
+                return Standard.isSuperOwner(member);
+            };
+        }
+
+    }
+
 }

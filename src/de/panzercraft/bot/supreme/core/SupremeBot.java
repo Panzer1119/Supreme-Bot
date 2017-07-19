@@ -8,16 +8,12 @@ import de.panzercraft.bot.supreme.listeners.CommandListener;
 import de.panzercraft.bot.supreme.listeners.MemberListener;
 import de.panzercraft.bot.supreme.listeners.ReadyListener;
 import de.panzercraft.bot.supreme.listeners.VoiceListener;
-import de.panzercraft.bot.supreme.permission.PermissionRole;
-import de.panzercraft.bot.supreme.settings.Settings;
 import de.panzercraft.bot.supreme.util.Standard;
-import java.io.File;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
-import org.apache.commons.io.FileUtils;
 
 /**
  * Supreme-Bot
@@ -34,7 +30,7 @@ public class SupremeBot {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Standard.STANDARD_SETTINGS.saveSettings();
         }));
-        Standard.reloadSettings();
+        reload();
         builder = new JDABuilder(AccountType.BOT);
         builder.setAutoReconnect(true);
         builder.setStatus(OnlineStatus.ONLINE);
@@ -56,7 +52,6 @@ public class SupremeBot {
         });
         initListeners();
         initCommands();
-        initPermissions();
         startJDA();
     }
     
@@ -77,27 +72,7 @@ public class SupremeBot {
         CommandHandler.registerCommand(new ManagingCommands.SayCommand());
         CommandHandler.registerCommand(new ManagingCommands.ClearCommand());
         CommandHandler.registerCommand(new MusicCommand());
-        return true;
-    }
-    
-    private static final boolean initPermissions() {
-        final File file = new File("permissions.txt");
-        final String jar_path = "/de/panzercraft/bot/supreme/permission/permissions.txt";
-        if (file.exists() && file.isFile()) {
-            PermissionRole.loadPermissionRoles(file);
-        } else if (!file.exists()) {
-            try {
-                FileUtils.copyInputStreamToFile(SupremeBot.class.getResourceAsStream(jar_path), file);
-                PermissionRole.loadPermissionRoles(file);
-            } catch (Exception ex) {
-                System.err.println(ex);
-                PermissionRole.loadPermissionRoles(jar_path);
-            }
-        } else if(!file.isFile()) {
-            PermissionRole.loadPermissionRoles(jar_path);
-        } else {
-            return false;
-        }
+        CommandHandler.registerCommand(new ManagingCommands.ReloadCommand());
         return true;
     }
     
@@ -134,7 +109,7 @@ public class SupremeBot {
                 jda.shutdown();
             }
             running = false;
-            reloadSettings();
+            reload();
             return true;
         } catch (Exception ex) {
             System.err.println(ex);
@@ -150,9 +125,32 @@ public class SupremeBot {
         return startJDA();
     }
     
+    public static final boolean reload() {
+        try {
+            reloadSettings();
+            reloadPermissions();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
     public static final boolean reloadSettings() {
-        Standard.reloadSettings();
-        return true;
+        try {
+            Standard.reloadSettings();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    public static final boolean reloadPermissions() {
+        try {
+            Standard.reloadPermissions();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
     }
     
 }
