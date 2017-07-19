@@ -101,8 +101,47 @@ public class ManagingCommands {
         }
 
     }
+    
+    private static class AdministrativeCommands {
+        
+        protected final boolean restart() {
+            boolean good = false;
+            if (stop()) {
+                good = true;
+            }
+            if (!start()) {
+                good = false;
+            }
+            return good;
+        }
 
-    public static class StopCommand implements Command {
+        protected final boolean stop() {
+            return SupremeBot.stopJDA(false);
+        }
+        
+        protected final boolean start() {
+            return SupremeBot.startJDA();
+        }
+        
+        protected final boolean stopCompletely(int status) {
+            stop();
+            System.exit(status);
+            return true;
+        }
+
+        protected final EmbedBuilder getRestartingMessage(MessageReceivedEvent event, double delayInSeconds, int value) {
+            long rest = ((long) (delayInSeconds + 0.5)) - value;
+            return Standard.getMessageEmbed(Color.YELLOW, "%s is restarting me in %d second%s!", event.getAuthor().getAsMention(), rest, (rest == 1 ? "" : "s"));
+        }
+        
+        protected final EmbedBuilder getStoppingMessage(MessageReceivedEvent event, double delayInSeconds, int value) {
+            long rest = ((long) (delayInSeconds + 0.5)) - value;
+            return Standard.getMessageEmbed(Color.YELLOW, "%s is stopping me in %d second%s!", event.getAuthor().getAsMention(), rest, (rest == 1 ? "" : "s"));
+        }
+        
+    }
+
+    public static class StopCommand extends AdministrativeCommands implements Command {
 
         @Override
         public final String[] getInvokes() {
@@ -118,24 +157,44 @@ public class ManagingCommands {
         public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             if (arguments != null && arguments.size() >= 1) {
                 try {
-                    final double delayInSeconds = Double.parseDouble(arguments.get(0));
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s is stopping me in %d seconds!", event.getAuthor().getAsMention(), ((long) (delayInSeconds + 0.5))).build()).queue();
+                    final double delayStopInSeconds = Double.parseDouble(arguments.consumeFirst());
+                    final Message message = event.getTextChannel().sendMessage(getRestartingMessage(event, delayStopInSeconds, 0).build()).complete();
+                    final Timer timer = new Timer();
+                    final IntegerHolder i = new IntegerHolder();
+                    final TimerTask timerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            message.editMessage(getStoppingMessage(event, delayStopInSeconds, i.value).build()).queue();
+                            i.value++;
+                            if (i.value >= delayStopInSeconds) {
+                                timer.purge();
+                            }
+                        }
+                    };
+                    timer.scheduleAtFixedRate(timerTask, 0, 1000);
                     new Timer().schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build()).queue();
-                            System.exit(0);
+                            timer.purge();
+                            timerTask.cancel();
+                            message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build()).queue();
+                            new Timer().schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    stopCompletely(0);
+                                }
+                            }, 500);
                         }
-                    }, (long) (delayInSeconds * 1000.0 + 0.5));
+                    }, (long) (delayStopInSeconds * 1000.0 + 0.5));
                     return;
                 } catch (Exception ex) {
                 }
             }
             try {
                 event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build()).queue();
-                System.exit(0);
+                stopCompletely(0);
             } catch (Exception ex) {
-                System.exit(-1);
+                stopCompletely(-1);
             }
         }
 
@@ -146,7 +205,7 @@ public class ManagingCommands {
 
         @Override
         public final String getHelp() {
-            return String.format("%n`%s/%s [Delay Time in Seconds]`", getInvokes()[0], getInvokes()[1]);
+            return String.format("%n`%s/%s [Time in Seconds the Bot waits until its stops]`", getInvokes()[0], getInvokes()[1]);
         }
 
         @Override
@@ -163,7 +222,7 @@ public class ManagingCommands {
 
     }
 
-    public static class RestartCommand implements Command {
+    public static class RestartCommand extends AdministrativeCommands implements Command {
 
         @Override
         public final String[] getInvokes() {
@@ -172,23 +231,28 @@ public class ManagingCommands {
 
         @Override
         public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
-            return arguments == null || arguments.isSize(0, 1);
+            return arguments == null || arguments.isSize(0, 2);
         }
 
         @Override
         public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             if (arguments != null && arguments.size() >= 1) {
                 try {
-                    final double delayInSeconds = Double.parseDouble(arguments.get(0));
-                    final Message message = event.getTextChannel().sendMessage(getRestartingMessage(event, delayInSeconds, 0).build()).complete();
+                    final double delayStopInSeconds = Double.parseDouble(arguments.consumeFirst());
+                    double delayStartInSeconds_temp = -1;
+                    if (!arguments.isEmpty()) {
+                        delayStartInSeconds_temp = Double.parseDouble(arguments.consumeFirst());
+                    }
+                    final double delayStartInSeconds = delayStartInSeconds_temp;
+                    final Message message = event.getTextChannel().sendMessage(getRestartingMessage(event, delayStopInSeconds, 0).build()).complete();
                     final Timer timer = new Timer();
                     final IntegerHolder i = new IntegerHolder();
                     final TimerTask timerTask = new TimerTask() {
                         @Override
                         public void run() {
-                            message.editMessage(getRestartingMessage(event, delayInSeconds, i.value).build()).queue();
+                            message.editMessage(getRestartingMessage(event, delayStopInSeconds, i.value).build()).queue();
                             i.value++;
-                            if (i.value >= delayInSeconds) {
+                            if (i.value >= delayStopInSeconds) {
                                 timer.purge();
                             }
                         }
@@ -199,10 +263,20 @@ public class ManagingCommands {
                         public void run() {
                             timer.purge();
                             timerTask.cancel();
-                            message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s restarted me!", event.getAuthor().getAsMention()).build()).queue();
-                            restart();
+                            message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s restarting me!", event.getAuthor().getAsMention()).build()).queue();
+                            if (delayStartInSeconds == -1) {
+                                restart();
+                            } else {
+                                stop();
+                                new Timer().schedule(new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        start();
+                                    }
+                                }, (long) (delayStartInSeconds * 1000.0 + 0.5));
+                            }
                         }
-                    }, (long) (delayInSeconds * 1000.0 + 0.5));
+                    }, (long) (delayStopInSeconds * 1000.0 + 0.5));
                     return;
                 } catch (Exception ex) {
                 }
@@ -221,7 +295,7 @@ public class ManagingCommands {
 
         @Override
         public final String getHelp() {
-            return String.format("%n`%s/%s [Delay Time in Seconds]`", getInvokes()[0], getInvokes()[1]);
+            return String.format("%n`%s/%s [Time in Seconds the Bot waits until its stops] [Time in Seconds the Bot waits until its starting again]`", getInvokes()[0], getInvokes()[1]);
         }
 
         @Override
@@ -234,15 +308,6 @@ public class ManagingCommands {
                 }
                 return Standard.isSuperOwner(member);
             };
-        }
-
-        private final void restart() {
-            SupremeBot.restartJDA(false);
-        }
-
-        private final EmbedBuilder getRestartingMessage(MessageReceivedEvent event, double delayInSeconds, int value) {
-            long rest = ((long) (delayInSeconds + 0.5)) - value;
-            return Standard.getMessageEmbed(Color.YELLOW, "%s is restarting me in %d second%s!", event.getAuthor().getAsMention(), rest, (rest == 1 ? "" : "s"));
         }
 
     }
