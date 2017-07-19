@@ -72,6 +72,13 @@ public class PermissionRole {
         return level >= role.level;
     }
 
+    public final boolean isThisEqual(PermissionRole role) {
+        if (role == null) {
+            return false;
+        }
+        return level == role.level;
+    }
+
     public final boolean isThisLower(PermissionRole role) {
         if (role == null) {
             return false;

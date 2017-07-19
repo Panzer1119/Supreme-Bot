@@ -139,11 +139,12 @@ public class ManagingCommands {
         @Override
         public final PermissionRoleFilter getPermissionRoleFilter() {
             final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
+            final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
             return (role, member) -> {
                 if (!Standard.isSuperOwner(member)) {
                     return false;
                 }
-                return role.isThisHigherOrEqual(owner);
+                return role.isThisHigherOrEqual(owner) || role.isThisEqual(bot_commander);
             };
         }
         
