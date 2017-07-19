@@ -1,14 +1,18 @@
 package de.panzercraft.bot.supreme.commands;
 
+import de.panzercraft.bot.supreme.core.SupremeBot;
 import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
+import de.panzercraft.bot.supreme.util.IntegerHolder;
 import de.panzercraft.bot.supreme.util.Standard;
 import de.panzercraft.bot.supreme.util.Util;
 import java.awt.Color;
 import java.io.File;
+import java.time.Instant;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageHistory;
@@ -93,12 +97,12 @@ public class ManagingCommands {
 
         @Override
         public final String[] getInvokes() {
-            return new String[] {"stop"};
+            return new String[] {"stop", "shutdown"};
         }
 
         @Override
         public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
-            return true;
+            return args == null || (args.length == 0 || args.length == 1);
         }
 
         @Override
@@ -133,7 +137,7 @@ public class ManagingCommands {
 
         @Override
         public final String getHelp() {
-            return null;
+            return String.format("%n`%s/%s [Delay Time in Seconds]`", getInvokes()[0], getInvokes()[1]);
         }
 
         @Override
@@ -146,6 +150,90 @@ public class ManagingCommands {
                 }
                 return Standard.isSuperOwner(member);
             };
+        }
+        
+    }
+    
+    public static class RestartCommand implements Command {
+
+        @Override
+        public final String[] getInvokes() {
+            return new String[] {"restart", "reboot"};
+        }
+
+        @Override
+        public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
+            return args == null || (args.length == 0 || args.length == 1);
+        }
+
+        @Override
+        public final void action(String invoke, String[] args, MessageReceivedEvent event) {
+            if (args != null && args.length >= 1) {
+                try {
+                    final double delayInSeconds = Double.parseDouble(args[0]);
+                    final Message message = event.getTextChannel().sendMessage(getRestartingMessage(event, delayInSeconds, 0).build()).complete();
+                    final Timer timer = new Timer();
+                    final IntegerHolder i = new IntegerHolder();
+                    final TimerTask timerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            message.editMessage(getRestartingMessage(event, delayInSeconds, i.value).build()).queue();
+                            i.value++;
+                            if (i.value >= delayInSeconds) {
+                                timer.purge();
+                            }
+                        }
+                    };
+                    timer.scheduleAtFixedRate(timerTask, 0, 1000);
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            timer.purge();
+                            timerTask.cancel();
+                            message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s restarted me!", event.getAuthor().getAsMention()).build()).queue();
+                            restart();
+                        }
+                    }, (long) (delayInSeconds * 1000.0 + 0.5));
+                    return;
+                } catch (Exception ex) {
+                }
+            }
+            try {
+                event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s restarted me!", event.getAuthor().getAsMention()).build()).queue();
+                restart();
+            } catch (Exception ex) {
+            }
+        }
+
+        @Override
+        public final void executed(boolean success, MessageReceivedEvent event) {
+            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+        }
+
+        @Override
+        public final String getHelp() {
+            return String.format("%n`%s/%s [Delay Time in Seconds]`", getInvokes()[0], getInvokes()[1]);
+        }
+
+        @Override
+        public final PermissionRoleFilter getPermissionRoleFilter() {
+            final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
+            final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
+            return (role, member) -> {
+                if (role.isThisHigherOrEqual(owner) || role.isThisEqual(bot_commander)) {
+                    return true;
+                }
+                return Standard.isSuperOwner(member);
+            };
+        }
+        
+        private final void restart() {
+            SupremeBot.restartJDA(false);
+        }
+        
+        private final EmbedBuilder getRestartingMessage(MessageReceivedEvent event, double delayInSeconds, int value) {
+            long rest = ((long) (delayInSeconds + 0.5)) - value;
+            return Standard.getMessageEmbed(Color.YELLOW, "%s is restarting me in %d second%s!", event.getAuthor().getAsMention(), rest, (rest == 1 ? "" : "s"));
         }
         
     }
@@ -238,7 +326,7 @@ public class ManagingCommands {
 
         @Override
         public final boolean called(String invoke, String[] args, MessageReceivedEvent event) {
-            return args == null || args.length == 0 || args.length == 1;
+            return args == null || (args.length == 0 || args.length == 1);
         }
 
         @Override
