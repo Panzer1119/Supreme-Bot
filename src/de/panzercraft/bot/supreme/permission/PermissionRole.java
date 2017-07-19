@@ -118,14 +118,14 @@ public class PermissionRole {
         return String.format("%s%s%s%s", name, SPLITTER_1, level, roleNames.toString());
     }
 
-    public static final PermissionRole getPermissionRoleByGuildAndRoleId(Guild guild, String role_id) {
-        if (guild == null || role_id == null || role_id.isEmpty()) {
+    public static final PermissionRole getPermissionRoleByGuildIdAndRoleId(String guild_id, String role_id) {
+        if (guild_id == null || guild_id.isEmpty() || role_id == null || role_id.isEmpty()) {
             return getPermissionRoleByName("" + null);
         }
         for (PermissionRole role : roles) {
             for (String key : role.roleNames.keySet()) {
                 final String value = role.roleNames.get(key);
-                if (key != null && value != null && key.equals(guild.getId()) && value.equals(role_id)) {
+                if (key != null && value != null && key.equals(guild_id) && value.equals(role_id)) {
                     return role;
                 }
             }

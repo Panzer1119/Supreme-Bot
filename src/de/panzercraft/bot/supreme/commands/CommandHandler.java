@@ -1,11 +1,16 @@
 package de.panzercraft.bot.supreme.commands;
 
 import de.panzercraft.bot.supreme.permission.PermissionHandler;
+import de.panzercraft.bot.supreme.permission.PermissionRole;
+import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
 import de.panzercraft.bot.supreme.util.Standard;
 import de.panzercraft.bot.supreme.util.Util;
 import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.PermissionOverride;
+import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -27,14 +32,14 @@ public class CommandHandler {
                 commandContainer.event.getMessage().delete().queue();
             }
             if (command != null) {
-                if (!PermissionHandler.check(command.getPermissionRoleFilter(), commandContainer.event)) {
+                if (!PermissionHandler.check(command.getPermissionRoleFilter(), commandContainer.event, true)) {
                     return false;
                 }
                 final boolean safe = command.called(commandContainer.invoke, commandContainer.arguments, commandContainer.event);
                 if (safe) {
                     command.action(commandContainer.invoke, commandContainer.arguments, commandContainer.event);
                 } else {
-                    sendHelpMessage(commandContainer.event, command);
+                    sendHelpMessage(commandContainer.event, command, false);
                 }
                 command.executed(safe, commandContainer.event);
                 return safe;
@@ -111,8 +116,28 @@ public class CommandHandler {
         }
     }
     
-    public static final boolean sendHelpMessage(MessageReceivedEvent event, Command command) {
-        event.getTextChannel().sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+    public static final boolean sendHelpMessage(MessageReceivedEvent event, Command command, boolean sendPrivate) {
+        if (event == null || command == null) {
+            return false;
+        }
+        final PermissionRoleFilter filter = command.getPermissionRoleFilter();
+        if (filter != null && !PermissionHandler.check(filter, event, true)) {
+            return false;
+        }
+        if (sendPrivate) {
+            final PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
+            privateChannel.sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+            privateChannel.close();
+        } else {
+            final Guild guild = event.getGuild();
+            if (!PermissionHandler.check(filter, guild, event.getTextChannel())) {
+                final PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
+                privateChannel.sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+                privateChannel.close();
+                return false;
+            }
+            event.getTextChannel().sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+        }
         return true;
     }
 
