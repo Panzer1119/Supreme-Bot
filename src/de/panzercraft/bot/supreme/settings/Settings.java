@@ -168,6 +168,12 @@ public class Settings {
             return false;
         }
         try {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            if (!file.exists()) {
+                file.createNewFile();
+            }
             return loadSettings(new FileInputStream(file));
         } catch (Exception ex) {
             System.err.println(ex);
