@@ -124,7 +124,7 @@ public class CommandHandler {
         if (filter != null && !PermissionHandler.check(filter, event, true)) {
             return false;
         }
-        if (sendPrivate) {
+        if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty("send_help_always_private", false)) {
             final PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
             privateChannel.sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
             privateChannel.close();

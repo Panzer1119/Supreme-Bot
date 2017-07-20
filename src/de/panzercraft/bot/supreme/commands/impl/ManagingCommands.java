@@ -571,13 +571,13 @@ public class ManagingCommands {
             if (set) {
                 key = arguments.consumeFirst();
                 value = arguments.consumeFirst();
-                String value_old = Standard.STANDARD_SETTINGS.getProperty(key);
+                String value_old = Standard.STANDARD_SETTINGS.getProperty(key, null);
                 Standard.STANDARD_SETTINGS.setProperty(key, value);
                 Standard.reloadSettings();
                 event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "Setted \"%s\" from \"%s\" to \"%s\"", key, value_old, value).build()).queue();
             } else if (get) {
                 key = arguments.consumeFirst();
-                value = Standard.STANDARD_SETTINGS.getProperty(key);
+                value = Standard.STANDARD_SETTINGS.getProperty(key, null);
                 event.getTextChannel().sendMessageFormat("%s \"%s\" is \"%s\"", event.getAuthor().getAsMention(), key, value).queue();
             } else if (list) {
                 event.getTextChannel().sendMessage(Standard.STANDARD_SETTINGS.toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();

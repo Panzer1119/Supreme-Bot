@@ -31,16 +31,112 @@ public class Settings {
         setFile(file);
     }
     
-    public final String getProperty(String key) {
-        return getProperty(key, null);
+    public final String getProperty(String key, String defaultValue) {
+        try {
+            return settings.getProperty(key, defaultValue);
+        } catch (Exception ex) {
+            return defaultValue;
+        }
     }
     
-    public final String getProperty(String key, String defaultValue) {
-        return settings.getProperty(key, defaultValue);
+    public final byte getProperty(String key, byte defaultValue) {
+        try {
+            return Byte.parseByte(getProperty(key, "" + defaultValue));
+        } catch (Exception ex) {
+            return defaultValue;
+        }
+    }
+    
+    public final short getProperty(String key, short defaultValue) {
+        try {
+            return Short.parseShort(getProperty(key, "" + defaultValue));
+        } catch (Exception ex) {
+            return defaultValue;
+        }
+    }
+    
+    public final int getProperty(String key, int defaultValue) {
+        try {
+            return Integer.parseInt(getProperty(key, "" + defaultValue));
+        } catch (Exception ex) {
+            return defaultValue;
+        }
+    }
+    
+    public final long getProperty(String key, long defaultValue) {
+        try {
+            return Long.parseLong(getProperty(key, "" + defaultValue));
+        } catch (Exception ex) {
+            return defaultValue;
+        }
+    }
+    
+    public final float getProperty(String key, float defaultValue) {
+        try {
+            return Float.parseFloat(getProperty(key, "" + defaultValue));
+        } catch (Exception ex) {
+            return defaultValue;
+        }
+    }
+    
+    public final double getProperty(String key, double defaultValue) {
+        try {
+            return Double.parseDouble(getProperty(key, "" + defaultValue));
+        } catch (Exception ex) {
+            return defaultValue;
+        }
+    }
+    
+    public final char getProperty(String key, char defaultValue) {
+        try {
+            return getProperty(key, "" + defaultValue).charAt(0);
+        } catch (Exception ex) {
+            return defaultValue;
+        }
+    }
+    
+    public final boolean getProperty(String key, boolean defaultValue) {
+        try {
+            return Boolean.parseBoolean(getProperty(key, "" + defaultValue));
+        } catch (Exception ex) {
+            return defaultValue;
+        }
     }
     
     public final Object setProperty(String key, String value) {
         return setProperty(key, value, true);
+    }
+    
+    public final Object setProperty(String key, byte value) {
+        return setProperty(key, "" + value, true);
+    }
+    
+    public final Object setProperty(String key, short value) {
+        return setProperty(key, "" + value, true);
+    }
+    
+    public final Object setProperty(String key, int value) {
+        return setProperty(key, "" + value, true);
+    }
+    
+    public final Object setProperty(String key, long value) {
+        return setProperty(key, "" + value, true);
+    }
+    
+    public final Object setProperty(String key, float value) {
+        return setProperty(key, "" + value, true);
+    }
+    
+    public final Object setProperty(String key, double value) {
+        return setProperty(key, "" + value, true);
+    }
+    
+    public final Object setProperty(String key, char value) {
+        return setProperty(key, "" + value, true);
+    }
+    
+    public final Object setProperty(String key, boolean value) {
+        return setProperty(key, "" + value, true);
     }
     
     public final Object setProperty(String key, String value, boolean save) {

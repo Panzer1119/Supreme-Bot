@@ -35,33 +35,38 @@ public class Standard {
     private static long AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = -1;
     private static boolean AUTO_DELETE_COMMAND = false;
 
-    public static final String STANDARD_SETTINGS_FILE_PATH = "settings.txt";
+    public static final String STANDARD_SETTINGS_FILE_PATH = "data/settings.txt";
     public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_SETTINGS_FILE_PATH);
     public static final Settings STANDARD_SETTINGS = new Settings(STANDARD_SETTINGS_FILE);
+
+    private static final HashMap<String, Settings> GUILD_SETTINGS = new HashMap<>();
+    public static final String STANDARD_GUILD_SETTINGS_FOLDER_PATH = "data/guilds";
+    public static final File STANDARD_GUILD_SETTINGS_FOLDER = new File(STANDARD_GUILD_SETTINGS_FOLDER_PATH);
+    public static final FileNamer STANDARD_GUILD_SETTINGS_FILENAMER = new FileNamer("settings_", ".txt");
     
-    public static final String STANDARD_PERMISSIONS_FILE_PATH = "permissions.txt";
+    public static final String STANDARD_PERMISSIONS_FILE_PATH = "data/permissions.txt";
     public static final File STANDARD_PERMISSIONS_FILE = new File(STANDARD_PERMISSIONS_FILE_PATH);
     public static final String STANDARD_PERMISSIONS_PATH = "/de/panzercraft/bot/supreme/permission/permissions.txt";
 
     public static final boolean reloadSettings() {
-        STANDARD_SETTINGS.loadSettings();
         try {
-            if (STANDARD_SETTINGS.getProperty("standard_command_prefix") == null) {
+            STANDARD_SETTINGS.loadSettings();
+            if (STANDARD_SETTINGS.getProperty("standard_command_prefix", null) == null) {
                 STANDARD_SETTINGS.setProperty("standard_command_prefix", "!");
             }
             STANDARD_COMMAND_PREFIX = STANDARD_SETTINGS.getProperty("standard_command_prefix", "!");
-            if (STANDARD_SETTINGS.getProperty("token") == null) {
+            if (STANDARD_SETTINGS.getProperty("token", null) == null) {
                 STANDARD_SETTINGS.setProperty("token", "Put your token here!");
             }
-            TOKEN = STANDARD_SETTINGS.getProperty("token").getBytes();
-            if (STANDARD_SETTINGS.getProperty("autoDeleteCommandNotFoundMessageDelay") == null) {
-                STANDARD_SETTINGS.setProperty("autoDeleteCommandNotFoundMessageDelay", "-1");
+            TOKEN = STANDARD_SETTINGS.getProperty("token", null).getBytes();
+            if (STANDARD_SETTINGS.getProperty("autoDeleteCommandNotFoundMessageDelay", null) == null) {
+                STANDARD_SETTINGS.setProperty("autoDeleteCommandNotFoundMessageDelay", -1L);
             }
-            AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = Long.parseLong(STANDARD_SETTINGS.getProperty("autoDeleteCommandNotFoundMessageDelay", "-1")); //FIXME Bei den Settings was einbauen wie getPropertyAsBoolean(String key, Boolean defaultValue) {} und so
-            if (STANDARD_SETTINGS.getProperty("autoDeletingCommand") == null) {
-                STANDARD_SETTINGS.setProperty("autoDeletingCommand", "false");
+            AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = STANDARD_SETTINGS.getProperty("autoDeleteCommandNotFoundMessageDelay", -1L); //FIXME Bei den Settings was einbauen wie getPropertyAsBoolean(String key, Boolean defaultValue) {} und so
+            if (STANDARD_SETTINGS.getProperty("autoDeletingCommand", null) == null) {
+                STANDARD_SETTINGS.setProperty("autoDeletingCommand", false);
             }
-            AUTO_DELETE_COMMAND = Boolean.parseBoolean(STANDARD_SETTINGS.getProperty("autoDeletingCommand", "false"));
+            AUTO_DELETE_COMMAND = STANDARD_SETTINGS.getProperty("autoDeletingCommand", false);
             loadCommandPrefixesForGuilds();
             System.out.println("Reloaded Settings!");
             return true;
@@ -70,7 +75,7 @@ public class Standard {
             return false;
         }
     }
-    
+
     public static final boolean reloadPermissions() {
         try {
             if (STANDARD_PERMISSIONS_FILE.exists() && STANDARD_PERMISSIONS_FILE.isFile()) {
@@ -83,7 +88,7 @@ public class Standard {
                     System.err.println(ex);
                     PermissionRole.loadPermissionRoles(STANDARD_PERMISSIONS_PATH);
                 }
-            } else if(!STANDARD_PERMISSIONS_FILE.isFile()) {
+            } else if (!STANDARD_PERMISSIONS_FILE.isFile()) {
                 PermissionRole.loadPermissionRoles(STANDARD_PERMISSIONS_PATH);
             } else {
                 return false;
@@ -95,24 +100,71 @@ public class Standard {
             return false;
         }
     }
+    
+    public static final boolean reloadGuildSettingsFolder() {
+        try {
+            GUILD_SETTINGS.clear();
+            for (File file : STANDARD_GUILD_SETTINGS_FOLDER.listFiles()) {
+                if (STANDARD_GUILD_SETTINGS_FILENAMER.isFileNameOfThis(file)) {
+                    GUILD_SETTINGS.put(STANDARD_GUILD_SETTINGS_FILENAMER.getExtraOfFileName(file), new Settings(file));
+                }
+            }
+            reloadGuildSettings();
+            System.out.println("Reloaded Guild Settings Folder!");
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Not Reloaded Guild Settings Folder: " + ex);
+            return false;
+        }
+    }
+    
+    public static final boolean reloadGuildSettings() {
+        try {
+            GUILD_SETTINGS.keySet().stream().forEach((guild_id) -> {
+                GUILD_SETTINGS.get(guild_id).loadSettings();
+            });
+            System.out.println("Reloaded Guild Settings!");
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Not Reloaded Guild Settings: " + ex);
+            return false;
+        }
+    }
+    
+    public static final Settings getGuildSettings(Guild guild) {
+        if (guild == null) {
+            return null;
+        }
+        return getGuildSettings(guild.getId());
+    }
+    
+    public static final Settings getGuildSettings(String guild_id) {
+        Settings settings = GUILD_SETTINGS.get(guild_id);
+        if (settings == null) {
+            settings = new Settings(STANDARD_GUILD_SETTINGS_FILENAMER.createFile(guild_id));
+            settings.loadSettings();
+            GUILD_SETTINGS.put(guild_id, settings);
+        }
+        return settings;
+    }
 
     public static final boolean isAutoDeletingCommand() {
         return AUTO_DELETE_COMMAND;
     }
-    
+
     public static final boolean setAutoDeletingCommand(boolean autoDeletingCommand) {
         Standard.AUTO_DELETE_COMMAND = autoDeletingCommand;
-        STANDARD_SETTINGS.setProperty("autoDeletingCommand", "" + autoDeletingCommand);
+        STANDARD_SETTINGS.setProperty("autoDeletingCommand", autoDeletingCommand);
         return true;
     }
-    
+
     public static final long getAutoDeleteCommandNotFoundMessageDelay() {
         return AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY;
     }
 
     public static final boolean setAutoDeleteCommandNotFoundMessageDelay(long autoDeleteCommandNotFoundMessageDelay) {
         Standard.AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = autoDeleteCommandNotFoundMessageDelay;
-        STANDARD_SETTINGS.setProperty("autoDeleteCommandNotFoundMessageDelay", "" + autoDeleteCommandNotFoundMessageDelay);
+        STANDARD_SETTINGS.setProperty("autoDeleteCommandNotFoundMessageDelay", autoDeleteCommandNotFoundMessageDelay);
         return true;
     }
 
@@ -145,7 +197,7 @@ public class Standard {
             final String property = (String) properties.nextElement();
             if (property != null && !property.isEmpty() && property.startsWith("guild_command_prefix_")) {
                 final String guild_id = property.replaceFirst("guild_command_prefix_", "");
-                final String commandPrefix = STANDARD_SETTINGS.getProperty(property);
+                final String commandPrefix = STANDARD_SETTINGS.getProperty(property, null);
                 setCommandPrefixForGuild(guild_id, commandPrefix);
             }
         }
@@ -206,7 +258,7 @@ public class Standard {
         if (user == null) {
             return false;
         }
-        final String super_owner = STANDARD_SETTINGS.getProperty("super_owner");
+        final String super_owner = STANDARD_SETTINGS.getProperty("super_owner", null);
         if (super_owner == null) {
             return true;
         }
