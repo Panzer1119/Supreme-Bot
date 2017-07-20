@@ -493,11 +493,8 @@ public class ManagingCommands {
                 if (arguments.consumeFirst(Standard.ARGUMENT_GUILD_SETTINGS, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
                     if (!arguments.consume(Standard.ARGUMENT_ALL, ArgumentConsumeType.FIRST_IGNORE_CASE, 1) && !arguments.consume(Standard.ARGUMENT_SETTINGS, ArgumentConsumeType.FIRST_IGNORE_CASE, 1) && !arguments.consume(Standard.ARGUMENT_PERMISSIONS, ArgumentConsumeType.FIRST_IGNORE_CASE, 1)) {
                         arguments.consume(Standard.ARGUMENT_GUILD_SETTINGS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
-                        String guild_id = arguments.consumeFirst();
+                        final String guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
                         if (guild_id != null) {
-                            if (guild_id.equalsIgnoreCase("this")) {
-                                guild_id = event.getGuild().getId();
-                            }
                             SupremeBot.reloadGuildSettings(guild_id);
                             event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s for %s (ID: %s)!", event.getAuthor().getAsMention(), Standard.ARGUMENT_GUILD_SETTINGS.getArgument(), Standard.getGuildById(guild_id).getName(), guild_id).build()).queue();
                             return;
@@ -566,15 +563,15 @@ public class ManagingCommands {
             if (arguments == null || arguments.isEmpty()) {
                 return false;
             }
-            final boolean set = arguments.isConsumed(Standard.ARGUMENT_SET, ArgumentConsumeType.FIRST_IGNORE_CASE);
-            final boolean get = arguments.isConsumed(Standard.ARGUMENT_GET, ArgumentConsumeType.FIRST_IGNORE_CASE);
-            final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.FIRST_IGNORE_CASE);
+            final boolean set = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_SET, ArgumentConsumeType.FIRST_IGNORE_CASE);
+            final boolean get = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_GET, ArgumentConsumeType.FIRST_IGNORE_CASE);
+            final boolean list = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_LIST, ArgumentConsumeType.FIRST_IGNORE_CASE);
             if (set) {
-                return arguments.isSize(3);
+                return arguments.isSize(3, 4);
             } else if (get) {
-                return arguments.isSize(2);
+                return arguments.isSize(2, 3);
             } else if (list) {
-                return arguments.isSize(1);
+                return arguments.isSize(1, 2);
             } else {
                 return false;
             }
@@ -582,24 +579,50 @@ public class ManagingCommands {
 
         @Override
         public void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
-            final boolean set = arguments.isConsumed(Standard.ARGUMENT_SET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
-            final boolean get = arguments.isConsumed(Standard.ARGUMENT_GET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
-            final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+            final boolean set = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_SET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+            final boolean get = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_GET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+            final boolean list = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_LIST, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+            String guild_id = null;
             String key = "";
             String value = null;
             if (set) {
+                if (arguments.isSize(3)) {
+                    guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
+                }
                 key = arguments.consumeFirst();
                 value = arguments.consumeFirst();
-                String value_old = Standard.STANDARD_SETTINGS.getProperty(key, null);
-                Standard.STANDARD_SETTINGS.setProperty(key, value);
-                Standard.reloadSettings();
-                event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "Setted \"%s\" from \"%s\" to \"%s\"", key, value_old, value).build()).queue();
+                String value_old = null;
+                if (guild_id == null) {
+                    value_old = Standard.STANDARD_SETTINGS.getProperty(key, null);
+                    Standard.STANDARD_SETTINGS.setProperty(key, value);
+                    Standard.reloadSettings();
+                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention()).addField("Old: " + key, "" + value_old, false).addField("New: " + key, "" + value, false).build()).queue();
+                } else {
+                    value_old = Standard.getGuildSettings(guild_id).getProperty(key, null);
+                    Standard.getGuildSettings(guild_id).setProperty(key, value);
+                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s)", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField("Old: " + key, "" + value_old, false).addField("New: " + key, "" + value, false).build()).queue();
+                }
             } else if (get) {
+                if (arguments.isSize(2)) {
+                    guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
+                }
                 key = arguments.consumeFirst();
-                value = Standard.STANDARD_SETTINGS.getProperty(key, null);
-                event.getTextChannel().sendMessageFormat("%s \"%s\" is \"%s\"", event.getAuthor().getAsMention(), key, value).queue();
+                if (guild_id == null) {
+                    value = Standard.STANDARD_SETTINGS.getProperty(key, null);
+                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention()).addField(key, "" + value, false).build()).queue();
+                } else {
+                    value = Standard.getGuildSettings(guild_id).getProperty(key, null);
+                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s)", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField(key, "" + value, false).build()).queue();
+                }
             } else if (list) {
-                event.getTextChannel().sendMessage(Standard.STANDARD_SETTINGS.toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+                if (arguments.isSize(1)) {
+                    guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
+                }
+                if (guild_id == null) {
+                    event.getTextChannel().sendMessage(Standard.STANDARD_SETTINGS.toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+                } else {
+                    event.getTextChannel().sendMessage(Standard.getGuildSettings(guild_id).toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+                }
             }
         }
 
@@ -611,9 +634,9 @@ public class ManagingCommands {
         @Override
         public EmbedBuilder getHelp(EmbedBuilder builder) {
             for (String invoke : getInvokes()) {
-                builder.addField(String.format("%s %s <Key> <Value>", invoke, Standard.ARGUMENT_SET.getCompleteArgument(0)), "Sets the value for the key.", false);
-                builder.addField(String.format("%s %s <Key>", invoke, Standard.ARGUMENT_GET.getCompleteArgument(0)), "Gets the value for the key.", false);
-                builder.addField(String.format("%s %s", invoke, Standard.ARGUMENT_LIST.getCompleteArgument(0)), "Lists all keys and values.", false);
+                builder.addField(String.format("%s %s [Guild ID] <Key> <Value>", invoke, Standard.ARGUMENT_SETTINGS_SET.getCompleteArgument(0)), "Sets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
+                builder.addField(String.format("%s %s [Guild ID] <Key>", invoke, Standard.ARGUMENT_SETTINGS_GET.getCompleteArgument(0)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
+                builder.addField(String.format("%s %s [Guild ID]", invoke, Standard.ARGUMENT_SETTINGS_LIST.getCompleteArgument(0)), "Lists all keys and values. If a valid guild id is given, then the guild settings will be edited.", false);
             }
             return builder;
         }

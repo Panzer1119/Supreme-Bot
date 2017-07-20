@@ -282,6 +282,13 @@ public class Standard {
     public static final Guild getGuildById(String guild_id) {
         return SupremeBot.jda.getGuildById(guild_id);
     }
+    
+    public static final String resolveGuildId(Guild guild, String guild_id) {
+        if (guild != null && guild_id != null && guild_id.equalsIgnoreCase("this")) {
+            guild_id = guild.getId();
+        }
+        return guild_id;
+    }
 
     public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/", "!"};
     public static final Argument ARGUMENT_GLOBAL = new Argument("global", STANDARD_ARGUMENT_PREFIXES);
@@ -290,9 +297,10 @@ public class Standard {
     public static final Argument ARGUMENT_ALL = new Argument("all", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_SETTINGS = new Argument("settings", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_GUILD_SETTINGS = new Argument("guild_settings", STANDARD_ARGUMENT_PREFIXES);
-    public static final Argument ARGUMENT_SET = new Argument("set", STANDARD_ARGUMENT_PREFIXES);
-    public static final Argument ARGUMENT_GET = new Argument("get", STANDARD_ARGUMENT_PREFIXES);
-    public static final Argument ARGUMENT_LIST = new Argument("list", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_SETTINGS_SET = new Argument("set", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_SETTINGS_GET = new Argument("get", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_SETTINGS_REMOVE = new Argument("remove", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_SETTINGS_LIST = new Argument("list", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_PERMISSIONS = new Argument("permissions", STANDARD_ARGUMENT_PREFIXES);
 
 }
