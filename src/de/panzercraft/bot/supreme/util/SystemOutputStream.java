@@ -15,8 +15,11 @@ import java.util.Locale;
  */
 public class SystemOutputStream extends PrintStream {
     
-    public SystemOutputStream(OutputStream out) {
+    private final boolean error;
+    
+    public SystemOutputStream(OutputStream out, boolean error) {
         super(out);
+        this.error = error;
     }
     
     @Override
@@ -149,6 +152,12 @@ public class SystemOutputStream extends PrintStream {
     private void print(String g, Instant instant, boolean newLine) {
         final String msg = String.format("[%s]: %s", LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), g);
         super.print(msg + (newLine ? "\n" : ""));
+        if (error && false) {
+            final Exception ex = new Exception();
+            for (StackTraceElement e : ex.getStackTrace()) {
+                super.print(e + "\n");
+            }
+        }
     }
     
 }

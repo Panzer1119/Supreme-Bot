@@ -1,6 +1,7 @@
 package de.panzercraft.bot.supreme.listeners;
 
 import de.panzercraft.bot.supreme.permission.PermissionRole;
+import de.panzercraft.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
@@ -20,6 +21,7 @@ public class ReadyListener extends ListenerAdapter {
         final JDA jda = event.getJDA();
         for (Guild guild : jda.getGuilds()) {
             guild.getTextChannels().get(0).sendMessage("Hello!").queue();
+            Standard.getAdvancedGuild(guild);
         }
         if (true) {
             return;

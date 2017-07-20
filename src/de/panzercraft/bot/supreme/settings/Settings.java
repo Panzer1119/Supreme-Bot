@@ -39,7 +39,11 @@ public class Settings {
                 setProperty(key, defaultValue, true);
                 return defaultValue;
             } else {
-                return value;
+                if (value == null) {
+                    return defaultValue;
+                } else {
+                    return value;
+                }
             }
         } catch (Exception ex) {
             return defaultValue;

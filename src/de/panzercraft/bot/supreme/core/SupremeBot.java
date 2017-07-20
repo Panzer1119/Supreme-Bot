@@ -30,8 +30,8 @@ public class SupremeBot {
     
     public static final void main(String[] args) {
         try {
-            System.setOut(new SystemOutputStream(System.out));
-            System.setErr(new SystemOutputStream(System.err));
+            System.setOut(new SystemOutputStream(System.out, false));
+            System.setErr(new SystemOutputStream(System.err, true));
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 Standard.STANDARD_SETTINGS.saveSettings();
                 Standard.saveAllGuildSettings();

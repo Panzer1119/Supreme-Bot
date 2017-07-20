@@ -17,6 +17,9 @@ public class CommandListener extends ListenerAdapter {
     
     @Override
     public final void onMessageReceived(MessageReceivedEvent event) { //FIXME Bug mit privaten Nachrichten
+        if (event == null) {
+            return;
+        }
         try {
             if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
                 return;
@@ -43,11 +46,12 @@ public class CommandListener extends ListenerAdapter {
             }
         } catch (Exception ex) {
             System.err.println(ex);
+            ex.printStackTrace();
         }
     }
     
     private final boolean isCommand(String message, MessageReceivedEvent event) {
-        if (event.getMessage().getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
+        if (message == null || event == null || event.getGuild() == null || event.getMessage().getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
             return false;
         }
         return message.startsWith(Standard.getCommandPrefixByGuild(event.getGuild()));

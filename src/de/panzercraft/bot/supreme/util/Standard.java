@@ -33,6 +33,8 @@ public class Standard {
     private static byte[] TOKEN = null;
     private static String STANDARD_COMMAND_PREFIX = "!";
 
+    public static final Settings STANDARD_NULL_SETTINGS = new Settings();
+    
     public static final String STANDARD_DATA_FOLDER_NAME = "data";
     public static final File STANDARD_DATA_FOLDER = new File(STANDARD_DATA_FOLDER_NAME);
     public static final String STANDARD_SETTINGS_FILE_NAME = "settings.txt";
@@ -125,7 +127,9 @@ public class Standard {
         try {
             GUILDS.clear();
             for (File file : STANDARD_GUILD_SETTINGS_FOLDER.listFiles()) {
-                GUILDS.add(new AdvancedGuild(file.getName()));
+                if (file.isDirectory()) {
+                    GUILDS.add(new AdvancedGuild(file.getName(), file));
+                }
             }
             reloadAllGuilds();
             System.out.println("Reloaded Guilds Folder!");
@@ -220,18 +224,18 @@ public class Standard {
     
     public static final Settings getGuildSettings(Guild guild) {
         if (guild == null) {
-            return null;
+            return STANDARD_NULL_SETTINGS;
         }
         return getGuildSettings(guild.getId());
     }
     
     public static final Settings getGuildSettings(String guild_id) {
         if (guild_id == null) {
-            return null;
+            return STANDARD_NULL_SETTINGS;
         }
         final AdvancedGuild advancedGuild = getAdvancedGuild(guild_id);
         if (advancedGuild == null) {
-            return null;
+            return STANDARD_NULL_SETTINGS;
         }
         return advancedGuild.getSettings();
     }

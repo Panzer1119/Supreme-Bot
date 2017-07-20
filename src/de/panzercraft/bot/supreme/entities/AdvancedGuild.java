@@ -17,16 +17,30 @@ public class AdvancedGuild {
     private File folder = null;
     private Settings settings = null;
     
+    public AdvancedGuild(Guild guild, File folder) {
+        this(guild);
+        this.folder = folder;
+    }
+    
     public AdvancedGuild(Guild guild) {
         this.guild = guild;
+    }
+    
+    public AdvancedGuild(String guild_id, File folder) {
+        this(guild_id);
+        this.folder = folder;
     }
     
     public AdvancedGuild(String guild_id) {
         this.guild_id = guild_id;
     }
     
+    public AdvancedGuild(File folder) {
+        this.folder = folder;
+    }
+    
     public AdvancedGuild() {
-        
+        this((File) null);
     }
 
     public final Guild getGuild() {
@@ -63,7 +77,7 @@ public class AdvancedGuild {
             if (folder == null) {
                 return null;
             }
-            settings = new Settings(new File(folder.getAbsolutePath() + File.separator + Standard.STANDARD_GUILD_SETTINGS_FILE_NAME));
+            settings = new Settings(new File(folder.getAbsolutePath() + File.separator + Standard.STANDARD_GUILD_SETTINGS_FILE_NAME)).setAutoAddProperties(true);
         }
         return settings;
     }
