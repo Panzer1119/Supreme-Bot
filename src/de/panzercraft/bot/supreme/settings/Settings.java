@@ -22,6 +22,7 @@ public class Settings {
     
     private final Properties settings = new Properties();
     private File file = null;
+    private boolean autoAddProperties = false;
     
     public Settings() {
         this(null);
@@ -33,7 +34,13 @@ public class Settings {
     
     public final String getProperty(String key, String defaultValue) {
         try {
-            return settings.getProperty(key, defaultValue);
+            String value = settings.getProperty(key);
+            if (autoAddProperties && value == null) {
+                setProperty(key, defaultValue, true);
+                return defaultValue;
+            } else {
+                return value;
+            }
         } catch (Exception ex) {
             return defaultValue;
         }
@@ -273,9 +280,19 @@ public class Settings {
         });
         return builder;
     }
+
+    public final boolean isAutoAddProperties() {
+        return autoAddProperties;
+    }
+
+    public final Settings setAutoAddProperties(boolean autoAddProperties) {
+        this.autoAddProperties = autoAddProperties;
+        return this;
+    }
     
     protected static final String generateComment() {
-        return "Changed on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+        //return "Changed on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+        return "Changed on:";
     }
 
 }

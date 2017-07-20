@@ -489,17 +489,36 @@ public class ManagingCommands {
 
         @Override
         public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+            if (arguments != null && arguments.size() == 2) {
+                if (arguments.consumeFirst(Standard.ARGUMENT_GUILD_SETTINGS, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
+                    if (!arguments.consume(Standard.ARGUMENT_ALL, ArgumentConsumeType.FIRST_IGNORE_CASE, 1) && !arguments.consume(Standard.ARGUMENT_SETTINGS, ArgumentConsumeType.FIRST_IGNORE_CASE, 1) && !arguments.consume(Standard.ARGUMENT_PERMISSIONS, ArgumentConsumeType.FIRST_IGNORE_CASE, 1)) {
+                        arguments.consume(Standard.ARGUMENT_GUILD_SETTINGS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+                        String guild_id = arguments.consumeFirst();
+                        if (guild_id != null) {
+                            if (guild_id.equalsIgnoreCase("this")) {
+                                guild_id = event.getGuild().getId();
+                            }
+                            SupremeBot.reloadGuildSettings(guild_id);
+                            event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s for %s (ID: %s)!", event.getAuthor().getAsMention(), Standard.ARGUMENT_GUILD_SETTINGS.getArgument(), Standard.getGuildById(guild_id).getName(), guild_id).build()).queue();
+                            return;
+                        }
+                    }
+                }
+            }
             if (arguments != null && arguments.size() >= 1) {
                 while (arguments.hasArguments()) {
                     if (arguments.consumeFirst(Standard.ARGUMENT_ALL, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
                         SupremeBot.reload();
-                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded all!", event.getAuthor().getAsMention()).build()).queue();
+                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_ALL.getArgument()).build()).queue();
                     } else if (arguments.consumeFirst(Standard.ARGUMENT_SETTINGS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
                         SupremeBot.reloadSettings();
-                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded settings!", event.getAuthor().getAsMention()).build()).queue();
+                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_SETTINGS.getArgument()).build()).queue();
                     } else if (arguments.consumeFirst(Standard.ARGUMENT_PERMISSIONS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
                         SupremeBot.reloadPermissions();
-                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded permissions!", event.getAuthor().getAsMention()).build()).queue();
+                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_PERMISSIONS.getArgument()).build()).queue();
+                    } else if (arguments.consumeFirst(Standard.ARGUMENT_GUILD_SETTINGS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
+                        SupremeBot.reloadGuildSettings();
+                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_GUILD_SETTINGS.getArgument()).build()).queue();
                     }
                 }
             } else {

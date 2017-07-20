@@ -30,6 +30,7 @@ public class SupremeBot {
     public static final void main(String[] args) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Standard.STANDARD_SETTINGS.saveSettings();
+            Standard.saveAllGuildSettings();
         }));
         reload();
         builder = new JDABuilder(AccountType.BOT);
@@ -132,6 +133,7 @@ public class SupremeBot {
         try {
             reloadSettings();
             reloadPermissions();
+            reloadGuildSettings();
             return true;
         } catch (Exception ex) {
             return false;
@@ -150,6 +152,24 @@ public class SupremeBot {
     public static final boolean reloadPermissions() {
         try {
             Standard.reloadPermissions();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    public static final boolean reloadGuildSettings() {
+        try {
+            Standard.readGuildSettings();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    public static final boolean reloadGuildSettings(String guild_id) {
+        try {
+            Standard.getGuildSettings(guild_id).loadSettings();
             return true;
         } catch (Exception ex) {
             return false;

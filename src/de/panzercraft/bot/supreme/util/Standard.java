@@ -1,6 +1,7 @@
 package de.panzercraft.bot.supreme.util;
 
 import de.panzercraft.bot.supreme.commands.arguments.Argument;
+import de.panzercraft.bot.supreme.core.SupremeBot;
 import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.settings.Settings;
 import java.awt.Color;
@@ -101,15 +102,15 @@ public class Standard {
         }
     }
     
-    public static final boolean reloadGuildSettingsFolder() {
+    public static final boolean readGuildSettings() {
         try {
             GUILD_SETTINGS.clear();
             for (File file : STANDARD_GUILD_SETTINGS_FOLDER.listFiles()) {
                 if (STANDARD_GUILD_SETTINGS_FILENAMER.isFileNameOfThis(file)) {
-                    GUILD_SETTINGS.put(STANDARD_GUILD_SETTINGS_FILENAMER.getExtraOfFileName(file), new Settings(file));
+                    GUILD_SETTINGS.put(STANDARD_GUILD_SETTINGS_FILENAMER.getExtraOfFileName(file), new Settings(file).setAutoAddProperties(true));
                 }
             }
-            reloadGuildSettings();
+            reloadAllGuildSettings();
             System.out.println("Reloaded Guild Settings Folder!");
             return true;
         } catch (Exception ex) {
@@ -118,12 +119,25 @@ public class Standard {
         }
     }
     
-    public static final boolean reloadGuildSettings() {
+    public static final boolean reloadAllGuildSettings() {
         try {
             GUILD_SETTINGS.keySet().stream().forEach((guild_id) -> {
                 GUILD_SETTINGS.get(guild_id).loadSettings();
             });
-            System.out.println("Reloaded Guild Settings!");
+            System.out.println("Reloaded All Guild Settings!");
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Not Reloaded Guild Settings: " + ex);
+            return false;
+        }
+    }
+    
+    public static final boolean saveAllGuildSettings() {
+        try {
+            GUILD_SETTINGS.keySet().stream().forEach((guild_id) -> {
+                GUILD_SETTINGS.get(guild_id).saveSettings();
+            });
+            System.out.println("Saved All Guild Settings!");
             return true;
         } catch (Exception ex) {
             System.err.println("Not Reloaded Guild Settings: " + ex);
@@ -141,7 +155,7 @@ public class Standard {
     public static final Settings getGuildSettings(String guild_id) {
         Settings settings = GUILD_SETTINGS.get(guild_id);
         if (settings == null) {
-            settings = new Settings(STANDARD_GUILD_SETTINGS_FILENAMER.createFile(guild_id));
+            settings = new Settings(STANDARD_GUILD_SETTINGS_FILENAMER.createFile(STANDARD_GUILD_SETTINGS_FOLDER, guild_id)).setAutoAddProperties(true);
             settings.loadSettings();
             GUILD_SETTINGS.put(guild_id, settings);
         }
@@ -247,14 +261,14 @@ public class Standard {
         return true;
     }
 
-    public static boolean isSuperOwner(Member member) {
+    public static final boolean isSuperOwner(Member member) {
         if (member == null) {
             return false;
         }
         return isSuperOwner(member.getUser());
     }
 
-    public static boolean isSuperOwner(User user) {
+    public static final boolean isSuperOwner(User user) {
         if (user == null) {
             return false;
         }
@@ -264,6 +278,10 @@ public class Standard {
         }
         return user.getId().equals(super_owner);
     }
+    
+    public static final Guild getGuildById(String guild_id) {
+        return SupremeBot.jda.getGuildById(guild_id);
+    }
 
     public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/", "!"};
     public static final Argument ARGUMENT_GLOBAL = new Argument("global", STANDARD_ARGUMENT_PREFIXES);
@@ -271,6 +289,7 @@ public class Standard {
     public static final Argument ARGUMENT_PRIVATE = new Argument("private", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_ALL = new Argument("all", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_SETTINGS = new Argument("settings", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_GUILD_SETTINGS = new Argument("guild_settings", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_SET = new Argument("set", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_GET = new Argument("get", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_LIST = new Argument("list", STANDARD_ARGUMENT_PREFIXES);

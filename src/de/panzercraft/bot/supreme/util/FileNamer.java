@@ -40,10 +40,18 @@ public class FileNamer {
     }
     
     public final File createFile(String extra) {
+        return createFile(null, extra);
+    }
+    
+    public final File createFile(File folder, String extra) {
         if (extra == null) {
             return null;
         }
-        return new File(createFileName(extra));
+        if (folder == null) {
+            return new File(createFileName(extra));
+        } else {
+            return new File(folder.getAbsolutePath() + File.separator + createFileName(extra));
+        }
     }
     
     public final String createFileName(String extra) {
