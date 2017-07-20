@@ -573,7 +573,7 @@ public class ManagingCommands {
             if (set) {
                 return arguments.isSize(3, 4);
             } else if (get) {
-                return arguments.isSize(2, 3);
+                return arguments.isSize(2, 4);
             } else if (remove) {
                 return arguments.isSize(2, 3);
             } else if (list) {
@@ -592,6 +592,7 @@ public class ManagingCommands {
             String guild_id = null;
             String key = "";
             String value = null;
+            String value_temp = null;
             boolean sendPrivate = false;
             if (set) {
                 if (arguments.isSize(3)) {
@@ -605,21 +606,20 @@ public class ManagingCommands {
                     sendPrivate = true;
                 }
                 value = arguments.consumeFirst();
-                String value_old = null;
                 if (guild_id == null) {
-                    value_old = Standard.STANDARD_SETTINGS.getProperty(key, null);
+                    value_temp = Standard.STANDARD_SETTINGS.getProperty(key, null);
                     Standard.STANDARD_SETTINGS.setProperty(key, value);
                     Standard.reloadSettings();
-                    final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " set").addField(key + " old:", "" + value_old, false).addField(key + " new:", "" + value, false).build();
+                    final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " set").addField(key + " old:", "" + value_temp, false).addField(key + " new:", "" + value, false).build();
                     if (!sendPrivate) {
                         event.getTextChannel().sendMessage(message).queue();
                     } else {
                         Util.sendPrivateMessage(event.getAuthor(), message);
                     }
                 } else {
-                    value_old = Standard.getGuildSettings(guild_id).getProperty(key, null);
+                    value_temp = Standard.getGuildSettings(guild_id).getProperty(key, null);
                     Standard.getGuildSettings(guild_id).setProperty(key, value);
-                    final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) set", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField(key + " old:", "" + value_old, false).addField(key + " new:", "" + value, false).build();
+                    final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) set", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField(key + " old:", "" + value_temp, false).addField(key + " new:", "" + value, false).build();
                     if (!sendPrivate) {
                         event.getTextChannel().sendMessage(message).queue();
                     } else {
@@ -627,10 +627,13 @@ public class ManagingCommands {
                     }
                 }
             } else if (get) {
-                if (arguments.isSize(2)) {
+                if (arguments.isSize(2, 3)) {
                     guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
                 }
                 key = arguments.consumeFirst();
+                if (arguments.isSize(1)) {
+                    value_temp = arguments.consumeFirst();
+                }
                 if (Util.contains(Standard.ULTRA_FORBIDDEN, key) && !Standard.isSuperOwner(event.getAuthor())) {
                     PermissionHandler.sendNoPermissionMessage(event);
                     return;
@@ -638,7 +641,7 @@ public class ManagingCommands {
                     sendPrivate = true;
                 }
                 if (guild_id == null) {
-                    value = Standard.STANDARD_SETTINGS.getProperty(key, null);
+                    value = Standard.STANDARD_SETTINGS.getProperty(key, value_temp);
                     final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " get").addField("" + key, "" + value, false).build();
                     if (!sendPrivate) {
                         event.getTextChannel().sendMessage(message).queue();
@@ -646,7 +649,7 @@ public class ManagingCommands {
                         Util.sendPrivateMessage(event.getAuthor(), message);
                     }
                 } else {
-                    value = Standard.getGuildSettings(guild_id).getProperty(key, null);
+                    value = Standard.getGuildSettings(guild_id).getProperty(key, value_temp);
                     final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) get", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField("" + key, "" + value, false).build();
                     if (!sendPrivate) {
                         event.getTextChannel().sendMessage(message).queue();
@@ -693,7 +696,8 @@ public class ManagingCommands {
         public EmbedBuilder getHelp(EmbedBuilder builder) {
             for (String invoke : getInvokes()) {
                 builder.addField(String.format("%s %s [Guild ID] <Key> <Value>", invoke, Standard.ARGUMENT_SETTINGS_SET.getCompleteArgument(0)), "Sets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
-                builder.addField(String.format("%s %s [Guild ID] <Key>", invoke, Standard.ARGUMENT_SETTINGS_GET.getCompleteArgument(0)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
+                builder.addField(String.format("%s %s [Guild ID] <Key> [Default Value]", invoke, Standard.ARGUMENT_SETTINGS_GET.getCompleteArgument(0)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
+                builder.addField(String.format("%s %s [Guild ID] <Key>", invoke, Standard.ARGUMENT_SETTINGS_REMOVE.getCompleteArgument(0)), "Removes the key and value. If a valid guild id is given, then the guild settings will be edited.", false);
                 builder.addField(String.format("%s %s [Guild ID]", invoke, Standard.ARGUMENT_SETTINGS_LIST.getCompleteArgument(0)), "Lists all keys and values. If a valid guild id is given, then the guild settings will be edited.", false);
             }
             return builder;
