@@ -1,5 +1,6 @@
 package de.panzercraft.bot.supreme.settings;
 
+import de.panzercraft.bot.supreme.util.Copyable;
 import de.panzercraft.bot.supreme.util.Standard;
 import de.panzercraft.bot.supreme.util.Util;
 import java.io.File;
@@ -18,7 +19,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
  *
  * @author Panzer1119
  */
-public class Settings {
+public class Settings implements Copyable {
     
     private final Properties settings = new Properties();
     private File file = null;
@@ -269,6 +270,18 @@ public class Settings {
 
     public final Properties getSettings() {
         return settings;
+    }
+    
+    public final Settings direct() {
+        return copy().setAutoAddProperties(false);
+    }
+
+    @Override
+    public Settings copy() {
+        final Settings copy = new Settings(file);
+        copy.autoAddProperties = autoAddProperties;
+        copy.settings.putAll(settings);
+        return copy;
     }
     
     public final ArrayList<Map.Entry<String, String>> toArrayList() {
