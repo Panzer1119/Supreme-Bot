@@ -2,11 +2,12 @@ package de.panzercraft.bot.supreme.util;
 
 import de.panzercraft.bot.supreme.commands.arguments.Argument;
 import de.panzercraft.bot.supreme.core.SupremeBot;
+import de.panzercraft.bot.supreme.entities.AdvancedGuild;
 import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.settings.Settings;
 import java.awt.Color;
 import java.io.File;
-import java.util.HashMap;
+import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -32,14 +33,16 @@ public class Standard {
     private static byte[] TOKEN = null;
     private static String STANDARD_COMMAND_PREFIX = "!";
 
-    public static final String STANDARD_SETTINGS_FILE_PATH = "data/settings.txt";
-    public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_SETTINGS_FILE_PATH);
+    public static final String STANDARD_DATA_FOLDER_NAME = "data";
+    public static final File STANDARD_DATA_FOLDER = new File(STANDARD_DATA_FOLDER_NAME);
+    public static final String STANDARD_SETTINGS_FILE_NAME = "settings.txt";
+    public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_SETTINGS_FILE_NAME);
     public static final Settings STANDARD_SETTINGS = new Settings(STANDARD_SETTINGS_FILE);
 
-    private static final HashMap<String, Settings> GUILD_SETTINGS = new HashMap<>();
-    public static final String STANDARD_GUILD_SETTINGS_FOLDER_PATH = "data/guilds";
-    public static final File STANDARD_GUILD_SETTINGS_FOLDER = new File(STANDARD_GUILD_SETTINGS_FOLDER_PATH);
-    public static final FileNamer STANDARD_GUILD_SETTINGS_FILENAMER = new FileNamer("settings_", ".txt");
+    public static final String STANDARD_GUILD_SETTINGS_FOLDER_NAME = "guilds";
+    public static final File STANDARD_GUILD_SETTINGS_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_GUILD_SETTINGS_FOLDER_NAME);
+    public static final String STANDARD_GUILD_SETTINGS_FILE_NAME = "settings.txt";
+    private static final ArrayList<AdvancedGuild> GUILDS = new ArrayList<>();
     
     public static final String STANDARD_PERMISSIONS_FILE_PATH = "data/permissions.txt";
     public static final File STANDARD_PERMISSIONS_FILE = new File(STANDARD_PERMISSIONS_FILE_PATH);
@@ -89,45 +92,54 @@ public class Standard {
         }
     }
     
-    public static final boolean readGuildSettings() {
+    public static final boolean loadAllGuilds() {
         try {
-            GUILD_SETTINGS.clear();
+            GUILDS.clear();
             for (File file : STANDARD_GUILD_SETTINGS_FOLDER.listFiles()) {
-                if (STANDARD_GUILD_SETTINGS_FILENAMER.isFileNameOfThis(file)) {
-                    GUILD_SETTINGS.put(STANDARD_GUILD_SETTINGS_FILENAMER.getExtraOfFileName(file), new Settings(file).setAutoAddProperties(true));
-                }
+                GUILDS.add(new AdvancedGuild(file.getName()));
             }
-            reloadAllGuildSettings();
-            System.out.println("Reloaded Guild Settings Folder!");
+            reloadAllGuilds();
+            System.out.println("Reloaded Guilds Folder!");
             return true;
         } catch (Exception ex) {
-            System.err.println("Not Reloaded Guild Settings Folder: " + ex);
+            System.err.println("Not Reloaded Guilds Folder: " + ex);
+            return false;
+        }
+    }
+    
+    public static final boolean reloadAllGuilds() {
+        try {
+            reloadAllGuildSettings();
+            System.out.println("Reloaded All Guilds!");
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Not Reloaded All Guilds: " + ex);
             return false;
         }
     }
     
     public static final boolean reloadAllGuildSettings() {
         try {
-            GUILD_SETTINGS.keySet().stream().forEach((guild_id) -> {
-                GUILD_SETTINGS.get(guild_id).loadSettings();
+            GUILDS.stream().forEach((advancedGuild) -> {
+                advancedGuild.getSettings().loadSettings();
             });
             System.out.println("Reloaded All Guild Settings!");
             return true;
         } catch (Exception ex) {
-            System.err.println("Not Reloaded Guild Settings: " + ex);
+            System.err.println("Not Reloaded All Guild Settings: " + ex);
             return false;
         }
     }
     
     public static final boolean saveAllGuildSettings() {
         try {
-            GUILD_SETTINGS.keySet().stream().forEach((guild_id) -> {
-                GUILD_SETTINGS.get(guild_id).saveSettings();
+            GUILDS.stream().forEach((advancedGuild) -> {
+                advancedGuild.getSettings().saveSettings();
             });
             System.out.println("Saved All Guild Settings!");
             return true;
         } catch (Exception ex) {
-            System.err.println("Not Reloaded Guild Settings: " + ex);
+            System.err.println("Not Saved All Guild Settings: " + ex);
             return false;
         }
     }
@@ -159,6 +171,40 @@ public class Standard {
     //*********************GUILD SPECIFIC START***********************//
     //****************************************************************//
     
+    public static final File createGuildFolder(Guild guild) {
+        return createGuildFolder(guild.getId());
+    }
+    
+    public static final File createGuildFolder(String guild_id) {
+        try {
+            final File file = new File(STANDARD_GUILD_SETTINGS_FOLDER.getAbsolutePath() + File.separator + guild_id);
+            file.mkdirs();
+            return file;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return null;
+        }
+    }
+    
+    public static final AdvancedGuild getAdvancedGuild(Guild guild) {
+        if (guild == null) {
+            return null;
+        }
+        return getAdvancedGuild(guild.getId());
+    }
+    
+    public static final AdvancedGuild getAdvancedGuild(String guild_id) {
+        if (guild_id == null) {
+            return null;
+        }
+        AdvancedGuild advancedGuild = GUILDS.stream().filter((advancedGuild_) -> guild_id.equals(advancedGuild_.getGuildId())).findFirst().orElse(null);
+        if (advancedGuild == null) {
+            advancedGuild = new AdvancedGuild(guild_id);
+            GUILDS.add(advancedGuild);
+        }
+        return advancedGuild;
+    }
+    
     public static final Settings getGuildSettings(Guild guild) {
         if (guild == null) {
             return null;
@@ -167,13 +213,14 @@ public class Standard {
     }
     
     public static final Settings getGuildSettings(String guild_id) {
-        Settings settings = GUILD_SETTINGS.get(guild_id);
-        if (settings == null) {
-            settings = new Settings(STANDARD_GUILD_SETTINGS_FILENAMER.createFile(STANDARD_GUILD_SETTINGS_FOLDER, guild_id)).setAutoAddProperties(true);
-            settings.loadSettings();
-            GUILD_SETTINGS.put(guild_id, settings);
+        if (guild_id == null) {
+            return null;
         }
-        return settings;
+        final AdvancedGuild advancedGuild = getAdvancedGuild(guild_id);
+        if (advancedGuild == null) {
+            return null;
+        }
+        return advancedGuild.getSettings();
     }
     
     public static final String getCommandPrefixByGuild(Guild guild) {

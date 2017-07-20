@@ -133,7 +133,7 @@ public class SupremeBot {
         try {
             reloadSettings();
             reloadPermissions();
-            reloadGuildSettings();
+            loadAllGuilds();
             return true;
         } catch (Exception ex) {
             return false;
@@ -158,9 +158,27 @@ public class SupremeBot {
         }
     }
     
+    public static final boolean loadAllGuilds() {
+        try {
+            Standard.loadAllGuilds();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    public static final boolean reloadGuilds() {
+        try {
+            Standard.reloadAllGuilds();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
     public static final boolean reloadGuildSettings() {
         try {
-            Standard.readGuildSettings();
+            Standard.reloadAllGuildSettings();
             return true;
         } catch (Exception ex) {
             return false;
