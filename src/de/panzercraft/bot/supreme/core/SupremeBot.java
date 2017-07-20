@@ -10,6 +10,7 @@ import de.panzercraft.bot.supreme.listeners.MemberListener;
 import de.panzercraft.bot.supreme.listeners.ReadyListener;
 import de.panzercraft.bot.supreme.listeners.VoiceListener;
 import de.panzercraft.bot.supreme.util.Standard;
+import de.panzercraft.bot.supreme.util.SystemOutputStream;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -28,56 +29,72 @@ public class SupremeBot {
     private static boolean running = false;
     
     public static final void main(String[] args) {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            Standard.STANDARD_SETTINGS.saveSettings();
-            Standard.saveAllGuildSettings();
-        }));
-        reload();
-        builder = new JDABuilder(AccountType.BOT);
-        builder.setAutoReconnect(true);
-        builder.setStatus(OnlineStatus.ONLINE);
-        builder.setGame(new Game() {
-            @Override
-            public String getName() {
-                return "V" + Standard.VERSION;
-            }
+        try {
+            System.setOut(new SystemOutputStream(System.out));
+            System.setErr(new SystemOutputStream(System.err));
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                Standard.STANDARD_SETTINGS.saveSettings();
+                Standard.saveAllGuildSettings();
+            }));
+            reload();
+            builder = new JDABuilder(AccountType.BOT);
+            builder.setAutoReconnect(true);
+            builder.setStatus(OnlineStatus.ONLINE);
+            builder.setGame(new Game() {
+                @Override
+                public String getName() {
+                    return "V" + Standard.VERSION;
+                }
 
-            @Override
-            public String getUrl() {
-                return null;
-            }
+                @Override
+                public String getUrl() {
+                    return null;
+                }
 
-            @Override
-            public GameType getType() {
-                return null;
-            }
-        });
-        initListeners();
-        initCommands();
-        startJDA();
+                @Override
+                public GameType getType() {
+                    return null;
+                }
+            });
+            initListeners();
+            initCommands();
+            startJDA();
+        } catch (Exception ex) {
+            System.err.println("Main Error: " + ex);
+            ex.printStackTrace();
+        }
     }
     
     private static final boolean initListeners() {
-        builder.addEventListener(new ReadyListener());
-        builder.addEventListener(new VoiceListener());
-        builder.addEventListener(new MemberListener());
-        builder.addEventListener(new CommandListener());
-        return true;
+        try {
+            builder.addEventListener(new ReadyListener());
+            builder.addEventListener(new VoiceListener());
+            builder.addEventListener(new MemberListener());
+            builder.addEventListener(new CommandListener());
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
     }
     
     private static final boolean initCommands() {
-        CommandHandler.registerCommand(new PingCommand());
-        CommandHandler.registerCommand(new ManagingCommands.CommandPrefixChangeCommand());
-        CommandHandler.registerCommand(new ManagingCommands.StopCommand());
-        CommandHandler.registerCommand(new ManagingCommands.RestartCommand());
-        CommandHandler.registerCommand(new ManagingCommands.GetFileCommand());
-        CommandHandler.registerCommand(new ManagingCommands.SayCommand());
-        CommandHandler.registerCommand(new ManagingCommands.ClearCommand());
-        CommandHandler.registerCommand(new ManagingCommands.ReloadCommand());
-        CommandHandler.registerCommand(new ManagingCommands.SettingsCommand());
-        CommandHandler.registerCommand(new MusicCommand());
-        CommandHandler.registerCommand(new HelpCommand());
-        return true;
+        try {
+            
+            CommandHandler.registerCommand(new PingCommand());
+            CommandHandler.registerCommand(new ManagingCommands.CommandPrefixChangeCommand());
+            CommandHandler.registerCommand(new ManagingCommands.StopCommand());
+            CommandHandler.registerCommand(new ManagingCommands.RestartCommand());
+            CommandHandler.registerCommand(new ManagingCommands.GetFileCommand());
+            CommandHandler.registerCommand(new ManagingCommands.SayCommand());
+            CommandHandler.registerCommand(new ManagingCommands.ClearCommand());
+            CommandHandler.registerCommand(new ManagingCommands.ReloadCommand());
+            CommandHandler.registerCommand(new ManagingCommands.SettingsCommand());
+            CommandHandler.registerCommand(new MusicCommand());
+            CommandHandler.registerCommand(new HelpCommand());
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
     }
     
     public static final boolean isRunning() {
