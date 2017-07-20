@@ -30,7 +30,9 @@ public class PermissionHandler {
                 }
             }
         } else {
-            return Standard.isSuperOwner(event.getAuthor());
+            if (Standard.isSuperOwner(event.getAuthor())) {
+                return true;
+            }
         }
         if (withMessage) {
             sendNoPermissionMessage(event);
