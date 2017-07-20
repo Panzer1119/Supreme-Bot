@@ -39,7 +39,7 @@ public class HelpCommand implements Command {
                     CommandHandler.sendHelpMessage(event, command, sendPrivate);
                 } else {
                     final Message message = event.getTextChannel().sendMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", event.getAuthor().getAsMention(), command_invoke).complete();
-                    final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelay();
+                    final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(event.getGuild());
                     if (delay != -1) {
                         Util.deleteMessage(message, delay);
                     }

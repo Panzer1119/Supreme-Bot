@@ -601,7 +601,7 @@ public class ManagingCommands {
                 if (Util.contains(Standard.ULTRA_FORBIDDEN, key) && !Standard.isSuperOwner(event.getAuthor())) {
                     PermissionHandler.sendNoPermissionMessage(event);
                     return;
-                } else if (!Standard.isSuperOwner(event.getAuthor())) {
+                } else if (Standard.isSuperOwner(event.getAuthor())) {
                     sendPrivate = true;
                 }
                 value = arguments.consumeFirst();
@@ -634,7 +634,7 @@ public class ManagingCommands {
                 if (Util.contains(Standard.ULTRA_FORBIDDEN, key) && !Standard.isSuperOwner(event.getAuthor())) {
                     PermissionHandler.sendNoPermissionMessage(event);
                     return;
-                } else if (!Standard.isSuperOwner(event.getAuthor())) {
+                } else if (Standard.isSuperOwner(event.getAuthor())) {
                     sendPrivate = true;
                 }
                 if (guild_id == null) {

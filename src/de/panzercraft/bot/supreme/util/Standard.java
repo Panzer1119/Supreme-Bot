@@ -32,8 +32,6 @@ public class Standard {
     public static final int PLAYLIST_LIMIT = 1000;
     private static byte[] TOKEN = null;
     private static String STANDARD_COMMAND_PREFIX = "!";
-    private static long AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = -1;
-    private static boolean AUTO_DELETE_COMMAND = false;
 
     public static final String STANDARD_SETTINGS_FILE_PATH = "data/settings.txt";
     public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_SETTINGS_FILE_PATH);
@@ -59,15 +57,6 @@ public class Standard {
                 STANDARD_SETTINGS.setProperty("token", "Put your token here!");
             }
             TOKEN = STANDARD_SETTINGS.getProperty("token", null).getBytes();
-            if (STANDARD_SETTINGS.getProperty("autoDeleteCommandNotFoundMessageDelay", null) == null) {
-                STANDARD_SETTINGS.setProperty("autoDeleteCommandNotFoundMessageDelay", -1L);
-            }
-            AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = STANDARD_SETTINGS.getProperty("autoDeleteCommandNotFoundMessageDelay", -1L); //FIXME Bei den Settings was einbauen wie getPropertyAsBoolean(String key, Boolean defaultValue) {} und so
-            if (STANDARD_SETTINGS.getProperty("autoDeletingCommand", null) == null) {
-                STANDARD_SETTINGS.setProperty("autoDeletingCommand", false);
-            }
-            AUTO_DELETE_COMMAND = STANDARD_SETTINGS.getProperty("autoDeletingCommand", false);
-            loadCommandPrefixesForGuilds();
             System.out.println("Reloaded Settings!");
             return true;
         } catch (Exception ex) {
@@ -143,43 +132,6 @@ public class Standard {
             return false;
         }
     }
-    
-    public static final Settings getGuildSettings(Guild guild) {
-        if (guild == null) {
-            return null;
-        }
-        return getGuildSettings(guild.getId());
-    }
-    
-    public static final Settings getGuildSettings(String guild_id) {
-        Settings settings = GUILD_SETTINGS.get(guild_id);
-        if (settings == null) {
-            settings = new Settings(STANDARD_GUILD_SETTINGS_FILENAMER.createFile(STANDARD_GUILD_SETTINGS_FOLDER, guild_id)).setAutoAddProperties(true);
-            settings.loadSettings();
-            GUILD_SETTINGS.put(guild_id, settings);
-        }
-        return settings;
-    }
-
-    public static final boolean isAutoDeletingCommand() {
-        return AUTO_DELETE_COMMAND;
-    }
-
-    public static final boolean setAutoDeletingCommand(boolean autoDeletingCommand) {
-        Standard.AUTO_DELETE_COMMAND = autoDeletingCommand;
-        STANDARD_SETTINGS.setProperty("autoDeletingCommand", autoDeletingCommand);
-        return true;
-    }
-
-    public static final long getAutoDeleteCommandNotFoundMessageDelay() {
-        return AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY;
-    }
-
-    public static final boolean setAutoDeleteCommandNotFoundMessageDelay(long autoDeleteCommandNotFoundMessageDelay) {
-        Standard.AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = autoDeleteCommandNotFoundMessageDelay;
-        STANDARD_SETTINGS.setProperty("autoDeleteCommandNotFoundMessageDelay", autoDeleteCommandNotFoundMessageDelay);
-        return true;
-    }
 
     public static final byte[] getToken() {
         return TOKEN;
@@ -203,20 +155,28 @@ public class Standard {
         STANDARD_SETTINGS.setProperty("command_prefix", STANDARD_COMMAND_PREFIX);
         return true;
     }
-
-    public static final boolean loadCommandPrefixesForGuilds() {
-        final Enumeration properties = STANDARD_SETTINGS.getSettings().propertyNames();
-        while (properties.hasMoreElements()) {
-            final String property = (String) properties.nextElement();
-            if (property != null && !property.isEmpty() && property.startsWith("guild_command_prefix_")) {
-                final String guild_id = property.replaceFirst("guild_command_prefix_", "");
-                final String commandPrefix = STANDARD_SETTINGS.getProperty(property, null);
-                setCommandPrefixForGuild(guild_id, commandPrefix);
-            }
+    
+    //****************************************************************//
+    //*********************GUILD SPECIFIC START***********************//
+    //****************************************************************//
+    
+    public static final Settings getGuildSettings(Guild guild) {
+        if (guild == null) {
+            return null;
         }
-        return true;
+        return getGuildSettings(guild.getId());
     }
-
+    
+    public static final Settings getGuildSettings(String guild_id) {
+        Settings settings = GUILD_SETTINGS.get(guild_id);
+        if (settings == null) {
+            settings = new Settings(STANDARD_GUILD_SETTINGS_FILENAMER.createFile(STANDARD_GUILD_SETTINGS_FOLDER, guild_id)).setAutoAddProperties(true);
+            settings.loadSettings();
+            GUILD_SETTINGS.put(guild_id, settings);
+        }
+        return settings;
+    }
+    
     public static final String getCommandPrefixByGuild(Guild guild) {
         return getCommandPrefixByGuild(guild.getId());
     }
@@ -236,6 +196,44 @@ public class Standard {
         getGuildSettings(guild_id).setProperty("command_prefix", commandPrefix);
         return true;
     }
+
+    public static final long getAutoDeleteCommandNotFoundMessageDelayByGuild(Guild guild) {
+        return getAutoDeleteCommandNotFoundMessageDelayByGuild(guild.getId());
+    }
+    
+    public static final long getAutoDeleteCommandNotFoundMessageDelayByGuild(String guild_id) {
+        return getGuildSettings(guild_id).getProperty("autoDeleteCommandNotFoundMessageDelay", -1);
+    }
+    
+    public static final boolean setAutoDeleteCommandNotFoundMessageDelayForGuild(Guild guild, long autoDeleteCommandNotFoundMessageDelay) {
+        return setAutoDeleteCommandNotFoundMessageDelayForGuild(guild.getId(), autoDeleteCommandNotFoundMessageDelay);
+    }
+
+    public static final boolean setAutoDeleteCommandNotFoundMessageDelayForGuild(String guild_id, long autoDeleteCommandNotFoundMessageDelay) {
+        getGuildSettings(guild_id).setProperty("autoDeleteCommandNotFoundMessageDelay", autoDeleteCommandNotFoundMessageDelay);
+        return true;
+    }
+
+    public static final boolean isAutoDeletingCommandByGuild(Guild guild) {
+        return isAutoDeletingCommandByGuild(guild.getId());
+    }
+    
+    public static final boolean isAutoDeletingCommandByGuild(String guild_id) {
+        return getGuildSettings(guild_id).getProperty("autoDeletingCommand", false);
+    }
+
+    public static final boolean setAutoDeletingCommandForGuild(Guild guild, boolean autoDeletingCommand) {
+        return setAutoDeletingCommandForGuild(guild.getId(), autoDeletingCommand);
+    }
+    
+    public static final boolean setAutoDeletingCommandForGuild(String guild_id, boolean autoDeletingCommand) {
+        getGuildSettings(guild_id).setProperty("autoDeletingCommand", autoDeletingCommand);
+        return true;
+    }
+    
+    //****************************************************************//
+    //*********************GUILD SPECIFIC STOP************************//
+    //****************************************************************//
 
     public static final Message getNoPermissionMessage(User user, String extra) {
         return new MessageBuilder().append(String.format(":warning: Sorry %s, you don't have the permissions to use this %s!", user.getAsMention(), extra)).build();

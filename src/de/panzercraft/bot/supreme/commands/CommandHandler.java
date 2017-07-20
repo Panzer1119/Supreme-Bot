@@ -1,7 +1,6 @@
 package de.panzercraft.bot.supreme.commands;
 
 import de.panzercraft.bot.supreme.permission.PermissionHandler;
-import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
 import de.panzercraft.bot.supreme.util.Standard;
 import de.panzercraft.bot.supreme.util.Util;
@@ -9,8 +8,6 @@ import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.PermissionOverride;
-import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -28,7 +25,7 @@ public class CommandHandler {
                 return false;
             }
             final Command command = getCommandByInvoke(commandContainer.invoke);
-            if (Standard.isAutoDeletingCommand()) {
+            if (Standard.isAutoDeletingCommandByGuild(commandContainer.event.getGuild())) {
                 commandContainer.event.getMessage().delete().queue();
             }
             if (command != null) {
@@ -45,7 +42,7 @@ public class CommandHandler {
                 return safe;
             } else {
                 final Message message = commandContainer.event.getTextChannel().sendMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", commandContainer.event.getAuthor().getAsMention(), commandContainer.invoke).complete();
-                final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelay();
+                final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild());
                 if (delay != -1) {
                     Util.deleteMessage(message, delay);
                 }
