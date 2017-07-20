@@ -30,7 +30,6 @@ public class Standard {
     public static final String COMMAND_DELIMITER_STRING = " ";
     public static final int STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED = 10;
     public static final int PLAYLIST_LIMIT = 1000;
-    private static final HashMap<String, String> COMMAND_PREFIXES = new HashMap<>();
     private static byte[] TOKEN = null;
     private static String STANDARD_COMMAND_PREFIX = "!";
     private static long AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = -1;
@@ -223,12 +222,7 @@ public class Standard {
     }
 
     public static final String getCommandPrefixByGuild(String guild_id) {
-        String commandPrefix = COMMAND_PREFIXES.get(guild_id);
-        if (commandPrefix == null) {
-            commandPrefix = getStandardCommandPrefix();
-            setCommandPrefixForGuild(guild_id, commandPrefix);
-        }
-        return commandPrefix;
+        return getGuildSettings(guild_id).getProperty("command_prefix", getStandardCommandPrefix());
     }
 
     public static final boolean setCommandPrefixForGuild(Guild guild, String commandPrefix) {
@@ -239,8 +233,7 @@ public class Standard {
         if (commandPrefix.contains("\\")) {
             return false;
         }
-        COMMAND_PREFIXES.put(guild_id, commandPrefix);
-        STANDARD_SETTINGS.setProperty("guild_command_prefix_" + guild_id, commandPrefix);
+        getGuildSettings(guild_id).setProperty("command_prefix", commandPrefix);
         return true;
     }
 
