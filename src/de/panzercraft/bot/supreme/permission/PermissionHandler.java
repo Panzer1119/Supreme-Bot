@@ -1,14 +1,11 @@
 package de.panzercraft.bot.supreme.permission;
 
 import de.panzercraft.bot.supreme.util.Standard;
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.PermissionOverride;
-import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -32,7 +29,7 @@ public class PermissionHandler {
             }
         }
         if (withMessage) {
-            event.getTextChannel().sendMessage(Standard.getNoPermissionMessage(event.getAuthor(), "command")).queue();
+            sendNoPermissionMessage(event);
         }
         return false;
     }
@@ -72,6 +69,11 @@ public class PermissionHandler {
                 return false;
             }
         }
+        return true;
+    }
+    
+    public static final boolean sendNoPermissionMessage(MessageReceivedEvent event) {
+        event.getTextChannel().sendMessage(Standard.getNoPermissionMessage(event.getAuthor(), "command")).queue();
         return true;
     }
     

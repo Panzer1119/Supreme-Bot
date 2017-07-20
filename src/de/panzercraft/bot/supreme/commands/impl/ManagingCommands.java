@@ -4,10 +4,12 @@ import de.panzercraft.bot.supreme.commands.Command;
 import de.panzercraft.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
 import de.panzercraft.bot.supreme.core.SupremeBot;
+import de.panzercraft.bot.supreme.permission.PermissionHandler;
 import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
 import de.panzercraft.bot.supreme.util.IntegerHolder;
 import de.panzercraft.bot.supreme.util.Standard;
+import de.panzercraft.bot.supreme.util.Util;
 import java.awt.Color;
 import java.io.File;
 import java.util.List;
@@ -594,6 +596,10 @@ public class ManagingCommands {
                     guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
                 }
                 key = arguments.consumeFirst();
+                if (Util.contains(Standard.ULTRA_FORBIDDEN, key)) {
+                    PermissionHandler.sendNoPermissionMessage(event);
+                    return;
+                }
                 value = arguments.consumeFirst();
                 String value_old = null;
                 if (guild_id == null) {
@@ -611,6 +617,10 @@ public class ManagingCommands {
                     guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
                 }
                 key = arguments.consumeFirst();
+                if (Util.contains(Standard.ULTRA_FORBIDDEN, key)) {
+                    PermissionHandler.sendNoPermissionMessage(event);
+                    return;
+                }
                 if (guild_id == null) {
                     value = Standard.STANDARD_SETTINGS.getProperty(key, null);
                     event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " get").addField("" + key, "" + value, false).build()).queue();
@@ -623,6 +633,10 @@ public class ManagingCommands {
                     guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
                 }
                 key = arguments.consumeFirst();
+                if (Util.contains(Standard.ULTRA_FORBIDDEN, key)) {
+                    PermissionHandler.sendNoPermissionMessage(event);
+                    return;
+                }
                 if (guild_id == null) {
                     value = Standard.STANDARD_SETTINGS.getProperty(key, null);
                     Standard.STANDARD_SETTINGS.removeProperty(key);

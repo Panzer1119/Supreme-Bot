@@ -1,5 +1,7 @@
 package de.panzercraft.bot.supreme.settings;
 
+import de.panzercraft.bot.supreme.util.Standard;
+import de.panzercraft.bot.supreme.util.Util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -285,7 +287,7 @@ public class Settings {
     }
     
     public final EmbedBuilder toEmbed(EmbedBuilder builder) {
-        settings.stringPropertyNames().stream().filter((key) -> !key.equalsIgnoreCase("token")).forEach((key) -> {
+        settings.stringPropertyNames().stream().filter((key) -> !Util.contains(Standard.ULTRA_FORBIDDEN, key)).forEach((key) -> {
             builder.addField("" + key, "" + settings.getProperty(key, "" + null), false);
         });
         return builder;
