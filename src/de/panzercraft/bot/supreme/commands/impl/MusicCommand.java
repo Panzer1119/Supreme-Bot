@@ -14,6 +14,7 @@ import de.panzercraft.bot.supreme.audio.core.PlayerSendHandler;
 import de.panzercraft.bot.supreme.audio.core.TrackManager;
 import de.panzercraft.bot.supreme.commands.Command;
 import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
+import de.panzercraft.bot.supreme.entities.MessageEvent;
 import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
 import de.panzercraft.bot.supreme.util.Standard;
 import java.util.AbstractMap;
@@ -26,7 +27,6 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
  * MusicCommand
@@ -138,12 +138,12 @@ public class MusicCommand implements Command {
     }
 
     @Override
-    public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+    public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
         return arguments != null && arguments.size() >= 1;
     }
 
     @Override
-    public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+    public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
         TrackManager manager_;
         try {
             guild = event.getGuild();
@@ -197,7 +197,7 @@ public class MusicCommand implements Command {
                     }
                     final AudioTrack track = getPlayer(guild).getPlayingTrack();
                     final AudioTrackInfo trackInfo = track.getInfo();
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build()).queue();
+                    event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
                     break;
                 case "queue":
                     if (isIdle(guild)) {
@@ -219,7 +219,7 @@ public class MusicCommand implements Command {
                     final int sideNumberAll = tracks.size() >= 20 ? tracks.size() / 20 : 1; //FIXME Make this variable (Anzahl Tracks pro Seite)
                     tracks.clear();
                     tracksSublist.clear();
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE:**%n*[%s Tracks | Side %d / %d]*%s", manager_.getQueue().size(), sideNumber, sideNumberAll, out).build()).queue();
+                    event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE:**%n*[%s Tracks | Side %d / %d]*%s", manager_.getQueue().size(), sideNumber, sideNumberAll, out).build());
                     break;
             }
         } catch (Exception ex) {
@@ -228,7 +228,7 @@ public class MusicCommand implements Command {
     }
 
     @Override
-    public final void executed(boolean success, MessageReceivedEvent event) {
+    public final void executed(boolean success, MessageEvent event) {
 
     }
 

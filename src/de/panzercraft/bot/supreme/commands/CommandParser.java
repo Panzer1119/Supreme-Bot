@@ -1,10 +1,10 @@
 package de.panzercraft.bot.supreme.commands;
 
 import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
+import de.panzercraft.bot.supreme.entities.MessageEvent;
 import de.panzercraft.bot.supreme.util.Standard;
 import java.util.ArrayList;
 import java.util.Arrays;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
  * CommandParser
@@ -13,7 +13,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
  */
 public class CommandParser {
 
-    public static final CommandContainer parser(String raw, MessageReceivedEvent event) {
+    public static final CommandContainer parser(String raw, MessageEvent event) {
         final String beheaded = raw.replaceFirst(Standard.getCommandPrefixByGuild(event.getGuild()), "");
         final String beheaded_corrected = beheaded.replace("\\", "\\\\");
         final String[] beheaded_split = getArguments(beheaded_corrected);

@@ -9,7 +9,6 @@ import de.panzercraft.bot.supreme.util.Standard;
 import de.panzercraft.bot.supreme.util.Util;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
  * HelpCommand
@@ -24,12 +23,12 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    public boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+    public boolean called(String invoke, ArgumentList arguments, de.panzercraft.bot.supreme.entities.MessageEvent event) {
         return true;
     }
 
     @Override
-    public void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) { //TODO Das mit Seiten und so machen, wie bei der Musik Playlist....
+    public void action(String invoke, ArgumentList arguments, de.panzercraft.bot.supreme.entities.MessageEvent event) { //TODO Das mit Seiten und so machen, wie bei der Musik Playlist....
         if (arguments != null && arguments.isSize(1, -1)) {
             final boolean sendPrivate = arguments.isConsumed(Standard.ARGUMENT_PRIVATE, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
             while (arguments.hasArguments()) {
@@ -38,7 +37,7 @@ public class HelpCommand implements Command {
                 if (command != null) {
                     CommandHandler.sendHelpMessage(event, command, sendPrivate);
                 } else {
-                    final Message message = event.getTextChannel().sendMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", event.getAuthor().getAsMention(), command_invoke).complete();
+                    final Message message = event.sendAndWaitMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", event.getAuthor().getAsMention(), command_invoke);
                     final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(event.getGuild());
                     if (delay != -1) {
                         Util.deleteMessage(message, delay);
@@ -51,7 +50,7 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    public void executed(boolean success, MessageReceivedEvent event) {
+    public void executed(boolean success, de.panzercraft.bot.supreme.entities.MessageEvent event) {
         System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
     }
 

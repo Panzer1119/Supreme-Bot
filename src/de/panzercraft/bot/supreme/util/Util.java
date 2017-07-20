@@ -192,5 +192,53 @@ public class Util {
             return false;
         }
     }
+    
+    public static final Message sendAndWaitPrivateMessage(User user, String message) {
+        try {
+            final PrivateChannel privateChannel = user.openPrivateChannel().complete();
+            final Message temp = privateChannel.sendMessage(message).complete();
+            privateChannel.close();
+            return temp;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return null;
+        }
+    }
+    
+    public static final Message sendAndWaitPrivateMessageFormat(User user, String message, Object... format) {
+        try {
+            final PrivateChannel privateChannel = user.openPrivateChannel().complete();
+            final Message temp = privateChannel.sendMessageFormat(message, format).complete();
+            privateChannel.close();
+            return temp;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return null;
+        }
+    }
+    
+    public static final Message sendAndWaitPrivateMessage(User user, Message message) {
+        try {
+            final PrivateChannel privateChannel = user.openPrivateChannel().complete();
+            final Message temp = privateChannel.sendMessage(message).complete();
+            privateChannel.close();
+            return temp;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return null;
+        }
+    }
+    
+    public static final Message sendAndWaitPrivateMessage(User user, MessageEmbed message) {
+        try {
+            final PrivateChannel privateChannel = user.openPrivateChannel().complete();
+            final Message temp = privateChannel.sendMessage(message).complete();
+            privateChannel.close();
+            return temp;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return null;
+        }
+    }
 
 }

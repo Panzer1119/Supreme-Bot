@@ -1,5 +1,6 @@
 package de.panzercraft.bot.supreme.commands;
 
+import de.panzercraft.bot.supreme.entities.MessageEvent;
 import de.panzercraft.bot.supreme.permission.PermissionHandler;
 import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
 import de.panzercraft.bot.supreme.util.Standard;
@@ -8,7 +9,6 @@ import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
  * CommandHandler
@@ -41,7 +41,7 @@ public class CommandHandler {
                 command.executed(safe, commandContainer.event);
                 return safe;
             } else {
-                final Message message = commandContainer.event.getTextChannel().sendMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", commandContainer.event.getAuthor().getAsMention(), commandContainer.invoke).complete();
+                final Message message = commandContainer.event.sendAndWaitMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", commandContainer.event.getAuthor().getAsMention(), commandContainer.invoke);
                 final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild());
                 if (delay != -1) {
                     Util.deleteMessage(message, delay);
@@ -113,13 +113,16 @@ public class CommandHandler {
         }
     }
     
-    public static final boolean sendHelpMessage(MessageReceivedEvent event, Command command, boolean sendPrivate) {
+    public static final boolean sendHelpMessage(MessageEvent event, Command command, boolean sendPrivate) {
         if (event == null || command == null) {
             return false;
         }
         final PermissionRoleFilter filter = command.getPermissionRoleFilter();
         if (filter != null && !PermissionHandler.check(filter, event, true)) {
             return false;
+        }
+        if (!sendPrivate && event.isPrivate()) {
+            sendPrivate = true;
         }
         if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty("send_help_always_private", false)) {
             Util.sendPrivateMessage(event.getAuthor(), command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build());
@@ -129,7 +132,7 @@ public class CommandHandler {
                 Util.sendPrivateMessage(event.getAuthor(), command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build());
                 return false;
             }
-            event.getTextChannel().sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+            event.sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build());
         }
         return true;
     }

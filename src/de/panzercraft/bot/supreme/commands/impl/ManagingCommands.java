@@ -4,6 +4,7 @@ import de.panzercraft.bot.supreme.commands.Command;
 import de.panzercraft.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
 import de.panzercraft.bot.supreme.core.SupremeBot;
+import de.panzercraft.bot.supreme.entities.MessageEvent;
 import de.panzercraft.bot.supreme.permission.PermissionHandler;
 import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
@@ -12,7 +13,6 @@ import de.panzercraft.bot.supreme.util.Standard;
 import de.panzercraft.bot.supreme.util.Util;
 import java.awt.Color;
 import java.io.File;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -20,7 +20,6 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageHistory;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
  *
@@ -36,7 +35,7 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
             final boolean global = (arguments == null ? false : arguments.isConsumed(Standard.ARGUMENT_GLOBAL, ArgumentConsumeType.ALL_IGNORE_CASE));
             switch (invoke) {
                 case "changeCommandPrefix":
@@ -55,7 +54,7 @@ public class ManagingCommands {
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
             final boolean global = arguments.isConsumed(Standard.ARGUMENT_GLOBAL, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
             if (!global && arguments.isSize(2, -1)) {
                 return;
@@ -68,28 +67,28 @@ public class ManagingCommands {
                     }
                     if (global) {
                         if (Standard.setStandardCommandPrefix(commandPrefix)) {
-                            event.getTextChannel().sendMessageFormat("Changed Global Command Prefix to \"%s\"", commandPrefix).queue();
+                            event.sendMessageFormat("Changed Global Command Prefix to \"%s\"", commandPrefix);
                         } else {
-                            event.getTextChannel().sendMessageFormat("Global Command Prefix wasn't changed, it's still \"%s\"", Standard.getStandardCommandPrefix()).queue();
+                            event.sendMessageFormat("Global Command Prefix wasn't changed, it's still \"%s\"", Standard.getStandardCommandPrefix());
                         }
                     } else if (Standard.setCommandPrefixForGuild(event.getGuild(), commandPrefix)) {
-                        event.getTextChannel().sendMessageFormat("Changed Command Prefix to \"%s\"", commandPrefix).queue();
+                        event.sendMessageFormat("Changed Command Prefix to \"%s\"", commandPrefix);
                     } else {
-                        event.getTextChannel().sendMessageFormat("Command Prefix wasn't changed, it's still \"%s\"", Standard.getCommandPrefixByGuild(event.getGuild())).queue();
+                        event.sendMessageFormat("Command Prefix wasn't changed, it's still \"%s\"", Standard.getCommandPrefixByGuild(event.getGuild()));
                     }
                     break;
                 case "getCommandPrefix":
                     if (global) {
-                        event.getTextChannel().sendMessageFormat("Global Command Prefix is \"%s\"", Standard.getStandardCommandPrefix()).queue();
+                        event.sendMessageFormat("Global Command Prefix is \"%s\"", Standard.getStandardCommandPrefix());
                     } else {
-                        event.getTextChannel().sendMessageFormat("Command Prefix for this Guild is \"%s\"", Standard.getCommandPrefixByGuild(event.getGuild())).queue();
+                        event.sendMessageFormat("Command Prefix for this Guild is \"%s\"", Standard.getCommandPrefixByGuild(event.getGuild()));
                     }
                     break;
             }
         }
 
         @Override
-        public final void executed(boolean success, MessageReceivedEvent event) {
+        public final void executed(boolean success, MessageEvent event) {
             System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
@@ -135,12 +134,12 @@ public class ManagingCommands {
             return true;
         }
 
-        protected final EmbedBuilder getRestartingMessage(MessageReceivedEvent event, double delayInSeconds, int value) {
+        protected final EmbedBuilder getRestartingMessage(MessageEvent event, double delayInSeconds, int value) {
             long rest = ((long) (delayInSeconds + 0.5)) - value;
             return Standard.getMessageEmbed(Color.YELLOW, "%s is restarting me in %d second%s!", event.getAuthor().getAsMention(), rest, (rest == 1 ? "" : "s"));
         }
 
-        protected final EmbedBuilder getStoppingMessage(MessageReceivedEvent event, double delayInSeconds, int value) {
+        protected final EmbedBuilder getStoppingMessage(MessageEvent event, double delayInSeconds, int value) {
             long rest = ((long) (delayInSeconds + 0.5)) - value;
             return Standard.getMessageEmbed(Color.YELLOW, "%s is stopping me in %d second%s!", event.getAuthor().getAsMention(), rest, (rest == 1 ? "" : "s"));
         }
@@ -155,16 +154,16 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
             return arguments == null || arguments.isSize(0, 1);
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
             if (arguments != null && arguments.size() >= 1) {
                 try {
                     final double delayStopInSeconds = Double.parseDouble(arguments.consumeFirst());
-                    final Message message = event.getTextChannel().sendMessage(getRestartingMessage(event, delayStopInSeconds, 0).build()).complete();
+                    final Message message = event.sendAndWaitMessage(getRestartingMessage(event, delayStopInSeconds, 0).build());
                     final Timer timer = new Timer();
                     final IntegerHolder i = new IntegerHolder();
                     final TimerTask timerTask = new TimerTask() {
@@ -197,7 +196,7 @@ public class ManagingCommands {
                 }
             }
             try {
-                event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build()).queue();
+                event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build());
                 stopCompletely(0);
             } catch (Exception ex) {
                 stopCompletely(-1);
@@ -205,7 +204,7 @@ public class ManagingCommands {
         }
 
         @Override
-        public final void executed(boolean success, MessageReceivedEvent event) {
+        public final void executed(boolean success, MessageEvent event) {
             System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
@@ -239,12 +238,12 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
             return arguments == null || arguments.isSize(0, 2);
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
             if (arguments != null && arguments.size() >= 1) {
                 try {
                     final double delayStopInSeconds = Double.parseDouble(arguments.consumeFirst());
@@ -253,7 +252,7 @@ public class ManagingCommands {
                         delayStartInSeconds_temp = Double.parseDouble(arguments.consumeFirst());
                     }
                     final double delayStartInSeconds = delayStartInSeconds_temp;
-                    final Message message = event.getTextChannel().sendMessage(getRestartingMessage(event, delayStopInSeconds, 0).build()).complete();
+                    final Message message = event.sendAndWaitMessage(getRestartingMessage(event, delayStopInSeconds, 0).build());
                     final Timer timer = new Timer();
                     final IntegerHolder i = new IntegerHolder();
                     final TimerTask timerTask = new TimerTask() {
@@ -291,14 +290,14 @@ public class ManagingCommands {
                 }
             }
             try {
-                event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s restarted me!", event.getAuthor().getAsMention()).build()).queue();
+                event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s restarted me!", event.getAuthor().getAsMention()).build());
                 restart();
             } catch (Exception ex) {
             }
         }
 
         @Override
-        public final void executed(boolean success, MessageReceivedEvent event) {
+        public final void executed(boolean success, MessageEvent event) {
             System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
@@ -332,27 +331,27 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
             return arguments != null && arguments.isSize(1, 2);
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
             final File file = new File(arguments.get(0));
             if (file.exists() && file.isFile()) {
                 final Message message = new MessageBuilder().appendFormat("%s here is your requested file:", event.getAuthor().getAsMention()).build();
                 if (arguments.size() == 2) {
-                    event.getTextChannel().sendFile(file, arguments.get(1), message).queue();
+                    event.sendFile(file, arguments.get(1), message);
                 } else {
-                    event.getTextChannel().sendFile(file, message).queue();
+                    event.sendFile(file, message);
                 }
             } else {
-                event.getTextChannel().sendMessageFormat(":warning: Sorry, %s the file \"%s\" wasn't found!", event.getAuthor(), arguments.get(0)).queue();
+                event.sendMessageFormat(":warning: Sorry, %s the file \"%s\" wasn't found!", event.getAuthor(), arguments.get(0));
             }
         }
 
         @Override
-        public final void executed(boolean success, MessageReceivedEvent event) {
+        public final void executed(boolean success, MessageEvent event) {
             System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
@@ -378,17 +377,17 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
             return true;
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
-            event.getTextChannel().sendMessage(event.getMessage().getContent()).queue();
+        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
+            event.sendMessage(event.getMessage().getContent());
         }
 
         @Override
-        public final void executed(boolean success, MessageReceivedEvent event) {
+        public final void executed(boolean success, MessageEvent event) {
             System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
@@ -413,12 +412,12 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
             return arguments == null || arguments.isSize(0, 1);
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
             int clearLines = -1;
             if (arguments != null && arguments.size() >= 1) {
                 try {
@@ -433,15 +432,16 @@ public class ManagingCommands {
             clearLines %= 101;
             if (clearLines >= 1) {
                 try {
-                    final MessageHistory history = new MessageHistory(event.getTextChannel());
+                    final MessageHistory history = new MessageHistory(event.getMessageChannel());
                     if (clearLines > 1) {
                         event.getMessage().delete().queue();
                     } else {
                         clearLines++;
                     }
-                    final List<Message> messagesToDelete = history.retrievePast(clearLines).complete();
-                    event.getTextChannel().deleteMessages(messagesToDelete).queue();
-                    final Message message = event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.GREEN, "Deleted %d messages!", clearLines).build()).complete();
+                    history.retrievePast(clearLines).complete().stream().forEach((message) -> {
+                        event.getMessageChannel().deleteMessageById(message.getId()).queue();
+                    });
+                    final Message message = event.sendAndWaitMessage(Standard.getMessageEmbed(Color.GREEN, "Deleted %d messages!", clearLines).build());
                     new Timer().schedule(new TimerTask() {
                         @Override
                         public void run() {
@@ -453,12 +453,12 @@ public class ManagingCommands {
                     ex.printStackTrace();
                 }
             } else {
-                event.getTextChannel().sendMessageFormat(":warning: Sorry, %s you need to delete at least 1 messages!", event.getAuthor()).queue();
+                event.sendMessageFormat(":warning: Sorry, %s you need to delete at least 1 messages!", event.getAuthor());
             }
         }
 
         @Override
-        public final void executed(boolean success, MessageReceivedEvent event) {
+        public final void executed(boolean success, MessageEvent event) {
             System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
@@ -486,12 +486,12 @@ public class ManagingCommands {
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
             return true;
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
             if (arguments != null && arguments.size() == 2) {
                 if (arguments.consumeFirst(Standard.ARGUMENT_GUILD_SETTINGS, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
                     if (!arguments.consume(Standard.ARGUMENT_ALL, ArgumentConsumeType.FIRST_IGNORE_CASE, 1) && !arguments.consume(Standard.ARGUMENT_SETTINGS, ArgumentConsumeType.FIRST_IGNORE_CASE, 1) && !arguments.consume(Standard.ARGUMENT_PERMISSIONS, ArgumentConsumeType.FIRST_IGNORE_CASE, 1)) {
@@ -499,7 +499,7 @@ public class ManagingCommands {
                         final String guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
                         if (guild_id != null) {
                             SupremeBot.reloadGuildSettings(guild_id);
-                            event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s for %s (ID: %s)!", event.getAuthor().getAsMention(), Standard.ARGUMENT_GUILD_SETTINGS.getArgument(), Standard.getGuildById(guild_id).getName(), guild_id).build()).queue();
+                            event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s for %s (ID: %s)!", event.getAuthor().getAsMention(), Standard.ARGUMENT_GUILD_SETTINGS.getArgument(), Standard.getGuildById(guild_id).getName(), guild_id).build());
                             return;
                         }
                     }
@@ -509,26 +509,26 @@ public class ManagingCommands {
                 while (arguments.hasArguments()) {
                     if (arguments.consumeFirst(Standard.ARGUMENT_ALL, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
                         SupremeBot.reload();
-                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_ALL.getArgument()).build()).queue();
+                        event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_ALL.getArgument()).build());
                     } else if (arguments.consumeFirst(Standard.ARGUMENT_SETTINGS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
                         SupremeBot.reloadSettings();
-                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_SETTINGS.getArgument()).build()).queue();
+                        event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_SETTINGS.getArgument()).build());
                     } else if (arguments.consumeFirst(Standard.ARGUMENT_PERMISSIONS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
                         SupremeBot.reloadPermissions();
-                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_PERMISSIONS.getArgument()).build()).queue();
+                        event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_PERMISSIONS.getArgument()).build());
                     } else if (arguments.consumeFirst(Standard.ARGUMENT_GUILD_SETTINGS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
                         SupremeBot.reloadGuildSettings();
-                        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_GUILD_SETTINGS.getArgument()).build()).queue();
+                        event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_GUILD_SETTINGS.getArgument()).build());
                     }
                 }
             } else {
                 SupremeBot.reload();
-                event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded all!", event.getAuthor().getAsMention()).build()).queue();
+                event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded all!", event.getAuthor().getAsMention()).build());
             }
         }
 
         @Override
-        public final void executed(boolean success, MessageReceivedEvent event) {
+        public final void executed(boolean success, MessageEvent event) {
             System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 
@@ -562,7 +562,7 @@ public class ManagingCommands {
         }
 
         @Override
-        public boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
             if (arguments == null || arguments.isEmpty()) {
                 return false;
             }
@@ -587,7 +587,7 @@ public class ManagingCommands {
         }
 
         @Override
-        public void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+        public void action(String invoke, ArgumentList arguments, MessageEvent event) {
             final boolean set = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_SET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
             final boolean get = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_GET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
             final boolean remove = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_REMOVE, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
@@ -615,7 +615,7 @@ public class ManagingCommands {
                     Standard.reloadSettings();
                     final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " set").addField(key + " old:", "" + value_temp, false).addField(key + " new:", "" + value, false).build();
                     if (!sendPrivate) {
-                        event.getTextChannel().sendMessage(message).queue();
+                        event.sendMessage(message);
                     } else {
                         Util.sendPrivateMessage(event.getAuthor(), message);
                     }
@@ -624,7 +624,7 @@ public class ManagingCommands {
                     Standard.getGuildSettings(guild_id).setProperty(key, value);
                     final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) set", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField(key + " old:", "" + value_temp, false).addField(key + " new:", "" + value, false).build();
                     if (!sendPrivate) {
-                        event.getTextChannel().sendMessage(message).queue();
+                        event.sendMessage(message);
                     } else {
                         Util.sendPrivateMessage(event.getAuthor(), message);
                     }
@@ -648,7 +648,7 @@ public class ManagingCommands {
                     value = Standard.STANDARD_SETTINGS.getProperty(key, value_temp);
                     final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " get").addField("" + key, "" + value, false).build();
                     if (!sendPrivate) {
-                        event.getTextChannel().sendMessage(message).queue();
+                        event.sendMessage(message);
                     } else {
                         Util.sendPrivateMessage(event.getAuthor(), message);
                     }
@@ -656,7 +656,7 @@ public class ManagingCommands {
                     value = Standard.getGuildSettings(guild_id).getProperty(key, value_temp);
                     final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) get", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField("" + key, "" + value, false).build();
                     if (!sendPrivate) {
-                        event.getTextChannel().sendMessage(message).queue();
+                        event.sendMessage(message);
                     } else {
                         Util.sendPrivateMessage(event.getAuthor(), message);
                     }
@@ -673,26 +673,26 @@ public class ManagingCommands {
                 if (guild_id == null) {
                     value = Standard.STANDARD_SETTINGS.getProperty(key, null);
                     Standard.STANDARD_SETTINGS.removeProperty(key);
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " removed").addField("" + key, "" + value, false).build()).queue();
+                    event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " removed").addField("" + key, "" + value, false).build());
                 } else {
                     value = Standard.getGuildSettings(guild_id).getProperty(key, null);
                     Standard.getGuildSettings(guild_id).removeProperty(key);
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) removed", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField("" + key, "" + value, false).build()).queue();
+                    event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) removed", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField("" + key, "" + value, false).build());
                 }
             } else if (list) {
                 if (arguments.isSize(1)) {
                     guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
                 }
                 if (guild_id == null) {
-                    event.getTextChannel().sendMessage(Standard.STANDARD_SETTINGS.toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention() + " list")).build()).queue();
+                    event.sendMessage(Standard.STANDARD_SETTINGS.toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention() + " list")).build());
                 } else {
-                    event.getTextChannel().sendMessage(Standard.getGuildSettings(guild_id).toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention() + " list")).build()).queue();
+                    event.sendMessage(Standard.getGuildSettings(guild_id).toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention() + " list")).build());
                 }
             }
         }
 
         @Override
-        public void executed(boolean success, MessageReceivedEvent event) {
+        public void executed(boolean success, MessageEvent event) {
             System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
         }
 

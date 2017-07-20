@@ -1,7 +1,7 @@
 package de.panzercraft.bot.supreme.commands;
 
 import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import de.panzercraft.bot.supreme.entities.MessageEvent;
 
 /**
  * CommandContainer
@@ -15,9 +15,9 @@ public class CommandContainer {
     public final String[] splitBeheaded;
     public final String invoke;
     public final ArgumentList arguments;
-    public final MessageReceivedEvent event;
+    public final MessageEvent event;
 
-    public CommandContainer(String raw, String beheaded, String[] splitBeheaded, String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+    public CommandContainer(String raw, String beheaded, String[] splitBeheaded, String invoke, ArgumentList arguments, MessageEvent event) {
         this.raw = raw;
         this.beheaded = beheaded;
         this.splitBeheaded = splitBeheaded;

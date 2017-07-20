@@ -1,12 +1,12 @@
 package de.panzercraft.bot.supreme.permission;
 
+import de.panzercraft.bot.supreme.entities.MessageEvent;
 import de.panzercraft.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.PermissionOverride;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
  * PermissionHandler
@@ -15,18 +15,22 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
  */
 public class PermissionHandler {
 
-    public static final boolean check(PermissionRoleFilter filter, MessageReceivedEvent event, boolean withMessage) {
+    public static final boolean check(PermissionRoleFilter filter, MessageEvent event, boolean withMessage) {
         if (filter == null) {
             return true;
         }
         if (event == null) {
             return false;
         }
-        for (Role role : event.getGuild().getMember(event.getAuthor()).getRoles()) {
-            final PermissionRole temp = PermissionRole.getPermissionRoleByGuildIdAndRoleId(event.getGuild().getId(), role.getId());
-            if (temp != null && filter.isPermissionGranted(temp, event.getMember())) {
-                return true;
+        if (!event.isPrivate()) {
+            for (Role role : event.getGuild().getMember(event.getAuthor()).getRoles()) {
+                final PermissionRole temp = PermissionRole.getPermissionRoleByGuildIdAndRoleId(event.getGuild().getId(), role.getId());
+                if (temp != null && filter.isPermissionGranted(temp, event.getMember())) {
+                    return true;
+                }
             }
+        } else {
+            return Standard.isSuperOwner(event.getAuthor());
         }
         if (withMessage) {
             sendNoPermissionMessage(event);
@@ -72,9 +76,8 @@ public class PermissionHandler {
         return true;
     }
     
-    public static final boolean sendNoPermissionMessage(MessageReceivedEvent event) {
-        event.getTextChannel().sendMessage(Standard.getNoPermissionMessage(event.getAuthor(), "command")).queue();
-        return true;
+    public static final boolean sendNoPermissionMessage(MessageEvent event) {
+        return event.sendMessage(Standard.getNoPermissionMessage(event.getAuthor(), "command"));
     }
     
 }

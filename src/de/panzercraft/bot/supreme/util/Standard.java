@@ -3,6 +3,7 @@ package de.panzercraft.bot.supreme.util;
 import de.panzercraft.bot.supreme.commands.arguments.Argument;
 import de.panzercraft.bot.supreme.core.SupremeBot;
 import de.panzercraft.bot.supreme.entities.AdvancedGuild;
+import de.panzercraft.bot.supreme.entities.MessageEvent;
 import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.settings.Settings;
 import java.awt.Color;
@@ -14,7 +15,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -242,14 +242,14 @@ public class Standard {
     
     public static final String getCommandPrefixByGuild(Guild guild) {
         if (guild == null) {
-            return null;
+            return getStandardCommandPrefix();
         }
         return getCommandPrefixByGuild(guild.getId());
     }
 
     public static final String getCommandPrefixByGuild(String guild_id) {
         if (guild_id == null) {
-            return null;
+            return getStandardCommandPrefix();
         }
         return getGuildSettings(guild_id).getProperty("command_prefix", getStandardCommandPrefix());
     }
@@ -342,12 +342,6 @@ public class Standard {
     public static final EmbedBuilder getMessageEmbed(Color color, String format, Object... args) {
         return getMessageEmbed(color, String.format(format, args));
     }
-
-    public static final boolean sendErrorMessage(MessageReceivedEvent event, String content) {
-        event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.RED, content).build()).queue();
-        return true;
-    }
-
     public static final boolean isSuperOwner(Member member) {
         if (member == null) {
             return false;
