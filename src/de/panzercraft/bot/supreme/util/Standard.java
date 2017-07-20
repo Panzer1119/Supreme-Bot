@@ -6,7 +6,6 @@ import de.panzercraft.bot.supreme.permission.PermissionRole;
 import de.panzercraft.bot.supreme.settings.Settings;
 import java.awt.Color;
 import java.io.File;
-import java.util.Enumeration;
 import java.util.HashMap;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
