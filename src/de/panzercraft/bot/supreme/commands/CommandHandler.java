@@ -125,15 +125,11 @@ public class CommandHandler {
             return false;
         }
         if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty("send_help_always_private", false)) {
-            final PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
-            privateChannel.sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
-            privateChannel.close();
+            Util.sendPrivateMessage(event.getAuthor(), command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build());
         } else {
             final Guild guild = event.getGuild();
             if (!PermissionHandler.check(filter, guild, event.getTextChannel())) {
-                final PrivateChannel privateChannel = event.getAuthor().openPrivateChannel().complete();
-                privateChannel.sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
-                privateChannel.close();
+                Util.sendPrivateMessage(event.getAuthor(), command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build());
                 return false;
             }
             event.getTextChannel().sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();

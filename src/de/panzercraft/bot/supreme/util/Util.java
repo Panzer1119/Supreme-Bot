@@ -3,6 +3,9 @@ package de.panzercraft.bot.supreme.util;
 import java.util.Timer;
 import java.util.TimerTask;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.User;
 
 /**
  * Util
@@ -140,6 +143,54 @@ public class Util {
             }
         }, delayInMillis);
         return true;
+    }
+    
+    public static final boolean sendPrivateMessage(User user, String message) {
+        try {
+            final PrivateChannel privateChannel = user.openPrivateChannel().complete();
+            privateChannel.sendMessage(message).queue();
+            privateChannel.close();
+            return true;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return false;
+        }
+    }
+    
+    public static final boolean sendPrivateMessageFormat(User user, String message, Object... format) {
+        try {
+            final PrivateChannel privateChannel = user.openPrivateChannel().complete();
+            privateChannel.sendMessageFormat(message, format).queue();
+            privateChannel.close();
+            return true;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return false;
+        }
+    }
+    
+    public static final boolean sendPrivateMessage(User user, Message message) {
+        try {
+            final PrivateChannel privateChannel = user.openPrivateChannel().complete();
+            privateChannel.sendMessage(message).queue();
+            privateChannel.close();
+            return true;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return false;
+        }
+    }
+    
+    public static final boolean sendPrivateMessage(User user, MessageEmbed message) {
+        try {
+            final PrivateChannel privateChannel = user.openPrivateChannel().complete();
+            privateChannel.sendMessage(message).queue();
+            privateChannel.close();
+            return true;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return false;
+        }
     }
 
 }

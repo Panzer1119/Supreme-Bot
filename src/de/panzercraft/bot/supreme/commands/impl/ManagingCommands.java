@@ -18,6 +18,7 @@ import java.util.TimerTask;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -591,14 +592,17 @@ public class ManagingCommands {
             String guild_id = null;
             String key = "";
             String value = null;
+            boolean sendPrivate = false;
             if (set) {
                 if (arguments.isSize(3)) {
                     guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
                 }
                 key = arguments.consumeFirst();
-                if (Util.contains(Standard.ULTRA_FORBIDDEN, key)) {
+                if (Util.contains(Standard.ULTRA_FORBIDDEN, key) && !Standard.isSuperOwner(event.getAuthor())) {
                     PermissionHandler.sendNoPermissionMessage(event);
                     return;
+                } else if (!Standard.isSuperOwner(event.getAuthor())) {
+                    sendPrivate = true;
                 }
                 value = arguments.consumeFirst();
                 String value_old = null;
@@ -606,27 +610,49 @@ public class ManagingCommands {
                     value_old = Standard.STANDARD_SETTINGS.getProperty(key, null);
                     Standard.STANDARD_SETTINGS.setProperty(key, value);
                     Standard.reloadSettings();
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " set").addField(key + " old:", "" + value_old, false).addField(key + " new:", "" + value, false).build()).queue();
+                    final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " set").addField(key + " old:", "" + value_old, false).addField(key + " new:", "" + value, false).build();
+                    if (!sendPrivate) {
+                        event.getTextChannel().sendMessage(message).queue();
+                    } else {
+                        Util.sendPrivateMessage(event.getAuthor(), message);
+                    }
                 } else {
                     value_old = Standard.getGuildSettings(guild_id).getProperty(key, null);
                     Standard.getGuildSettings(guild_id).setProperty(key, value);
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) set", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField(key + " old:", "" + value_old, false).addField(key + " new:", "" + value, false).build()).queue();
+                    final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) set", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField(key + " old:", "" + value_old, false).addField(key + " new:", "" + value, false).build();
+                    if (!sendPrivate) {
+                        event.getTextChannel().sendMessage(message).queue();
+                    } else {
+                        Util.sendPrivateMessage(event.getAuthor(), message);
+                    }
                 }
             } else if (get) {
                 if (arguments.isSize(2)) {
                     guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
                 }
                 key = arguments.consumeFirst();
-                if (Util.contains(Standard.ULTRA_FORBIDDEN, key)) {
+                if (Util.contains(Standard.ULTRA_FORBIDDEN, key) && !Standard.isSuperOwner(event.getAuthor())) {
                     PermissionHandler.sendNoPermissionMessage(event);
                     return;
+                } else if (!Standard.isSuperOwner(event.getAuthor())) {
+                    sendPrivate = true;
                 }
                 if (guild_id == null) {
                     value = Standard.STANDARD_SETTINGS.getProperty(key, null);
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " get").addField("" + key, "" + value, false).build()).queue();
+                    final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " get").addField("" + key, "" + value, false).build();
+                    if (!sendPrivate) {
+                        event.getTextChannel().sendMessage(message).queue();
+                    } else {
+                        Util.sendPrivateMessage(event.getAuthor(), message);
+                    }
                 } else {
                     value = Standard.getGuildSettings(guild_id).getProperty(key, null);
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) get", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField("" + key, "" + value, false).build()).queue();
+                    final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) get", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField("" + key, "" + value, false).build();
+                    if (!sendPrivate) {
+                        event.getTextChannel().sendMessage(message).queue();
+                    } else {
+                        Util.sendPrivateMessage(event.getAuthor(), message);
+                    }
                 }
             } else if (remove) {
                 if (arguments.isSize(2)) {
