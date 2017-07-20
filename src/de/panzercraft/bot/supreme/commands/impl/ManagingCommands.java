@@ -565,10 +565,13 @@ public class ManagingCommands {
             }
             final boolean set = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_SET, ArgumentConsumeType.FIRST_IGNORE_CASE);
             final boolean get = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_GET, ArgumentConsumeType.FIRST_IGNORE_CASE);
+            final boolean remove = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_REMOVE, ArgumentConsumeType.FIRST_IGNORE_CASE);
             final boolean list = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_LIST, ArgumentConsumeType.FIRST_IGNORE_CASE);
             if (set) {
                 return arguments.isSize(3, 4);
             } else if (get) {
+                return arguments.isSize(2, 3);
+            } else if (remove) {
                 return arguments.isSize(2, 3);
             } else if (list) {
                 return arguments.isSize(1, 2);
@@ -581,6 +584,7 @@ public class ManagingCommands {
         public void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
             final boolean set = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_SET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
             final boolean get = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_GET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+            final boolean remove = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_REMOVE, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
             final boolean list = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_LIST, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
             String guild_id = null;
             String key = "";
@@ -596,11 +600,11 @@ public class ManagingCommands {
                     value_old = Standard.STANDARD_SETTINGS.getProperty(key, null);
                     Standard.STANDARD_SETTINGS.setProperty(key, value);
                     Standard.reloadSettings();
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention()).addField("Old: " + key, "" + value_old, false).addField("New: " + key, "" + value, false).build()).queue();
+                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " set").addField(key + " old:", "" + value_old, false).addField(key + " new:", "" + value, false).build()).queue();
                 } else {
                     value_old = Standard.getGuildSettings(guild_id).getProperty(key, null);
                     Standard.getGuildSettings(guild_id).setProperty(key, value);
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s)", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField("Old: " + key, "" + value_old, false).addField("New: " + key, "" + value, false).build()).queue();
+                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) set", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField(key + " old:", "" + value_old, false).addField(key + " new:", "" + value, false).build()).queue();
                 }
             } else if (get) {
                 if (arguments.isSize(2)) {
@@ -609,19 +613,33 @@ public class ManagingCommands {
                 key = arguments.consumeFirst();
                 if (guild_id == null) {
                     value = Standard.STANDARD_SETTINGS.getProperty(key, null);
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention()).addField(key, "" + value, false).build()).queue();
+                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " get").addField("" + key, "" + value, false).build()).queue();
                 } else {
                     value = Standard.getGuildSettings(guild_id).getProperty(key, null);
-                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s)", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField(key, "" + value, false).build()).queue();
+                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) get", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField("" + key, "" + value, false).build()).queue();
+                }
+            } else if (remove) {
+                if (arguments.isSize(2)) {
+                    guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
+                }
+                key = arguments.consumeFirst();
+                if (guild_id == null) {
+                    value = Standard.STANDARD_SETTINGS.getProperty(key, null);
+                    Standard.STANDARD_SETTINGS.removeProperty(key);
+                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, event.getAuthor().getAsMention() + " removed").addField("" + key, "" + value, false).build()).queue();
+                } else {
+                    value = Standard.getGuildSettings(guild_id).getProperty(key, null);
+                    Standard.getGuildSettings(guild_id).removeProperty(key);
+                    event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s %s (ID: %s) removed", event.getAuthor().getAsMention(), Standard.getGuildById(guild_id).getName(), guild_id).addField("" + key, "" + value, false).build()).queue();
                 }
             } else if (list) {
                 if (arguments.isSize(1)) {
                     guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
                 }
                 if (guild_id == null) {
-                    event.getTextChannel().sendMessage(Standard.STANDARD_SETTINGS.toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+                    event.getTextChannel().sendMessage(Standard.STANDARD_SETTINGS.toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention() + " list")).build()).queue();
                 } else {
-                    event.getTextChannel().sendMessage(Standard.getGuildSettings(guild_id).toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+                    event.getTextChannel().sendMessage(Standard.getGuildSettings(guild_id).toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention() + " list")).build()).queue();
                 }
             }
         }

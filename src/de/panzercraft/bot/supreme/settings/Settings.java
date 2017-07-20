@@ -110,6 +110,16 @@ public class Settings {
         }
     }
     
+    public final boolean removeProperty(String key) {
+        try {
+            settings.remove(key);
+            saveSettings();
+            return getProperty(key, null) == null;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
     public final Object setProperty(String key, String value) {
         return setProperty(key, value, true);
     }
@@ -276,7 +286,7 @@ public class Settings {
     
     public final EmbedBuilder toEmbed(EmbedBuilder builder) {
         settings.stringPropertyNames().stream().filter((key) -> !key.equalsIgnoreCase("token")).forEach((key) -> {
-            builder.addField(key, settings.getProperty(key, "" + null), false);
+            builder.addField("" + key, "" + settings.getProperty(key, "" + null), false);
         });
         return builder;
     }
