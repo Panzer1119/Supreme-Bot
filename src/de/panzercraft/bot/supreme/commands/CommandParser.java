@@ -15,13 +15,14 @@ public class CommandParser {
 
     public static final CommandContainer parser(String raw, MessageReceivedEvent event) {
         final String beheaded = raw.replaceFirst(Standard.getCommandPrefixByGuild(event.getGuild()), "");
-        final String[] beheaded_split = getArguments(beheaded);
+        final String beheaded_corrected = beheaded.replace("\\", "\\\\");
+        final String[] beheaded_split = getArguments(beheaded_corrected);
         final String invoke = beheaded_split[0];
         final ArrayList<String> split = new ArrayList<>(Arrays.asList(beheaded_split));
         final String[] args = split.subList(1, split.size()).toArray(new String[split.size() - 1]);
         final ArgumentList arguments = new ArgumentList(args);
         split.clear();
-        return new CommandContainer(raw, beheaded, beheaded_split, invoke, arguments, event);
+        return new CommandContainer(raw, beheaded_corrected, beheaded_split, invoke, arguments, event);
     }
     
     public static final String[] getArguments(String arguments) {
@@ -33,10 +34,14 @@ public class CommandParser {
             String c_string = "" + c;
             switch (c_string) {
                 case Standard.COMMAND_ESCAPE_STRING:
-                    i++;
-                    if (arguments.length() > i) {
-                        char c_2 = arguments.charAt(i);
-                        temp += c_2;
+                    if (isArg) {
+                        i++;
+                        if (arguments.length() > i) {
+                            char c_2 = arguments.charAt(i);
+                            temp += c_2;
+                        }
+                    } else {
+                        temp += Standard.COMMAND_ESCAPE_STRING;
                     }
                     break;
                 case Standard.COMMAND_ESCAPE_SPACE_STRING:

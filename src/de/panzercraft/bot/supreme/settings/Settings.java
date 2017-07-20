@@ -7,7 +7,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Properties;
+import net.dv8tion.jda.core.EmbedBuilder;
 
 /**
  * Settings
@@ -142,6 +146,30 @@ public class Settings {
 
     public final Properties getSettings() {
         return settings;
+    }
+    
+    public final ArrayList<Map.Entry<String, String>> toArrayList() {
+        final ArrayList<Map.Entry<String, String>> arrayList = new ArrayList<Map.Entry<String, String>>() {
+            @Override
+            public String toString() {
+                String out = "";
+                for (Map.Entry<String, String> property : this) {
+                    out += String.format("\n%s=%s", property.getKey(), property.getValue());
+                }
+                return out;
+            }
+        };
+        settings.stringPropertyNames().stream().forEach((key) -> {
+            arrayList.add(new AbstractMap.SimpleEntry<>(key, settings.getProperty(key, "" + null)));
+        });
+        return arrayList;
+    }
+    
+    public final EmbedBuilder toEmbed(EmbedBuilder builder) {
+        settings.stringPropertyNames().stream().filter((key) -> !key.equalsIgnoreCase("token")).forEach((key) -> {
+            builder.addField(key, settings.getProperty(key, "" + null), false);
+        });
+        return builder;
     }
     
     protected static final String generateComment() {

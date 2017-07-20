@@ -46,8 +46,9 @@ public class ManagingCommands {
                         return true;
                     }
                     return (global && (arguments.isSize(1))) || (!global && (arguments.isSize(0)));
+                default:
+                    return false;
             }
-            return false;
         }
 
         @Override
@@ -64,7 +65,7 @@ public class ManagingCommands {
                     }
                     if (global) {
                         if (Standard.setStandardCommandPrefix(commandPrefix)) {
-                            event.getTextChannel().sendMessageFormat("Changed Gloval Command Prefix to \"%s\"", commandPrefix).queue();
+                            event.getTextChannel().sendMessageFormat("Changed Global Command Prefix to \"%s\"", commandPrefix).queue();
                         } else {
                             event.getTextChannel().sendMessageFormat("Global Command Prefix wasn't changed, it's still \"%s\"", Standard.getStandardCommandPrefix()).queue();
                         }
@@ -103,9 +104,9 @@ public class ManagingCommands {
         }
 
     }
-    
+
     private static class AdministrativeCommands {
-        
+
         protected final boolean restart() {
             boolean good = false;
             if (stop()) {
@@ -120,11 +121,11 @@ public class ManagingCommands {
         protected final boolean stop() {
             return SupremeBot.stopJDA(false);
         }
-        
+
         protected final boolean start() {
             return SupremeBot.startJDA();
         }
-        
+
         protected final boolean stopCompletely(int status) {
             stop();
             System.exit(status);
@@ -135,12 +136,12 @@ public class ManagingCommands {
             long rest = ((long) (delayInSeconds + 0.5)) - value;
             return Standard.getMessageEmbed(Color.YELLOW, "%s is restarting me in %d second%s!", event.getAuthor().getAsMention(), rest, (rest == 1 ? "" : "s"));
         }
-        
+
         protected final EmbedBuilder getStoppingMessage(MessageReceivedEvent event, double delayInSeconds, int value) {
             long rest = ((long) (delayInSeconds + 0.5)) - value;
             return Standard.getMessageEmbed(Color.YELLOW, "%s is stopping me in %d second%s!", event.getAuthor().getAsMention(), rest, (rest == 1 ? "" : "s"));
         }
-        
+
     }
 
     public static class StopCommand extends AdministrativeCommands implements Command {
@@ -533,7 +534,84 @@ public class ManagingCommands {
         }
 
     }
-    
-    //TODO Info command hinzufuegen (der vielleicht noch je nach permission level mehr informationen anzeigt (ueber einen channel/member(/user)))
 
+    public static class SettingsCommand implements Command {
+
+        @Override
+        public String[] getInvokes() {
+            return new String[]{"settings", "s"};
+        }
+
+        @Override
+        public boolean called(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+            if (arguments == null || arguments.isEmpty()) {
+                return false;
+            }
+            final boolean set = arguments.isConsumed(Standard.ARGUMENT_SET, ArgumentConsumeType.FIRST_IGNORE_CASE);
+            final boolean get = arguments.isConsumed(Standard.ARGUMENT_GET, ArgumentConsumeType.FIRST_IGNORE_CASE);
+            final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.FIRST_IGNORE_CASE);
+            if (set) {
+                return arguments.isSize(3);
+            } else if (get) {
+                return arguments.isSize(2);
+            } else if (list) {
+                return arguments.isSize(1);
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public void action(String invoke, ArgumentList arguments, MessageReceivedEvent event) {
+            final boolean set = arguments.isConsumed(Standard.ARGUMENT_SET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+            final boolean get = arguments.isConsumed(Standard.ARGUMENT_GET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+            final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+            String key = "";
+            String value = null;
+            if (set) {
+                key = arguments.consumeFirst();
+                value = arguments.consumeFirst();
+                String value_old = Standard.STANDARD_SETTINGS.getProperty(key);
+                Standard.STANDARD_SETTINGS.setProperty(key, value);
+                Standard.reloadSettings();
+                event.getTextChannel().sendMessage(Standard.getMessageEmbed(Color.YELLOW, "Setted \"%s\" from \"%s\" to \"%s\"", key, value_old, value).build()).queue();
+            } else if (get) {
+                key = arguments.consumeFirst();
+                value = Standard.STANDARD_SETTINGS.getProperty(key);
+                event.getTextChannel().sendMessageFormat("%s \"%s\" is \"%s\"", event.getAuthor().getAsMention(), key, value).queue();
+            } else if (list) {
+                event.getTextChannel().sendMessage(Standard.STANDARD_SETTINGS.toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build()).queue();
+            }
+        }
+
+        @Override
+        public void executed(boolean success, MessageReceivedEvent event) {
+            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+        }
+
+        @Override
+        public EmbedBuilder getHelp(EmbedBuilder builder) {
+            for (String invoke : getInvokes()) {
+                builder.addField(String.format("%s %s <Key> <Value>", invoke, Standard.ARGUMENT_SET.getCompleteArgument(0)), "Sets the value for the key.", false);
+                builder.addField(String.format("%s %s <Key>", invoke, Standard.ARGUMENT_GET.getCompleteArgument(0)), "Gets the value for the key.", false);
+                builder.addField(String.format("%s %s", invoke, Standard.ARGUMENT_LIST.getCompleteArgument(0)), "Lists all keys and values.", false);
+            }
+            return builder;
+        }
+
+        @Override
+        public PermissionRoleFilter getPermissionRoleFilter() {
+            final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
+            final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
+            return (role, member) -> {
+                if (role.isThisHigherOrEqual(owner) || role.isThisEqual(bot_commander)) {
+                    return true;
+                }
+                return Standard.isSuperOwner(member);
+            };
+        }
+
+    }
+
+    //TODO Info command hinzufuegen (der vielleicht noch je nach permission level mehr informationen anzeigt (ueber einen channel/member(/user)))
 }

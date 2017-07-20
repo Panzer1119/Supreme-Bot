@@ -73,6 +73,7 @@ public class SupremeBot {
         CommandHandler.registerCommand(new ManagingCommands.SayCommand());
         CommandHandler.registerCommand(new ManagingCommands.ClearCommand());
         CommandHandler.registerCommand(new ManagingCommands.ReloadCommand());
+        CommandHandler.registerCommand(new ManagingCommands.SettingsCommand());
         CommandHandler.registerCommand(new MusicCommand());
         CommandHandler.registerCommand(new HelpCommand());
         return true;
