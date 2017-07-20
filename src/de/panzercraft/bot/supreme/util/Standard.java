@@ -293,6 +293,7 @@ public class Standard {
     public static final Argument ARGUMENT_SETTINGS_GET = new Argument("get", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_SETTINGS_REMOVE = new Argument("remove", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_SETTINGS_LIST = new Argument("list", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_SETTINGS_DEFAULT = new Argument("default", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_PERMISSIONS = new Argument("permissions", STANDARD_ARGUMENT_PREFIXES);
 
 }

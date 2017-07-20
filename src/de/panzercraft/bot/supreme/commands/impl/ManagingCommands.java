@@ -568,12 +568,15 @@ public class ManagingCommands {
             }
             final boolean set = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_SET, ArgumentConsumeType.FIRST_IGNORE_CASE);
             final boolean get = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_GET, ArgumentConsumeType.FIRST_IGNORE_CASE);
+            final boolean get_default = arguments.consume(Standard.ARGUMENT_SETTINGS_DEFAULT, ArgumentConsumeType.FIRST_IGNORE_CASE, 3);
             final boolean remove = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_REMOVE, ArgumentConsumeType.FIRST_IGNORE_CASE);
             final boolean list = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_LIST, ArgumentConsumeType.FIRST_IGNORE_CASE);
             if (set) {
                 return arguments.isSize(3, 4);
-            } else if (get) {
-                return arguments.isSize(2, 4);
+            } else if (get && !get_default) {
+                return arguments.isSize(2, 3);
+            } else if (get && get_default) {
+                return arguments.isSize(4, 5);
             } else if (remove) {
                 return arguments.isSize(2, 3);
             } else if (list) {
@@ -627,11 +630,12 @@ public class ManagingCommands {
                     }
                 }
             } else if (get) {
-                if (arguments.isSize(2, 3)) {
+                final boolean get_default = arguments.consume(Standard.ARGUMENT_SETTINGS_DEFAULT, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE, 2);
+                if (arguments.isSize(2) || (get_default && arguments.isSize(3))) {
                     guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
                 }
                 key = arguments.consumeFirst();
-                if (arguments.isSize(1)) {
+                if (get_default && arguments.isSize(1)) {
                     value_temp = arguments.consumeFirst();
                 }
                 if (Util.contains(Standard.ULTRA_FORBIDDEN, key) && !Standard.isSuperOwner(event.getAuthor())) {
@@ -696,7 +700,7 @@ public class ManagingCommands {
         public EmbedBuilder getHelp(EmbedBuilder builder) {
             for (String invoke : getInvokes()) {
                 builder.addField(String.format("%s %s [Guild ID] <Key> <Value>", invoke, Standard.ARGUMENT_SETTINGS_SET.getCompleteArgument(0)), "Sets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
-                builder.addField(String.format("%s %s [Guild ID] <Key> [Default Value]", invoke, Standard.ARGUMENT_SETTINGS_GET.getCompleteArgument(0)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
+                builder.addField(String.format("%s %s [Guild ID] <Key> [%s Default Value]", invoke, Standard.ARGUMENT_SETTINGS_GET.getCompleteArgument(0), Standard.ARGUMENT_SETTINGS_DEFAULT.getCompleteArgument(0)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
                 builder.addField(String.format("%s %s [Guild ID] <Key>", invoke, Standard.ARGUMENT_SETTINGS_REMOVE.getCompleteArgument(0)), "Removes the key and value. If a valid guild id is given, then the guild settings will be edited.", false);
                 builder.addField(String.format("%s %s [Guild ID]", invoke, Standard.ARGUMENT_SETTINGS_LIST.getCompleteArgument(0)), "Lists all keys and values. If a valid guild id is given, then the guild settings will be edited.", false);
             }
