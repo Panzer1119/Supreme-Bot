@@ -45,14 +45,25 @@ public class AdvancedGuild {
 
     public final File getFolder() {
         if (folder == null) {
-            folder = Standard.createGuildFolder(getGuild());
+            if (guild != null) {
+                folder = Standard.createGuildFolder(getGuild());
+            } else {
+                folder = Standard.createGuildFolder(getGuildId());
+            }
+        }
+        if (folder != null) {
+            folder.mkdirs();
         }
         return folder;
     }
 
     public final Settings getSettings() {
         if (settings == null) {
-            settings = new Settings(new File(getFolder().getAbsolutePath() + File.separator + Standard.STANDARD_GUILD_SETTINGS_FILE_NAME));
+            getFolder();
+            if (folder == null) {
+                return null;
+            }
+            settings = new Settings(new File(folder.getAbsolutePath() + File.separator + Standard.STANDARD_GUILD_SETTINGS_FILE_NAME));
         }
         return settings;
     }

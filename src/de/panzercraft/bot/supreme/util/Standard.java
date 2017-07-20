@@ -63,6 +63,7 @@ public class Standard {
             return true;
         } catch (Exception ex) {
             System.err.println("Not Reloaded Settings: " + ex);
+            ex.printStackTrace();
             return false;
         }
     }
@@ -88,58 +89,7 @@ public class Standard {
             return true;
         } catch (Exception ex) {
             System.err.println("Not Reloaded Permissions: " + ex);
-            return false;
-        }
-    }
-    
-    public static final boolean loadAllGuilds() {
-        try {
-            GUILDS.clear();
-            for (File file : STANDARD_GUILD_SETTINGS_FOLDER.listFiles()) {
-                GUILDS.add(new AdvancedGuild(file.getName()));
-            }
-            reloadAllGuilds();
-            System.out.println("Reloaded Guilds Folder!");
-            return true;
-        } catch (Exception ex) {
-            System.err.println("Not Reloaded Guilds Folder: " + ex);
-            return false;
-        }
-    }
-    
-    public static final boolean reloadAllGuilds() {
-        try {
-            reloadAllGuildSettings();
-            System.out.println("Reloaded All Guilds!");
-            return true;
-        } catch (Exception ex) {
-            System.err.println("Not Reloaded All Guilds: " + ex);
-            return false;
-        }
-    }
-    
-    public static final boolean reloadAllGuildSettings() {
-        try {
-            GUILDS.stream().forEach((advancedGuild) -> {
-                advancedGuild.getSettings().loadSettings();
-            });
-            System.out.println("Reloaded All Guild Settings!");
-            return true;
-        } catch (Exception ex) {
-            System.err.println("Not Reloaded All Guild Settings: " + ex);
-            return false;
-        }
-    }
-    
-    public static final boolean saveAllGuildSettings() {
-        try {
-            GUILDS.stream().forEach((advancedGuild) -> {
-                advancedGuild.getSettings().saveSettings();
-            });
-            System.out.println("Saved All Guild Settings!");
-            return true;
-        } catch (Exception ex) {
-            System.err.println("Not Saved All Guild Settings: " + ex);
+            ex.printStackTrace();
             return false;
         }
     }
@@ -171,11 +121,73 @@ public class Standard {
     //*********************GUILD SPECIFIC START***********************//
     //****************************************************************//
     
+    public static final boolean loadAllGuilds() {
+        try {
+            GUILDS.clear();
+            for (File file : STANDARD_GUILD_SETTINGS_FOLDER.listFiles()) {
+                GUILDS.add(new AdvancedGuild(file.getName()));
+            }
+            reloadAllGuilds();
+            System.out.println("Reloaded Guilds Folder!");
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Not Reloaded Guilds Folder: " + ex);
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    
+    public static final boolean reloadAllGuilds() {
+        try {
+            reloadAllGuildSettings();
+            System.out.println("Reloaded All Guilds!");
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Not Reloaded All Guilds: " + ex);
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    
+    public static final boolean reloadAllGuildSettings() {
+        try {
+            GUILDS.stream().forEach((advancedGuild) -> {
+                advancedGuild.getSettings().loadSettings();
+            });
+            System.out.println("Reloaded All Guild Settings!");
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Not Reloaded All Guild Settings: " + ex);
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    
+    public static final boolean saveAllGuildSettings() {
+        try {
+            GUILDS.stream().forEach((advancedGuild) -> {
+                advancedGuild.getSettings().saveSettings();
+            });
+            System.out.println("Saved All Guild Settings!");
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Not Saved All Guild Settings: " + ex);
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    
     public static final File createGuildFolder(Guild guild) {
+        if (guild == null) {
+            return null;
+        }
         return createGuildFolder(guild.getId());
     }
     
     public static final File createGuildFolder(String guild_id) {
+        if (guild_id == null) {
+            return null;
+        }
         try {
             final File file = new File(STANDARD_GUILD_SETTINGS_FOLDER.getAbsolutePath() + File.separator + guild_id);
             file.mkdirs();
@@ -200,6 +212,7 @@ public class Standard {
         AdvancedGuild advancedGuild = GUILDS.stream().filter((advancedGuild_) -> guild_id.equals(advancedGuild_.getGuildId())).findFirst().orElse(null);
         if (advancedGuild == null) {
             advancedGuild = new AdvancedGuild(guild_id);
+            advancedGuild.getSettings().loadSettings();
             GUILDS.add(advancedGuild);
         }
         return advancedGuild;
@@ -224,19 +237,28 @@ public class Standard {
     }
     
     public static final String getCommandPrefixByGuild(Guild guild) {
+        if (guild == null) {
+            return null;
+        }
         return getCommandPrefixByGuild(guild.getId());
     }
 
     public static final String getCommandPrefixByGuild(String guild_id) {
+        if (guild_id == null) {
+            return null;
+        }
         return getGuildSettings(guild_id).getProperty("command_prefix", getStandardCommandPrefix());
     }
 
     public static final boolean setCommandPrefixForGuild(Guild guild, String commandPrefix) {
+        if (guild == null) {
+            return false;
+        }
         return setCommandPrefixForGuild(guild.getId(), commandPrefix);
     }
 
     public static final boolean setCommandPrefixForGuild(String guild_id, String commandPrefix) {
-        if (commandPrefix.contains("\\")) {
+        if (guild_id == null || commandPrefix.contains("\\")) {
             return false;
         }
         getGuildSettings(guild_id).setProperty("command_prefix", commandPrefix);
@@ -244,35 +266,59 @@ public class Standard {
     }
 
     public static final long getAutoDeleteCommandNotFoundMessageDelayByGuild(Guild guild) {
+        if (guild == null) {
+            return -1;
+        }
         return getAutoDeleteCommandNotFoundMessageDelayByGuild(guild.getId());
     }
     
     public static final long getAutoDeleteCommandNotFoundMessageDelayByGuild(String guild_id) {
+        if (guild_id == null) {
+            return -1;
+        }
         return getGuildSettings(guild_id).getProperty("autoDeleteCommandNotFoundMessageDelay", -1);
     }
     
     public static final boolean setAutoDeleteCommandNotFoundMessageDelayForGuild(Guild guild, long autoDeleteCommandNotFoundMessageDelay) {
+        if (guild == null) {
+            return false;
+        }
         return setAutoDeleteCommandNotFoundMessageDelayForGuild(guild.getId(), autoDeleteCommandNotFoundMessageDelay);
     }
 
     public static final boolean setAutoDeleteCommandNotFoundMessageDelayForGuild(String guild_id, long autoDeleteCommandNotFoundMessageDelay) {
+        if (guild_id == null) {
+            return false;
+        }
         getGuildSettings(guild_id).setProperty("autoDeleteCommandNotFoundMessageDelay", autoDeleteCommandNotFoundMessageDelay);
         return true;
     }
 
     public static final boolean isAutoDeletingCommandByGuild(Guild guild) {
+        if (guild == null) {
+            return false;
+        }
         return isAutoDeletingCommandByGuild(guild.getId());
     }
     
     public static final boolean isAutoDeletingCommandByGuild(String guild_id) {
+        if (guild_id == null) {
+            return false;
+        }
         return getGuildSettings(guild_id).getProperty("autoDeletingCommand", false);
     }
 
     public static final boolean setAutoDeletingCommandForGuild(Guild guild, boolean autoDeletingCommand) {
+        if (guild == null) {
+            return false;
+        }
         return setAutoDeletingCommandForGuild(guild.getId(), autoDeletingCommand);
     }
     
     public static final boolean setAutoDeletingCommandForGuild(String guild_id, boolean autoDeletingCommand) {
+        if (guild_id == null) {
+            return false;
+        }
         getGuildSettings(guild_id).setProperty("autoDeletingCommand", autoDeletingCommand);
         return true;
     }
@@ -317,6 +363,9 @@ public class Standard {
     }
     
     public static final Guild getGuildById(String guild_id) {
+        if (SupremeBot.jda == null) {
+            return null;
+        }
         return SupremeBot.jda.getGuildById(guild_id);
     }
     
