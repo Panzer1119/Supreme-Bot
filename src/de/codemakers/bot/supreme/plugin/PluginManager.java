@@ -1,5 +1,8 @@
 package de.codemakers.bot.supreme.plugin;
 
+import de.codemakers.bot.supreme.settings.DefaultSettings;
+import de.codemakers.bot.supreme.settings.Settings;
+import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.plugin.PluginLoader;
 import de.codemakers.plugin.impl.StandardPluginFilter;
 import java.io.File;
@@ -55,7 +58,7 @@ public class PluginManager implements PluginProvider {
 
     @Override
     public boolean register(Plugin plugin, Object object, RegisterType type) {
-        if (object == null || type == null) {
+        if (plugin == null || object == null || type == null) {
             return false;
         }
         switch (type) {
@@ -66,6 +69,33 @@ public class PluginManager implements PluginProvider {
                 return false;
             default:
                 return false;
+        }
+    }
+
+    @Override
+    public Settings getSettings(Plugin plugin, String guild_id) {
+        if (plugin == null || guild_id == null || guild_id.isEmpty()) {
+            return ((DefaultSettings) Standard.STANDARD_NULL_SETTINGS).toSimpleSettings(this, plugin, guild_id);
+        }
+        final DefaultSettings defaultSettings = (DefaultSettings) Standard.getGuildSettings(guild_id);
+        if (defaultSettings == null) {
+            return ((DefaultSettings) Standard.STANDARD_NULL_SETTINGS).toSimpleSettings(this, plugin, guild_id);
+        } else {
+            return defaultSettings.toSimpleSettings(this, plugin, guild_id);
+        }
+    }
+
+    @Override
+    public boolean setSettings(Plugin plugin, String guild_id, Settings settings) {
+        if (plugin == null || guild_id == null || guild_id.isEmpty() || settings == null) {
+            return false;
+        }
+        final DefaultSettings defaultSettings = (DefaultSettings) Standard.getGuildSettings(guild_id);
+        if (defaultSettings == null) {
+            return false;
+        } else {
+            defaultSettings.setSettings(settings.getSettings());
+            return true;
         }
     }
 

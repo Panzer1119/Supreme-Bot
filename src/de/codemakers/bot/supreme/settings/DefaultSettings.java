@@ -1,5 +1,7 @@
 package de.codemakers.bot.supreme.settings;
 
+import de.codemakers.bot.supreme.plugin.Plugin;
+import de.codemakers.bot.supreme.plugin.PluginProvider;
 import de.codemakers.bot.supreme.util.Copyable;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
@@ -11,7 +13,6 @@ import java.io.OutputStream;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Properties;
 import net.dv8tion.jda.core.EmbedBuilder;
 
 /**
@@ -33,6 +34,7 @@ public class DefaultSettings extends Settings implements Copyable {
         setFile(file);
     }
 
+    @Override
     public final String getProperty(String key, String defaultValue) {
         try {
             String value = settings.getProperty(key);
@@ -49,6 +51,7 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final byte getProperty(String key, byte defaultValue) {
         try {
             return Byte.parseByte(getProperty(key, "" + defaultValue));
@@ -57,6 +60,7 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final short getProperty(String key, short defaultValue) {
         try {
             return Short.parseShort(getProperty(key, "" + defaultValue));
@@ -65,6 +69,7 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final int getProperty(String key, int defaultValue) {
         try {
             return Integer.parseInt(getProperty(key, "" + defaultValue));
@@ -73,6 +78,7 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final long getProperty(String key, long defaultValue) {
         try {
             return Long.parseLong(getProperty(key, "" + defaultValue));
@@ -81,6 +87,7 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final float getProperty(String key, float defaultValue) {
         try {
             return Float.parseFloat(getProperty(key, "" + defaultValue));
@@ -89,6 +96,7 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final double getProperty(String key, double defaultValue) {
         try {
             return Double.parseDouble(getProperty(key, "" + defaultValue));
@@ -97,6 +105,7 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final char getProperty(String key, char defaultValue) {
         try {
             return getProperty(key, "" + defaultValue).charAt(0);
@@ -105,6 +114,7 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final boolean getProperty(String key, boolean defaultValue) {
         try {
             return Boolean.parseBoolean(getProperty(key, "" + defaultValue));
@@ -113,6 +123,7 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final boolean removeProperty(String key) {
         try {
             settings.remove(key);
@@ -123,42 +134,52 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final Object setProperty(String key, String value) {
         return setProperty(key, value, true);
     }
 
+    @Override
     public final Object setProperty(String key, byte value) {
         return setProperty(key, "" + value, true);
     }
 
+    @Override
     public final Object setProperty(String key, short value) {
         return setProperty(key, "" + value, true);
     }
 
+    @Override
     public final Object setProperty(String key, int value) {
         return setProperty(key, "" + value, true);
     }
 
+    @Override
     public final Object setProperty(String key, long value) {
         return setProperty(key, "" + value, true);
     }
 
+    @Override
     public final Object setProperty(String key, float value) {
         return setProperty(key, "" + value, true);
     }
 
+    @Override
     public final Object setProperty(String key, double value) {
         return setProperty(key, "" + value, true);
     }
 
+    @Override
     public final Object setProperty(String key, char value) {
         return setProperty(key, "" + value, true);
     }
 
+    @Override
     public final Object setProperty(String key, boolean value) {
         return setProperty(key, "" + value, true);
     }
 
+    @Override
     public final Object setProperty(String key, String value, boolean save) {
         final Object old = settings.setProperty(key, value);
         if (save) {
@@ -167,6 +188,7 @@ public class DefaultSettings extends Settings implements Copyable {
         return old;
     }
 
+    @Override
     public final boolean loadSettings(String jar_path) {
         if (jar_path == null) {
             return false;
@@ -179,10 +201,12 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final boolean loadSettings() {
         return loadSettings(file);
     }
 
+    @Override
     public final boolean loadSettings(File file) {
         if (file == null) {
             return false;
@@ -201,6 +225,7 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final boolean loadSettings(InputStream inputStream) {
         if (inputStream == null) {
             return false;
@@ -216,10 +241,12 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final boolean saveSettings() {
         return saveSettings(file);
     }
 
+    @Override
     public final boolean saveSettings(File file) {
         if (file == null) {
             return false;
@@ -241,6 +268,7 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
+    @Override
     public final boolean saveSettings(OutputStream outputStream) {
         if (outputStream == null) {
             return false;
@@ -264,10 +292,7 @@ public class DefaultSettings extends Settings implements Copyable {
         return this;
     }
 
-    public final Properties getSettings() {
-        return settings;
-    }
-
+    @Override
     public final Settings direct() {
         return copy().setAutoAddProperties(false);
     }
@@ -280,6 +305,7 @@ public class DefaultSettings extends Settings implements Copyable {
         return copy;
     }
 
+    @Override
     public final ArrayList<Map.Entry<String, String>> toArrayList() {
         final ArrayList<Map.Entry<String, String>> arrayList = new ArrayList<Map.Entry<String, String>>() {
             @Override
@@ -297,6 +323,7 @@ public class DefaultSettings extends Settings implements Copyable {
         return arrayList;
     }
 
+    @Override
     public final EmbedBuilder toEmbed(EmbedBuilder builder) {
         settings.stringPropertyNames().stream().filter((key) -> !Util.contains(Standard.ULTRA_FORBIDDEN, key)).forEach((key) -> {
             builder.addField("" + key, "" + settings.getProperty(key, "" + null), false);
@@ -304,17 +331,23 @@ public class DefaultSettings extends Settings implements Copyable {
         return builder;
     }
 
+    
     public final boolean isAutoAddProperties() {
         return autoAddProperties;
     }
-
+    
     public final Settings setAutoAddProperties(boolean autoAddProperties) {
         this.autoAddProperties = autoAddProperties;
         return this;
     }
 
+    @Override
     protected final String generateComment() {
         return "Changed on:";
+    }
+    
+    public final SimpleSettings toSimpleSettings(PluginProvider provider, Plugin plugin, String guild_id) {
+        return (SimpleSettings) new SimpleSettings(provider, plugin, guild_id).setSettings(settings);
     }
 
 }
