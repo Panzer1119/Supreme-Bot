@@ -22,7 +22,6 @@ public class PluginManager implements PluginProvider {
     public PluginManager(PluginLoader pluginLoader) {
         this.pluginLoader = pluginLoader;
         PluginLoader.DEBUG_MODE = true;
-        PluginLoader.PRECISE_DEBUG_MODE = true;
     }
 
     protected final PluginLoader getPluginLoader() {
@@ -32,20 +31,20 @@ public class PluginManager implements PluginProvider {
     public final PluginManager loadPlugins(File... files) {
         if (pluginLoader.loadPlugins(files)) {
             plugins.clear();
-            plugins.addAll(pluginLoader.getPluggables());
-            plugins.stream().forEach((commandPlugin) -> {
-                commandPlugin.setProvider(this);
+            plugins.addAll(pluginLoader.getPluggables(Plugin.class));
+            plugins.stream().forEach((plugin) -> {
+                plugin.setProvider(this);
             });
         }
         return this;
     }
 
     @Override
-    public boolean print(Plugin commandPlugin, String print, Object... args) {
+    public boolean print(Plugin plugin, String print, Object... args) {
         if (args == null || args.length == 0) {
-            System.out.print(String.format("[%s]: %s", commandPlugin.getName(), print));
+            System.out.print(String.format("[%s]: %s", plugin.getName(), print));
         } else {
-            System.out.printf(String.format("[%s]: %s", commandPlugin.getName(), print), args);
+            System.out.printf(String.format("[%s]: %s", plugin.getName(), print), args);
         }
         return true;
     }
