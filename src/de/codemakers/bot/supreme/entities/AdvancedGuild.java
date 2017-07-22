@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.entities;
 
+import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.Standard;
 import java.io.File;
@@ -77,7 +78,7 @@ public class AdvancedGuild {
             if (folder == null) {
                 return null;
             }
-            settings = new Settings(new File(folder.getAbsolutePath() + File.separator + Standard.STANDARD_GUILD_SETTINGS_FILE_NAME)).setAutoAddProperties(true);
+            settings = new DefaultSettings(new File(folder.getAbsolutePath() + File.separator + Standard.STANDARD_GUILD_SETTINGS_FILE_NAME)).setAutoAddProperties(true);
         }
         return settings;
     }

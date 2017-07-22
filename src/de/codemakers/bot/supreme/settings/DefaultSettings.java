@@ -15,42 +15,40 @@ import java.util.Properties;
 import net.dv8tion.jda.core.EmbedBuilder;
 
 /**
- * Settings
+ * DefaultSettings
  *
  * @author Panzer1119
  */
-public class Settings implements Copyable {
-    
-    private final Properties settings = new Properties();
+public class DefaultSettings extends Settings implements Copyable {
+
     private File file = null;
     private boolean autoAddProperties = false;
-    
-    public Settings() {
+
+    public DefaultSettings() {
         this(null);
     }
-    
-    public Settings(File file) {
+
+    public DefaultSettings(File file) {
+        super();
         setFile(file);
     }
-    
+
     public final String getProperty(String key, String defaultValue) {
         try {
             String value = settings.getProperty(key);
             if (autoAddProperties && value == null) {
                 setProperty(key, defaultValue, true);
                 return defaultValue;
+            } else if (value == null) {
+                return defaultValue;
             } else {
-                if (value == null) {
-                    return defaultValue;
-                } else {
-                    return value;
-                }
+                return value;
             }
         } catch (Exception ex) {
             return defaultValue;
         }
     }
-    
+
     public final byte getProperty(String key, byte defaultValue) {
         try {
             return Byte.parseByte(getProperty(key, "" + defaultValue));
@@ -58,7 +56,7 @@ public class Settings implements Copyable {
             return defaultValue;
         }
     }
-    
+
     public final short getProperty(String key, short defaultValue) {
         try {
             return Short.parseShort(getProperty(key, "" + defaultValue));
@@ -66,7 +64,7 @@ public class Settings implements Copyable {
             return defaultValue;
         }
     }
-    
+
     public final int getProperty(String key, int defaultValue) {
         try {
             return Integer.parseInt(getProperty(key, "" + defaultValue));
@@ -74,7 +72,7 @@ public class Settings implements Copyable {
             return defaultValue;
         }
     }
-    
+
     public final long getProperty(String key, long defaultValue) {
         try {
             return Long.parseLong(getProperty(key, "" + defaultValue));
@@ -82,7 +80,7 @@ public class Settings implements Copyable {
             return defaultValue;
         }
     }
-    
+
     public final float getProperty(String key, float defaultValue) {
         try {
             return Float.parseFloat(getProperty(key, "" + defaultValue));
@@ -90,7 +88,7 @@ public class Settings implements Copyable {
             return defaultValue;
         }
     }
-    
+
     public final double getProperty(String key, double defaultValue) {
         try {
             return Double.parseDouble(getProperty(key, "" + defaultValue));
@@ -98,7 +96,7 @@ public class Settings implements Copyable {
             return defaultValue;
         }
     }
-    
+
     public final char getProperty(String key, char defaultValue) {
         try {
             return getProperty(key, "" + defaultValue).charAt(0);
@@ -106,7 +104,7 @@ public class Settings implements Copyable {
             return defaultValue;
         }
     }
-    
+
     public final boolean getProperty(String key, boolean defaultValue) {
         try {
             return Boolean.parseBoolean(getProperty(key, "" + defaultValue));
@@ -114,7 +112,7 @@ public class Settings implements Copyable {
             return defaultValue;
         }
     }
-    
+
     public final boolean removeProperty(String key) {
         try {
             settings.remove(key);
@@ -124,43 +122,43 @@ public class Settings implements Copyable {
             return false;
         }
     }
-    
+
     public final Object setProperty(String key, String value) {
         return setProperty(key, value, true);
     }
-    
+
     public final Object setProperty(String key, byte value) {
         return setProperty(key, "" + value, true);
     }
-    
+
     public final Object setProperty(String key, short value) {
         return setProperty(key, "" + value, true);
     }
-    
+
     public final Object setProperty(String key, int value) {
         return setProperty(key, "" + value, true);
     }
-    
+
     public final Object setProperty(String key, long value) {
         return setProperty(key, "" + value, true);
     }
-    
+
     public final Object setProperty(String key, float value) {
         return setProperty(key, "" + value, true);
     }
-    
+
     public final Object setProperty(String key, double value) {
         return setProperty(key, "" + value, true);
     }
-    
+
     public final Object setProperty(String key, char value) {
         return setProperty(key, "" + value, true);
     }
-    
+
     public final Object setProperty(String key, boolean value) {
         return setProperty(key, "" + value, true);
     }
-    
+
     public final Object setProperty(String key, String value, boolean save) {
         final Object old = settings.setProperty(key, value);
         if (save) {
@@ -168,7 +166,7 @@ public class Settings implements Copyable {
         }
         return old;
     }
-    
+
     public final boolean loadSettings(String jar_path) {
         if (jar_path == null) {
             return false;
@@ -180,11 +178,11 @@ public class Settings implements Copyable {
             return false;
         }
     }
-    
+
     public final boolean loadSettings() {
         return loadSettings(file);
     }
-    
+
     public final boolean loadSettings(File file) {
         if (file == null) {
             return false;
@@ -202,7 +200,7 @@ public class Settings implements Copyable {
             return false;
         }
     }
-    
+
     public final boolean loadSettings(InputStream inputStream) {
         if (inputStream == null) {
             return false;
@@ -213,16 +211,15 @@ public class Settings implements Copyable {
             inputStream.close();
             return true;
         } catch (Exception ex) {
-            System.err.println(ex);
             ex.printStackTrace();
             return false;
         }
     }
-    
+
     public final boolean saveSettings() {
         return saveSettings(file);
     }
-    
+
     public final boolean saveSettings(File file) {
         if (file == null) {
             return false;
@@ -243,7 +240,7 @@ public class Settings implements Copyable {
             return false;
         }
     }
-    
+
     public final boolean saveSettings(OutputStream outputStream) {
         if (outputStream == null) {
             return false;
@@ -253,7 +250,6 @@ public class Settings implements Copyable {
             outputStream.close();
             return true;
         } catch (Exception ex) {
-            System.err.println(ex);
             ex.printStackTrace();
             return false;
         }
@@ -262,7 +258,7 @@ public class Settings implements Copyable {
     public final File getFile() {
         return file;
     }
-    
+
     public final Settings setFile(File file) {
         this.file = file;
         return this;
@@ -271,19 +267,19 @@ public class Settings implements Copyable {
     public final Properties getSettings() {
         return settings;
     }
-    
+
     public final Settings direct() {
         return copy().setAutoAddProperties(false);
     }
 
     @Override
-    public Settings copy() {
-        final Settings copy = new Settings(file);
+    public DefaultSettings copy() {
+        final DefaultSettings copy = new DefaultSettings(file);
         copy.autoAddProperties = autoAddProperties;
         copy.settings.putAll(settings);
         return copy;
     }
-    
+
     public final ArrayList<Map.Entry<String, String>> toArrayList() {
         final ArrayList<Map.Entry<String, String>> arrayList = new ArrayList<Map.Entry<String, String>>() {
             @Override
@@ -300,7 +296,7 @@ public class Settings implements Copyable {
         });
         return arrayList;
     }
-    
+
     public final EmbedBuilder toEmbed(EmbedBuilder builder) {
         settings.stringPropertyNames().stream().filter((key) -> !Util.contains(Standard.ULTRA_FORBIDDEN, key)).forEach((key) -> {
             builder.addField("" + key, "" + settings.getProperty(key, "" + null), false);
@@ -316,9 +312,8 @@ public class Settings implements Copyable {
         this.autoAddProperties = autoAddProperties;
         return this;
     }
-    
-    protected static final String generateComment() {
-        //return "Changed on: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+
+    protected final String generateComment() {
         return "Changed on:";
     }
 

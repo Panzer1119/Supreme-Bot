@@ -5,6 +5,7 @@ import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.permission.PermissionRole;
 import de.codemakers.bot.supreme.plugin.PluginManager;
+import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.Settings;
 import java.awt.Color;
 import java.io.File;
@@ -33,13 +34,13 @@ public class Standard {
     private static byte[] TOKEN = null;
     private static String STANDARD_COMMAND_PREFIX = "!";
 
-    public static final Settings STANDARD_NULL_SETTINGS = new Settings();
+    public static final Settings STANDARD_NULL_SETTINGS = new DefaultSettings();
     
     public static final String STANDARD_DATA_FOLDER_NAME = "data";
     public static final File STANDARD_DATA_FOLDER = new File(STANDARD_DATA_FOLDER_NAME);
     public static final String STANDARD_SETTINGS_FILE_NAME = "settings.txt";
     public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_SETTINGS_FILE_NAME);
-    public static final Settings STANDARD_SETTINGS = new Settings(STANDARD_SETTINGS_FILE);
+    public static final Settings STANDARD_SETTINGS = new DefaultSettings(STANDARD_SETTINGS_FILE);
 
     public static final String STANDARD_GUILD_SETTINGS_FOLDER_NAME = "guilds";
     public static final File STANDARD_GUILD_SETTINGS_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_GUILD_SETTINGS_FOLDER_NAME);
