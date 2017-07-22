@@ -1,4 +1,4 @@
-package de.panzercraft.bot.supreme.util;
+package de.codemakers.bot.supreme.util;
 
 /**
  * IntegerHolder

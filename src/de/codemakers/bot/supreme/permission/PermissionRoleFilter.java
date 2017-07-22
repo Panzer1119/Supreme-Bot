@@ -1,4 +1,4 @@
-package de.panzercraft.bot.supreme.permission;
+package de.codemakers.bot.supreme.permission;
 
 import net.dv8tion.jda.core.entities.Member;
 

@@ -1,7 +1,7 @@
-package de.panzercraft.bot.supreme.commands;
+package de.codemakers.bot.supreme.commands;
 
-import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
-import de.panzercraft.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
+import de.codemakers.bot.supreme.entities.MessageEvent;
 
 /**
  * CommandContainer

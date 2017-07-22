@@ -1,4 +1,4 @@
-package de.panzercraft.bot.supreme.commands.impl;
+package de.codemakers.bot.supreme.commands.impl;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -9,14 +9,14 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import de.panzercraft.bot.supreme.audio.core.AudioInfo;
-import de.panzercraft.bot.supreme.audio.core.PlayerSendHandler;
-import de.panzercraft.bot.supreme.audio.core.TrackManager;
-import de.panzercraft.bot.supreme.commands.Command;
-import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
-import de.panzercraft.bot.supreme.entities.MessageEvent;
-import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
-import de.panzercraft.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.audio.core.AudioInfo;
+import de.codemakers.bot.supreme.audio.core.PlayerSendHandler;
+import de.codemakers.bot.supreme.audio.core.TrackManager;
+import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
+import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.util.Standard;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;

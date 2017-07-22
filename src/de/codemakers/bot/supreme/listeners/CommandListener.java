@@ -1,9 +1,9 @@
-package de.panzercraft.bot.supreme.listeners;
+package de.codemakers.bot.supreme.listeners;
 
-import de.panzercraft.bot.supreme.commands.CommandHandler;
-import de.panzercraft.bot.supreme.commands.CommandParser;
-import de.panzercraft.bot.supreme.entities.MessageEvent;
-import de.panzercraft.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.commands.CommandHandler;
+import de.codemakers.bot.supreme.commands.CommandParser;
+import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.util.Standard;
 import java.util.List;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message.Attachment;

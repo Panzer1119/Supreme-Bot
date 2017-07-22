@@ -1,7 +1,7 @@
-package de.panzercraft.bot.supreme.permission;
+package de.codemakers.bot.supreme.permission;
 
-import de.panzercraft.bot.supreme.entities.MessageEvent;
-import de.panzercraft.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;

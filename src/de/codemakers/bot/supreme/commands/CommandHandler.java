@@ -1,10 +1,10 @@
-package de.panzercraft.bot.supreme.commands;
+package de.codemakers.bot.supreme.commands;
 
-import de.panzercraft.bot.supreme.entities.MessageEvent;
-import de.panzercraft.bot.supreme.permission.PermissionHandler;
-import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
-import de.panzercraft.bot.supreme.util.Standard;
-import de.panzercraft.bot.supreme.util.Util;
+import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.permission.PermissionHandler;
+import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Util;
 import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;

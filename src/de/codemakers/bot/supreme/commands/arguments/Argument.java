@@ -1,4 +1,4 @@
-package de.panzercraft.bot.supreme.commands.arguments;
+package de.codemakers.bot.supreme.commands.arguments;
 
 /**
  * Argument

@@ -1,12 +1,12 @@
-package de.panzercraft.bot.supreme.commands.impl;
+package de.codemakers.bot.supreme.commands.impl;
 
-import de.panzercraft.bot.supreme.commands.Command;
-import de.panzercraft.bot.supreme.commands.CommandHandler;
-import de.panzercraft.bot.supreme.commands.arguments.ArgumentConsumeType;
-import de.panzercraft.bot.supreme.commands.arguments.ArgumentList;
-import de.panzercraft.bot.supreme.permission.PermissionRoleFilter;
-import de.panzercraft.bot.supreme.util.Standard;
-import de.panzercraft.bot.supreme.util.Util;
+import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.CommandHandler;
+import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
+import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
+import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Util;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 
@@ -23,12 +23,12 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    public boolean called(String invoke, ArgumentList arguments, de.panzercraft.bot.supreme.entities.MessageEvent event) {
+    public boolean called(String invoke, ArgumentList arguments, de.codemakers.bot.supreme.entities.MessageEvent event) {
         return true;
     }
 
     @Override
-    public void action(String invoke, ArgumentList arguments, de.panzercraft.bot.supreme.entities.MessageEvent event) { //TODO Das mit Seiten und so machen, wie bei der Musik Playlist....
+    public void action(String invoke, ArgumentList arguments, de.codemakers.bot.supreme.entities.MessageEvent event) { //TODO Das mit Seiten und so machen, wie bei der Musik Playlist....
         if (arguments != null && arguments.isSize(1, -1)) {
             final boolean sendPrivate = arguments.isConsumed(Standard.ARGUMENT_PRIVATE, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
             while (arguments.hasArguments()) {
@@ -50,7 +50,7 @@ public class HelpCommand implements Command {
     }
 
     @Override
-    public void executed(boolean success, de.panzercraft.bot.supreme.entities.MessageEvent event) {
+    public void executed(boolean success, de.codemakers.bot.supreme.entities.MessageEvent event) {
         System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
     }
 

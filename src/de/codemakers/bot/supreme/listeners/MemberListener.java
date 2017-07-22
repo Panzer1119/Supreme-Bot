@@ -1,4 +1,4 @@
-package de.panzercraft.bot.supreme.listeners;
+package de.codemakers.bot.supreme.listeners;
 
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;

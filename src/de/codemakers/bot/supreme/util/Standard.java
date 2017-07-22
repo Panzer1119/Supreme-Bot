@@ -1,11 +1,11 @@
-package de.panzercraft.bot.supreme.util;
+package de.codemakers.bot.supreme.util;
 
-import de.panzercraft.bot.supreme.commands.arguments.Argument;
-import de.panzercraft.bot.supreme.core.SupremeBot;
-import de.panzercraft.bot.supreme.entities.AdvancedGuild;
-import de.panzercraft.bot.supreme.entities.MessageEvent;
-import de.panzercraft.bot.supreme.permission.PermissionRole;
-import de.panzercraft.bot.supreme.settings.Settings;
+import de.codemakers.bot.supreme.commands.arguments.Argument;
+import de.codemakers.bot.supreme.core.SupremeBot;
+import de.codemakers.bot.supreme.entities.AdvancedGuild;
+import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.permission.PermissionRole;
+import de.codemakers.bot.supreme.settings.Settings;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;

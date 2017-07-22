@@ -1,8 +1,8 @@
-package de.panzercraft.bot.supreme.settings;
+package de.codemakers.bot.supreme.settings;
 
-import de.panzercraft.bot.supreme.util.Copyable;
-import de.panzercraft.bot.supreme.util.Standard;
-import de.panzercraft.bot.supreme.util.Util;
+import de.codemakers.bot.supreme.util.Copyable;
+import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

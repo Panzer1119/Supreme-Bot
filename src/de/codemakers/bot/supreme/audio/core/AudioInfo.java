@@ -1,4 +1,4 @@
-package de.panzercraft.bot.supreme.audio.core;
+package de.codemakers.bot.supreme.audio.core;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.entities.Member;

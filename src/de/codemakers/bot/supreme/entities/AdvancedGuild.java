@@ -1,7 +1,7 @@
-package de.panzercraft.bot.supreme.entities;
+package de.codemakers.bot.supreme.entities;
 
-import de.panzercraft.bot.supreme.settings.Settings;
-import de.panzercraft.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.settings.Settings;
+import de.codemakers.bot.supreme.util.Standard;
 import java.io.File;
 import net.dv8tion.jda.core.entities.Guild;
 

@@ -1,6 +1,6 @@
-package de.panzercraft.bot.supreme.entities;
+package de.codemakers.bot.supreme.entities;
 
-import de.panzercraft.bot.supreme.util.Util;
+import de.codemakers.bot.supreme.util.Util;
 import java.io.File;
 import java.io.InputStream;
 import net.dv8tion.jda.client.entities.Group;

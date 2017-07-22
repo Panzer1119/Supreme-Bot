@@ -1,4 +1,4 @@
-package de.panzercraft.bot.supreme.audio.core;
+package de.codemakers.bot.supreme.audio.core;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;

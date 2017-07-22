@@ -1,4 +1,4 @@
-package de.panzercraft.bot.supreme.permission;
+package de.codemakers.bot.supreme.permission;
 
 import java.io.BufferedReader;
 import java.io.File;
