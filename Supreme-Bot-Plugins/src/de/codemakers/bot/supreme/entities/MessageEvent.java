@@ -19,7 +19,7 @@ import net.dv8tion.jda.core.events.message.GenericMessageEvent;
  *
  * @author Panzer1119
  */
-public abstract class MessageEvent extends GenericMessageEvent {
+public abstract class MessageEvent extends GenericMessageEvent { //FIXME JDA Dependency komplett entfernen!!! Weil zu unsicher!!!
 
     public MessageEvent(JDA api, long responseNumber, long messageId, MessageChannel channel) {
         super(api, responseNumber, messageId, channel);
