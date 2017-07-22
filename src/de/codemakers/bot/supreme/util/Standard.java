@@ -3,8 +3,8 @@ package de.codemakers.bot.supreme.util;
 import de.codemakers.bot.supreme.commands.arguments.Argument;
 import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
-import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRole;
+import de.codemakers.bot.supreme.plugin.CommandPluginManager;
 import de.codemakers.bot.supreme.settings.Settings;
 import java.awt.Color;
 import java.io.File;
@@ -49,6 +49,10 @@ public class Standard {
     public static final String STANDARD_PERMISSIONS_FILE_PATH = "data/permissions.txt";
     public static final File STANDARD_PERMISSIONS_FILE = new File(STANDARD_PERMISSIONS_FILE_PATH);
     public static final String STANDARD_PERMISSIONS_PATH = "/de/panzercraft/bot/supreme/permission/permissions.txt";
+    
+    public static final String STANDARD_PLUGINS_FOLDER_NAME = "plugins";
+    public static final File STANDARD_PLUGINS_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_PLUGINS_FOLDER_NAME);
+    public static final CommandPluginManager STANDARD_PLUGIN_MANAGER = new CommandPluginManager();
 
     public static final boolean reloadSettings() {
         try {
@@ -329,6 +333,19 @@ public class Standard {
     
     //****************************************************************//
     //*********************GUILD SPECIFIC STOP************************//
+    //****************************************************************//
+    
+    //****************************************************************//
+    //*********************PLUGIN SPECIFIC START**********************//
+    //****************************************************************//
+    
+    public static final boolean loadPlugins() {
+        STANDARD_PLUGIN_MANAGER.loadPlugins(STANDARD_PLUGINS_FOLDER);
+        return false;
+    }
+    
+    //****************************************************************//
+    //*********************PLUGIN SPECIFIC STOP***********************//
     //****************************************************************//
 
     public static final Message getNoPermissionMessage(User user, String extra) {

@@ -58,6 +58,7 @@ public class SupremeBot {
             });
             initListeners();
             initCommands();
+            initPlugins();
             startJDA();
         } catch (Exception ex) {
             System.err.println("Main Error: " + ex);
@@ -91,6 +92,15 @@ public class SupremeBot {
             CommandHandler.registerCommand(new ManagingCommands.SettingsCommand());
             CommandHandler.registerCommand(new MusicCommand());
             CommandHandler.registerCommand(new HelpCommand());
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    private static final boolean initPlugins() {
+        try {
+            Standard.loadPlugins();
             return true;
         } catch (Exception ex) {
             return false;
