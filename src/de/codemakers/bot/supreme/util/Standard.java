@@ -4,7 +4,7 @@ import de.codemakers.bot.supreme.commands.arguments.Argument;
 import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.permission.PermissionRole;
-import de.codemakers.bot.supreme.plugin.CommandPluginManager;
+import de.codemakers.bot.supreme.plugin.PluginManager;
 import de.codemakers.bot.supreme.settings.Settings;
 import java.awt.Color;
 import java.io.File;
@@ -52,7 +52,7 @@ public class Standard {
     
     public static final String STANDARD_PLUGINS_FOLDER_NAME = "plugins";
     public static final File STANDARD_PLUGINS_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_PLUGINS_FOLDER_NAME);
-    public static final CommandPluginManager STANDARD_PLUGIN_MANAGER = new CommandPluginManager();
+    public static final PluginManager STANDARD_PLUGIN_MANAGER = new PluginManager();
 
     public static final boolean reloadSettings() {
         try {
