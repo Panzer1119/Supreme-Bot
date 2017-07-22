@@ -2,6 +2,7 @@ package de.codemakers.bot.supreme.listeners;
 
 import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.commands.CommandParser;
+import de.codemakers.bot.supreme.entities.DefaultMessageEvent;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.util.Standard;
 import java.util.List;
@@ -22,7 +23,7 @@ public class CommandListener extends ListenerAdapter {
         if (event_received == null) {
             return;
         }
-        final MessageEvent event = new MessageEvent(event_received.getJDA(), event_received.getResponseNumber(), event_received.getMessage());
+        final MessageEvent event = new DefaultMessageEvent(event_received.getJDA(), event_received.getResponseNumber(), event_received.getMessage());
         try {
             if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
                 return;

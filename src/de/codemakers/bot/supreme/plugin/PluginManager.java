@@ -38,15 +38,35 @@ public class PluginManager implements PluginProvider {
         }
         return this;
     }
+    
+    protected final String format(Plugin plugin, String print, Object... args) {
+        if (args == null || args.length == 0) {
+            return String.format("[%s]: %s", plugin.getID(), print);
+        } else {
+            return String.format(String.format("[%s]: %s", plugin.getID(), print), args);
+        }
+    }
 
     @Override
     public boolean print(Plugin plugin, String print, Object... args) {
-        if (args == null || args.length == 0) {
-            System.out.print(String.format("[%s]: %s", plugin.getName(), print));
-        } else {
-            System.out.printf(String.format("[%s]: %s", plugin.getName(), print), args);
-        }
+        System.out.print(format(plugin, print, args));
         return true;
+    }
+
+    @Override
+    public boolean register(Plugin plugin, Object object, RegisterType type) {
+        if (object == null || type == null) {
+            return false;
+        }
+        switch (type) {
+            case COMMAND:
+                System.out.println(format(plugin, "Registered Command: \"%s\"", object));
+                return true;
+            case LISTENER:
+                return false;
+            default:
+                return false;
+        }
     }
 
 }
