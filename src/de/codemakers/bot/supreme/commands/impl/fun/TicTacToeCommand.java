@@ -5,6 +5,7 @@ import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.commands.arguments.Argument;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
+import de.codemakers.bot.supreme.commands.arguments.Invoker;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.game.Game;
@@ -23,17 +24,17 @@ public class TicTacToeCommand extends Command {
     public static final Argument ARGUMENT_END = new Argument("end", Standard.STANDARD_ARGUMENT_PREFIXES);
 
     @Override
-    public String[] getInvokes() {
-        return new String[]{"tictactoe", "ttt"};
+    public final void initInvokers() {
+        addInvokers(Invoker.createInvoker("tictactoe", this), Invoker.createInvoker("ttt", this));
     }
 
     @Override
-    public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
+    public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         return arguments != null && arguments.isSize(1, -1);
     }
 
     @Override
-    public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
+    public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         if (event.getMessage().getMentionedUsers().size() == 1) {
             if (advancedGuild != null) {
@@ -66,15 +67,15 @@ public class TicTacToeCommand extends Command {
 
     @Override
     public final void executed(boolean success, MessageEvent event) {
-        System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+        System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
     }
 
     @Override
     public final EmbedBuilder getHelp(EmbedBuilder builder) {
-        for (String invoke : getInvokes()) {
-            builder.addField(String.format("%s <User @Mention>", invoke), "Starts TicTacToe against the mentioned user.", false);
-            builder.addField(String.format("%s <Field as Number>", invoke), "Tooks the given field in the TicTacToe board.", false);
-            builder.addField(String.format("%s %s", invoke, ARGUMENT_END.getCompleteArgument(0)), "Stops the running TicTacToe game.", false);
+        for (Invoker invoker : getInvokers()) {
+            builder.addField(String.format("%s <User @Mention>", invoker), "Starts TicTacToe against the mentioned user.", false);
+            builder.addField(String.format("%s <Field as Number>", invoker), "Tooks the given field in the TicTacToe board.", false);
+            builder.addField(String.format("%s %s", invoker, ARGUMENT_END.getCompleteArgument(0)), "Stops the running TicTacToe game.", false);
         }
         return builder;
     }
@@ -82,6 +83,11 @@ public class TicTacToeCommand extends Command {
     @Override
     public final PermissionRoleFilter getPermissionRoleFilter() {
         return null;
+    }
+
+    @Override
+    public final String getCommandID() {
+        return getClass().getName();
     }
 
 }

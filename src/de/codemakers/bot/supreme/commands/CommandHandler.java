@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.commands;
 
+import de.codemakers.bot.supreme.commands.arguments.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
@@ -17,14 +18,14 @@ import net.dv8tion.jda.core.entities.Message;
  */
 public class CommandHandler {
 
-    public static final ArrayList<Command> commands = new ArrayList<>();
+    public static final ArrayList<Command> COMMANDS = new ArrayList<>();
 
     public static final boolean handleCommand(CommandContainer commandContainer) {
         try {
             if (commandContainer == null) {
                 return false;
             }
-            final Command command = getCommandByInvoke(commandContainer.invoke);
+            final Command command = commandContainer.invoker.getCommand();
             if (Standard.isAutoDeletingCommandByGuild(commandContainer.event.getGuild())) {
                 commandContainer.event.getMessage().delete().queue();
             }
@@ -32,16 +33,16 @@ public class CommandHandler {
                 if (!PermissionHandler.check(command.getPermissionRoleFilter(), commandContainer.event, true)) {
                     return false;
                 }
-                final boolean safe = command.called(commandContainer.invoke, commandContainer.arguments, commandContainer.event);
+                final boolean safe = command.called(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
                 if (safe) {
-                    command.action(commandContainer.invoke, commandContainer.arguments, commandContainer.event);
+                    command.action(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
                 } else {
                     sendHelpMessage(commandContainer.event, command, false);
                 }
                 command.executed(safe, commandContainer.event);
                 return safe;
             } else {
-                final Message message = commandContainer.event.sendAndWaitMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", commandContainer.event.getAuthor().getAsMention(), commandContainer.invoke);
+                final Message message = commandContainer.event.sendAndWaitMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", commandContainer.event.getAuthor().getAsMention(), commandContainer.invoker);
                 final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild());
                 if (delay != -1) {
                     Util.deleteMessage(message, delay);
@@ -54,58 +55,34 @@ public class CommandHandler {
         }
     }
 
-    public static final boolean existsCommand(String... invokes) {
-        return getCommandByInvokes(invokes) != null;
+    public static final boolean existsCommand(Invoker... invokers) {
+        return getCommandByInvokers(invokers) != null;
     }
 
-    public static final Command getCommandByInvokes(String... invokes) {
-        for (String invoke : invokes) {
-            final Command command = getCommandByInvoke(invoke);
-            if (command != null) {
+    public static final Command getCommandByInvokers(Invoker... invokers) {
+        if (invokers == null || invokers.length == 0) {
+            return null;
+        }
+        for (Command command : COMMANDS) {
+            if (command.containsInvokers(invokers)) {
                 return command;
             }
         }
         return null;
     }
 
-    public static final Command getCommandByInvoke(String invoke) {
-        if (invoke == null) {
-            return null;
-        }
-        for (Command command : commands) {
-            for (String temp : command.getInvokes()) {
-                if ((temp != null) && (temp.equals(invoke) || temp.equalsIgnoreCase(invoke))) {
-                    return command;
-                }
-            }
-        }
-        return null;
-    }
-
     public static final boolean registerCommand(Command command) {
-        String[] invokes = null;
-        if (command == null || (invokes = command.getInvokes()) == null || invokes.length == 0) {
-            return false;
-        }
-        if (!existsCommand(invokes) && !commands.contains(command)) {
-            commands.add(command);
+        if (!COMMANDS.contains(command)) {
+            COMMANDS.add(command);
             return true;
         } else {
             return false;
         }
     }
 
-    public static final boolean unregisterCommand(String... invokes) {
-        return unregisterCommand(getCommandByInvokes(invokes));
-    }
-
     public static final boolean unregisterCommand(Command command) {
-        String[] invokes = null;
-        if (command == null || (invokes = command.getInvokes()) == null || invokes.length == 0) {
-            return false;
-        }
-        if (existsCommand(invokes) && commands.contains(command)) {
-            commands.remove(command);
+        if (COMMANDS.contains(command)) {
+            COMMANDS.remove(command);
             return true;
         } else {
             return false;

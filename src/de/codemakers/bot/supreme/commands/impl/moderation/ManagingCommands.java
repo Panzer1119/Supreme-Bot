@@ -3,6 +3,7 @@ package de.codemakers.bot.supreme.commands.impl.moderation;
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
+import de.codemakers.bot.supreme.commands.arguments.Invoker;
 import de.codemakers.bot.supreme.core.SupremeBot;
 import static de.codemakers.bot.supreme.core.SupremeBot.stopCompletely;
 import de.codemakers.bot.supreme.entities.MessageEvent;
@@ -30,14 +31,14 @@ public class ManagingCommands {
     public static class CommandPrefixChangeCommand extends Command {
 
         @Override
-        public final String[] getInvokes() {
-            return new String[]{"changeCommandPrefix", "getCommandPrefix"};
+        public final void initInvokers() {
+            addInvokers(Invoker.createInvoker("changeCommandPrefix", this), Invoker.createInvoker("getCommandPrefix", this));
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             final boolean global = (arguments == null ? false : arguments.isConsumed(Standard.ARGUMENT_GLOBAL, ArgumentConsumeType.ALL_IGNORE_CASE));
-            switch (invoke) {
+            switch (invoker.getInvoker()) {
                 case "changeCommandPrefix":
                     if (arguments == null) {
                         return false;
@@ -54,12 +55,12 @@ public class ManagingCommands {
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             final boolean global = arguments.isConsumed(Standard.ARGUMENT_GLOBAL, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
             if (!global && arguments.isSize(2, -1)) {
                 return;
             }
-            switch (invoke) {
+            switch (invoker.getInvoker()) {
                 case "changeCommandPrefix":
                     final String commandPrefix = arguments.consumeFirst();
                     if (commandPrefix == null) {
@@ -89,13 +90,13 @@ public class ManagingCommands {
 
         @Override
         public final void executed(boolean success, MessageEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+            System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
         }
 
         @Override
         public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            builder.addField(String.format("%s <New Command Prefix> [%s]", getInvokes()[0], Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Sets the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
-            builder.addField(String.format("%s [%s]", getInvokes()[1], Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Returns the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
+            builder.addField(String.format("%s <New Command Prefix> [%s]", getInvokers().get(0), Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Sets the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
+            builder.addField(String.format("%s [%s]", getInvokers().get(1), Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Returns the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
             return builder;
         }
 
@@ -103,6 +104,11 @@ public class ManagingCommands {
         public final PermissionRoleFilter getPermissionRoleFilter() {
             final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
             return (role, member) -> role.isThisHigherOrEqual(admin);
+        }
+
+        @Override
+        public final String getCommandID() {
+            return getClass().getName();
         }
 
     }
@@ -143,17 +149,17 @@ public class ManagingCommands {
     public static class StopCommand extends AdministrativeCommands {
 
         @Override
-        public final String[] getInvokes() {
-            return new String[]{"stop", "shutdown"};
+        public final void initInvokers() {
+            addInvokers(Invoker.createInvoker("stop", this), Invoker.createInvoker("shutdown", this));
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             return arguments == null || arguments.isSize(0, 1);
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             if (arguments != null && arguments.size() >= 1) {
                 try {
                     final double delayStopInSeconds = Double.parseDouble(arguments.consumeFirst());
@@ -194,13 +200,13 @@ public class ManagingCommands {
 
         @Override
         public final void executed(boolean success, MessageEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+            System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
         }
 
         @Override
         public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (String invoke : getInvokes()) {
-                builder.addField(invoke + " [Delay]", "Stops the bot immediately or after the given delay in seconds.", false);
+            for (Invoker invoker : getInvokers()) {
+                builder.addField(invoker + " [Delay]", "Stops the bot immediately or after the given delay in seconds.", false);
             }
             return builder;
         }
@@ -217,22 +223,27 @@ public class ManagingCommands {
             };
         }
 
+        @Override
+        public final String getCommandID() {
+            return getClass().getName();
+        }
+
     }
 
     public static class RestartCommand extends AdministrativeCommands {
 
         @Override
-        public final String[] getInvokes() {
-            return new String[]{"restart", "reboot"};
+        public final void initInvokers() {
+            addInvokers(Invoker.createInvoker("restart", this), Invoker.createInvoker("reboot", this));
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             return arguments == null || arguments.isSize(0, 2);
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             if (arguments != null && arguments.size() >= 1) {
                 try {
                     final double delayStopInSeconds = Double.parseDouble(arguments.consumeFirst());
@@ -282,13 +293,13 @@ public class ManagingCommands {
 
         @Override
         public final void executed(boolean success, MessageEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+            System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
         }
 
         @Override
         public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (String invoke : getInvokes()) {
-                builder.addField(invoke + " [Delay 1] [Delay 2]", "Restarts the bot immediately or after the first given delay in seconds. The second delay is the time the bot should wait before starting again.", false);
+            for (Invoker invoker : getInvokers()) {
+                builder.addField(invoker + " [Delay 1] [Delay 2]", "Restarts the bot immediately or after the first given delay in seconds. The second delay is the time the bot should wait before starting again.", false);
             }
             return builder;
         }
@@ -305,22 +316,27 @@ public class ManagingCommands {
             };
         }
 
+        @Override
+        public final String getCommandID() {
+            return getClass().getName();
+        }
+
     }
 
     public static class GetFileCommand extends Command { //TODO Einen UploadFileCommand machen, mit dem man files auf den Bot hochladen kann, um zum Beispiel die settings.txt oder permissions.txt zu ueberschreiben
-
+        
         @Override
-        public final String[] getInvokes() {
-            return new String[]{"getFile"};
+        public final void initInvokers() {
+            addInvokers(Invoker.createInvoker("getFile", this));
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             return arguments != null && arguments.isSize(1, 2);
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             final File file = new File(arguments.get(0));
             if (file.exists() && file.isFile()) {
                 final Message message = new MessageBuilder().appendFormat("%s here is your requested file:", event.getAuthor().getAsMention()).build();
@@ -336,12 +352,14 @@ public class ManagingCommands {
 
         @Override
         public final void executed(boolean success, MessageEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+            System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
         }
 
         @Override
         public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            builder.addField(getInvokes()[0] + " <File Path> [Visible File Name]", "Uploads a file from the bot to the current channel with optionally custom filename.", false);
+            for (Invoker invoker : getInvokers()) {
+                builder.addField(invoker + " <File Path> [Visible File Name]", "Uploads a file from the bot to the current channel with optionally custom filename.", false);
+            }
             return builder;
         }
 
@@ -351,33 +369,40 @@ public class ManagingCommands {
             return (role, member) -> role.isThisHigherOrEqual(admin);
         }
 
+        @Override
+        public final String getCommandID() {
+            return getClass().getName();
+        }
+
     }
 
     public static class SayCommand extends Command {
 
         @Override
-        public final String[] getInvokes() {
-            return new String[]{"say"};
+        public final void initInvokers() {
+            addInvokers(Invoker.createInvoker("say", this));
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             return true;
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
-            event.sendMessage(event.getMessage().getContent());
+        public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
+            event.sendMessage(arguments.toString());
         }
 
         @Override
         public final void executed(boolean success, MessageEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+            System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
         }
 
         @Override
         public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            builder.addField(getInvokes()[0], "Currently no function.", false);
+            for (Invoker invoker : getInvokers()) {
+                builder.addField(invoker + "", "The bot says what you said.", false);
+            }
             return builder;
         }
 
@@ -386,22 +411,27 @@ public class ManagingCommands {
             return null;
         }
 
+        @Override
+        public final String getCommandID() {
+            return getClass().getName();
+        }
+        
     }
 
     public static class ClearCommand extends Command {
 
         @Override
-        public final String[] getInvokes() {
-            return new String[]{"clear"};
+        public final void initInvokers() {
+            addInvokers(Invoker.createInvoker("clear", this));
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
-            return arguments == null || arguments.isSize(0, 1);
+        public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
+            return (arguments == null || arguments.isSize(0, 1)) && !event.isPrivate();
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             int clearLines = -1;
             if (arguments != null && arguments.size() >= 1) {
                 try {
@@ -440,13 +470,13 @@ public class ManagingCommands {
 
         @Override
         public final void executed(boolean success, MessageEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+            System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
         }
 
         @Override
         public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (String invoke : getInvokes()) {
-                builder.addField(invoke + " [Number of Lines]", String.format("Clears the last %d lines, or the last 1 to 100 lines, in the current channel.", Standard.STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED), false);
+            for (Invoker invoker : getInvokers()) {
+                builder.addField(invoker + " [Number of Lines]", String.format("Clears the last %d lines, or the last 1 to 100 lines, in the current (not private!) channel.", Standard.STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED), false);
             }
             return builder;
         }
@@ -457,22 +487,27 @@ public class ManagingCommands {
             return (role, member) -> role.isThisHigherOrEqual(admin);
         }
 
+        @Override
+        public final String getCommandID() {
+            return getClass().getName();
+        }
+        
     }
 
     public static class ReloadCommand extends Command {
 
         @Override
-        public final String[] getInvokes() {
-            return new String[]{"reload"};
+        public final void initInvokers() {
+            addInvokers(Invoker.createInvoker("reload", this));
         }
 
         @Override
-        public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             return true;
         }
 
         @Override
-        public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
+        public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             if (arguments != null && arguments.size() == 2) {
                 if (arguments.consumeFirst(Standard.ARGUMENT_GUILD_SETTINGS, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
                     if (!arguments.consume(Standard.ARGUMENT_ALL, ArgumentConsumeType.FIRST_IGNORE_CASE, 1) && !arguments.consume(Standard.ARGUMENT_SETTINGS, ArgumentConsumeType.FIRST_IGNORE_CASE, 1) && !arguments.consume(Standard.ARGUMENT_PERMISSIONS, ArgumentConsumeType.FIRST_IGNORE_CASE, 1)) {
@@ -510,13 +545,13 @@ public class ManagingCommands {
 
         @Override
         public final void executed(boolean success, MessageEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+            System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
         }
 
         @Override
         public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (String invoke : getInvokes()) {
-                builder.addField(invoke + " [Tag 1] [Tag 2] [Tag 3]...", "Reloads everything or all given tags.", false);
+            for (Invoker invoker : getInvokers()) {
+                builder.addField(invoker + " [Tag 1] [Tag 2] [Tag 3]...", "Reloads everything or all given tags.", false);
             }
             return builder;
         }
@@ -533,17 +568,22 @@ public class ManagingCommands {
             };
         }
 
+        @Override
+        public final String getCommandID() {
+            return getClass().getName();
+        }
+
     }
 
     public static class SettingsCommand extends Command {
 
         @Override
-        public String[] getInvokes() {
-            return new String[]{"settings", "s"};
+        public void initInvokers() {
+            addInvokers(Invoker.createInvoker("settings", this), Invoker.createInvoker("s", this));
         }
 
         @Override
-        public boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
+        public boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             if (arguments == null || arguments.isEmpty()) {
                 return false;
             }
@@ -568,7 +608,7 @@ public class ManagingCommands {
         }
 
         @Override
-        public void action(String invoke, ArgumentList arguments, MessageEvent event) {
+        public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
             final boolean set = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_SET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
             final boolean get = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_GET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
             final boolean remove = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_REMOVE, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
@@ -674,16 +714,16 @@ public class ManagingCommands {
 
         @Override
         public void executed(boolean success, MessageEvent event) {
-            System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+            System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
         }
 
         @Override
         public EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (String invoke : getInvokes()) {
-                builder.addField(String.format("%s %s [Guild ID] <Key> <Value>", invoke, Standard.ARGUMENT_SETTINGS_SET.getCompleteArgument(0)), "Sets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
-                builder.addField(String.format("%s %s [Guild ID] <Key> [%s Default Value]", invoke, Standard.ARGUMENT_SETTINGS_GET.getCompleteArgument(0), Standard.ARGUMENT_SETTINGS_DEFAULT.getCompleteArgument(0)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
-                builder.addField(String.format("%s %s [Guild ID] <Key>", invoke, Standard.ARGUMENT_SETTINGS_REMOVE.getCompleteArgument(0)), "Removes the key and value. If a valid guild id is given, then the guild settings will be edited.", false);
-                builder.addField(String.format("%s %s [Guild ID]", invoke, Standard.ARGUMENT_SETTINGS_LIST.getCompleteArgument(0)), "Lists all keys and values. If a valid guild id is given, then the guild settings will be edited.", false);
+            for (Invoker invoker : getInvokers()) {
+                builder.addField(String.format("%s %s [Guild ID] <Key> <Value>", invoker, Standard.ARGUMENT_SETTINGS_SET.getCompleteArgument(0)), "Sets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
+                builder.addField(String.format("%s %s [Guild ID] <Key> [%s Default Value]", invoker, Standard.ARGUMENT_SETTINGS_GET.getCompleteArgument(0), Standard.ARGUMENT_SETTINGS_DEFAULT.getCompleteArgument(0)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
+                builder.addField(String.format("%s %s [Guild ID] <Key>", invoker, Standard.ARGUMENT_SETTINGS_REMOVE.getCompleteArgument(0)), "Removes the key and value. If a valid guild id is given, then the guild settings will be edited.", false);
+                builder.addField(String.format("%s %s [Guild ID]", invoker, Standard.ARGUMENT_SETTINGS_LIST.getCompleteArgument(0)), "Lists all keys and values. If a valid guild id is given, then the guild settings will be edited.", false);
             }
             return builder;
         }
@@ -698,6 +738,11 @@ public class ManagingCommands {
                 }
                 return Standard.isSuperOwner(member);
             };
+        }
+
+        @Override
+        public String getCommandID() {
+            return getClass().getName();
         }
 
     }

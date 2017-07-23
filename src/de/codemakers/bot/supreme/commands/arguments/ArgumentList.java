@@ -175,4 +175,11 @@ public class ArgumentList {
         return times_found;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        arguments_raw.stream().forEach((argument_raw) -> sb.append(" " + argument_raw));
+        return sb.toString().substring(1);
+    }
+
 }

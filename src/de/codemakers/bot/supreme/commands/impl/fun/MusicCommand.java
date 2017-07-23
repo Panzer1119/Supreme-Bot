@@ -14,6 +14,7 @@ import de.codemakers.bot.supreme.audio.core.PlayerSendHandler;
 import de.codemakers.bot.supreme.audio.core.TrackManager;
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
+import de.codemakers.bot.supreme.commands.arguments.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
@@ -133,17 +134,17 @@ public class MusicCommand extends Command {
     }
 
     @Override
-    public final String[] getInvokes() {
-        return new String[]{"music", "m"};
+    public final void initInvokers() {
+        addInvokers(Invoker.createInvoker("music", this), Invoker.createInvoker("m", this));
     }
-
+    
     @Override
-    public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
+    public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         return arguments != null && arguments.size() >= 1;
     }
 
     @Override
-    public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
+    public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         TrackManager manager_;
         try {
             guild = event.getGuild();
@@ -240,6 +241,11 @@ public class MusicCommand extends Command {
     @Override
     public final PermissionRoleFilter getPermissionRoleFilter() {
         return null; //FIXME Change this
+    }
+
+    @Override
+    public final String getCommandID() {
+        return getClass().getName();
     }
 
 }

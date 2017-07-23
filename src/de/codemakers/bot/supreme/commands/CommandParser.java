@@ -1,6 +1,7 @@
 package de.codemakers.bot.supreme.commands;
 
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
+import de.codemakers.bot.supreme.commands.arguments.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.util.Standard;
 import java.util.ArrayList;
@@ -17,12 +18,12 @@ public class CommandParser {
         final String beheaded = raw.replaceFirst(Standard.getCommandPrefixByGuild(event.getGuild()), "");
         final String beheaded_corrected = beheaded.replace("\\", "\\\\");
         final String[] beheaded_split = getArguments(beheaded_corrected);
-        final String invoke = beheaded_split[0];
+        final Invoker invoker = Invoker.getInvokerByInvokerString(beheaded_split[0]);
         final ArrayList<String> split = new ArrayList<>(Arrays.asList(beheaded_split));
         final String[] args = split.subList(1, split.size()).toArray(new String[split.size() - 1]);
         final ArgumentList arguments = new ArgumentList(args);
         split.clear();
-        return new CommandContainer(raw, beheaded_corrected, beheaded_split, invoke, arguments, event);
+        return new CommandContainer(raw, beheaded_corrected, beheaded_split, invoker, arguments, event);
     }
     
     public static final String[] getArguments(String arguments) {

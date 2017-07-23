@@ -2,6 +2,7 @@ package de.codemakers.bot.supreme.commands.impl;
 
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
+import de.codemakers.bot.supreme.commands.arguments.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -14,29 +15,29 @@ import net.dv8tion.jda.core.EmbedBuilder;
 public class PingCommand extends Command {
 
     @Override
-    public String[] getInvokes() {
-        return new String[]{"ping"};
+    public final void initInvokers() {
+        addInvokers(Invoker.createInvoker("ping", this));
     }
 
     @Override
-    public final boolean called(String invoke, ArgumentList arguments, MessageEvent event) {
+    public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         return true;
     }
 
     @Override
-    public final void action(String invoke, ArgumentList arguments, MessageEvent event) {
+    public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         event.sendMessageFormat("Pong! (%d ms)", event.getJDA().getPing());
     }
 
     @Override
     public final void executed(boolean success, MessageEvent event) {
-        System.out.println("[INFO] Command '" + getInvokes()[0] + "' was executed!");
+        System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
     }
 
     @Override
     public final EmbedBuilder getHelp(EmbedBuilder builder) {
-        for (String invoke : getInvokes()) {
-            builder.addField(invoke, "Returns a \"Pong!\" with the ping in milliseconds.", false);
+        for (Invoker invoker : getInvokers()) {
+            builder.addField(invoker.toString(), "Returns a \"Pong!\" with the ping in milliseconds.", false);
         }
         return builder;
     }
@@ -44,6 +45,11 @@ public class PingCommand extends Command {
     @Override
     public final PermissionRoleFilter getPermissionRoleFilter() {
         return null;
+    }
+    
+    @Override
+    public final String getCommandID() {
+        return getClass().getName();
     }
 
 }
