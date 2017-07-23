@@ -8,14 +8,14 @@ import net.dv8tion.jda.core.EmbedBuilder;
 
 /**
  * PingCommand
- * 
+ *
  * @author Panzer1119
  */
-public class PingCommand implements Command {
+public class PingCommand extends Command {
 
     @Override
     public String[] getInvokes() {
-        return new String[] {"ping"};
+        return new String[]{"ping"};
     }
 
     @Override
@@ -35,7 +35,9 @@ public class PingCommand implements Command {
 
     @Override
     public final EmbedBuilder getHelp(EmbedBuilder builder) {
-        builder.addField("ping", "Returns a \"Pong!\" with the ping in milliseconds.", false);
+        for (String invoke : getInvokes()) {
+            builder.addField(invoke, "Returns a \"Pong!\" with the ping in milliseconds.", false);
+        }
         return builder;
     }
 
@@ -43,5 +45,5 @@ public class PingCommand implements Command {
     public final PermissionRoleFilter getPermissionRoleFilter() {
         return null;
     }
-    
+
 }

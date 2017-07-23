@@ -1,20 +1,20 @@
-package de.codemakers.bot.supreme.commands.impl;
+package de.codemakers.bot.supreme.commands.impl.moderation;
 
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.core.SupremeBot;
+import static de.codemakers.bot.supreme.core.SupremeBot.stopCompletely;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRole;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.IntegerHolder;
 import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Timer;
 import de.codemakers.bot.supreme.util.Util;
 import java.awt.Color;
 import java.io.File;
-import java.util.Timer;
-import java.util.TimerTask;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
@@ -27,7 +27,7 @@ import net.dv8tion.jda.core.entities.MessageHistory;
  */
 public class ManagingCommands {
 
-    public static class CommandPrefixChangeCommand implements Command {
+    public static class CommandPrefixChangeCommand extends Command {
 
         @Override
         public final String[] getInvokes() {
@@ -107,7 +107,7 @@ public class ManagingCommands {
 
     }
 
-    private static class AdministrativeCommands {
+    private static abstract class AdministrativeCommands extends Command {
 
         protected final boolean restart() {
             boolean good = false;
@@ -128,12 +128,6 @@ public class ManagingCommands {
             return SupremeBot.startJDA();
         }
 
-        protected final boolean stopCompletely(int status) {
-            stop();
-            System.exit(status);
-            return true;
-        }
-
         protected final EmbedBuilder getRestartingMessage(MessageEvent event, double delayInSeconds, int value) {
             long rest = ((long) (delayInSeconds + 0.5)) - value;
             return Standard.getMessageEmbed(Color.YELLOW, "%s is restarting me in %d second%s!", event.getAuthor().getAsMention(), rest, (rest == 1 ? "" : "s"));
@@ -146,7 +140,7 @@ public class ManagingCommands {
 
     }
 
-    public static class StopCommand extends AdministrativeCommands implements Command {
+    public static class StopCommand extends AdministrativeCommands {
 
         @Override
         public final String[] getInvokes() {
@@ -164,33 +158,28 @@ public class ManagingCommands {
                 try {
                     final double delayStopInSeconds = Double.parseDouble(arguments.consumeFirst());
                     final Message message = event.sendAndWaitMessage(getRestartingMessage(event, delayStopInSeconds, 0).build());
-                    final Timer timer = new Timer();
+                    final Timer timer_1 = Util.createTimer();
+                    final Timer timer_2 = Util.createTimer();
                     final IntegerHolder i = new IntegerHolder();
-                    final TimerTask timerTask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            message.editMessage(getStoppingMessage(event, delayStopInSeconds, i.value).build()).queue();
-                            i.value++;
-                            if (i.value >= delayStopInSeconds) {
-                                timer.purge();
-                            }
+                    final Runnable run_1 = () -> {
+                        message.editMessage(getStoppingMessage(event, delayStopInSeconds, i.value).build()).queue();
+                        i.value++;
+                        if (i.value >= delayStopInSeconds) {
+                            timer_1.purge();
                         }
                     };
-                    timer.scheduleAtFixedRate(timerTask, 0, 1000);
-                    new Timer().schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            timer.purge();
-                            timerTask.cancel();
-                            message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build()).queue(); //FIXME Das funzt immer noch nicht
-                            new Timer().schedule(new TimerTask() {
-                                @Override
-                                public void run() {
-                                    stopCompletely(0);
-                                }
-                            }, 1000);
-                        }
-                    }, (long) (delayStopInSeconds * 1000.0 + 0.5));
+                    final Runnable run_2 = () -> {
+                        timer_1.purge();
+                        //run_1.cancel(); //FIXME?!??!?!
+                        message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build()).queue(); //FIXME Das funzt immer noch nicht
+                        final Timer timer_3 = Util.createTimer();
+                        final Runnable run_3 = () -> {
+                            stopCompletely(0);
+                        };
+                        Util.sheduleTimerAndRemove(run_3, 1000, timer_3);
+                    };
+                    Util.sheduleTimerAtFixedRateAndRemove(run_1, 0, 1000, timer_1);
+                    Util.sheduleTimerAndRemove(run_2, (long) (delayStopInSeconds * 1000.0 + 0.5), timer_2);
                     return;
                 } catch (Exception ex) {
                 }
@@ -230,7 +219,7 @@ public class ManagingCommands {
 
     }
 
-    public static class RestartCommand extends AdministrativeCommands implements Command {
+    public static class RestartCommand extends AdministrativeCommands {
 
         @Override
         public final String[] getInvokes() {
@@ -253,38 +242,33 @@ public class ManagingCommands {
                     }
                     final double delayStartInSeconds = delayStartInSeconds_temp;
                     final Message message = event.sendAndWaitMessage(getRestartingMessage(event, delayStopInSeconds, 0).build());
-                    final Timer timer = new Timer();
+                    final Timer timer_1 = Util.createTimer();
+                    final Timer timer_2 = Util.createTimer();
                     final IntegerHolder i = new IntegerHolder();
-                    final TimerTask timerTask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            message.editMessage(getRestartingMessage(event, delayStopInSeconds, i.value).build()).queue();
-                            i.value++;
-                            if (i.value >= delayStopInSeconds) {
-                                timer.purge();
-                            }
+                    final Runnable run_1 = () -> {
+                        message.editMessage(getStoppingMessage(event, delayStopInSeconds, i.value).build()).queue();
+                        i.value++;
+                        if (i.value >= delayStopInSeconds) {
+                            timer_1.purge();
                         }
                     };
-                    timer.scheduleAtFixedRate(timerTask, 0, 1000);
-                    new Timer().schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            timer.purge();
-                            timerTask.cancel();
-                            message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s restarting me!", event.getAuthor().getAsMention()).build()).queue();
-                            if (delayStartInSeconds == -1) {
-                                restart();
-                            } else {
-                                stop();
-                                new Timer().schedule(new TimerTask() {
-                                    @Override
-                                    public void run() {
-                                        start();
-                                    }
-                                }, (long) (delayStartInSeconds * 1000.0 + 0.5));
-                            }
+                    final Runnable run_2 = () -> {
+                        timer_1.purge();
+                        //run_1.cancel(); //FIXME?!??!?!
+                        message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s restarting me!", event.getAuthor().getAsMention()).build()).queue();
+                        if (delayStartInSeconds == -1) {
+                            restart();
+                        } else {
+                            stop();
+                            final Timer timer_3 = Util.createTimer();
+                            final Runnable run_3 = () -> {
+                                start();
+                            };
+                            Util.sheduleTimerAndRemove(run_3, (long) (delayStartInSeconds * 1000.0 + 0.5), timer_3);
                         }
-                    }, (long) (delayStopInSeconds * 1000.0 + 0.5));
+                    };
+                    Util.sheduleTimerAtFixedRateAndRemove(run_1, 0, 1000, timer_1);
+                    Util.sheduleTimerAndRemove(run_2, (long) (delayStopInSeconds * 1000.0 + 0.5), timer_2);
                     return;
                 } catch (Exception ex) {
                 }
@@ -323,7 +307,7 @@ public class ManagingCommands {
 
     }
 
-    public static class GetFileCommand implements Command { //TODO Einen UploadFileCommand machen, mit dem man files auf den Bot hochladen kann, um zum Beispiel die settings.txt oder permissions.txt zu ueberschreiben
+    public static class GetFileCommand extends Command { //TODO Einen UploadFileCommand machen, mit dem man files auf den Bot hochladen kann, um zum Beispiel die settings.txt oder permissions.txt zu ueberschreiben
 
         @Override
         public final String[] getInvokes() {
@@ -369,7 +353,7 @@ public class ManagingCommands {
 
     }
 
-    public static class SayCommand implements Command {
+    public static class SayCommand extends Command {
 
         @Override
         public final String[] getInvokes() {
@@ -404,7 +388,7 @@ public class ManagingCommands {
 
     }
 
-    public static class ClearCommand implements Command {
+    public static class ClearCommand extends Command {
 
         @Override
         public final String[] getInvokes() {
@@ -442,11 +426,8 @@ public class ManagingCommands {
                         event.getMessageChannel().deleteMessageById(message.getId()).queue();
                     });
                     final Message message = event.sendAndWaitMessage(Standard.getMessageEmbed(Color.GREEN, "Deleted %d messages!", clearLines).build());
-                    new Timer().schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            message.delete().queue();
-                        }
+                    Util.sheduleTimerAndRemove(() -> {
+                        message.delete().queue();
                     }, 3000);
                 } catch (Exception ex) {
                     System.err.println(ex);
@@ -478,7 +459,7 @@ public class ManagingCommands {
 
     }
 
-    public static class ReloadCommand implements Command {
+    public static class ReloadCommand extends Command {
 
         @Override
         public final String[] getInvokes() {
@@ -554,7 +535,7 @@ public class ManagingCommands {
 
     }
 
-    public static class SettingsCommand implements Command {
+    public static class SettingsCommand extends Command {
 
         @Override
         public String[] getInvokes() {

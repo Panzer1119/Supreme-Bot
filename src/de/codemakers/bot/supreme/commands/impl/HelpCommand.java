@@ -12,14 +12,14 @@ import net.dv8tion.jda.core.entities.Message;
 
 /**
  * HelpCommand
- * 
+ *
  * @author Panzer1119
  */
-public class HelpCommand implements Command {
+public class HelpCommand extends Command {
 
     @Override
     public String[] getInvokes() {
-        return new String[] {"help", "h"};
+        return new String[]{"help", "h"};
     }
 
     @Override
@@ -66,5 +66,5 @@ public class HelpCommand implements Command {
     public PermissionRoleFilter getPermissionRoleFilter() {
         return null;
     }
-    
+
 }

@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.entities;
 
+import de.codemakers.bot.supreme.game.Game;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.Standard;
@@ -17,6 +18,7 @@ public class AdvancedGuild {
     private String guild_id = null;
     private File folder = null;
     private Settings settings = null;
+    private Game game = null;
     
     public AdvancedGuild(Guild guild, File folder) {
         this(guild);
@@ -81,6 +83,15 @@ public class AdvancedGuild {
             settings = new DefaultSettings(new File(folder.getAbsolutePath() + File.separator + Standard.STANDARD_GUILD_SETTINGS_FILE_NAME)).setAutoAddProperties(true);
         }
         return settings;
+    }
+    
+    public final Game getGame() {
+        return game;
+    }
+    
+    public AdvancedGuild setGame(Game game) {
+        this.game = game;
+        return this;
     }
     
 }

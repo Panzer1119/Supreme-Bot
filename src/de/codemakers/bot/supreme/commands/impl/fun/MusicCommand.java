@@ -1,4 +1,4 @@
-package de.codemakers.bot.supreme.commands.impl;
+package de.codemakers.bot.supreme.commands.impl.fun;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
@@ -33,7 +33,7 @@ import net.dv8tion.jda.core.entities.Message;
  *
  * @author Panzer1119
  */
-public class MusicCommand implements Command {
+public class MusicCommand extends Command {
 
     private static Guild guild;
     private static final AudioPlayerManager manager = new DefaultAudioPlayerManager();

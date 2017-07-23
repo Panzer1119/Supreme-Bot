@@ -2,9 +2,10 @@ package de.codemakers.bot.supreme.core;
 
 import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.commands.impl.HelpCommand;
-import de.codemakers.bot.supreme.commands.impl.ManagingCommands;
-import de.codemakers.bot.supreme.commands.impl.MusicCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.ManagingCommands;
+import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
 import de.codemakers.bot.supreme.commands.impl.PingCommand;
+import de.codemakers.bot.supreme.commands.impl.fun.TicTacToeCommand;
 import de.codemakers.bot.supreme.listeners.CommandListener;
 import de.codemakers.bot.supreme.listeners.MemberListener;
 import de.codemakers.bot.supreme.listeners.ReadyListener;
@@ -19,15 +20,15 @@ import net.dv8tion.jda.core.entities.Game;
 
 /**
  * Supreme-Bot
- * 
+ *
  * @author Panzer1119
  */
 public class SupremeBot {
-    
+
     public static JDABuilder builder = null;
     public static JDA jda = null;
     private static boolean running = false;
-    
+
     public static final void main(String[] args) {
         try {
             System.setOut(new SystemOutputStream(System.out, false));
@@ -65,7 +66,7 @@ public class SupremeBot {
             ex.printStackTrace();
         }
     }
-    
+
     private static final boolean initListeners() {
         try {
             builder.addEventListener(new ReadyListener());
@@ -77,27 +78,27 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     private static final boolean initCommands() {
         try {
-            
-            CommandHandler.registerCommand(new PingCommand());
-            CommandHandler.registerCommand(new ManagingCommands.CommandPrefixChangeCommand());
-            CommandHandler.registerCommand(new ManagingCommands.StopCommand());
-            CommandHandler.registerCommand(new ManagingCommands.RestartCommand());
-            CommandHandler.registerCommand(new ManagingCommands.GetFileCommand());
-            CommandHandler.registerCommand(new ManagingCommands.SayCommand());
-            CommandHandler.registerCommand(new ManagingCommands.ClearCommand());
-            CommandHandler.registerCommand(new ManagingCommands.ReloadCommand());
-            CommandHandler.registerCommand(new ManagingCommands.SettingsCommand());
-            CommandHandler.registerCommand(new MusicCommand());
-            CommandHandler.registerCommand(new HelpCommand());
+            new HelpCommand();
+            new PingCommand();
+            new MusicCommand();
+            new TicTacToeCommand();
+            new ManagingCommands.ClearCommand();
+            new ManagingCommands.CommandPrefixChangeCommand();
+            new ManagingCommands.GetFileCommand();
+            new ManagingCommands.ReloadCommand();
+            new ManagingCommands.RestartCommand();
+            new ManagingCommands.SayCommand();
+            new ManagingCommands.SettingsCommand();
+            new ManagingCommands.StopCommand();
             return true;
         } catch (Exception ex) {
             return false;
         }
     }
-    
+
     private static final boolean initPlugins() {
         try {
             Standard.loadPlugins();
@@ -106,11 +107,11 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean isRunning() {
         return running;
     }
-    
+
     public static final boolean startJDA() {
         if (running) {
             return true;
@@ -128,7 +129,7 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean stopJDA(boolean now) {
         if (!running) {
             return true;
@@ -150,12 +151,12 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean restartJDA(boolean now) {
         stopJDA(now);
         return startJDA();
     }
-    
+
     public static final boolean reload() {
         try {
             reloadSettings();
@@ -166,7 +167,7 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean reloadSettings() {
         try {
             Standard.reloadSettings();
@@ -175,7 +176,7 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean reloadPermissions() {
         try {
             Standard.reloadPermissions();
@@ -184,7 +185,7 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean loadAllGuilds() {
         try {
             Standard.loadAllGuilds();
@@ -193,7 +194,7 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean reloadGuilds() {
         try {
             Standard.reloadAllGuilds();
@@ -202,7 +203,7 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean reloadGuildSettings() {
         try {
             Standard.reloadAllGuildSettings();
@@ -211,7 +212,7 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean reloadGuildSettings(String guild_id) {
         try {
             Standard.getGuildSettings(guild_id).loadSettings();
@@ -220,5 +221,12 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
+    public static final boolean stopCompletely(int status) {
+        Standard.runShutdownHooks();
+        stopJDA(true);
+        System.exit(status);
+        return true;
+    }
+
 }
