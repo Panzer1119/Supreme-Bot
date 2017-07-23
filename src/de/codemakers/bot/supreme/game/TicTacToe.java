@@ -58,7 +58,7 @@ public class TicTacToe extends Game {
                 Standard.getAdvancedGuild(getGuildId()).setGame(null);
                 return true;
             } else {
-                event.sendMessageFormat(3000L, "%s %s do not interfere the game!", Emoji.ERROR, event.getAuthor().getAsMention());
+                event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s do not interfere the game!", Emoji.ERROR, event.getAuthor().getAsMention());
                 return false;
             }
         } catch (Exception ex) {
@@ -119,18 +119,18 @@ public class TicTacToe extends Game {
             }
             if (event.getAuthor() == starter || event.getAuthor() == opponent) {
                 if (event.getAuthor() != turn) {
-                    event.sendMessageFormat(3000L, "%s %s it's not your turn yet!", Emoji.ERROR, event.getAuthor().getAsMention());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s it's not your turn yet!", Emoji.ERROR, event.getAuthor().getAsMention());
                     return false;
                 }
             } else {
-                event.sendMessageFormat(3000L, "%s %s do not interfere the game!", Emoji.ERROR, event.getAuthor().getAsMention());
+                event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s do not interfere the game!", Emoji.ERROR, event.getAuthor().getAsMention());
                 return false;
             }
             if (!game.isOccupied(row, column)) {
                 game.addPiece(new Piece(piece), row, column);
                 game.drawBoard();
             } else {
-                event.sendMessageFormat(3000L, "%s %s the place is occupied. Use your eyes!", Emoji.ERROR, event.getAuthor().getAsMention());
+                event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s the place is occupied. Use your eyes!", Emoji.ERROR, event.getAuthor().getAsMention());
                 return false;
             }
             if (game.getWinner().equals("X")) {
@@ -150,10 +150,10 @@ public class TicTacToe extends Game {
             }
             return true;
         } catch (StringIndexOutOfBoundsException | NumberFormatException ex) {
-            event.sendMessageFormat(3000L, "%s %s the number you enter isn't valid.", Emoji.ERROR, event.getAuthor().getAsMention());
+            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s the number you enter isn't valid.", Emoji.ERROR, event.getAuthor().getAsMention());
             return false;
         } catch (ArrayIndexOutOfBoundsException ex) {
-            event.sendMessageFormat(3000L, "%s %s invalid place!", Emoji.ERROR, event.getAuthor().getAsMention());
+            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s invalid place!", Emoji.ERROR, event.getAuthor().getAsMention());
             return false;
         }
     }

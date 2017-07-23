@@ -1,6 +1,9 @@
 package de.codemakers.bot.supreme.commands.impl.fun;
 
 import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.CommandHandler;
+import de.codemakers.bot.supreme.commands.arguments.Argument;
+import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.entities.MessageEvent;
@@ -16,6 +19,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
  * @author Panzer1119
  */
 public class TicTacToeCommand extends Command {
+    
+    public static final Argument ARGUMENT_END = new Argument("end", Standard.STANDARD_ARGUMENT_PREFIXES);
 
     @Override
     public String[] getInvokes() {
@@ -35,13 +40,27 @@ public class TicTacToeCommand extends Command {
                 final Game game = new TicTacToe();
                 game.startGame(arguments, event);
                 advancedGuild.setGame(game);
+            } else {
+                event.sendMessage("You can't play against me, im a bot!");
             }
-        } else if ("end".equals(arguments.getFirst())) {
-            if (advancedGuild != null && advancedGuild.getGame() != null) {
-                advancedGuild.getGame().endGame(arguments, event);
+        } else if (arguments.consumeFirst(ARGUMENT_END, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
+            if (advancedGuild != null) {
+                if (advancedGuild.getGame() != null) {
+                    if (advancedGuild.getGame() instanceof TicTacToe) {
+                        advancedGuild.getGame().endGame(arguments, event);
+                    } else {
+                        event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, "This game isn't TicTacToe!");
+                    }
+                } else {
+                    event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, "There is not game running!");
+                }
+            } else {
+                event.sendMessage("You can't play against me, im a bot!");
             }
         } else if (advancedGuild != null && advancedGuild.getGame() != null) {
             advancedGuild.getGame().sendInput(arguments, event);
+        } else {
+            CommandHandler.sendHelpMessage(event, this, false);
         }
     }
 
@@ -53,7 +72,9 @@ public class TicTacToeCommand extends Command {
     @Override
     public final EmbedBuilder getHelp(EmbedBuilder builder) {
         for (String invoke : getInvokes()) {
-            builder.addField(invoke, "TicTacToe", false);
+            builder.addField(String.format("%s <User @Mention>", invoke), "Starts TicTacToe against the mentioned user.", false);
+            builder.addField(String.format("%s <Field as Number>", invoke), "Tooks the given field in the TicTacToe board.", false);
+            builder.addField(String.format("%s %s", invoke, ARGUMENT_END.getCompleteArgument(0)), "Stops the running TicTacToe game.", false);
         }
         return builder;
     }
