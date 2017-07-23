@@ -1,6 +1,5 @@
 package de.codemakers.bot.supreme.core;
 
-import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.commands.impl.HelpCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.ManagingCommands;
 import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;

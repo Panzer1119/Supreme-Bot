@@ -363,5 +363,13 @@ public class Util {
             return null;
         }
     }
+    
+    public static final String generateRandomString(char[] alphabet, int length) {
+        String out = "";
+        for (int i = 0; i < length; i++) {
+            out += alphabet[(int) (Math.random() * alphabet.length)];
+        }
+        return out;
+    }
 
 }
