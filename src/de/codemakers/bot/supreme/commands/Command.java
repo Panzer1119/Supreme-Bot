@@ -10,23 +10,34 @@ import net.dv8tion.jda.core.EmbedBuilder;
  *
  * @author Panzer1119
  */
-public interface Command {
+public abstract class Command {
 
-    public String[] getInvokes();
+    public Command() {
+        this(true);
+    }
 
-    public boolean called(String invoke, ArgumentList arguments, MessageEvent event);
+    public Command(boolean register) {
+        if (register) {
+            CommandHandler.registerCommand(this);
+        }
+    }
 
-    public void action(String invoke, ArgumentList arguments, MessageEvent event);
+    public abstract String[] getInvokes();
 
-    public void executed(boolean success, MessageEvent event);
+    public abstract boolean called(String invoke, ArgumentList arguments, MessageEvent event);
 
-    public EmbedBuilder getHelp(EmbedBuilder builder);
-    
+    public abstract void action(String invoke, ArgumentList arguments, MessageEvent event);
+
+    public abstract void executed(boolean success, MessageEvent event);
+
+    public abstract EmbedBuilder getHelp(EmbedBuilder builder);
+
     /**
      * e.g. PermissionRole.getPermissionRoleByName("Admin");
+     *
      * @param role PermissionRole
      * @return <tt>true</tt> or <tt>false</tt>
      */
-    public PermissionRoleFilter getPermissionRoleFilter();
+    public abstract PermissionRoleFilter getPermissionRoleFilter();
 
 }

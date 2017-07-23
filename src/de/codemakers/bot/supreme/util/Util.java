@@ -1,7 +1,6 @@
 package de.codemakers.bot.supreme.util;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.ArrayList;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
@@ -13,6 +12,14 @@ import net.dv8tion.jda.core.entities.User;
  * @author Panzer1119
  */
 public class Util {
+
+    public static final ArrayList<Timer> TIMERS = new ArrayList<>();
+
+    static {
+        Standard.SHUTDOWNHOOKS.add(() -> {
+            killAndFireAllTimerTask();
+        });
+    }
 
     public static <T> int indexOf(T[] array, T toTest) {
         if (array == null || array.length == 0 || toTest == null) {
@@ -136,15 +143,131 @@ public class Util {
             message.delete().queue();
             return true;
         }
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                message.delete().queue();
-            }
+        sheduleTimerAndRemove(() -> {
+            message.delete().queue();
         }, delayInMillis);
         return true;
     }
-    
+
+    public static final Timer sheduleTimerAtFixedRateAndRemove(Runnable run, long delay, long period) {
+        return sheduleTimerAtFixedRateAndRemove(run, delay, period, createTimer());
+    }
+
+    public static final Timer sheduleTimerAtFixedRateAndRemove(Runnable run, long delay, long period, Timer timer) {
+        return sheduleTimerAtFixedRate(() -> {
+            try {
+                run.run();
+            } catch (Exception ex) {
+            }
+            TIMERS.remove(timer);
+        }, delay, period, timer);
+    }
+
+    public static final Timer sheduleTimerAtFixedRate(Runnable run, long delay, long period) {
+        return sheduleTimerAtFixedRate(run, delay, period, createTimer());
+    }
+
+    /**
+     * @param run Runnable
+     * @param delay delay in milliseconds before task is to be executed.
+     * @param period time in milliseconds between successive task executions.
+     * @param timer Timer
+     */
+    public static final Timer sheduleTimerAtFixedRate(Runnable run, long delay, long period, Timer timer) {
+        if (timer == null || run == null) {
+            return null;
+        } else if (delay < 0 || period < 0) {
+            return null;
+        } else if (delay == 0) {
+            run.run();
+            return null;
+        }
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    run.run();
+                } catch (Exception ex) {
+                }
+            }
+        }, delay, period);
+        return timer;
+    }
+
+    public static final Timer sheduleTimerAndRemove(Runnable run, long delay) {
+        return sheduleTimerAndRemove(run, delay, createTimer());
+    }
+
+    public static final Timer sheduleTimerAndRemove(Runnable run, long delay, Timer timer) {
+        return sheduleTimer(() -> {
+            try {
+                run.run();
+            } catch (Exception ex) {
+            }
+            TIMERS.remove(timer);
+        }, delay, timer);
+    }
+
+    public static final Timer sheduleTimer(Runnable run, long delay) {
+        return sheduleTimer(run, delay, createTimer());
+    }
+
+    /**
+     * @param run Runnable
+     * @param delay delay in milliseconds before task is to be executed.
+     * @param timer Timer
+     */
+    public static final Timer sheduleTimer(Runnable run, long delay, Timer timer) {
+        if (timer == null || run == null) {
+            return null;
+        } else if (delay < 0) {
+            return null;
+        } else if (delay == 0) {
+            run.run();
+            return null;
+        }
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    run.run();
+                } catch (Exception ex) {
+                }
+            }
+        }, delay);
+        return timer;
+    }
+
+    public static final Timer createTimer() {
+        final Timer timer = new Timer();
+        TIMERS.add(timer);
+        return timer;
+    }
+
+    public static final boolean killAndFireAllTimerTask() {
+        try {
+            TIMERS.stream().forEach((timer) -> {
+                timer.killAndFireAllTask();
+            });
+            return true;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return false;
+        }
+    }
+
+    public static final boolean killAllTimer() {
+        try {
+            TIMERS.stream().forEach((timer) -> {
+                timer.cancel();
+            });
+            return true;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return false;
+        }
+    }
+
     public static final boolean sendPrivateMessage(User user, String message) {
         try {
             final PrivateChannel privateChannel = user.openPrivateChannel().complete();
@@ -156,7 +279,7 @@ public class Util {
             return false;
         }
     }
-    
+
     public static final boolean sendPrivateMessageFormat(User user, String message, Object... format) {
         try {
             final PrivateChannel privateChannel = user.openPrivateChannel().complete();
@@ -168,7 +291,7 @@ public class Util {
             return false;
         }
     }
-    
+
     public static final boolean sendPrivateMessage(User user, Message message) {
         try {
             final PrivateChannel privateChannel = user.openPrivateChannel().complete();
@@ -180,7 +303,7 @@ public class Util {
             return false;
         }
     }
-    
+
     public static final boolean sendPrivateMessage(User user, MessageEmbed message) {
         try {
             final PrivateChannel privateChannel = user.openPrivateChannel().complete();
@@ -192,7 +315,7 @@ public class Util {
             return false;
         }
     }
-    
+
     public static final Message sendAndWaitPrivateMessage(User user, String message) {
         try {
             final PrivateChannel privateChannel = user.openPrivateChannel().complete();
@@ -204,7 +327,7 @@ public class Util {
             return null;
         }
     }
-    
+
     public static final Message sendAndWaitPrivateMessageFormat(User user, String message, Object... format) {
         try {
             final PrivateChannel privateChannel = user.openPrivateChannel().complete();
@@ -216,7 +339,7 @@ public class Util {
             return null;
         }
     }
-    
+
     public static final Message sendAndWaitPrivateMessage(User user, Message message) {
         try {
             final PrivateChannel privateChannel = user.openPrivateChannel().complete();
@@ -228,7 +351,7 @@ public class Util {
             return null;
         }
     }
-    
+
     public static final Message sendAndWaitPrivateMessage(User user, MessageEmbed message) {
         try {
             final PrivateChannel privateChannel = user.openPrivateChannel().complete();

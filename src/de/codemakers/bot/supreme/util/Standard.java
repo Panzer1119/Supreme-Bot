@@ -54,6 +54,8 @@ public class Standard {
     public static final String STANDARD_PLUGINS_FOLDER_NAME = "plugins";
     public static final File STANDARD_PLUGINS_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_PLUGINS_FOLDER_NAME);
     public static final PluginManager STANDARD_PLUGIN_MANAGER = new PluginManager();
+    
+    public static final ArrayList<Runnable> SHUTDOWNHOOKS = new ArrayList<>();
 
     public static final boolean reloadSettings() {
         try {
@@ -390,6 +392,20 @@ public class Standard {
             guild_id = guild.getId();
         }
         return guild_id;
+    }
+    
+    public static final boolean runShutdownHooks() {
+        try {
+            SHUTDOWNHOOKS.stream().forEach((shutdownHook) -> {
+                try {
+                    shutdownHook.run();
+                } catch (Exception ex) {
+                }
+            });
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
     }
 
     public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner"};
