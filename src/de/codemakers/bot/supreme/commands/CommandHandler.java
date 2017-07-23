@@ -49,7 +49,6 @@ public class CommandHandler {
                 return false;
             }
         } catch (Exception ex) {
-            System.err.println(ex);
             ex.printStackTrace();
             return false;
         }

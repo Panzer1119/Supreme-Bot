@@ -44,6 +44,14 @@ public abstract class MessageEvent extends GenericMessageEvent { //FIXME JDA Dep
     public abstract boolean sendMessage(Message message);
 
     public abstract boolean sendMessage(MessageEmbed message);
+    
+    public abstract boolean sendMessage(long delay, String message);
+
+    public abstract boolean sendMessageFormat(long delay, String format, Object... args);
+
+    public abstract boolean sendMessage(long delay, Message message);
+
+    public abstract boolean sendMessage(long delay, MessageEmbed message);
 
     public abstract Message sendAndWaitMessage(String message);
 

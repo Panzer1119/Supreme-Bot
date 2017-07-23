@@ -114,6 +114,26 @@ public class DefaultMessageEvent extends MessageEvent {
             return false;
         }
     }
+
+    @Override
+    public boolean sendMessage(long delay, String message_) {
+        return Util.deleteMessage(sendAndWaitMessage(message_), delay);
+    }
+
+    @Override
+    public boolean sendMessageFormat(long delay, String format, Object... args) {
+        return Util.deleteMessage(sendAndWaitMessageFormat(format, args), delay);
+    }
+
+    @Override
+    public boolean sendMessage(long delay, Message message_) {
+        return Util.deleteMessage(sendAndWaitMessage(message_), delay);
+    }
+
+    @Override
+    public boolean sendMessage(long delay, MessageEmbed message_) {
+        return Util.deleteMessage(sendAndWaitMessage(message_), delay);
+    }
     
     @Override
     public final Message sendAndWaitMessage(String message_) {
