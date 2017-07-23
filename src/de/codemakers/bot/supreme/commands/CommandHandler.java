@@ -116,7 +116,7 @@ public class CommandHandler {
     }
     
     public static final EmbedBuilder generateHelpMessage(Invoker invoker, MessageEvent event, Command command) {
-        final EmbedBuilder builder = command.getHelp(invoker, new EmbedBuilder().setTitle(event.getAuthor().getAsMention()));
+        final EmbedBuilder builder = command.getHelp(invoker, new EmbedBuilder().setTitle(String.format("Help for \"%s\"", invoker)));
         final ArrayList<Invoker> invokers = command.getInvokers();
         if (invokers.size() > 1) {
             builder.setDescription(String.format("Associated Command Invokers:%s", getInvokersAsString(invokers.stream().filter((invoker_) -> !invoker.equals(invoker_)).collect(Collectors.toList()))));
@@ -129,7 +129,11 @@ public class CommandHandler {
             return "";
         }
         final StringBuilder sb = new StringBuilder();
-        invokers.stream().forEach((invoker) -> sb.append(" " + invoker));
+        invokers.stream().forEach((invoker) -> {
+            sb.append(" \"");
+            sb.append(invoker);
+            sb.append("\"");
+        });
         return sb.toString();
     }
 
