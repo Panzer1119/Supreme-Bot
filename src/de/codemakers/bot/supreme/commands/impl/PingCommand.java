@@ -35,10 +35,8 @@ public class PingCommand extends Command {
     }
 
     @Override
-    public final EmbedBuilder getHelp(EmbedBuilder builder) {
-        for (Invoker invoker : getInvokers()) {
-            builder.addField(invoker.toString(), "Returns a \"Pong!\" with the ping in milliseconds.", false);
-        }
+    public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+        builder.addField(invoker + "", "Returns a \"Pong!\" with the ping in milliseconds.", false);
         return builder;
     }
 

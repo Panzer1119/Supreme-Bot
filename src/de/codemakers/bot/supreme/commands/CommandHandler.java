@@ -7,6 +7,8 @@ import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -37,7 +39,7 @@ public class CommandHandler {
                 if (safe) {
                     command.action(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
                 } else {
-                    sendHelpMessage(commandContainer.event, command, false);
+                    sendHelpMessage(commandContainer.invoker, commandContainer.event, command, false);
                 }
                 command.executed(safe, commandContainer.event);
                 return safe;
@@ -89,7 +91,7 @@ public class CommandHandler {
         }
     }
     
-    public static final boolean sendHelpMessage(MessageEvent event, Command command, boolean sendPrivate) {
+    public static final boolean sendHelpMessage(Invoker invoker, MessageEvent event, Command command, boolean sendPrivate) {
         if (event == null || command == null) {
             return false;
         }
@@ -101,16 +103,34 @@ public class CommandHandler {
             sendPrivate = true;
         }
         if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty("send_help_always_private", false)) {
-            Util.sendPrivateMessage(event.getAuthor(), command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build());
+            Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
         } else {
             final Guild guild = event.getGuild();
             if (!PermissionHandler.check(filter, guild, event.getTextChannel())) {
-                Util.sendPrivateMessage(event.getAuthor(), command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build());
+                Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
                 return false;
             }
-            event.sendMessage(command.getHelp(new EmbedBuilder().setDescription(event.getAuthor().getAsMention())).build());
+            event.sendMessage(generateHelpMessage(invoker, event, command).build());
         }
         return true;
+    }
+    
+    public static final EmbedBuilder generateHelpMessage(Invoker invoker, MessageEvent event, Command command) {
+        final EmbedBuilder builder = command.getHelp(invoker, new EmbedBuilder().setTitle(event.getAuthor().getAsMention()));
+        final ArrayList<Invoker> invokers = command.getInvokers();
+        if (invokers.size() > 1) {
+            builder.setDescription(String.format("Associated Command Invokers:%s", getInvokersAsString(invokers.stream().filter((invoker_) -> !invoker.equals(invoker_)).collect(Collectors.toList()))));
+        }
+        return builder;
+    }
+    
+    public static final String getInvokersAsString(List<Invoker> invokers) {
+        if (invokers == null || invokers.isEmpty()) {
+            return "";
+        }
+        final StringBuilder sb = new StringBuilder();
+        invokers.stream().forEach((invoker) -> sb.append(" " + invoker));
+        return sb.toString();
     }
 
 }

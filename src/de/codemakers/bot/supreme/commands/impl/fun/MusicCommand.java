@@ -234,7 +234,7 @@ public class MusicCommand extends Command {
     }
 
     @Override
-    public final EmbedBuilder getHelp(EmbedBuilder builder) {
+    public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
         return builder;
     }
 

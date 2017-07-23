@@ -61,7 +61,7 @@ public class TicTacToeCommand extends Command {
         } else if (advancedGuild != null && advancedGuild.getGame() != null) {
             advancedGuild.getGame().sendInput(arguments, event);
         } else {
-            CommandHandler.sendHelpMessage(event, this, false);
+            CommandHandler.sendHelpMessage(invoker, event, this, false);
         }
     }
 
@@ -71,12 +71,10 @@ public class TicTacToeCommand extends Command {
     }
 
     @Override
-    public final EmbedBuilder getHelp(EmbedBuilder builder) {
-        for (Invoker invoker : getInvokers()) {
-            builder.addField(String.format("%s <User @Mention>", invoker), "Starts TicTacToe against the mentioned user.", false);
-            builder.addField(String.format("%s <Field as Number>", invoker), "Tooks the given field in the TicTacToe board.", false);
-            builder.addField(String.format("%s %s", invoker, ARGUMENT_END.getCompleteArgument(0)), "Stops the running TicTacToe game.", false);
-        }
+    public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+        builder.addField(String.format("%s <User @Mention>", invoker), "Starts TicTacToe against the mentioned user.", false);
+        builder.addField(String.format("%s <Field as Number>", invoker), "Tooks the given field in the TicTacToe board.", false);
+        builder.addField(String.format("%s %s", invoker, ARGUMENT_END.getCompleteArgument(0)), "Stops the running TicTacToe game.", false);
         return builder;
     }
 

@@ -94,9 +94,12 @@ public class ManagingCommands {
         }
 
         @Override
-        public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            builder.addField(String.format("%s <New Command Prefix> [%s]", getInvokers().get(0), Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Sets the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
-            builder.addField(String.format("%s [%s]", getInvokers().get(1), Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Returns the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
+        public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) { //FIXME Ja was ist wenn ein Command 2 UNTERSCHIEDLICHE Funktionen hat??? Das darf eingetlich dann nicht sein!
+            if (invoker == getInvokers().get(0)) {
+                builder.addField(String.format("%s <New Command Prefix> [%s]", getInvokers().get(0), Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Sets the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
+            } else if (invoker == getInvokers().get(1)) {
+                builder.addField(String.format("%s [%s]", getInvokers().get(1), Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Returns the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
+            }
             return builder;
         }
 
@@ -204,10 +207,8 @@ public class ManagingCommands {
         }
 
         @Override
-        public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (Invoker invoker : getInvokers()) {
-                builder.addField(invoker + " [Delay]", "Stops the bot immediately or after the given delay in seconds.", false);
-            }
+        public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+            builder.addField(invoker + " [Delay]", "Stops the bot immediately or after the given delay in seconds.", false);
             return builder;
         }
 
@@ -297,10 +298,8 @@ public class ManagingCommands {
         }
 
         @Override
-        public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (Invoker invoker : getInvokers()) {
-                builder.addField(invoker + " [Delay 1] [Delay 2]", "Restarts the bot immediately or after the first given delay in seconds. The second delay is the time the bot should wait before starting again.", false);
-            }
+        public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+            builder.addField(invoker + " [Delay 1] [Delay 2]", "Restarts the bot immediately or after the first given delay in seconds. The second delay is the time the bot should wait before starting again.", false);
             return builder;
         }
 
@@ -356,10 +355,8 @@ public class ManagingCommands {
         }
 
         @Override
-        public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (Invoker invoker : getInvokers()) {
-                builder.addField(invoker + " <File Path> [Visible File Name]", "Uploads a file from the bot to the current channel with optionally custom filename.", false);
-            }
+        public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+            builder.addField(invoker + " <File Path> [Visible File Name]", "Uploads a file from the bot to the current channel with optionally custom filename.", false);
             return builder;
         }
 
@@ -399,10 +396,8 @@ public class ManagingCommands {
         }
 
         @Override
-        public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (Invoker invoker : getInvokers()) {
-                builder.addField(invoker + "", "The bot says what you said.", false);
-            }
+        public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+            builder.addField(invoker + "", "The bot says what you said.", false);
             return builder;
         }
 
@@ -474,10 +469,8 @@ public class ManagingCommands {
         }
 
         @Override
-        public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (Invoker invoker : getInvokers()) {
-                builder.addField(invoker + " [Number of Lines]", String.format("Clears the last %d lines, or the last 1 to 100 lines, in the current (not private!) channel.", Standard.STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED), false);
-            }
+        public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+            builder.addField(invoker + " [Number of Lines]", String.format("Clears the last %d lines, or the last 1 to 100 lines, in the current (not private!) channel.", Standard.STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED), false);
             return builder;
         }
 
@@ -549,10 +542,8 @@ public class ManagingCommands {
         }
 
         @Override
-        public final EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (Invoker invoker : getInvokers()) {
-                builder.addField(invoker + " [Tag 1] [Tag 2] [Tag 3]...", "Reloads everything or all given tags.", false);
-            }
+        public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+            builder.addField(invoker + " [Tag 1] [Tag 2] [Tag 3]...", "Reloads everything or all given tags.", false);
             return builder;
         }
 
@@ -718,13 +709,11 @@ public class ManagingCommands {
         }
 
         @Override
-        public EmbedBuilder getHelp(EmbedBuilder builder) {
-            for (Invoker invoker : getInvokers()) {
-                builder.addField(String.format("%s %s [Guild ID] <Key> <Value>", invoker, Standard.ARGUMENT_SETTINGS_SET.getCompleteArgument(0)), "Sets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
-                builder.addField(String.format("%s %s [Guild ID] <Key> [%s Default Value]", invoker, Standard.ARGUMENT_SETTINGS_GET.getCompleteArgument(0), Standard.ARGUMENT_SETTINGS_DEFAULT.getCompleteArgument(0)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
-                builder.addField(String.format("%s %s [Guild ID] <Key>", invoker, Standard.ARGUMENT_SETTINGS_REMOVE.getCompleteArgument(0)), "Removes the key and value. If a valid guild id is given, then the guild settings will be edited.", false);
-                builder.addField(String.format("%s %s [Guild ID]", invoker, Standard.ARGUMENT_SETTINGS_LIST.getCompleteArgument(0)), "Lists all keys and values. If a valid guild id is given, then the guild settings will be edited.", false);
-            }
+        public EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+            builder.addField(String.format("%s %s [Guild ID] <Key> <Value>", invoker, Standard.ARGUMENT_SETTINGS_SET.getCompleteArgument(0)), "Sets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
+            builder.addField(String.format("%s %s [Guild ID] <Key> [%s Default Value]", invoker, Standard.ARGUMENT_SETTINGS_GET.getCompleteArgument(0), Standard.ARGUMENT_SETTINGS_DEFAULT.getCompleteArgument(0)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
+            builder.addField(String.format("%s %s [Guild ID] <Key>", invoker, Standard.ARGUMENT_SETTINGS_REMOVE.getCompleteArgument(0)), "Removes the key and value. If a valid guild id is given, then the guild settings will be edited.", false);
+            builder.addField(String.format("%s %s [Guild ID]", invoker, Standard.ARGUMENT_SETTINGS_LIST.getCompleteArgument(0)), "Lists all keys and values. If a valid guild id is given, then the guild settings will be edited.", false);
             return builder;
         }
 

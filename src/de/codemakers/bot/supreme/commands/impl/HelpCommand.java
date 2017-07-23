@@ -37,7 +37,7 @@ public class HelpCommand extends Command {
                 final Invoker command_help_invoker = Invoker.getInvokerByInvokerString(command_help_invoker_string);
                 final Command command = CommandHandler.getCommandByInvokers(command_help_invoker);
                 if (command != null) {
-                    CommandHandler.sendHelpMessage(event, command, sendPrivate);
+                    CommandHandler.sendHelpMessage(command_help_invoker, event, command, sendPrivate);
                 } else {
                     final Message message = event.sendAndWaitMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", event.getAuthor().getAsMention(), command_help_invoker_string);
                     final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(event.getGuild());
@@ -47,7 +47,7 @@ public class HelpCommand extends Command {
                 }
             }
         } else {
-            CommandHandler.sendHelpMessage(event, this, false);
+            CommandHandler.sendHelpMessage(invoker, event, this, false);
         }
     }
 
@@ -57,10 +57,8 @@ public class HelpCommand extends Command {
     }
 
     @Override
-    public final EmbedBuilder getHelp(EmbedBuilder builder) {
-        for (Invoker invoker : getInvokers()) {
-            builder.addField(String.format("%s [%s] [Command 1] [Command 2] [Command 3]...", invoker, Standard.ARGUMENT_PRIVATE.getCompleteArgument(0)), String.format("Returns the help for the given commands. And with the flag \"%s\" the help will be send in the private chat.", Standard.ARGUMENT_PRIVATE.getCompleteArgument(0)), false);
-        }
+    public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+        builder.addField(String.format("%s [%s] [Command 1] [Command 2] [Command 3]...", invoker, Standard.ARGUMENT_PRIVATE.getCompleteArgument(0)), String.format("Returns the help for the given commands. And with the flag \"%s\" the help will be send in the private chat.", Standard.ARGUMENT_PRIVATE.getCompleteArgument(0)), false);
         return builder;
     }
 

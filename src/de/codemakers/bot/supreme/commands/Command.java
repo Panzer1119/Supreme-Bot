@@ -49,7 +49,7 @@ public abstract class Command {
 
     public abstract void executed(boolean success, MessageEvent event);
 
-    public abstract EmbedBuilder getHelp(EmbedBuilder builder);
+    public abstract EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder);
 
     /**
      * e.g. PermissionRole.getPermissionRoleByName("Admin");
