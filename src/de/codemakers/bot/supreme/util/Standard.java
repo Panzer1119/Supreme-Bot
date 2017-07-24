@@ -31,7 +31,7 @@ public class Standard {
     public static final String COMMAND_DELIMITER_STRING = " ";
     public static final int STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED = 10;
     public static final int PLAYLIST_LIMIT = 1000;
-    public static final long STANDARD_MESSAGE_DELETING_DELAY = 3000L;
+    public static final long STANDARD_MESSAGE_DELETING_DELAY = 5000L;
     private static byte[] TOKEN = null;
     private static String STANDARD_COMMAND_PREFIX = "!";
 
