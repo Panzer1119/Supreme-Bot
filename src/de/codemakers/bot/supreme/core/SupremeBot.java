@@ -1,11 +1,19 @@
 package de.codemakers.bot.supreme.core;
 
 import de.codemakers.bot.supreme.commands.impl.HelpCommand;
-import de.codemakers.bot.supreme.commands.impl.moderation.ManagingCommands;
 import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
 import de.codemakers.bot.supreme.commands.impl.PingCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.TicTacToeCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.ChangeCommandPrefixCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.ClearCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.CommandCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.GetCommandPrefixCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.GetFileCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.ReloadCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.RestartCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.SayCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.SettingsCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.StopCommand;
 import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
 import de.codemakers.bot.supreme.listeners.CommandListener;
 import de.codemakers.bot.supreme.listeners.MemberListener;
@@ -84,19 +92,23 @@ public class SupremeBot {
 
     private static final boolean initCommands() {
         try {
+            //Normal Commands
             new HelpCommand();
             new PingCommand();
+            //Fun Commands
             new MusicCommand();
             new TicTacToeCommand();
-            new ManagingCommands.ClearCommand();
-            new ManagingCommands.CommandPrefixChangeCommand();
-            new ManagingCommands.GetFileCommand();
-            new ManagingCommands.ReloadCommand();
-            new ManagingCommands.RestartCommand();
-            new ManagingCommands.SayCommand();
-            new ManagingCommands.SettingsCommand();
-            new ManagingCommands.StopCommand();
+            //Moderation Commands
+            new ChangeCommandPrefixCommand();
+            new ClearCommand();
             new CommandCommand();
+            new GetCommandPrefixCommand();
+            new GetFileCommand();
+            new ReloadCommand();
+            new RestartCommand();
+            new SayCommand();
+            new SettingsCommand();
+            new StopCommand();
             return true;
         } catch (Exception ex) {
             return false;
