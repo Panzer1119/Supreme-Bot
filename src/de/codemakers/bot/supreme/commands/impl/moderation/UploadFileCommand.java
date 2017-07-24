@@ -52,7 +52,7 @@ public class UploadFileCommand extends Command {
         attachments.stream().filter((attachment) -> attachment != null).forEach((attachment) -> {
             try {
                 final String filePath = arguments.consumeFirst();
-                final File file = (filePath != null ? new File(filePath) : new File(Standard.STANDARD_UPLOAD_FOLDER.getAbsolutePath() + File.separator + attachment.getFileName()));
+                final File file = new File(Standard.STANDARD_UPLOAD_FOLDER.getAbsolutePath() + File.separator + (filePath != null ? filePath : attachment.getFileName())).getAbsoluteFile();
                 file.getParentFile().mkdirs();
                 attachment.download(file);
                 event.sendMessageFormat("%s uploaded \"%s\"", event.getAuthor().getAsMention(), attachment.getFileName());
