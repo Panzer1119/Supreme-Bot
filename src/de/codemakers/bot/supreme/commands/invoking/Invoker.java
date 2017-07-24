@@ -1,4 +1,4 @@
-package de.codemakers.bot.supreme.commands.arguments;
+package de.codemakers.bot.supreme.commands.invoking;
 
 import de.codemakers.bot.supreme.commands.Command;
 import java.util.ArrayList;
@@ -8,29 +8,30 @@ import java.util.ArrayList;
  * 
  * @author Panzer1119
  */
-public class Invoker {
+public class Invoker implements Invokeable {
     
     public static final ArrayList<Invoker> INVOKERS = createInvokerArrayList();
     
     private final String invoker;
-    private Command command;
+    private Invokeable invokeable;
     
     public Invoker(String invoker) {
         this(invoker, null);
     }
     
-    public Invoker(String invoker, Command command) {
+    public Invoker(String invoker, Invokeable invokeable) {
         this.invoker = invoker;
-        this.command = command;
+        this.invokeable = invokeable;
         INVOKERS.add(this);
     }
     
     public final String getInvoker() {
         return invoker;
     }
-    
-    public final Command getCommand() {
-        return command;
+
+    @Override
+    public Invokeable getInvokeable() {
+        return invokeable;
     }
     
     @Override
@@ -70,8 +71,8 @@ public class Invoker {
             return false;
         }
         INVOKERS.remove(invoker);
-        if (invoker.getCommand() != null) {
-            invoker.getCommand().removeInvokers(invoker);
+        if (invoker.getInvokeable() != null) {
+            ((Command) invoker.getInvokeable()).removeInvokers(invoker);
         }
         return true;
     }
@@ -93,7 +94,7 @@ public class Invoker {
             return new ArrayList<>();
         }
         final ArrayList<Invoker> invokers = new ArrayList<>();
-        INVOKERS.stream().filter((invoker) -> command.equals(invoker.getCommand())).forEach((invoker) -> {
+        INVOKERS.stream().filter((invoker) -> command.equals(invoker.getInvokeable())).forEach((invoker) -> {
             invokers.add(invoker);
         });
         return invokers;

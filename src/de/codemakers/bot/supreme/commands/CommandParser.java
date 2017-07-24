@@ -1,7 +1,7 @@
 package de.codemakers.bot.supreme.commands;
 
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
-import de.codemakers.bot.supreme.commands.arguments.Invoker;
+import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.util.Standard;
 import java.util.ArrayList;

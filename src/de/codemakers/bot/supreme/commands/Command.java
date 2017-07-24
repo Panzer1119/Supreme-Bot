@@ -1,7 +1,8 @@
 package de.codemakers.bot.supreme.commands;
 
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
-import de.codemakers.bot.supreme.commands.arguments.Invoker;
+import de.codemakers.bot.supreme.commands.invoking.Invokeable;
+import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Util;
@@ -15,7 +16,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
  *
  * @author Panzer1119
  */
-public abstract class Command {
+public abstract class Command implements Invokeable {
     
     private final ArrayList<Invoker> invokers = Invoker.createInvokerArrayList();
     
@@ -39,6 +40,11 @@ public abstract class Command {
     
     public final boolean containsInvokers(Invoker... invokers) {
         return this.invokers.stream().filter((invoker) -> Util.contains(invokers, invoker)).collect(Collectors.toList()).size() == invokers.length;
+    }
+
+    @Override
+    public Invokeable getInvokeable() {
+        return this;
     }
     
     public abstract void initInvokers();

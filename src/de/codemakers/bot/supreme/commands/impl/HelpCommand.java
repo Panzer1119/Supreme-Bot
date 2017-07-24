@@ -4,7 +4,7 @@ import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
-import de.codemakers.bot.supreme.commands.arguments.Invoker;
+import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;

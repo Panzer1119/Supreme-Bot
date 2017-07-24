@@ -3,7 +3,7 @@ package de.codemakers.bot.supreme.commands.impl.moderation;
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
-import de.codemakers.bot.supreme.commands.arguments.Invoker;
+import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.core.SupremeBot;
 import static de.codemakers.bot.supreme.core.SupremeBot.stopCompletely;
 import de.codemakers.bot.supreme.entities.MessageEvent;

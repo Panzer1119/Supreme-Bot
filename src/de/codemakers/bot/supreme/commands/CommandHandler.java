@@ -1,6 +1,6 @@
 package de.codemakers.bot.supreme.commands;
 
-import de.codemakers.bot.supreme.commands.arguments.Invoker;
+import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
@@ -27,7 +27,7 @@ public class CommandHandler {
             if (commandContainer == null) {
                 return false;
             }
-            final Command command = commandContainer.invoker.getCommand();
+            final Command command = ((Command) commandContainer.invoker.getInvokeable());
             if (Standard.isAutoDeletingCommandByGuild(commandContainer.event.getGuild())) {
                 commandContainer.event.getMessage().delete().queue();
             }
