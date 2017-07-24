@@ -246,7 +246,7 @@ public class SupremeBot {
                 return;
             }
             if (permission.getName().equals(EXITVM) || permission.getName().equalsIgnoreCase(EXITVM) || permission.getName().startsWith(EXITVM)) {
-                throw new ExitTrappedException("SOMEONE CALLED \"System.exit();\"!!!");
+                throw new ExitTrappedException("!!WARNING SOMEONE WANTED TO EXIT THE SYSTEM!!!");
             }
         }
     };
