@@ -55,7 +55,7 @@ public class UploadFileCommand extends Command {
                 final File file = new File(Standard.STANDARD_UPLOAD_FOLDER.getAbsolutePath() + File.separator + (filePath != null ? filePath : attachment.getFileName())).getAbsoluteFile();
                 file.getParentFile().mkdirs();
                 attachment.download(file);
-                event.sendMessageFormat("%s uploaded \"%s\"", event.getAuthor().getAsMention(), attachment.getFileName());
+                event.sendMessageFormat("%s uploaded \"%s\"%s", event.getAuthor().getAsMention(), attachment.getFileName(), (filePath != null ? String.format(" as \"%s\"", filePath) : ""));
             } catch (Exception ex) {
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s the file \"%s\" was unable to upload (%s)!", Emoji.WARNING, event.getAuthor().getAsMention(), attachment.getFileName(), ex);
             }
