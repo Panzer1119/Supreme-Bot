@@ -5,12 +5,14 @@ import de.codemakers.bot.supreme.commands.impl.moderation.ManagingCommands;
 import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
 import de.codemakers.bot.supreme.commands.impl.PingCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.TicTacToeCommand;
+import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
 import de.codemakers.bot.supreme.listeners.CommandListener;
 import de.codemakers.bot.supreme.listeners.MemberListener;
 import de.codemakers.bot.supreme.listeners.ReadyListener;
 import de.codemakers.bot.supreme.listeners.VoiceListener;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.SystemOutputStream;
+import java.security.Permission;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -30,6 +32,7 @@ public class SupremeBot {
 
     public static final void main(String[] args) {
         try {
+            disableSystemExit();
             System.setOut(new SystemOutputStream(System.out, false));
             System.setErr(new SystemOutputStream(System.err, true));
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -224,8 +227,46 @@ public class SupremeBot {
     public static final boolean stopCompletely(int status) {
         Standard.runShutdownHooks();
         stopJDA(true);
-        System.exit(status);
+        exit(status);
         return true;
+    }
+    
+    private static final boolean exit(int status) {
+        enableSystemExit();
+        System.exit(status);
+        disableSystemExit();
+        return true;
+    }
+    
+    private static final String EXITVM = "exitVM";
+    private static final SecurityManager securityManager = new SecurityManager() {
+        @Override
+        public void checkPermission(Permission permission) {
+            if (permission == null || permission.getName() == null) {
+                return;
+            }
+            if (permission.getName().equals(EXITVM) || permission.getName().equalsIgnoreCase(EXITVM) || permission.getName().startsWith(EXITVM)) {
+                throw new ExitTrappedException("SOMEONE CALLED \"System.exit();\"!!!");
+            }
+        }
+    };
+    
+    private static final boolean disableSystemExit() {
+        try {
+            System.setSecurityManager(securityManager);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    private static final boolean enableSystemExit() {
+        try {
+            System.setSecurityManager(null);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
     }
 
 }
