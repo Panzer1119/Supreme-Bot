@@ -56,6 +56,11 @@ public class Standard {
     public static final File STANDARD_PLUGINS_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_PLUGINS_FOLDER_NAME);
     public static final PluginManager STANDARD_PLUGIN_MANAGER = new PluginManager();
     
+    public static final String STANDARD_DOWNLOAD_FOLDER_NAME = "downloads";
+    public static final File STANDARD_DOWNLOAD_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_DOWNLOAD_FOLDER_NAME);
+    public static final String STANDARD_UPLOAD_FOLDER_NAME = "uploads";
+    public static final File STANDARD_UPLOAD_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_UPLOAD_FOLDER_NAME);
+    
     public static final ArrayList<Runnable> SHUTDOWNHOOKS = new ArrayList<>();
 
     public static final boolean reloadSettings() {

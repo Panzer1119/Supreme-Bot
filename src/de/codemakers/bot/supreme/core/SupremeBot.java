@@ -14,6 +14,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.RestartCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.SayCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.SettingsCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.StopCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.UploadFileCommand;
 import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
 import de.codemakers.bot.supreme.listeners.CommandListener;
 import de.codemakers.bot.supreme.listeners.MemberListener;
@@ -109,6 +110,7 @@ public class SupremeBot {
             new SayCommand();
             new SettingsCommand();
             new StopCommand();
+            new UploadFileCommand();
             return true;
         } catch (Exception ex) {
             return false;

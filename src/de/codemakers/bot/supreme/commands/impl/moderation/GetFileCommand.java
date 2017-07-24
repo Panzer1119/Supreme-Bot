@@ -6,6 +6,7 @@ import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRole;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.util.Standard;
 import java.io.File;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -16,11 +17,11 @@ import net.dv8tion.jda.core.entities.Message;
  *
  * @author Panzer1119
  */
-public class GetFileCommand extends Command { //TODO Einen UploadFileCommand machen, mit dem man files auf den Bot hochladen kann, um zum Beispiel die settings.txt oder permissions.txt zu ueberschreiben
+public class GetFileCommand extends Command {
 
     @Override
     public final void initInvokers() {
-        addInvokers(Invoker.createInvoker("getFile", this));
+        addInvokers(Invoker.createInvoker("getFile", this), Invoker.createInvoker("gFile", this));
     }
 
     @Override
@@ -50,14 +51,20 @@ public class GetFileCommand extends Command { //TODO Einen UploadFileCommand mac
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(invoker + " <File Path> [Visible File Name]", "Uploads a file from the bot to the current channel with optionally custom filename.", false);
+        builder.addField(invoker + " <File Path> [Visible Filename]", "Uploads a file from the bot to the current channel with optionally custom filename.", false);
         return builder;
     }
 
     @Override
     public final PermissionRoleFilter getPermissionRoleFilter() {
-        final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
-        return (role, member) -> role.isThisHigherOrEqual(admin);
+        final PermissionRole owner = PermissionRole.getPermissionRoleByName("Admin");
+        final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
+        return (role, member) -> {
+            if (role.isThisHigherOrEqual(owner) || role.isThisEqual(bot_commander)) {
+                return true;
+            }
+            return Standard.isSuperOwner(member);
+        };
     }
 
     @Override
