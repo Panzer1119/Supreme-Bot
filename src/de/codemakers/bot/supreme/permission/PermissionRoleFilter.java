@@ -9,6 +9,6 @@ import net.dv8tion.jda.core.entities.Member;
  */
 public interface PermissionRoleFilter {
     
-    public boolean isPermissionGranted(PermissionRole role, Member member);
+    public boolean isPermissionGranted(PermissionRole permissionRole, Member member);
     
 }

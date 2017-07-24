@@ -92,14 +92,7 @@ public class RestartCommand extends AdministrativeCommand {
 
     @Override
     public final PermissionRoleFilter getPermissionRoleFilter() {
-        final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
-        final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
-        return (role, member) -> {
-            if (role.isThisHigherOrEqual(owner) || role.isThisEqual(bot_commander)) {
-                return true;
-            }
-            return Standard.isSuperOwner(member);
-        };
+        return Standard.STANDARD_PERMISSIONROLEFILTER_OWNER_BOT_COMMANDER;
     }
 
     @Override

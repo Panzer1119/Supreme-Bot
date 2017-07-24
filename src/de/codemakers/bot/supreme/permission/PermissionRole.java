@@ -1,14 +1,14 @@
 package de.codemakers.bot.supreme.permission;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
 
 /**
  * PermissionRole
@@ -17,222 +17,206 @@ import net.dv8tion.jda.core.entities.Role;
  */
 public class PermissionRole {
 
-    public static final String SPLITTER_1 = ";";
-    public static final String SPLITTER_2 = "=";
-    public static final String COMMENT = "#";
-    public static final ArrayList<PermissionRole> roles = new ArrayList<>();
+    static final ArrayList<PermissionRole> PERMISSIONROLES = new ArrayList<>();
 
-    private final String name;
-    private final HashMap<String, String> roleNames = new HashMap<String, String>() {
-        @Override
-        public final String toString() {
-            String temp = "";
-            for (String key : keySet()) {
-                temp += SPLITTER_1 + key + SPLITTER_2 + get(key);
+    private String permissionRoleName;
+    private String permissionRoleID;
+    private final HashMap<PermissionRole, Boolean> superPermissionRoles = new HashMap<>();
+    private final HashMap<String, ArrayList<String>> guildRoles = new HashMap<>();
+
+    public PermissionRole(String permissionRoleName, String permissionRoleID) {
+        this.permissionRoleName = permissionRoleName;
+        this.permissionRoleID = permissionRoleID;
+    }
+
+    public final String getPermissionRoleName() {
+        return permissionRoleName;
+    }
+
+    public final PermissionRole setPermissionRoleName(String permissionRoleName) {
+        this.permissionRoleName = permissionRoleName;
+        return this;
+    }
+
+    public final String getPermissionRoleID() {
+        return permissionRoleID;
+    }
+
+    public final PermissionRole setPermissionRoleID(String permissionRoleID) {
+        this.permissionRoleID = permissionRoleID;
+        return this;
+    }
+
+    public final ArrayList<PermissionRole> getSuperPermissionRoles() {
+        final ArrayList<PermissionRole> permissionRoles = new ArrayList<PermissionRole>() {
+            @Override
+            public boolean addAll(int index, Collection<? extends PermissionRole> permissionRoles) {
+                if (permissionRoles == null) {
+                    return false;
+                }
+                return super.addAll(index, permissionRoles.stream().filter((permissionRole) -> !contains(permissionRole)).collect(Collectors.toList()));
             }
-            return temp;
+
+            @Override
+            public boolean addAll(Collection<? extends PermissionRole> permissionRoles) {
+                if (permissionRoles == null) {
+                    return false;
+                }
+                return super.addAll(permissionRoles.stream().filter((permissionRole) -> !contains(permissionRole)).collect(Collectors.toList()));
+            }
+
+            @Override
+            public void add(int index, PermissionRole permissionRole) {
+                if (permissionRole == null || contains(permissionRole)) {
+                    return;
+                }
+                super.add(index, permissionRole);
+            }
+
+            @Override
+            public boolean add(PermissionRole permissionRole) {
+                if (permissionRole == null || contains(permissionRole)) {
+                    return false;
+                }
+                return super.add(permissionRole);
+            }
+
+        };
+        superPermissionRoles.keySet().stream().forEach((superPermissionRole) -> {
+            permissionRoles.add(superPermissionRole);
+            if (superPermissionRoles.get(superPermissionRole)) {
+                permissionRoles.addAll(superPermissionRole.getSuperPermissionRoles());
+            }
+        });
+        return permissionRoles;
+    }
+
+    public final PermissionRole inherit(PermissionRole permissionRole, boolean inheritAll) {
+        superPermissionRoles.put(permissionRole, inheritAll);
+        return this;
+    }
+
+    public final HashMap<String, ArrayList<String>> getGuildRoles() {
+        return guildRoles;
+    }
+
+    public final ArrayList<String> getRolesByGuild(String guild_id) {
+        if (!guildRoles.containsKey(guild_id)) {
+            return new ArrayList<>();
         }
-    };
-    /**
-     * The higher the level the more permission the role have
-     */
-    private final int level;
-
-    public PermissionRole(String name, int level) {
-        this.name = name;
-        this.level = level;
+        return guildRoles.get(guild_id);
     }
 
-    public final String getName() {
-        return name;
+    public final PermissionRole addRoleForGuild(String guild_id, String role_id) {
+        ArrayList<String> roles = guildRoles.get(guild_id);
+        if (roles == null) {
+            roles = new ArrayList<>();
+            guildRoles.put(guild_id, roles);
+        }
+        if (!roles.contains(role_id)) {
+            roles.add(role_id);
+        }
+        return this;
     }
 
-    /**
-     * KEY = guild.getId(); //VALUE = role.getId();
-     */
-    public final HashMap<String, String> getRoleNames() {
-        return roleNames;
-    }
-
-    public final int getLevel() {
-        return level;
-    }
-
-    public final boolean isThisHigher(PermissionRole role) {
-        if (role == null) {
+    public final boolean isPermissionGranted(PermissionRole permissionRole) {
+        if (permissionRole == null) {
+            return false;
+        }
+        if (permissionRole.equals(this)) {
             return true;
         }
-        return level > role.level;
+        return getSuperPermissionRoles().contains(permissionRole);
     }
 
-    public final boolean isThisHigherOrEqual(PermissionRole role) {
-        if (role == null) {
-            return true;
-        }
-        return level >= role.level;
-    }
-
-    public final boolean isThisEqual(PermissionRole role) {
-        if (role == null) {
+    public final boolean isPermissionGranted(PermissionRole... permissionRoles) {
+        if (permissionRoles == null || permissionRoles.length == 0) {
             return false;
         }
-        return level == role.level;
+        for (PermissionRole permissionRole : permissionRoles) {
+            if (isPermissionGranted(permissionRole)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public final boolean isThisLower(PermissionRole role) {
-        if (role == null) {
+    public final boolean isPermissionGranted(ArrayList<PermissionRole> permissionRoles) {
+        if (permissionRoles == null || permissionRoles.isEmpty()) {
             return false;
         }
-        return level < role.level;
-    }
-
-    public final boolean isThisLowerOrEqual(PermissionRole role) {
-        if (role == null) {
-            return false;
-        }
-        return level <= role.level;
-    }
-
-    public final Role getRoleByGuild(Guild guild) {
-        if (guild == null) {
-            return null;
-        }
-        final String roleID = roleNames.get(guild.getId());
-        if (roleID == null) {
-            return null;
-        }
-        return guild.getRoleById(roleID);
-    }
-
-    public final String getRoleNameByGuild(Guild guild) {
-        final Role role = getRoleByGuild(guild);
-        if (role == null) {
-            return name;
-        } else {
-            return role.getName();
-        }
+        return permissionRoles.stream().anyMatch((permissionRole) -> isPermissionGranted(permissionRole));
     }
 
     @Override
-    public final String toString() {
-        return String.format("%s%s%s%s", name, SPLITTER_1, level, roleNames.toString());
-    }
-
-    public static final PermissionRole getPermissionRoleByGuildIdAndRoleId(String guild_id, String role_id) {
-        if (guild_id == null || guild_id.isEmpty() || role_id == null || role_id.isEmpty()) {
-            return getPermissionRoleByName("" + null);
-        }
-        for (PermissionRole role : roles) {
-            for (String key : role.roleNames.keySet()) {
-                final String value = role.roleNames.get(key);
-                if (key != null && value != null && key.equals(guild_id) && value.equals(role_id)) {
-                    return role;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static final PermissionRole getPermissionRoleByName(String name) {
-        if (name == null) {
-            return getPermissionRoleByName("" + null);
-        }
-        for (PermissionRole role : roles) {
-            if (role.getName() != null && role.getName().equals(name)) {
-                return role;
-            }
-        }
-        return null;
-    }
-
-    public static final boolean loadPermissionRoles(File file) {
-        if (file == null) {
-            return false;
-        }
-        try {
-            return loadPermissionRoles(new FileInputStream(file));
-        } catch (Exception ex) {
-            System.err.println(ex);
-            ex.printStackTrace();
-            return false;
-        }
-    }
-
-    public static final boolean loadPermissionRoles(String jar_path) {
-        if (jar_path == null) {
-            return false;
-        }
-        try {
-            if (!jar_path.startsWith("/")) {
-                jar_path = "/" + jar_path;
-            }
-            return loadPermissionRoles(PermissionRole.class.getResourceAsStream(jar_path));
-        } catch (Exception ex) {
-            System.err.println(ex);
-            ex.printStackTrace();
-            return false;
-        }
-    }
-
-    public static final boolean loadPermissionRoles(InputStream inputStream) {
-        if (inputStream == null) {
-            return false;
-        }
-        return loadPermissionRoles(new InputStreamReader(inputStream));
-    }
-
-    public static final boolean loadPermissionRoles(InputStreamReader reader) {
-        if (reader == null) {
-            return false;
-        }
-        return loadPermissionRoles(new BufferedReader(reader));
-    }
-
-    /**
-     * Example:
-     *
-     * PERMISSION_ROLE_NAME;LEVEL;GUILD_ID_1=ROLE_ID_1;GUILD_ID_2=ROLE_ID_2
-     *
-     * @param reader
-     * @return
-     */
-    public static final boolean loadPermissionRoles(BufferedReader reader) {
-        if (reader == null) {
-            return false;
-        }
-        try {
-            roles.clear();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                try {
-                    if (line.isEmpty() || line.startsWith(COMMENT)) {
-                        continue;
-                    }
-                    final String[] split = line.split(SPLITTER_1);
-                    if (split.length >= 2) {
-                        final String name = split[0];
-                        final int level = Integer.parseInt(split[1]);
-                        final PermissionRole role = new PermissionRole(name, level);
-                        if (split.length > 2) {
-                            for (int i = 2; i < split.length; i++) {
-                                final String[] temp = split[i].split(SPLITTER_2);
-                                if (temp.length >= 2) {
-                                    role.roleNames.put(temp[0], temp[1]);
-                                }
-                            }
-                        }
-                        roles.add(role);
-                    }
-                } catch (Exception ex) {
-                }
-            }
-            reader.close();
+    public final boolean equals(Object object) {
+        if (this == object) {
             return true;
-        } catch (Exception ex) {
-            System.err.println(ex);
-            ex.printStackTrace();
+        }
+        if (object == null) {
             return false;
         }
+        if (object instanceof PermissionRole) {
+            final PermissionRole permissionRole = (PermissionRole) object;
+            return Objects.equals(getPermissionRoleID(), permissionRole.getPermissionRoleID()) || Objects.equals(permissionRole.getPermissionRoleID(), getPermissionRoleID());
+        } else {
+            return false;
+        }
+    }
+    
+    @Override
+    public final String toString() {
+        return String.format("%s (ID: %s)", permissionRoleName, permissionRoleID);
+    }
+
+    public static final ArrayList<PermissionRole> getPermissionRolesByGuildAndUser(Guild guild, User user) {
+        if (guild == null || user == null) {
+            return new ArrayList<>();
+        }
+        return getPermissionRolesByMember(guild.getMember(user));
+    }
+
+    public static final ArrayList<PermissionRole> getPermissionRolesByMember(Member member) {
+        if (member == null || member.getGuild() == null) {
+            return new ArrayList<>();
+        }
+        final String guild_id = member.getGuild().getId();
+        final ArrayList<PermissionRole> permissionRoles = new ArrayList<>();
+        member.getRoles().stream().forEach((role) -> {
+            final PermissionRole permissionRole = getPermissionRoleByGuildAndRole(guild_id, role.getId());
+            if (permissionRole != null) {
+                permissionRoles.add(permissionRole);
+            }
+        });
+        return permissionRoles;
+    }
+
+    public static final PermissionRole getPermissionRoleByGuildAndRole(String guild_id, String role_id) {
+        if (guild_id == null || guild_id.isEmpty() || role_id == null || role_id.isEmpty() || PERMISSIONROLES.isEmpty()) {
+            return null;
+        }
+        return PERMISSIONROLES.stream().filter((permissionRole) -> permissionRole.getRolesByGuild(guild_id).contains(role_id)).findFirst().orElse(null);
+    }
+
+    public static final PermissionRole getPermissionRoleByPermissionRoleID(String permissionRoleID) {
+        if (permissionRoleID == null || PERMISSIONROLES.isEmpty()) {
+            return null;
+        }
+        return PERMISSIONROLES.stream().filter((permissionRole) -> permissionRoleID.equals(permissionRole.getPermissionRoleID())).findFirst().orElse(null);
+    }
+
+    public static final List<PermissionRole> getPermissionRolesByName(String permissionRoleName) {
+        if (permissionRoleName == null || PERMISSIONROLES.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return PERMISSIONROLES.stream().filter((permissionRole) -> permissionRoleName.equals(permissionRole.getPermissionRoleName())).collect(Collectors.toList());
+    }
+
+    public static final PermissionRole getPermissionRoleByName(String permissionRoleName) {
+        if (permissionRoleName == null || PERMISSIONROLES.isEmpty()) {
+            return null;
+        }
+        return getPermissionRolesByName(permissionRoleName).stream().findFirst().orElse(null);
     }
 
 }

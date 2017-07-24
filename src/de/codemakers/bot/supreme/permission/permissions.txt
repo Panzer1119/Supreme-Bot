@@ -1,6 +1,0 @@
-#PermissionRoleName;PermissionRoleLevel;GUILD_ID=GUILD_ROLE_ID
-#Standard "null;0"
-Owner;1000
-Admin;100
-Bot_Commander;50
-null;0

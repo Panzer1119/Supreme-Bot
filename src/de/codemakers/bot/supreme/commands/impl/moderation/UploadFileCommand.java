@@ -76,14 +76,7 @@ public class UploadFileCommand extends Command {
 
     @Override
     public PermissionRoleFilter getPermissionRoleFilter() {
-        final PermissionRole owner = PermissionRole.getPermissionRoleByName("Admin");
-        final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
-        return (role, member) -> {
-            if (role.isThisHigherOrEqual(owner) || role.isThisEqual(bot_commander)) {
-                return true;
-            }
-            return Standard.isSuperOwner(member);
-        };
+        return Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER;
     }
 
     @Override

@@ -3,7 +3,9 @@ package de.codemakers.bot.supreme.util;
 import de.codemakers.bot.supreme.commands.arguments.Argument;
 import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
+import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRole;
+import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.plugin.PluginManager;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.Settings;
@@ -36,7 +38,7 @@ public class Standard {
     private static String STANDARD_COMMAND_PREFIX = "!";
 
     public static final Settings STANDARD_NULL_SETTINGS = new DefaultSettings();
-    
+
     public static final String STANDARD_DATA_FOLDER_NAME = "data";
     public static final File STANDARD_DATA_FOLDER = new File(STANDARD_DATA_FOLDER_NAME);
     public static final String STANDARD_SETTINGS_FILE_NAME = "settings.txt";
@@ -47,20 +49,35 @@ public class Standard {
     public static final File STANDARD_GUILD_SETTINGS_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_GUILD_SETTINGS_FOLDER_NAME);
     public static final String STANDARD_GUILD_SETTINGS_FILE_NAME = "settings.txt";
     private static final ArrayList<AdvancedGuild> GUILDS = new ArrayList<>();
-    
-    public static final String STANDARD_PERMISSIONS_FILE_PATH = "data/permissions.txt";
-    public static final File STANDARD_PERMISSIONS_FILE = new File(STANDARD_PERMISSIONS_FILE_PATH);
-    public static final String STANDARD_PERMISSIONS_PATH = "/de/panzercraft/bot/supreme/permission/permissions.txt";
-    
+
+    public static final String STANDARD_PERMISSIONS_FILE_NAME = "permissions.xml";
+    public static final File STANDARD_PERMISSIONS_FILE = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_PERMISSIONS_FILE_NAME);
+    public static final String STANDARD_PERMISSIONS_PATH = "/de/panzercraft/bot/supreme/permission/permissions.xml";
+
     public static final String STANDARD_PLUGINS_FOLDER_NAME = "plugins";
     public static final File STANDARD_PLUGINS_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_PLUGINS_FOLDER_NAME);
     public static final PluginManager STANDARD_PLUGIN_MANAGER = new PluginManager();
-    
+
     public static final String STANDARD_DOWNLOAD_FOLDER_NAME = "downloads";
     public static final File STANDARD_DOWNLOAD_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_DOWNLOAD_FOLDER_NAME);
     public static final String STANDARD_UPLOAD_FOLDER_NAME = "uploads";
     public static final File STANDARD_UPLOAD_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_UPLOAD_FOLDER_NAME);
-    
+
+    public static PermissionRole STANDARD_PERMISSION_ROLE = null;
+
+    public static final String XML_PERMISSIONROLES = "permissionroles";
+    public static final String XML_PERMISSIONROLE = "permissionrole";
+    public static final String XML_PERMISSIONS = "permissions";
+    public static final String XML_PERMISSION = "permission";
+    public static final String XML_PERMISSIONROLEID = "permissionroleid";
+    public static final String XML_NAME = "name";
+    public static final String XML_INHERIT = "inherit";
+    public static final String XML_INHERITALL = "inheritall";
+    public static final String XML_STANDARD = "standard";
+    public static final String XML_ROLES = "roles";
+    public static final String XML_ROLE = "role";
+    public static final String XML_ROLEID = "roleid";
+
     public static final ArrayList<Runnable> SHUTDOWNHOOKS = new ArrayList<>();
 
     public static final boolean reloadSettings() {
@@ -83,27 +100,27 @@ public class Standard {
         }
     }
 
-    public static final boolean reloadPermissions() {
+    public static final boolean reloadPermissionRoles() {
         try {
             if (STANDARD_PERMISSIONS_FILE.exists() && STANDARD_PERMISSIONS_FILE.isFile()) {
-                PermissionRole.loadPermissionRoles(STANDARD_PERMISSIONS_FILE);
+                PermissionHandler.loadPermissionRoles(STANDARD_PERMISSIONS_FILE);
             } else if (!STANDARD_PERMISSIONS_FILE.exists()) {
                 try {
                     FileUtils.copyInputStreamToFile(Standard.class.getResourceAsStream(STANDARD_PERMISSIONS_PATH), STANDARD_PERMISSIONS_FILE);
-                    PermissionRole.loadPermissionRoles(STANDARD_PERMISSIONS_FILE);
+                    PermissionHandler.loadPermissionRoles(STANDARD_PERMISSIONS_FILE);
                 } catch (Exception ex) {
                     System.err.println(ex);
-                    PermissionRole.loadPermissionRoles(STANDARD_PERMISSIONS_PATH);
+                    PermissionHandler.loadPermissionRoles(STANDARD_PERMISSIONS_PATH);
                 }
             } else if (!STANDARD_PERMISSIONS_FILE.isFile()) {
-                PermissionRole.loadPermissionRoles(STANDARD_PERMISSIONS_PATH);
+                PermissionHandler.loadPermissionRoles(STANDARD_PERMISSIONS_PATH);
             } else {
                 return false;
             }
-            System.out.println("Reloaded Permissions!");
+            System.out.println("Reloaded PermissionRoles!");
             return true;
         } catch (Exception ex) {
-            System.err.println("Not Reloaded Permissions: " + ex);
+            System.err.println("Not Reloaded PermissionRoles: " + ex);
             ex.printStackTrace();
             return false;
         }
@@ -131,7 +148,7 @@ public class Standard {
         STANDARD_SETTINGS.setProperty("command_prefix", STANDARD_COMMAND_PREFIX);
         return true;
     }
-    
+
     //****************************************************************//
     //*********************GUILD SPECIFIC START***********************//
     //****************************************************************//
@@ -153,10 +170,11 @@ public class Standard {
             return false;
         }
     }
-    
+
     public static final boolean reloadAllGuilds() {
         try {
             reloadAllGuildSettings();
+            reloadAllGuildPermissions();
             System.out.println("Reloaded All Guilds!");
             return true;
         } catch (Exception ex) {
@@ -165,7 +183,7 @@ public class Standard {
             return false;
         }
     }
-    
+
     public static final boolean reloadAllGuildSettings() {
         try {
             GUILDS.stream().forEach((advancedGuild) -> {
@@ -179,7 +197,23 @@ public class Standard {
             return false;
         }
     }
-    
+
+    private static final boolean reloadAllGuildPermissions() {
+        try {
+            GUILDS.stream().forEach((advancedGuild) -> {
+                final File file = advancedGuild.getPermissionsFile();
+                if (file != null) {
+                    PermissionHandler.loadPermissionsForGuild(file, advancedGuild.getGuildId());
+                }
+            });
+            System.out.println("Reloaded All Guild Permissions!");
+            return true;
+        } catch (Exception ex) {
+            System.out.println("Not Reloaded All Guild Permissions!");
+            return false;
+        }
+    }
+
     public static final boolean saveAllGuildSettings() {
         try {
             GUILDS.stream().forEach((advancedGuild) -> {
@@ -193,14 +227,14 @@ public class Standard {
             return false;
         }
     }
-    
+
     public static final File createGuildFolder(Guild guild) {
         if (guild == null) {
             return null;
         }
         return createGuildFolder(guild.getId());
     }
-    
+
     public static final File createGuildFolder(String guild_id) {
         if (guild_id == null) {
             return null;
@@ -214,14 +248,14 @@ public class Standard {
             return null;
         }
     }
-    
+
     public static final AdvancedGuild getAdvancedGuild(Guild guild) {
         if (guild == null) {
             return null;
         }
         return getAdvancedGuild(guild.getId());
     }
-    
+
     public static final AdvancedGuild getAdvancedGuild(String guild_id) {
         if (guild_id == null) {
             return null;
@@ -234,14 +268,14 @@ public class Standard {
         }
         return advancedGuild;
     }
-    
+
     public static final Settings getGuildSettings(Guild guild) {
         if (guild == null) {
             return STANDARD_NULL_SETTINGS;
         }
         return getGuildSettings(guild.getId());
     }
-    
+
     public static final Settings getGuildSettings(String guild_id) {
         if (guild_id == null) {
             return STANDARD_NULL_SETTINGS;
@@ -252,7 +286,7 @@ public class Standard {
         }
         return advancedGuild.getSettings();
     }
-    
+
     public static final String getCommandPrefixByGuild(Guild guild) {
         if (guild == null) {
             return getStandardCommandPrefix();
@@ -288,14 +322,14 @@ public class Standard {
         }
         return getAutoDeleteCommandNotFoundMessageDelayByGuild(guild.getId());
     }
-    
+
     public static final long getAutoDeleteCommandNotFoundMessageDelayByGuild(String guild_id) {
         if (guild_id == null) {
             return -1;
         }
         return getGuildSettings(guild_id).getProperty("autoDeleteCommandNotFoundMessageDelay", -1);
     }
-    
+
     public static final boolean setAutoDeleteCommandNotFoundMessageDelayForGuild(Guild guild, long autoDeleteCommandNotFoundMessageDelay) {
         if (guild == null) {
             return false;
@@ -317,7 +351,7 @@ public class Standard {
         }
         return isAutoDeletingCommandByGuild(guild.getId());
     }
-    
+
     public static final boolean isAutoDeletingCommandByGuild(String guild_id) {
         if (guild_id == null) {
             return false;
@@ -331,7 +365,7 @@ public class Standard {
         }
         return setAutoDeletingCommandForGuild(guild.getId(), autoDeletingCommand);
     }
-    
+
     public static final boolean setAutoDeletingCommandForGuild(String guild_id, boolean autoDeletingCommand) {
         if (guild_id == null) {
             return false;
@@ -339,24 +373,21 @@ public class Standard {
         getGuildSettings(guild_id).setProperty("autoDeletingCommand", autoDeletingCommand);
         return true;
     }
-    
+
     //****************************************************************//
     //*********************GUILD SPECIFIC STOP************************//
     //****************************************************************//
-    
     //****************************************************************//
     //*********************PLUGIN SPECIFIC START**********************//
     //****************************************************************//
-    
     public static final boolean loadPlugins() {
         STANDARD_PLUGIN_MANAGER.loadPlugins(STANDARD_PLUGINS_FOLDER);
         return false;
     }
-    
+
     //****************************************************************//
     //*********************PLUGIN SPECIFIC STOP***********************//
     //****************************************************************//
-
     public static final Message getNoPermissionMessage(User user, String extra) {
         return new MessageBuilder().append(String.format(":warning: Sorry %s, you don't have the permissions to use this %s!", user.getAsMention(), extra)).build();
     }
@@ -368,6 +399,7 @@ public class Standard {
     public static final EmbedBuilder getMessageEmbed(Color color, String format, Object... args) {
         return getMessageEmbed(color, String.format(format, args));
     }
+
     public static final boolean isSuperOwner(Member member) {
         if (member == null) {
             return false;
@@ -385,21 +417,21 @@ public class Standard {
         }
         return user.getId().equals(super_owner);
     }
-    
+
     public static final Guild getGuildById(String guild_id) {
         if (SupremeBot.jda == null) {
             return null;
         }
         return SupremeBot.jda.getGuildById(guild_id);
     }
-    
+
     public static final String resolveGuildId(Guild guild, String guild_id) {
         if (guild != null && guild_id != null && guild_id.equalsIgnoreCase("this")) {
             guild_id = guild.getId();
         }
         return guild_id;
     }
-    
+
     public static final boolean runShutdownHooks() {
         try {
             SHUTDOWNHOOKS.stream().forEach((shutdownHook) -> {
@@ -413,6 +445,24 @@ public class Standard {
             return false;
         }
     }
+
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_OWNER_BOT_COMMANDER = (permissionRole, member) -> {
+        final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
+        final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
+        if (permissionRole.isPermissionGranted(owner) || permissionRole.isPermissionGranted(bot_commander)) {
+            return true;
+        }
+        return Standard.isSuperOwner(member);
+    };
+
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER = (permissionRole, member) -> {
+        final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
+        final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
+        if (permissionRole.isPermissionGranted(admin) || permissionRole.isPermissionGranted(bot_commander)) {
+            return true;
+        }
+        return Standard.isSuperOwner(member);
+    };
 
     public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner"};
     public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/", "!"};

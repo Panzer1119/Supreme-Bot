@@ -6,7 +6,6 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRole;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
 import java.awt.Color;
@@ -53,7 +52,7 @@ public class ReloadCommand extends Command {
                     SupremeBot.reloadSettings();
                     event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_SETTINGS.getArgument()).build());
                 } else if (arguments.consumeFirst(Standard.ARGUMENT_PERMISSIONS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
-                    SupremeBot.reloadPermissions();
+                    SupremeBot.reloadPermissionRoles(); //TODO Noch machen, dass man auch nur pro guild die role verteilung neu laden kann
                     event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s!", event.getAuthor().getAsMention(), Standard.ARGUMENT_PERMISSIONS.getArgument()).build());
                 } else if (arguments.consumeFirst(Standard.ARGUMENT_GUILD_SETTINGS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
                     SupremeBot.reloadGuildSettings();
@@ -79,14 +78,7 @@ public class ReloadCommand extends Command {
 
     @Override
     public final PermissionRoleFilter getPermissionRoleFilter() {
-        final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
-        final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
-        return (role, member) -> {
-            if (role.isThisHigherOrEqual(owner) || role.isThisEqual(bot_commander)) {
-                return true;
-            }
-            return Standard.isSuperOwner(member);
-        };
+        return Standard.STANDARD_PERMISSIONROLEFILTER_OWNER_BOT_COMMANDER;
     }
 
     @Override

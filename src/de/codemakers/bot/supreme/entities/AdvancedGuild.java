@@ -73,6 +73,17 @@ public class AdvancedGuild {
         }
         return folder;
     }
+    
+    public final File getFile(String path) {
+        if (getFolder() == null) {
+            return null;
+        }
+        return new File(folder.getAbsolutePath() + File.separator + path);
+    }
+    
+    public final File getPermissionsFile() {
+        return getFile(Standard.STANDARD_PERMISSIONS_FILE_NAME);
+    }
 
     public final Settings getSettings() {
         if (settings == null) {
@@ -80,7 +91,7 @@ public class AdvancedGuild {
             if (folder == null) {
                 return null;
             }
-            settings = new DefaultSettings(new File(folder.getAbsolutePath() + File.separator + Standard.STANDARD_GUILD_SETTINGS_FILE_NAME)).setAutoAddProperties(true);
+            settings = new DefaultSettings(getFile(Standard.STANDARD_GUILD_SETTINGS_FILE_NAME)).setAutoAddProperties(true);
         }
         return settings;
     }
