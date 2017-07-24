@@ -43,7 +43,7 @@ public abstract class Command implements Invokeable {
     }
 
     @Override
-    public Invokeable getInvokeable() {
+    public final Invokeable getInvokeable() {
         return this;
     }
     

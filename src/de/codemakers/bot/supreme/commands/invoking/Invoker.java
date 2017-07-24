@@ -30,18 +30,18 @@ public class Invoker implements Invokeable {
     }
 
     @Override
-    public Invokeable getInvokeable() {
+    public final Invokeable getInvokeable() {
         if (invokeable == null) {
             return null;
         }
         return invokeable.getInvokeable();
     }
     
-    public Invokeable getDirectInvokeable() {
+    public final Invokeable getDirectInvokeable() {
         return invokeable;
     }
 
-    public Invoker setInvokeable(Invokeable invokeable) {
+    public final Invoker setInvokeable(Invokeable invokeable) {
         this.invokeable = invokeable;
         return this;
     }
@@ -66,7 +66,7 @@ public class Invoker implements Invokeable {
     }
     
     @Override
-    public String toString() {
+    public final String toString() {
         return getInvoker();
     }
     
