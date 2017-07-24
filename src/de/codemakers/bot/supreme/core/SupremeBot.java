@@ -5,6 +5,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.ManagingCommands;
 import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
 import de.codemakers.bot.supreme.commands.impl.PingCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.TicTacToeCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.CommandCommand;
 import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
 import de.codemakers.bot.supreme.listeners.CommandListener;
 import de.codemakers.bot.supreme.listeners.MemberListener;
@@ -95,6 +96,7 @@ public class SupremeBot {
             new ManagingCommands.SayCommand();
             new ManagingCommands.SettingsCommand();
             new ManagingCommands.StopCommand();
+            new CommandCommand();
             return true;
         } catch (Exception ex) {
             return false;

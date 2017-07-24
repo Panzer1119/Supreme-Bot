@@ -31,7 +31,19 @@ public class Invoker implements Invokeable {
 
     @Override
     public Invokeable getInvokeable() {
+        if (invokeable == null) {
+            return null;
+        }
+        return invokeable.getInvokeable();
+    }
+    
+    public Invokeable getDirectInvokeable() {
         return invokeable;
+    }
+
+    public Invoker setInvokeable(Invokeable invokeable) {
+        this.invokeable = invokeable;
+        return this;
     }
     
     @Override
@@ -62,8 +74,8 @@ public class Invoker implements Invokeable {
         return new Invoker(invoker);
     }
     
-    public static final Invoker createInvoker(String invoker, Command command) {
-        return new Invoker(invoker, command);
+    public static final Invoker createInvoker(String invoker, Invokeable invokeable) {
+        return new Invoker(invoker, invokeable);
     }
     
     public static final boolean deleteInvoker(Invoker invoker) {

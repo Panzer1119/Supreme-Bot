@@ -4,6 +4,7 @@ import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class CommandHandler {
                 command.executed(safe, commandContainer.event);
                 return safe;
             } else {
-                final Message message = commandContainer.event.sendAndWaitMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", commandContainer.event.getAuthor().getAsMention(), commandContainer.invoker);
+                final Message message = commandContainer.event.sendAndWaitMessageFormat("%s Sorry %s, the command \"%s\" wasn't found!", Emoji.WARNING, commandContainer.event.getAuthor().getAsMention(), commandContainer.invoker);
                 final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild());
                 if (delay != -1) {
                     Util.deleteMessage(message, delay);
@@ -119,7 +120,7 @@ public class CommandHandler {
         final EmbedBuilder builder = command.getHelp(invoker, new EmbedBuilder().setTitle(String.format("Help for \"%s\"", invoker)));
         final ArrayList<Invoker> invokers = command.getInvokers();
         if (invokers.size() > 1) {
-            builder.setDescription(String.format("Associated Command Invokers:%s", getInvokersAsString(invokers.stream().filter((invoker_) -> !invoker.equals(invoker_)).collect(Collectors.toList()))));
+            builder.setDescription(String.format("Associated Command Invokers: %s", getInvokersAsString(invokers.stream().filter((invoker_) -> !invoker.equals(invoker_)).collect(Collectors.toList()))));
         }
         return builder;
     }
@@ -130,10 +131,11 @@ public class CommandHandler {
         }
         final StringBuilder sb = new StringBuilder();
         invokers.stream().forEach((invoker) -> {
-            sb.append(" \"");
+            sb.append(", \"");
             sb.append(invoker);
             sb.append("\"");
         });
+        sb.delete(0, 2);
         return sb.toString();
     }
 
