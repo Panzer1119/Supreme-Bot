@@ -42,7 +42,6 @@ public class SupremeBot {
 
     public static final void main(String[] args) {
         try {
-            disableSystemExit();
             System.setOut(new SystemOutputStream(System.out, false));
             System.setErr(new SystemOutputStream(System.err, true));
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -248,41 +247,51 @@ public class SupremeBot {
     }
     
     private static final boolean exit(int status) {
-        enableSystemExit();
-        System.exit(status);
-        disableSystemExit();
+        superSecurityManager.exit(status);
         return true;
     }
     
-    private static final String EXITVM = "exitVM";
-    private static final SecurityManager securityManager = new SecurityManager() {
+    private static final SuperSecurityManager superSecurityManager = new SuperSecurityManager();
+    
+    private static final class SuperSecurityManager extends SecurityManager {
+        
+        private static final String SETSECURITYMANAGER = "setSecurityManager";
+        
+        private boolean enabled = true;
+        
+        public SuperSecurityManager() {
+            System.setSecurityManager(this);
+        }
+
         @Override
-        public void checkPermission(Permission permission) {
-            if (permission == null || permission.getName() == null) {
-                return;
-            }
-            if (permission.getName().equals(EXITVM) || permission.getName().equalsIgnoreCase(EXITVM) || permission.getName().startsWith(EXITVM)) {
+        public final void checkExit(int status) {
+            if (enabled) {
                 throw new ExitTrappedException("!!!WARNING SOMEONE WANTED TO EXIT THE SYSTEM!!!");
             }
         }
-    };
-    
-    private static final boolean disableSystemExit() {
-        try {
-            System.setSecurityManager(securityManager);
-            return true;
-        } catch (Exception ex) {
-            return false;
+
+        @Override
+        public final void checkPermission(Permission permission) {
+            if (permission == null || permission.getName() == null) {
+                return;
+            }
+            if (permission.getName().equals(SETSECURITYMANAGER) || permission.getName().equalsIgnoreCase(SETSECURITYMANAGER) || permission.getName().startsWith(SETSECURITYMANAGER)) {
+                throw new SecurityException("!!!WARNING SOMEONE WANTED TO CHANGE THE SECURITYMANAGER!!!");
+            }
         }
-    }
-    
-    private static final boolean enableSystemExit() {
-        try {
-            System.setSecurityManager(null);
-            return true;
-        } catch (Exception ex) {
-            return false;
+        
+        public final SuperSecurityManager exit(int status) {
+            enabled = false;
+            System.exit(status);
+            enabled = true;
+            return this;
         }
+
+        @Override
+        public final String toString() {
+            return "SecurityManager by Panzer1119";
+        }
+        
     }
 
 }
