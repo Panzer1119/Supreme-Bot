@@ -36,7 +36,7 @@ public class CommandCommand extends Command {
     }
 
     @Override
-    public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
+    public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) { //FIXME Verhindern, dass man Zyklen basteln kann und ein Invoker ein zweites aufruft und das wieder das erste und so weiter...
         final boolean override = arguments.isConsumed(Standard.ARGUMENT_OVERRIDE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final String invoker_existing_string = arguments.consumeFirst();
         final String invoker_new_string = arguments.consumeFirst();

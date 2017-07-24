@@ -27,7 +27,7 @@ public abstract class Command implements Invokeable {
     }
     
     public final ArrayList<Invoker> getInvokers() {
-        return invokers;
+        return Invoker.getInvokersByCommand(this);
     }
     
     public final boolean addInvokers(Invoker... invokers) {
