@@ -53,6 +53,7 @@ public class UploadFileCommand extends Command {
             try {
                 final String filePath = arguments.consumeFirst();
                 final File file = (filePath != null ? new File(filePath) : new File(Standard.STANDARD_UPLOAD_FOLDER.getAbsolutePath() + File.separator + attachment.getFileName()));
+                file.getParentFile().mkdirs();
                 attachment.download(file);
                 event.sendMessageFormat("%s uploaded \"%s\"", event.getAuthor().getAsMention(), attachment.getFileName());
             } catch (Exception ex) {
