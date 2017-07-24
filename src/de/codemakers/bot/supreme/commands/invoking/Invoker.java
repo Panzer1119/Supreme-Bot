@@ -22,7 +22,6 @@ public class Invoker implements Invokeable {
     public Invoker(String invoker, Invokeable invokeable) {
         this.invoker = invoker;
         this.invokeable = invokeable;
-        INVOKERS.add(this);
     }
     
     public final String getInvoker() {
@@ -70,12 +69,16 @@ public class Invoker implements Invokeable {
         return getInvoker();
     }
     
-    public static final Invoker createInvoker(String invoker) {
-        return new Invoker(invoker);
+    public static final Invoker createInvoker(String invoker_string) {
+        final Invoker invoker = new Invoker(invoker_string);
+        INVOKERS.add(invoker);
+        return invoker;
     }
     
-    public static final Invoker createInvoker(String invoker, Invokeable invokeable) {
-        return new Invoker(invoker, invokeable);
+    public static final Invoker createInvoker(String invoker_string, Invokeable invokeable) {
+        final Invoker invoker = new Invoker(invoker_string, invokeable);
+        INVOKERS.add(invoker);
+        return invoker;
     }
     
     public static final boolean deleteInvoker(Invoker invoker) {

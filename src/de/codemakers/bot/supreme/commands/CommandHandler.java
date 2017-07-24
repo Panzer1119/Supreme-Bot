@@ -28,30 +28,31 @@ public class CommandHandler {
             if (commandContainer == null) {
                 return false;
             }
-            final Command command = ((Command) commandContainer.invoker.getInvokeable());
-            if (Standard.isAutoDeletingCommandByGuild(commandContainer.event.getGuild())) {
-                commandContainer.event.getMessage().delete().queue();
+            if (commandContainer.invoker != null) {
+                final Command command = ((Command) commandContainer.invoker.getInvokeable());
+                if (Standard.isAutoDeletingCommandByGuild(commandContainer.event.getGuild())) {
+                    commandContainer.event.getMessage().delete().queue();
+                }
+                if (command != null) {
+                    if (!PermissionHandler.check(command.getPermissionRoleFilter(), commandContainer.event, true)) {
+                        return false;
+                    }
+                    final boolean safe = command.called(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
+                    if (safe) {
+                        command.action(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
+                    } else {
+                        sendHelpMessage(commandContainer.invoker, commandContainer.event, command, false);
+                    }
+                    command.executed(safe, commandContainer.event);
+                    return safe;
+                }
             }
-            if (command != null) {
-                if (!PermissionHandler.check(command.getPermissionRoleFilter(), commandContainer.event, true)) {
-                    return false;
-                }
-                final boolean safe = command.called(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
-                if (safe) {
-                    command.action(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
-                } else {
-                    sendHelpMessage(commandContainer.invoker, commandContainer.event, command, false);
-                }
-                command.executed(safe, commandContainer.event);
-                return safe;
-            } else {
-                final Message message = commandContainer.event.sendAndWaitMessageFormat("%s Sorry %s, the command \"%s\" wasn't found!", Emoji.WARNING, commandContainer.event.getAuthor().getAsMention(), commandContainer.invoker);
-                final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild());
-                if (delay != -1) {
-                    Util.deleteMessage(message, delay);
-                }
-                return false;
+            final Message message = commandContainer.event.sendAndWaitMessageFormat("%s Sorry %s, the command \"%s\" wasn't found!", Emoji.WARNING, commandContainer.event.getAuthor().getAsMention(), commandContainer.invoker);
+            final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild());
+            if (delay != -1) {
+                Util.deleteMessage(message, delay);
             }
+            return false;
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;

@@ -18,7 +18,10 @@ public class CommandParser {
         final String beheaded = raw.replaceFirst(Standard.getCommandPrefixByGuild(event.getGuild()), "");
         final String beheaded_corrected = beheaded.replace("\\", "\\\\");
         final String[] beheaded_split = getArguments(beheaded_corrected);
-        final Invoker invoker = Invoker.getInvokerByInvokerString(beheaded_split[0]);
+        Invoker invoker = Invoker.getInvokerByInvokerString(beheaded_split[0]);
+        if (invoker == null) {
+            invoker = new Invoker(beheaded_split[0]);
+        }
         final ArrayList<String> split = new ArrayList<>(Arrays.asList(beheaded_split));
         final String[] args = split.subList(1, split.size()).toArray(new String[split.size() - 1]);
         final ArgumentList arguments = new ArgumentList(args);

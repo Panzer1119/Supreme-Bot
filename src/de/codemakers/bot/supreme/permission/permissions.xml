@@ -4,7 +4,7 @@
         <permissionrole name="Owner" permissionroleid="4"/>
         <permissionrole name="Admin" permissionroleid="3"/>
         <permissionrole name="Moderator" permissionroleid="2"/>
-        <permissionrole name="Bot Commander" permissionroleid="1"/>
+        <permissionrole name="Bot_Commander" permissionroleid="1"/>
         <permissionrole name="Normal" permissionroleid="0"/>
         <permissionrole name="@everyone" permissionroleid="-1" standard="true"/>
     </permissionroles>
