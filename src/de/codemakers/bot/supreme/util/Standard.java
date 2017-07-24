@@ -52,7 +52,7 @@ public class Standard {
 
     public static final String STANDARD_PERMISSIONS_FILE_NAME = "permissions.xml";
     public static final File STANDARD_PERMISSIONS_FILE = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_PERMISSIONS_FILE_NAME);
-    public static final String STANDARD_PERMISSIONS_PATH = "/de/panzercraft/bot/supreme/permission/permissions.xml";
+    public static final String STANDARD_PERMISSIONS_PATH = '/' + PermissionRole.class.getName().substring(0, PermissionRole.class.getName().length() - PermissionRole.class.getSimpleName().length()).replace('.', '/') + STANDARD_PERMISSIONS_FILE_NAME;
 
     public static final String STANDARD_PLUGINS_FOLDER_NAME = "plugins";
     public static final File STANDARD_PLUGINS_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_PLUGINS_FOLDER_NAME);
