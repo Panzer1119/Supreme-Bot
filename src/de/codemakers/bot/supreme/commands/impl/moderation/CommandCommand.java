@@ -5,7 +5,6 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRole;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
@@ -36,7 +35,7 @@ public class CommandCommand extends Command {
     }
 
     @Override
-    public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) { //FIXME Verhindern, dass man Zyklen basteln kann und ein Invoker ein zweites aufruft und das wieder das erste und so weiter...
+    public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         final boolean override = arguments.isConsumed(Standard.ARGUMENT_OVERRIDE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final String invoker_existing_string = arguments.consumeFirst();
         final String invoker_new_string = arguments.consumeFirst();
@@ -47,6 +46,13 @@ public class CommandCommand extends Command {
         } else if ((invoker_new != null) && !override) {
             event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the command \"%s\" already exists! Use \"%s\" to override the command!", Emoji.WARNING, event.getAuthor().getAsMention(), invoker_new_string, Standard.ARGUMENT_OVERRIDE.getCompleteArgument(0));
         } else if ((invoker_new != null) && override) {
+            final Command command = (Command) invoker_existing.getInvokeable();
+            if (command != null) {
+                if (command.containsInvokers(invoker_new)) {
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY * 2, "%s Sorry %s, you may not create recursiv commands!", Emoji.WARNING, event.getAuthor().getAsMention());
+                    return;
+                }
+            }
             if (invoker_new.getDirectInvokeable() instanceof Command) {
                 event.sendMessageFormat("%s overrode \"%s\" to \"%s\"", event.getAuthor().getAsMention(), invoker_new, invoker_existing);
             } else {
