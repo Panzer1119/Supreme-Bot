@@ -14,6 +14,7 @@ import de.codemakers.bot.supreme.util.Standard;
 import java.io.File;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
+import org.jdom2.Element;
 
 /**
  * XMLEditorCommand
@@ -195,6 +196,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                 memberObject.delete();
                 memberObject.unregister();
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s closed the file \"%s\".", event.getAuthor().getAsMention(), xmleditor.getFile());
+                //FIXME Only show relative part of the file!!!
             } else if (up) {
                 
             } else if (down) {
@@ -208,7 +210,8 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
             } else if (info) {
                 
             } else {
-                event.sendMessage(new EmbedBuilder().addField("Current Element", xmleditor.getLast() + "", false).build());
+                final Element element = xmleditor.getLast();
+                event.sendMessage(new EmbedBuilder().addField("Current Element", (element != null ? element.getName() : ""), false).addField("Deepness", (xmleditor.getPath().size() - 1) + "", false).build());
             }
         }
     }
