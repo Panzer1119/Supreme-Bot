@@ -68,7 +68,7 @@ public class XMLEditor {
         if (document == null) {
             this.rootElement = null;
         } else {
-            this.rootElement = document.getRootElement();
+            this.rootElement = document.detachRootElement();
         }
         this.document = document;
         path.clear();
@@ -96,19 +96,13 @@ public class XMLEditor {
     }
 
     public final boolean save(File file) {
-        if (document != null) {
-            return XMLUtil.save(document, Format.getPrettyFormat(), file);
-        } else {
-            return XMLUtil.save(rootElement, Format.getPrettyFormat(), file);
-        }
+        rootElement.detach();
+        return XMLUtil.save(rootElement, Format.getPrettyFormat(), file);
     }
 
     public final boolean save(OutputStream outputStream) {
-        if (document != null) {
-            return XMLUtil.save(document, Format.getPrettyFormat(), outputStream);
-        } else {
-            return XMLUtil.save(rootElement, Format.getPrettyFormat(), outputStream);
-        }
+        rootElement.detach();
+        return XMLUtil.save(rootElement, Format.getPrettyFormat(), outputStream);
     }
 
     public final File getFile() {
