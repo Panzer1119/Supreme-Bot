@@ -49,7 +49,7 @@ public class CommandCommand extends Command {
             final Command command = (Command) invoker_existing.getInvokeable();
             if (command != null) {
                 if (command.containsInvokers(invoker_new)) {
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY * 2, "%s Sorry %s, you may not create recursiv commands!", Emoji.WARNING, event.getAuthor().getAsMention());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY * 2, "%s Sorry %s, you may not create recursive commands!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
             }
