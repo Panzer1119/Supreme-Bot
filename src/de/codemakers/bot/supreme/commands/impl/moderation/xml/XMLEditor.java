@@ -152,6 +152,23 @@ public class XMLEditor {
         addLast(child);
         return child;
     }
+    
+    public final Element goDown(String childName, int index) {
+        final Element element = getLast();
+        if (element == null) {
+            return null;
+        }
+        final List<Element> children = getChildren(childName);
+        if (index < 0 || index >= children.size()) {
+            return null;
+        }
+        final Element child = children.get(index);
+        if (child == null) {
+            return null;
+        }
+        addLast(child);
+        return child;
+    }
 
     public final List<Element> getChildren(String childName) {
         final Element element = getLast();
@@ -170,7 +187,7 @@ public class XMLEditor {
     }
 
     public final Element goUp() {
-        if (getLast() == null) {
+        if (getLast() == null || path.size() < 1) { //FIXME good?
             return null;
         }
         removeLast();

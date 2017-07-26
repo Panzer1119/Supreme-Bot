@@ -21,7 +21,7 @@ import org.jdom2.Element;
  *
  * @author Panzer1119
  */
-public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop, -save (%s) (%s) [override],  -up %d, -down %s, -edit %s %s [override], -info (%s)
+public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop, -save (%s) (%s) [override],  -up %d, -down %s (%d), -edit %s %s [override], -info (%s)
 
     @Override
     public void initInvokers() {
@@ -68,7 +68,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
         } else if (up) {
             return arguments.isSize(1, 2);
         } else if (down) {
-            return arguments.isSize(2);
+            return arguments.isSize(2, 3);
         } else if (edit) {
             if (!override) {
                 return arguments.isSize(3);
@@ -76,7 +76,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                 return arguments.isSize(4);
             }
         } else if (info) {
-            return arguments.isSize(2);
+            return arguments.isSize(1);
         } else {
             return true;
         }
@@ -198,9 +198,46 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s closed the file \"%s\".", event.getAuthor().getAsMention(), xmleditor.getFile());
                 //FIXME Only show relative part of the file!!!
             } else if (up) {
-                
+                int times = 1;
+                if (arguments.isSize(1)) {
+                    try {
+                        times = Integer.parseInt(arguments.consumeFirst());
+                    } catch (Exception ex) {
+                    }
+                }
+                int went = 0;
+                for (int i = 0; i < times; i++) {
+                    if (xmleditor.goUp() == null) {
+                        break;
+                    }
+                    went++;
+                }
+                event.sendMessageFormat("%s you went %d time(s) up.", event.getAuthor().getAsMention(), went);
             } else if (down) {
-                
+                final String childName = arguments.consumeFirst();
+                if (arguments.isSize(1)) {
+                    int index = 0;
+                    try {
+                        index = Integer.parseInt(arguments.consumeFirst());
+                    } catch (Exception ex) {
+                    }
+                    if (xmleditor.goDown(childName, index) != null) {
+                        event.sendMessageFormat("%s you went to \"%s\" #%d.", event.getAuthor().getAsMention(), childName, index);
+                    } else {
+                        event.sendMessageFormat("%s Sorry %s, the child element \"%s\" #%d wasn't found!", Emoji.WARNING, event.getAuthor().getAsMention(), childName, index);
+                    }
+                } else {
+                    final int children = xmleditor.getChildren(childName).size();
+                    if (children > 1) {
+                        event.sendMessageFormat("%s there are %d children found for \"%s\". Use \"%s %s %s #\" to go to the child you want.", event.getAuthor().getAsMention(), children, childName, invoker, Standard.ARGUMENT_XMLEDITOR_DOWN.getCompleteArgument(0), childName);
+                    } else {
+                        if (xmleditor.goDown(childName) != null) {
+                            event.sendMessageFormat("%s you went to \"%s\".", event.getAuthor().getAsMention(), childName);
+                        } else {
+                            event.sendMessageFormat("%s Sorry %s, the child element \"%s\" wasn't found!", Emoji.WARNING, event.getAuthor().getAsMention(), childName);
+                        }
+                    }
+                }
             } else if (edit) {
                 if (override) {
                     
@@ -208,10 +245,20 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                     
                 }
             } else if (info) {
-                
+                final Element element = xmleditor.getLast();
+                if (element != null) {
+                    final EmbedBuilder builder = new EmbedBuilder();
+                    builder.addField(String.format("Current Element (Deepness %d)", (xmleditor.getPath().size() - 1)), element.getName(), false);
+                    element.getAttributes().stream().forEach((attribute) -> {
+                        builder.addField(attribute.getName(), attribute.getValue(), false);
+                    });
+                    event.sendMessage(builder.build());
+                }
             } else {
                 final Element element = xmleditor.getLast();
-                event.sendMessage(new EmbedBuilder().addField("Current Element", (element != null ? element.getName() : ""), false).addField("Deepness", (xmleditor.getPath().size() - 1) + "", false).build());
+                if (element != null) {
+                    event.sendMessage(new EmbedBuilder().addField(String.format("Current Element (Deepness %d)", (xmleditor.getPath().size() - 1)), element.getName(), false).build());
+                }
             }
         }
     }
