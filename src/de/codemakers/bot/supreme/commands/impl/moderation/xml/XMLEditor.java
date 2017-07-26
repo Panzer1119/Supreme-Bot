@@ -1,11 +1,14 @@
 package de.codemakers.bot.supreme.commands.impl.moderation.xml;
 
 import de.codemakers.bot.supreme.util.XMLUtil;
+import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.output.Format;
 
 /**
  * XMLEditor
@@ -14,9 +17,18 @@ import org.jdom2.Element;
  */
 public class XMLEditor {
 
+    private File file = null;
     private Document document;
     private Element rootElement;
     private final ArrayList<Element> path = new ArrayList<>();
+
+    public XMLEditor(File file) {
+        load(file);
+    }
+
+    public XMLEditor(String jar_path) {
+        load(jar_path);
+    }
 
     public XMLEditor(InputStream inputStream) {
         load(inputStream);
@@ -39,8 +51,17 @@ public class XMLEditor {
         this.rootElement = null;
     }
 
+    public final XMLEditor load(File file) {
+        setFile(file);
+        return load(XMLUtil.load(file));
+    }
+
+    public final XMLEditor load(String jar_path) {
+        return load(XMLUtil.load(jar_path));
+    }
+
     public final XMLEditor load(InputStream inputStream) {
-        return load(XMLUtil.fromInputStream(inputStream));
+        return load(XMLUtil.load(inputStream));
     }
 
     public final XMLEditor load(Document document) {
@@ -64,6 +85,38 @@ public class XMLEditor {
         this.document = document;
         this.rootElement = rootElement;
         path.clear();
+        return this;
+    }
+
+    public final boolean save() {
+        if (file == null) {
+            return false;
+        }
+        return save(file);
+    }
+
+    public final boolean save(File file) {
+        if (document != null) {
+            return XMLUtil.save(document, Format.getPrettyFormat(), file);
+        } else {
+            return XMLUtil.save(rootElement, Format.getPrettyFormat(), file);
+        }
+    }
+
+    public final boolean save(OutputStream outputStream) {
+        if (document != null) {
+            return XMLUtil.save(document, Format.getPrettyFormat(), outputStream);
+        } else {
+            return XMLUtil.save(rootElement, Format.getPrettyFormat(), outputStream);
+        }
+    }
+
+    public final File getFile() {
+        return file;
+    }
+
+    public final XMLEditor setFile(File file) {
+        this.file = file;
         return this;
     }
 

@@ -42,26 +42,26 @@ public class Standard {
     public static final String STANDARD_DATA_FOLDER_NAME = "data";
     public static final File STANDARD_DATA_FOLDER = new File(STANDARD_DATA_FOLDER_NAME);
     public static final String STANDARD_SETTINGS_FILE_NAME = "settings.txt";
-    public static final File STANDARD_SETTINGS_FILE = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_SETTINGS_FILE_NAME);
+    public static final File STANDARD_SETTINGS_FILE = getFile(STANDARD_SETTINGS_FILE_NAME);
     public static final Settings STANDARD_SETTINGS = new DefaultSettings(STANDARD_SETTINGS_FILE);
 
-    public static final String STANDARD_GUILD_SETTINGS_FOLDER_NAME = "guilds";
-    public static final File STANDARD_GUILD_SETTINGS_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_GUILD_SETTINGS_FOLDER_NAME);
+    public static final String STANDARD_GUILDS_FOLDER_NAME = "guilds";
+    public static final File STANDARD_GUILDS_FOLDER = getFile(STANDARD_GUILDS_FOLDER_NAME);
     public static final String STANDARD_GUILD_SETTINGS_FILE_NAME = "settings.txt";
     private static final ArrayList<AdvancedGuild> GUILDS = new ArrayList<>();
 
     public static final String STANDARD_PERMISSIONS_FILE_NAME = "permissions.xml";
-    public static final File STANDARD_PERMISSIONS_FILE = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_PERMISSIONS_FILE_NAME);
+    public static final File STANDARD_PERMISSIONS_FILE = getFile(STANDARD_PERMISSIONS_FILE_NAME);
     public static final String STANDARD_PERMISSIONS_PATH = '/' + PermissionRole.class.getName().substring(0, PermissionRole.class.getName().length() - PermissionRole.class.getSimpleName().length()).replace('.', '/') + STANDARD_PERMISSIONS_FILE_NAME;
 
     public static final String STANDARD_PLUGINS_FOLDER_NAME = "plugins";
-    public static final File STANDARD_PLUGINS_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_PLUGINS_FOLDER_NAME);
+    public static final File STANDARD_PLUGINS_FOLDER = getFile(STANDARD_PLUGINS_FOLDER_NAME);
     public static final PluginManager STANDARD_PLUGIN_MANAGER = new PluginManager();
 
     public static final String STANDARD_DOWNLOAD_FOLDER_NAME = "downloads";
-    public static final File STANDARD_DOWNLOAD_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_DOWNLOAD_FOLDER_NAME);
+    public static final File STANDARD_DOWNLOAD_FOLDER = getFile(STANDARD_DOWNLOAD_FOLDER_NAME);
     public static final String STANDARD_UPLOAD_FOLDER_NAME = "uploads";
-    public static final File STANDARD_UPLOAD_FOLDER = new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + STANDARD_UPLOAD_FOLDER_NAME);
+    public static final File STANDARD_UPLOAD_FOLDER = getFile(STANDARD_UPLOAD_FOLDER_NAME);
 
     public static PermissionRole STANDARD_PERMISSION_ROLE = null;
 
@@ -148,6 +148,13 @@ public class Standard {
         STANDARD_SETTINGS.setProperty("command_prefix", STANDARD_COMMAND_PREFIX);
         return true;
     }
+    
+    public static final File getFile(String fileName) {
+        if (fileName == null) {
+            return null;
+        }
+        return new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + fileName);
+    }
 
     //****************************************************************//
     //*********************GUILD SPECIFIC START***********************//
@@ -156,7 +163,7 @@ public class Standard {
     public static final boolean loadAllGuilds() {
         try {
             GUILDS.clear();
-            for (File file : STANDARD_GUILD_SETTINGS_FOLDER.listFiles()) {
+            for (File file : STANDARD_GUILDS_FOLDER.listFiles()) {
                 if (file.isDirectory()) {
                     GUILDS.add(new AdvancedGuild(file.getName(), file));
                 }
@@ -240,7 +247,7 @@ public class Standard {
             return null;
         }
         try {
-            final File file = new File(STANDARD_GUILD_SETTINGS_FOLDER.getAbsolutePath() + File.separator + guild_id);
+            final File file = new File(STANDARD_GUILDS_FOLDER.getAbsolutePath() + File.separator + guild_id);
             file.mkdirs();
             return file;
         } catch (Exception ex) {
@@ -469,6 +476,7 @@ public class Standard {
     public static final Argument ARGUMENT_GLOBAL = new Argument("global", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_DIRECT = new Argument("direct", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_PRIVATE = new Argument("private", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_THIS = new Argument("this", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_ALL = new Argument("all", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_SETTINGS = new Argument("settings", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_GUILD_SETTINGS = new Argument("guild_settings", STANDARD_ARGUMENT_PREFIXES);
@@ -480,6 +488,7 @@ public class Standard {
     public static final Argument ARGUMENT_PERMISSIONS = new Argument("permissions", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_OVERRIDE = new Argument("override", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_XMLEDITOR_START = new Argument("start", ULTRA_FORBIDDEN);
+    public static final Argument ARGUMENT_XMLEDITOR_SAVE = new Argument("save", ULTRA_FORBIDDEN);
     public static final Argument ARGUMENT_XMLEDITOR_STOP = new Argument("stop", ULTRA_FORBIDDEN);
     public static final Argument ARGUMENT_XMLEDITOR_UP = new Argument("up", ULTRA_FORBIDDEN);
     public static final Argument ARGUMENT_XMLEDITOR_DOWN = new Argument("down", ULTRA_FORBIDDEN);

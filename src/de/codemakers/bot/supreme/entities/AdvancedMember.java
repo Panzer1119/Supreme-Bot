@@ -1,5 +1,7 @@
 package de.codemakers.bot.supreme.entities;
 
+import java.util.Objects;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 
@@ -9,18 +11,18 @@ import net.dv8tion.jda.core.entities.User;
  * @author Panzer1119
  */
 public class AdvancedMember {
-    
+
     private Member member = null;
     private User user = null;
-    
+
     public AdvancedMember() {
         this((Member) null);
     }
-    
+
     public AdvancedMember(Member member) {
         setMember(member);
     }
-    
+
     public AdvancedMember(User user) {
         setUser(user);
     }
@@ -46,6 +48,40 @@ public class AdvancedMember {
     public final AdvancedMember setUser(User user) {
         this.user = user;
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + Objects.hashCode(this.user);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null) {
+            return false;
+        }
+        if (object instanceof AdvancedMember) {
+            final AdvancedMember advancedMember = (AdvancedMember) object;
+            return Objects.equals(getUser(), advancedMember.getUser());
+        } else {
+            return false;
+        }
+    }
+
+    public static final AdvancedMember ofMember(Member member) {
+        return new AdvancedMember(member);
+    }
+
+    public static final AdvancedMember ofGuildAndUser(Guild guild, User user) {
+        if (guild == null) {
+            return null;
+        }
+        return new AdvancedMember(guild.getMember(user));
     }
 
 }

@@ -121,7 +121,7 @@ public class PermissionHandler {
             return false;
         }
         try {
-            final Document document = XMLUtil.fromInputStream(inputStream);
+            final Document document = XMLUtil.load(inputStream);
             final Element rootElement = document.getRootElement();
             final List<Element> permissionRolesRaws = rootElement.getChildren(Standard.XML_PERMISSIONROLES);
             if (permissionRolesRaws == null) {
@@ -231,7 +231,7 @@ public class PermissionHandler {
             return false;
         }
         try {
-            final Document document = XMLUtil.fromInputStream(inputStream);
+            final Document document = XMLUtil.load(inputStream);
             final Element rootElement = document.getRootElement();
             final List<Element> roless = rootElement.getChildren(Standard.XML_ROLES);
             if (roless == null) {

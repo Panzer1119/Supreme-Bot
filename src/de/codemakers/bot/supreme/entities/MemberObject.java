@@ -18,8 +18,8 @@ public class MemberObject {
     private final HashMap<Object, Object> data = new HashMap<>();
     private final ArrayList<AdvancedMember> members = new ArrayList<>();
 
-    public MemberObject() {
-        this(null);
+    public MemberObject(AdvancedMember... members) {
+        this(null, members);
     }
 
     public MemberObject(HashMap<Object, Object> data, AdvancedMember... members) {
@@ -36,6 +36,10 @@ public class MemberObject {
 
     public final HashMap<Object, Object> getData() {
         return data;
+    }
+    
+    public final Object getData(Object key) {
+        return data.get(key);
     }
 
     public final MemberObject setData(HashMap<Object, Object> data) {
@@ -126,6 +130,18 @@ public class MemberObject {
 
     public static final MemberObject getMemberObjectByMembers(AdvancedMember... members) {
         return getMemberObjectsByMembers(members).stream().findFirst().orElse(null);
+    }
+
+    public static final List<MemberObject> getMemberObjectsByExactMembers(AdvancedMember... members) {
+        if (members == null || members.length == 0) {
+            return MEMBEROBJECTS;
+        }
+        final List<AdvancedMember> members_list = Arrays.asList(members);
+        return MEMBEROBJECTS.stream().filter((memberObject) -> (memberObject.getMembers().size() == members.length && memberObject.getMembers().containsAll(members_list))).collect(Collectors.toList());
+    }
+
+    public static final MemberObject getMemberObjectByExactMembers(AdvancedMember... members) {
+        return getMemberObjectsByExactMembers(members).stream().findFirst().orElse(null);
     }
 
 }
