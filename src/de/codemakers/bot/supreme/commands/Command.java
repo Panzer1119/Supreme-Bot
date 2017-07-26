@@ -39,7 +39,7 @@ public abstract class Command implements Invokeable {
     }
     
     public final boolean containsInvokers(Invoker... invokers) {
-        return this.invokers.stream().filter((invoker) -> Util.contains(invokers, invoker)).collect(Collectors.toList()).size() == invokers.length;
+        return getInvokers().stream().filter((invoker) -> Util.contains(invokers, invoker)).collect(Collectors.toList()).size() == invokers.length;
     }
 
     @Override
