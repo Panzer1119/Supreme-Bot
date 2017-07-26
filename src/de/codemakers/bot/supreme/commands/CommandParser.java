@@ -30,6 +30,10 @@ public class CommandParser {
     }
     
     public static final String[] getArguments(String arguments) {
+        if (arguments == null || arguments.isEmpty()) {
+            return new String[0];
+        }
+        final boolean isEscaping = arguments.contains(Standard.COMMAND_ESCAPE_SPACE_STRING);
         boolean isArg = false;
         String temp = "";
         final ArrayList<String> args = new ArrayList<>();
@@ -38,7 +42,7 @@ public class CommandParser {
             String c_string = "" + c;
             switch (c_string) {
                 case Standard.COMMAND_ESCAPE_STRING:
-                    if (isArg) {
+                    if (isEscaping || isArg) {
                         i++;
                         if (arguments.length() > i) {
                             char c_2 = arguments.charAt(i);
