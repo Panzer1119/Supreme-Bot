@@ -487,12 +487,12 @@ public class Standard {
     public static final Argument ARGUMENT_SETTINGS_DEFAULT = new Argument("default", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_PERMISSIONS = new Argument("permissions", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_OVERRIDE = new Argument("override", STANDARD_ARGUMENT_PREFIXES);
-    public static final Argument ARGUMENT_XMLEDITOR_START = new Argument("start", ULTRA_FORBIDDEN);
-    public static final Argument ARGUMENT_XMLEDITOR_SAVE = new Argument("save", ULTRA_FORBIDDEN);
-    public static final Argument ARGUMENT_XMLEDITOR_STOP = new Argument("stop", ULTRA_FORBIDDEN);
-    public static final Argument ARGUMENT_XMLEDITOR_UP = new Argument("up", ULTRA_FORBIDDEN);
-    public static final Argument ARGUMENT_XMLEDITOR_DOWN = new Argument("down", ULTRA_FORBIDDEN);
-    public static final Argument ARGUMENT_XMLEDITOR_EDIT = new Argument("edit", ULTRA_FORBIDDEN);
-    public static final Argument ARGUMENT_XMLEDITOR_INFO = new Argument("info", ULTRA_FORBIDDEN);
+    public static final Argument ARGUMENT_XMLEDITOR_START = new Argument("start", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_XMLEDITOR_SAVE = new Argument("save", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_XMLEDITOR_STOP = new Argument("stop", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_XMLEDITOR_UP = new Argument("up", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_XMLEDITOR_DOWN = new Argument("down", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_XMLEDITOR_EDIT = new Argument("edit", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_XMLEDITOR_INFO = new Argument("info", STANDARD_ARGUMENT_PREFIXES);
 
 }
