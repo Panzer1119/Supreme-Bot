@@ -494,5 +494,6 @@ public class Standard {
     public static final Argument ARGUMENT_XMLEDITOR_DOWN = new Argument("down", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_XMLEDITOR_EDIT = new Argument("edit", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_XMLEDITOR_INFO = new Argument("info", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_XMLEDITOR_LIST = new Argument("list", STANDARD_ARGUMENT_PREFIXES);
 
 }

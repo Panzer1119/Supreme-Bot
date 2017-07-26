@@ -12,6 +12,9 @@ import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
 import org.jdom2.Element;
@@ -45,6 +48,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
         final boolean down = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_DOWN, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean edit = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_EDIT, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean info = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_INFO, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean list = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_LIST, ArgumentConsumeType.FIRST_IGNORE_CASE);
         if (start) {
             if (!isThis) {
                 if (!override) {
@@ -77,6 +81,8 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
             }
         } else if (info) {
             return arguments.isSize(1);
+        } else if (list) {
+            return arguments.isSize(1);
         } else {
             return true;
         }
@@ -93,6 +99,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
         final boolean down = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_DOWN, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean edit = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_EDIT, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean info = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_INFO, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean list = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_LIST, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         if (start) {
             String guild_id = null;
             if (isThis) {
@@ -229,7 +236,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                 } else {
                     final int children = xmleditor.getChildren(childName).size();
                     if (children > 1) {
-                        event.sendMessageFormat("%s there are %d children found for \"%s\". Use \"%s %s %s #\" to go to the child you want.", event.getAuthor().getAsMention(), children, childName, invoker, Standard.ARGUMENT_XMLEDITOR_DOWN.getCompleteArgument(0), childName);
+                        event.sendMessageFormat("%s there were %d children found for \"%s\". Use \"%s %s %s #Index\" to go to the child you want.", event.getAuthor().getAsMention(), children, childName, invoker, Standard.ARGUMENT_XMLEDITOR_DOWN.getCompleteArgument(0), childName);
                     } else {
                         if (xmleditor.goDown(childName) != null) {
                             event.sendMessageFormat("%s you went to \"%s\".", event.getAuthor().getAsMention(), childName);
@@ -244,7 +251,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                 } else {
                     
                 }
-            } else if (info) {
+            } else if (info) { //TODO Vielleicht noch einbauen, dass man ueber das parent Element wenn vorhanden anzeigt, wie viel mal das aktuelle Element da ist
                 final Element element = xmleditor.getLast();
                 if (element != null) {
                     final EmbedBuilder builder = new EmbedBuilder();
@@ -252,6 +259,35 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                     element.getAttributes().stream().forEach((attribute) -> {
                         builder.addField(attribute.getName(), attribute.getValue(), false);
                     });
+                    event.sendMessage(builder.build());
+                }
+            } else if (list) {
+                final Element element = xmleditor.getLast();
+                if (element != null) {
+                    final EmbedBuilder builder = new EmbedBuilder();
+                    builder.addField(String.format("Current Element (Deepness %d)", (xmleditor.getPath().size() - 1)), element.getName(), false);
+                    final List<Element> children = xmleditor.getAllChildren();
+                    if (!children.isEmpty()) {
+                        final ArrayList<ElementInfo> children_info = new ArrayList<>();
+                        for (Element child : children) {
+                            final int index = children_info.indexOf(child);
+                            if (index == -1) {
+                                children_info.add(new ElementInfo(child));
+                            } else {
+                                children_info.get(index).times++;
+                            }
+                        }
+                        children.clear();
+                        String children_string = "";
+                        for (ElementInfo elementInfo : children_info) {
+                            children_string += String.format("\n%s (%s time(s))", elementInfo.getName(), elementInfo.times);
+                        }
+                        children_string = children_string.substring("\n".length());
+                        children_info.clear();
+                        builder.addField("Children", children_string, false);
+                    } else {
+                        builder.addField("Children", "", false);
+                    }
                     event.sendMessage(builder.build());
                 }
             } else {
@@ -301,6 +337,46 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
     @Override
     public String getCommandID() {
         return getClass().getName();
+    }
+    
+    private static final class ElementInfo {
+        
+        public final Element element;
+        public int times = 1;
+
+        public ElementInfo(Element element) {
+            this.element = element;
+        }
+
+        public final String getName() {
+            if (element == null) {
+                return null;
+            }
+            return element.getName();
+        }
+        
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 41 * hash + Objects.hashCode(this.element);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            if (object == null) {
+                return false;
+            }
+            if (object instanceof ElementInfo) {
+                final ElementInfo elementInfo = (ElementInfo) object;
+                return Objects.equals(element, elementInfo.element);
+            }
+            return false;
+        }
+        
     }
 
 }
