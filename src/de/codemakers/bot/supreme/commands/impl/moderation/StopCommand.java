@@ -4,7 +4,6 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import static de.codemakers.bot.supreme.core.SupremeBot.stopCompletely;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRole;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.IntegerHolder;
 import de.codemakers.bot.supreme.util.Standard;

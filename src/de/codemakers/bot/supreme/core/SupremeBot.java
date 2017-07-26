@@ -11,7 +11,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.GetCommandPrefixComman
 import de.codemakers.bot.supreme.commands.impl.moderation.GetFileCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.ReloadCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.RestartCommand;
-import de.codemakers.bot.supreme.commands.impl.moderation.SayCommand;
+import de.codemakers.bot.supreme.commands.impl.fun.SayCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.SettingsCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.StopCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.UploadFileCommand;
@@ -97,6 +97,7 @@ public class SupremeBot {
             new PingCommand();
             //Fun Commands
             new MusicCommand();
+            new SayCommand();
             new TicTacToeCommand();
             //Moderation Commands
             new ChangeCommandPrefixCommand();
@@ -106,7 +107,6 @@ public class SupremeBot {
             new GetFileCommand();
             new ReloadCommand();
             new RestartCommand();
-            new SayCommand();
             new SettingsCommand();
             new StopCommand();
             new UploadFileCommand();
@@ -245,20 +245,20 @@ public class SupremeBot {
         exit(status);
         return true;
     }
-    
+
     private static final boolean exit(int status) {
         superSecurityManager.exit(status);
         return true;
     }
-    
+
     private static final SuperSecurityManager superSecurityManager = new SuperSecurityManager();
-    
+
     private static final class SuperSecurityManager extends SecurityManager {
-        
+
         private static final String SETSECURITYMANAGER = "setSecurityManager";
-        
+
         private boolean enabled = true;
-        
+
         public SuperSecurityManager() {
             System.setSecurityManager(this);
         }
@@ -279,7 +279,7 @@ public class SupremeBot {
                 throw new SecurityException("!!!WARNING SOMEONE WANTED TO CHANGE THE SECURITYMANAGER!!!");
             }
         }
-        
+
         public final SuperSecurityManager exit(int status) {
             enabled = false;
             System.exit(status);
@@ -291,7 +291,7 @@ public class SupremeBot {
         public final String toString() {
             return "SecurityManager by Panzer1119";
         }
-        
+
     }
 
 }

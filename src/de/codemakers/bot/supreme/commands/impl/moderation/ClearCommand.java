@@ -81,8 +81,8 @@ public class ClearCommand extends Command {
 
     @Override
     public final PermissionRoleFilter getPermissionRoleFilter() {
-        final PermissionRole admin = PermissionRole.getPermissionRoleByName("Moderator");
-        return (permissionRole, member) -> permissionRole.isPermissionGranted(admin);
+        final PermissionRole moderator = PermissionRole.getPermissionRoleByName("Moderator");
+        return (permissionRole, member) -> permissionRole.isPermissionGranted(moderator);
     }
 
     @Override

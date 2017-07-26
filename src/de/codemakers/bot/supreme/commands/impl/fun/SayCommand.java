@@ -1,4 +1,4 @@
-package de.codemakers.bot.supreme.commands.impl.moderation;
+package de.codemakers.bot.supreme.commands.impl.fun;
 
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
