@@ -65,19 +65,21 @@ public class XMLEditor {
     }
 
     public final XMLEditor load(Document document) {
+        path.clear();
         if (document == null) {
             this.rootElement = null;
         } else {
             this.rootElement = document.detachRootElement();
+            addFirst(this.rootElement);
         }
         this.document = document;
-        path.clear();
         return this;
     }
 
     public final XMLEditor load(Element rootElement) {
         this.rootElement = rootElement;
         path.clear();
+        addFirst(this.rootElement);
         return this;
     }
 
@@ -85,6 +87,7 @@ public class XMLEditor {
         this.document = document;
         this.rootElement = rootElement;
         path.clear();
+        addFirst(this.rootElement);
         return this;
     }
 

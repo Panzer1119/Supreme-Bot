@@ -90,14 +90,14 @@ public class MemberObject {
         return this;
     }
 
-    public final boolean register() {
+    public final synchronized boolean register() {
         if (MEMBEROBJECTS.contains(this)) {
             return false;
         }
         return MEMBEROBJECTS.add(this);
     }
 
-    public final boolean unregister() {
+    public final synchronized boolean unregister() {
         if (!MEMBEROBJECTS.contains(this)) {
             return false;
         }
@@ -120,7 +120,7 @@ public class MemberObject {
         return this;
     }
 
-    public static final List<MemberObject> getMemberObjectsByMembers(AdvancedMember... members) {
+    public static final synchronized List<MemberObject> getMemberObjectsByMembers(AdvancedMember... members) {
         if (members == null || members.length == 0) {
             return MEMBEROBJECTS;
         }
@@ -132,7 +132,7 @@ public class MemberObject {
         return getMemberObjectsByMembers(members).stream().findFirst().orElse(null);
     }
 
-    public static final List<MemberObject> getMemberObjectsByExactMembers(AdvancedMember... members) {
+    public static final synchronized List<MemberObject> getMemberObjectsByExactMembers(AdvancedMember... members) {
         if (members == null || members.length == 0) {
             return MEMBEROBJECTS;
         }

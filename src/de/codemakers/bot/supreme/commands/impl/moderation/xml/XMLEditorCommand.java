@@ -13,6 +13,7 @@ import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.io.File;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.User;
 
 /**
  * XMLEditorCommand
@@ -76,7 +77,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
         } else if (info) {
             return arguments.isSize(2);
         } else {
-            return false;
+            return true;
         }
     }
 
@@ -125,15 +126,9 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
             memberObject.register();
             event.sendMessageFormat("%s you opened successfully the file \"%s\" in the %s.", event.getAuthor().getAsMention(), fileName, XMLEditor.class.getSimpleName()); //TODO Message Auto Delete?
         } else {
-            final MemberObject memberObject = MemberObject.getMemberObjectByExactMembers(new AdvancedMember(event.getAuthor()));
-            XMLEditor xmleditor = null;
-            if (memberObject != null) {
-                final Object object = memberObject.getData(XMLEditor.class.getSimpleName());
-                if (object != null && (object instanceof XMLEditor)) {
-                    xmleditor = (XMLEditor) object;
-                }
-            }
-            if (memberObject == null || xmleditor == null) {
+            final MemberObject memberObject = getMemberObject(event.getAuthor());
+            final XMLEditor xmleditor = getXMLEditor(memberObject);
+            if (xmleditor == null) {
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you have no open %s!", Emoji.WARNING, event.getAuthor().getAsMention(), XMLEditor.class.getSimpleName());
                 return;
             }
@@ -168,7 +163,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                         return;
                     }
                     if (xmleditor.save(file)) {
-                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s saved .xml file as \"%s\" in guild \"%s\".", event.getAuthor().getAsMention(), fileName, guild_id);
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s successfully saved .xml file as \"%s\" in guild \"%s\".", event.getAuthor().getAsMention(), fileName, guild_id);
                     } else {
                         event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the file couldn't get saved as \"%s\" in guild \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), fileName, guild_id);
                     }
@@ -187,33 +182,54 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                         return;
                     }
                     if (xmleditor.save(file)) {
-                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s saved .xml file as \"%s\".", event.getAuthor().getAsMention(), fileName);
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s successfully saved .xml file as \"%s\".", event.getAuthor().getAsMention(), fileName);
                     } else {
                         event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the file couldn't get saved as \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), fileName);
                     }
                 } else if (xmleditor.save()) {
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s saved .xml file.", event.getAuthor().getAsMention());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s successfully saved .xml file.", event.getAuthor().getAsMention());
                 } else {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the file couldn't get saved!", Emoji.WARNING, event.getAuthor().getAsMention());
                 }
             } else if (stop) {
                 memberObject.delete();
                 memberObject.unregister();
-                event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "", "");
+                event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s closed the file \"%s\".", event.getAuthor().getAsMention(), xmleditor.getFile());
             } else if (up) {
-
+                
             } else if (down) {
-
+                
             } else if (edit) {
                 if (override) {
-
+                    
                 } else {
-
+                    
                 }
             } else if (info) {
-
+                
+            } else {
+                event.sendMessage(new EmbedBuilder().addField("Current Element", xmleditor.getLast() + "", false).build());
             }
         }
+    }
+
+    private final MemberObject getMemberObject(User user) {
+        if (user == null) {
+            return null;
+        }
+        return MemberObject.getMemberObjectByExactMembers(new AdvancedMember(user));
+    }
+
+    private final XMLEditor getXMLEditor(MemberObject memberObject) {
+        if (memberObject == null) {
+            return null;
+        }
+        XMLEditor xmleditor = null;
+        final Object object = memberObject.getData(XMLEditor.class.getSimpleName());
+        if (object != null && (object instanceof XMLEditor)) {
+            xmleditor = (XMLEditor) object;
+        }
+        return xmleditor;
     }
 
     @Override
