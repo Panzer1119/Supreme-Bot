@@ -2,7 +2,6 @@ package de.codemakers.bot.supreme.commands.impl.fun;
 
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.CommandHandler;
-import de.codemakers.bot.supreme.commands.arguments.Argument;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
@@ -20,8 +19,6 @@ import net.dv8tion.jda.core.EmbedBuilder;
  * @author Panzer1119
  */
 public class TicTacToeCommand extends Command {
-    
-    public static final Argument ARGUMENT_END = new Argument("end", Standard.STANDARD_ARGUMENT_PREFIXES);
 
     @Override
     public final void initInvokers() {
@@ -44,7 +41,7 @@ public class TicTacToeCommand extends Command {
             } else {
                 event.sendMessage("You can't play against me, im a bot!");
             }
-        } else if (arguments.consumeFirst(ARGUMENT_END, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
+        } else if (arguments.consumeFirst(Standard.ARGUMENT_END, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
             if (advancedGuild != null) {
                 if (advancedGuild.getGame() != null) {
                     if (advancedGuild.getGame() instanceof TicTacToe) {
@@ -74,7 +71,7 @@ public class TicTacToeCommand extends Command {
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
         builder.addField(String.format("%s <User @Mention>", invoker), "Starts TicTacToe against the mentioned user.", false);
         builder.addField(String.format("%s <Field as Number>", invoker), "Tooks the given field in the TicTacToe board.", false);
-        builder.addField(String.format("%s %s", invoker, ARGUMENT_END.getCompleteArgument(0)), "Stops the running TicTacToe game.", false);
+        builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_END.getCompleteArgument(0)), "Stops the running TicTacToe game.", false);
         return builder;
     }
 

@@ -478,6 +478,7 @@ public class Standard {
     public static final Argument ARGUMENT_PRIVATE = new Argument("private", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_THIS = new Argument("this", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_ALL = new Argument("all", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_END = new Argument("end", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_SETTINGS = new Argument("settings", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_GUILD_SETTINGS = new Argument("guild_settings", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_SETTINGS_SET = new Argument("set", STANDARD_ARGUMENT_PREFIXES);
