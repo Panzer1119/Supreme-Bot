@@ -31,6 +31,8 @@ public class Standard {
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String COMMAND_ESCAPE_SPACE_STRING = "\"";
     public static final String COMMAND_DELIMITER_STRING = " ";
+    public static final String STANDARD_NUMBER_SEPARATOR = ":";
+    public static final String STANDARD_ARRAY_SEPARATOR = ";";
     public static final int STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED = 10;
     public static final int PLAYLIST_LIMIT = 1000;
     public static final long STANDARD_MESSAGE_DELETING_DELAY = 5000L;
@@ -488,9 +490,13 @@ public class Standard {
     public static final Argument ARGUMENT_SETTINGS_DEFAULT = new Argument("default", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_PERMISSIONS = new Argument("permissions", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_OVERRIDE = new Argument("override", STANDARD_ARGUMENT_PREFIXES);
-    public static final Argument ARGUMENT_XMLEDITOR_START = new Argument("start", STANDARD_ARGUMENT_PREFIXES);
-    public static final Argument ARGUMENT_XMLEDITOR_SAVE = new Argument("save", STANDARD_ARGUMENT_PREFIXES);
-    public static final Argument ARGUMENT_XMLEDITOR_STOP = new Argument("stop", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_START = new Argument("start", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_SAVE = new Argument("save", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_STOP = new Argument("stop", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_CREATE = new Argument("create", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_TOGGLE = new Argument("toggle", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_TOGGLE_ALL = new Argument("toggleall", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_GO = new Argument("go", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_XMLEDITOR_UP = new Argument("up", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_XMLEDITOR_DOWN = new Argument("down", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_XMLEDITOR_EDIT = new Argument("edit", STANDARD_ARGUMENT_PREFIXES);

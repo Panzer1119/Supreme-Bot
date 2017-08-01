@@ -83,5 +83,9 @@ public class AdvancedMember {
         }
         return new AdvancedMember(guild.getMember(user));
     }
+    
+    public static final AdvancedMember ofUser(User user) { //FIXME MAKE IT RICHTIG!
+        return new AdvancedMember(user);
+    }
 
 }

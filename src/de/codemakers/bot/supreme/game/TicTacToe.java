@@ -17,7 +17,7 @@ import net.dv8tion.jda.core.entities.User;
  */
 public class TicTacToe extends Game {
 
-    private final Board game=  new Board(3, 3);
+    private final Board game = new Board(3, 3);
     private MessageEvent event_started;
     private User starter;
     private User opponent;
@@ -38,7 +38,7 @@ public class TicTacToe extends Game {
             try {
                 opponent = mentionedUsers.get(0);
             } catch (Exception ex) {
-                event.sendMessage(Emoji.ERROR + " Please mention a person to start the game.");
+                event.sendMessage(Emoji.WARNING + " Please mention a person to start the game.");
             }
             turn = starter;
             message_header = event.sendAndWaitMessage(Standard.getMessageEmbed(Color.GREEN, null).addField(String.format("%s TicTacToe", Emoji.GAME), String.format("Starter: %s%nOpponent%s", starter.getAsMention(), opponent.getAsMention()), true).build());
@@ -58,7 +58,7 @@ public class TicTacToe extends Game {
                 Standard.getAdvancedGuild(getGuildId()).setGame(null);
                 return true;
             } else {
-                event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s do not interfere the game!", Emoji.ERROR, event.getAuthor().getAsMention());
+                event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s do not interfere the game!", Emoji.WARNING, event.getAuthor().getAsMention());
                 return false;
             }
         } catch (Exception ex) {
@@ -119,18 +119,18 @@ public class TicTacToe extends Game {
             }
             if (event.getAuthor() == starter || event.getAuthor() == opponent) {
                 if (event.getAuthor() != turn) {
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s it's not your turn yet!", Emoji.ERROR, event.getAuthor().getAsMention());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s it's not your turn yet!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return false;
                 }
             } else {
-                event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s do not interfere the game!", Emoji.ERROR, event.getAuthor().getAsMention());
+                event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s do not interfere the game!", Emoji.WARNING, event.getAuthor().getAsMention());
                 return false;
             }
             if (!game.isOccupied(row, column)) {
                 game.addPiece(new Piece(piece), row, column);
                 game.drawBoard();
             } else {
-                event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s the place is occupied. Use your eyes!", Emoji.ERROR, event.getAuthor().getAsMention());
+                event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s the place is occupied. Use your eyes!", Emoji.WARNING, event.getAuthor().getAsMention());
                 return false;
             }
             if (game.getWinner().equals("X")) {
@@ -150,15 +150,15 @@ public class TicTacToe extends Game {
             }
             return true;
         } catch (StringIndexOutOfBoundsException | NumberFormatException ex) {
-            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s the number you enter isn't valid.", Emoji.ERROR, event.getAuthor().getAsMention());
+            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s the number you enter isn't valid.", Emoji.WARNING, event.getAuthor().getAsMention());
             return false;
         } catch (ArrayIndexOutOfBoundsException ex) {
-            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s invalid place!", Emoji.ERROR, event.getAuthor().getAsMention());
+            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s invalid place!", Emoji.WARNING, event.getAuthor().getAsMention());
             return false;
         }
     }
 
-    private void switchTurn() {
+    private final void switchTurn() {
         if (starter == turn) {
             turn = opponent;
         } else {
@@ -187,29 +187,29 @@ public class TicTacToe extends Game {
             }
         }
 
-        public Board drawBoard() {
+        public final Board drawBoard() {
             message_header.editMessage(Standard.getMessageEmbed(Color.GREEN, null).setTitle(String.format("%s Current Board (Round %d)%n", Emoji.GAME, round), null).setFooter(String.format("%s finished his/her turn", turn.getName()), null).build()).queue();
             message_board.editMessage(toString()).queue();
             round++;
             return this;
         }
 
-        public Board addPiece(Piece x, int r, int c) {
+        public final Board addPiece(Piece x, int r, int c) {
             board[r][c] = x;
             return this;
         }
 
-        public Piece[][] getBoard() {
+        public final Piece[][] getBoard() {
             return board;
         }
 
-        public boolean isOccupied(int r, int c) {
+        public final boolean isOccupied(int r, int c) {
             final Piece p = board[r][c];
             final String q = p.getID();
             return !q.equals("  ");
         }
 
-        public Board clearBoard() {
+        public final Board clearBoard() {
             Piece p;
             for (int i = 0; i < rows; i++) {
                 for (int j = 0; j < cols; j++) {
@@ -220,7 +220,7 @@ public class TicTacToe extends Game {
             return this;
         }
 
-        public boolean isDraw() {
+        public final boolean isDraw() {
             for (int i = 0; i < rows; i++) {
                 for (int j = 0; j < cols; j++) {
                     if (!isOccupied(i, j)) {
@@ -231,7 +231,7 @@ public class TicTacToe extends Game {
             return true;
         }
 
-        public String getWinner() {
+        public final String getWinner() {
             if (board[0][0].equals(board[0][1]) && board[0][1].equals(board[0][2])) {
                 return board[0][0].getID();
             } else if (board[1][0].equals(board[1][1]) && board[1][1].equals(board[1][2])) {
@@ -253,7 +253,7 @@ public class TicTacToe extends Game {
             }
         }
 
-        private String getEmojiPos(int r, int c) {
+        private final String getEmojiPos(int r, int c) {
             String emoji = "";
             switch (r) {
                 case 0:
@@ -316,7 +316,7 @@ public class TicTacToe extends Game {
         }
 
         @Override
-        public String toString() {
+        public final String toString() {
             String out = "";
             for (int i = 0; i < rows; i++) {
                 for (int z = 0; z < cols; z++) {
@@ -341,11 +341,11 @@ public class TicTacToe extends Game {
             id = x;
         }
 
-        public String getID() {
+        public final String getID() {
             return id;
         }
 
-        public boolean equals(Piece p) {
+        public final boolean equals(Piece p) {
             return this.getID().equals(p.getID()) && !this.getID().equals(" ");
         }
         

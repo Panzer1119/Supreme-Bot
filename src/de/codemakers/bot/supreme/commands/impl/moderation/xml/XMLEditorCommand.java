@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.User;
 import org.jdom2.Element;
 
 /**
@@ -41,9 +40,9 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
             return false;
         }
         final boolean override = arguments.isConsumed(Standard.ARGUMENT_OVERRIDE, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean start = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_START, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean save = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_SAVE, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean stop = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_STOP, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean start = arguments.isConsumed(Standard.ARGUMENT_START, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean save = arguments.isConsumed(Standard.ARGUMENT_SAVE, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean stop = arguments.isConsumed(Standard.ARGUMENT_STOP, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean up = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_UP, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean down = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_DOWN, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean edit = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_EDIT, ArgumentConsumeType.FIRST_IGNORE_CASE);
@@ -92,9 +91,9 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
     public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         final boolean isThis = arguments.isConsumed(Standard.ARGUMENT_THIS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean override = arguments.isConsumed(Standard.ARGUMENT_OVERRIDE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
-        final boolean start = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_START, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
-        final boolean save = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_SAVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
-        final boolean stop = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_STOP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean start = arguments.isConsumed(Standard.ARGUMENT_START, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean save = arguments.isConsumed(Standard.ARGUMENT_SAVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean stop = arguments.isConsumed(Standard.ARGUMENT_STOP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean up = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_UP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean down = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_DOWN, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean edit = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_EDIT, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
@@ -128,15 +127,15 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you can't open a folder as an .xml file!", Emoji.WARNING, event.getAuthor().getAsMention());
                 return;
             }
-            final MemberObject memberObject = new MemberObject(new AdvancedMember(event.getAuthor()));
+            final MemberObject memberObject = new MemberObject(AdvancedMember.ofUser(event.getAuthor()));
             final XMLEditor xmleditor = new XMLEditor(file);
             memberObject.putData(XMLEditor.class.getSimpleName(), xmleditor);
             memberObject.register();
             event.sendMessageFormat("%s you opened successfully the file \"%s\" in the %s.", event.getAuthor().getAsMention(), fileName, XMLEditor.class.getSimpleName()); //TODO Message Auto Delete?
         } else {
             final MemberObject memberObject = getMemberObject(event.getAuthor());
-            final XMLEditor xmleditor = getXMLEditor(memberObject);
-            if (xmleditor == null) {
+            final XMLEditor xmleditor = getObject(memberObject, XMLEditor.class);
+            if (xmleditor == null || !(xmleditor instanceof XMLEditor)) {
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you have no open %s!", Emoji.WARNING, event.getAuthor().getAsMention(), XMLEditor.class.getSimpleName());
                 return;
             }
@@ -297,25 +296,6 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                 }
             }
         }
-    }
-
-    private final MemberObject getMemberObject(User user) {
-        if (user == null) {
-            return null;
-        }
-        return MemberObject.getMemberObjectByExactMembers(new AdvancedMember(user));
-    }
-
-    private final XMLEditor getXMLEditor(MemberObject memberObject) {
-        if (memberObject == null) {
-            return null;
-        }
-        XMLEditor xmleditor = null;
-        final Object object = memberObject.getData(XMLEditor.class.getSimpleName());
-        if (object != null && (object instanceof XMLEditor)) {
-            xmleditor = (XMLEditor) object;
-        }
-        return xmleditor;
     }
 
     @Override

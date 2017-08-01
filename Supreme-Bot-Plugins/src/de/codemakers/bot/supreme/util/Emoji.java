@@ -150,6 +150,8 @@ public class Emoji {
     public static final String STOP = EmojiParser.parseToUnicode(":black_square_for_stop:");
 
     /* Fun */
+    public static final String SQUARE_LARGE_BLACK = EmojiParser.parseToUnicode(":black_large_square:");
+    public static final String SQUARE_LARGE_WHITE = EmojiParser.parseToUnicode(":white_large_square:");
  /* Game */
     public static final String GAME = EmojiParser.parseToUnicode(":video_game:");
     public static final String HANGED_FACE = EmojiParser.parseToUnicode(":confounded:");

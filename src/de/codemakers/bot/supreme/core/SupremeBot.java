@@ -3,6 +3,7 @@ package de.codemakers.bot.supreme.core;
 import de.codemakers.bot.supreme.commands.impl.HelpCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
 import de.codemakers.bot.supreme.commands.impl.PingCommand;
+import de.codemakers.bot.supreme.commands.impl.fun.GameOfLifeCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.TicTacToeCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.ChangeCommandPrefixCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.ClearCommand;
@@ -97,6 +98,7 @@ public class SupremeBot {
             new HelpCommand();
             new PingCommand();
             //Fun Commands
+            new GameOfLifeCommand();
             new MusicCommand();
             new SayCommand();
             new TicTacToeCommand();

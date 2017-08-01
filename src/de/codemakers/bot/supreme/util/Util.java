@@ -137,7 +137,7 @@ public class Util {
     }
 
     public static final boolean deleteMessage(Message message, long delayInMillis) {
-        if (delayInMillis < 0) {
+        if (message == null || delayInMillis < 0) {
             return false;
         } else if (delayInMillis == 0) {
             message.delete().queue();
@@ -363,11 +363,29 @@ public class Util {
             return null;
         }
     }
-    
+
     public static final String generateRandomString(char[] alphabet, int length) {
         String out = "";
         for (int i = 0; i < length; i++) {
             out += alphabet[(int) (Math.random() * alphabet.length)];
+        }
+        return out;
+    }
+
+    public static final String joinNumbers(int... numbers) {
+        return joinNumbers(Standard.STANDARD_NUMBER_SEPARATOR, numbers);
+    }
+    
+    public static final String joinNumbers(String separator, int... numbers) {
+        if (numbers == null || numbers.length == 0) {
+            return "";
+        }
+        String out = "";
+        for (int i : numbers) {
+            out += (separator != null ? separator : "") + i;
+        }
+        if (separator != null) {
+            out = out.substring(separator.length());
         }
         return out;
     }
