@@ -13,6 +13,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.GetFileCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.ReloadCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.RestartCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.SayCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.ChangeNicknameCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.SettingsCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.StopCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.UploadFileCommand;
@@ -38,8 +39,8 @@ import net.dv8tion.jda.core.entities.Game;
  */
 public class SupremeBot {
 
-    public static JDABuilder builder = null;
-    public static JDA jda = null;
+    private static JDABuilder builder = null;
+    private static JDA jda = null;
     private static boolean running = false;
 
     public static final void main(String[] args) {
@@ -104,6 +105,7 @@ public class SupremeBot {
             new TicTacToeCommand();
             //Moderation Commands
             new ChangeCommandPrefixCommand();
+            new ChangeNicknameCommand();
             new ClearCommand();
             new CommandCommand();
             new GetCommandPrefixCommand();
@@ -134,6 +136,10 @@ public class SupremeBot {
         return running;
     }
 
+    public static final JDA getJDA() {
+        return jda;
+    }
+
     public static final boolean startJDA() {
         if (running) {
             return true;
@@ -142,11 +148,19 @@ public class SupremeBot {
         try {
             builder.setToken(new String(Standard.getToken()));
             jda = builder.buildBlocking();
+            try {
+                Thread.sleep(500);
+                SupremeBot.reload();
+            } catch (Exception ex) {
+                System.err.print("Error while reloading at startup: ");
+                ex.printStackTrace();
+            }
             return true;
         } catch (Exception ex) {
-            System.err.println(ex);
             if (!(ex instanceof InterruptedException)) {
                 ex.printStackTrace();
+            } else {
+                System.err.println(ex);
             }
             return false;
         }
@@ -166,9 +180,10 @@ public class SupremeBot {
             reload();
             return true;
         } catch (Exception ex) {
-            System.err.println(ex);
             if (!(ex instanceof InterruptedException)) {
                 ex.printStackTrace();
+            } else {
+                System.err.println(ex);
             }
             return false;
         }
@@ -209,6 +224,9 @@ public class SupremeBot {
     }
 
     public static final boolean loadAllGuilds() {
+        if (getJDA() == null) {
+            return false;
+        }
         try {
             Standard.loadAllGuilds();
             return true;

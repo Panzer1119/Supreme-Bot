@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.listeners;
 
+import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.permission.PermissionRole;
 import de.codemakers.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.JDA;

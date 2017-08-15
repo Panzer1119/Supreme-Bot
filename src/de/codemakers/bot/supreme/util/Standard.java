@@ -13,11 +13,14 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.managers.AccountManager;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -38,6 +41,7 @@ public class Standard {
     public static final long STANDARD_MESSAGE_DELETING_DELAY = 5000L;
     private static byte[] TOKEN = null;
     private static String STANDARD_COMMAND_PREFIX = "!";
+    private static String NICKNAME = "Supreme-Bot";
 
     public static final Settings STANDARD_NULL_SETTINGS = new DefaultSettings();
 
@@ -93,6 +97,10 @@ public class Standard {
                 STANDARD_SETTINGS.setProperty("token", "Put your token here!");
             }
             TOKEN = STANDARD_SETTINGS.getProperty("token", null).getBytes();
+            if (STANDARD_SETTINGS.getProperty("nickname", null) == null) {
+                STANDARD_SETTINGS.setProperty("nickname", "Supreme-Bot");
+            }
+            setNickname(STANDARD_SETTINGS.getProperty("nickname", "Supreme-Bot"));
             System.out.println("Reloaded Settings!");
             return true;
         } catch (Exception ex) {
@@ -143,14 +151,55 @@ public class Standard {
     }
 
     public static final boolean setStandardCommandPrefix(String commandPrefix) {
-        if (commandPrefix.contains("\\")) {
+        if (commandPrefix == null || commandPrefix.isEmpty() || commandPrefix.contains("\\")) {
             return false;
         }
         Standard.STANDARD_COMMAND_PREFIX = commandPrefix;
         STANDARD_SETTINGS.setProperty("command_prefix", STANDARD_COMMAND_PREFIX);
         return true;
     }
-    
+
+    public static final String getNickname() {
+        return NICKNAME;
+    }
+
+    public static final boolean setNickname(String nickname) {
+        if (nickname == null || nickname.isEmpty()) {
+            return false;
+        }
+        Standard.NICKNAME = nickname;
+        STANDARD_SETTINGS.setProperty("nickname", NICKNAME);
+        try {
+            final JDA jda = SupremeBot.getJDA();
+            if (jda != null) {
+                final SelfUser user = jda.getSelfUser();
+                if (user != null) {
+                    if (!nickname.equals(user.getName())) {
+                        final AccountManager manager = user.getManager();
+                        if (manager != null) {
+                            manager.setName(nickname).queue();
+                            System.out.println("Changed nickname to \"" + nickname + "\".");
+                            return true;
+                        } else {
+                            System.err.println("Failed to change nickname to \"" + nickname + "\": AccountManager is null!");
+                        }
+                    } else {
+                        //System.err.println("Failed to change nickname to \"" + nickname + "\": Nickname is already set!");
+                    }
+                } else {
+                    System.err.println("Failed to change nickname to \"" + nickname + "\": SelfUser is null!");
+                }
+            } else {
+                System.err.println("Failed to change nickname to \"" + nickname + "\": JDA is null!");
+            }
+            return false;
+        } catch (Exception ex) {
+            System.err.print("Failed to change nickname to \"" + nickname + "\": ");
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
     public static final File getFile(String fileName) {
         if (fileName == null) {
             return null;
@@ -161,7 +210,6 @@ public class Standard {
     //****************************************************************//
     //*********************GUILD SPECIFIC START***********************//
     //****************************************************************//
-    
     public static final boolean loadAllGuilds() {
         try {
             GUILDS.clear();
@@ -197,6 +245,7 @@ public class Standard {
         try {
             GUILDS.stream().forEach((advancedGuild) -> {
                 advancedGuild.getSettings().loadSettings();
+                setNicknameForGuild(advancedGuild.getGuildId(), getNicknameByGuild(advancedGuild.getGuildId()));
             });
             System.out.println("Reloaded All Guild Settings!");
             return true;
@@ -296,6 +345,36 @@ public class Standard {
         return advancedGuild.getSettings();
     }
 
+    public static final Member getSelfMemberByGuild(Guild guild) {
+        if (guild == null) {
+            return null;
+        }
+        return getSelfMemberByGuild(guild.getId());
+    }
+
+    public static final Member getSelfMemberByGuild(String guild_id) {
+        final Guild guild = getGuildById(guild_id);
+        if (guild != null) {
+            try {
+                final SelfUser user = SupremeBot.getJDA().getSelfUser();
+                if (user != null) {
+                    return guild.getMemberById(user.getId());
+                } else {
+                    System.err.println("Failed to get SelfMember by Guild: SelfUser is null!");
+                    return null;
+                }
+            } catch (Exception ex) {
+                System.err.print("Failed to get SelfMember by Guild: ");
+                ex.printStackTrace();
+                return null;
+            }
+        } else {
+            System.err.println("Failed to get SelfMember by Guild: Guild is null!");
+            return null;
+        }
+    }
+
+    //________________________________________________________________________//
     public static final String getCommandPrefixByGuild(Guild guild) {
         if (guild == null) {
             return getStandardCommandPrefix();
@@ -318,12 +397,63 @@ public class Standard {
     }
 
     public static final boolean setCommandPrefixForGuild(String guild_id, String commandPrefix) {
-        if (guild_id == null || commandPrefix.contains("\\")) {
+        if (guild_id == null || commandPrefix == null || commandPrefix.isEmpty() || commandPrefix.contains("\\")) {
             return false;
         }
         getGuildSettings(guild_id).setProperty("command_prefix", commandPrefix);
         return true;
     }
+    //------------------------------------------------------------------------//
+
+    //________________________________________________________________________//
+    public static final String getNicknameByGuild(Guild guild) {
+        if (guild == null) {
+            return getNickname();
+        }
+        return getNicknameByGuild(guild.getId());
+    }
+
+    public static final String getNicknameByGuild(String guild_id) {
+        if (guild_id == null) {
+            return getNickname();
+        }
+        return getGuildSettings(guild_id).getProperty("nickname", getNickname());
+    }
+
+    public static final boolean setNicknameForGuild(Guild guild, String nickname) {
+        if (guild == null) {
+            return false;
+        }
+        return setNicknameForGuild(guild.getId(), nickname);
+    }
+
+    public static final boolean setNicknameForGuild(String guild_id, String nickname) {
+        if (guild_id == null || nickname == null || nickname.isEmpty()) {
+            return false;
+        }
+        getGuildSettings(guild_id).setProperty("nickname", nickname);
+        final Member member = getSelfMemberByGuild(guild_id);
+        if (member != null) {
+            if (!nickname.equals(member.getNickname())) {
+                try {
+                    SupremeBot.getJDA().getGuildById(guild_id).getController().setNickname(member, nickname).queue();
+                    System.out.println("Changed nickname for \"" + guild_id + "\" to \"" + nickname + "\".");
+                    return true;
+                } catch (Exception ex) {
+                    System.err.print("Failed to change nickname for \"" + guild_id + "\" to \"" + nickname + "\": ");
+                    ex.printStackTrace();
+                    return false;
+                }
+            } else {
+                //System.err.print("Failed to change nickname for \"" + guild_id + "\" to \"" + nickname + "\": Nickname is already set!");
+                return false;
+            }
+        } else {
+            System.err.println("Failed to change nickname for \"" + guild_id + "\" to \"" + nickname + "\": Member is null!");
+            return false;
+        }
+    }
+    //------------------------------------------------------------------------//
 
     public static final long getAutoDeleteCommandNotFoundMessageDelayByGuild(Guild guild) {
         if (guild == null) {
@@ -428,10 +558,11 @@ public class Standard {
     }
 
     public static final Guild getGuildById(String guild_id) {
-        if (SupremeBot.jda == null) {
+        if (SupremeBot.getJDA() == null) {
+            System.err.println("Failed to get Guild by id: JDA is null!");
             return null;
         }
-        return SupremeBot.jda.getGuildById(guild_id);
+        return SupremeBot.getJDA().getGuildById(guild_id);
     }
 
     public static final String resolveGuildId(Guild guild, String guild_id) {
@@ -473,7 +604,7 @@ public class Standard {
         return Standard.isSuperOwner(member);
     };
 
-    public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner"};
+    public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner", "nickname"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
     public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/", "!"};
     public static final Argument ARGUMENT_GLOBAL = new Argument("global", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_DIRECT = new Argument("direct", STANDARD_ARGUMENT_PREFIXES);

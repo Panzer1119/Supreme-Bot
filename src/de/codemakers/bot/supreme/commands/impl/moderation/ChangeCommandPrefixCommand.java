@@ -5,6 +5,7 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -26,7 +27,8 @@ public class ChangeCommandPrefixCommand extends Command {
         if (arguments == null) {
             return false;
         }
-        if (arguments.isConsumed(Standard.ARGUMENT_GLOBAL, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
+        final boolean global = arguments.isConsumed(Standard.ARGUMENT_GLOBAL, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        if (global) {
             return arguments.isSize(2);
         } else {
             return arguments.isSize(1);
@@ -35,13 +37,17 @@ public class ChangeCommandPrefixCommand extends Command {
 
     @Override
     public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        final boolean global = arguments.isConsumed(Standard.ARGUMENT_GLOBAL, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean global = arguments.isConsumed(Standard.ARGUMENT_GLOBAL, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final String commandPrefix = arguments.consumeFirst();
         if (commandPrefix == null) {
             event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s the new command prefix was invalid!", event.getAuthor().getAsMention());
             return;
         }
         if (global) {
+            if (!Standard.isSuperOwner(event.getAuthor())) {
+                PermissionHandler.sendNoPermissionMessage(event);
+                return;
+            }
             if (Standard.setStandardCommandPrefix(commandPrefix)) {
                 event.sendMessageFormat("Changed Global Command Prefix to \"%s\"", commandPrefix);
             } else {
@@ -67,7 +73,7 @@ public class ChangeCommandPrefixCommand extends Command {
 
     @Override
     public final PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_OWNER_BOT_COMMANDER;
+        return Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER;
     }
 
     @Override
