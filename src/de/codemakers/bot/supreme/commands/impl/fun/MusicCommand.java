@@ -261,19 +261,18 @@ public class MusicCommand extends Command {
                 } catch (Exception ex) {
                 }
                 final ArrayList<String> tracks = new ArrayList<>();
-                List<String> tracksSublist;
-                manager_.getQueue().forEach((audioInfo) -> {
+                List<AudioInfo> infos = new ArrayList<>(manager_.getQueue());
+                final int MAX_TRACKS_PER_PAGE = 20; //FIXME Make this variable (Anzahl Tracks pro Seite)
+                if (infos.size() > MAX_TRACKS_PER_PAGE) {
+                    infos = infos.subList((sideNumber - 1) * MAX_TRACKS_PER_PAGE, sideNumber * MAX_TRACKS_PER_PAGE);
+                }
+                infos.stream().forEach((audioInfo) -> {
                     tracks.add(buildQueueMessage(audioInfo));
                 });
-                if (tracks.size() > 20) { //FIXME Make this variable (Anzahl Tracks pro Seite)
-                    tracksSublist = tracks.subList((sideNumber - 1) * 20, sideNumber * 20); //FIXME Make this variable (Anzahl Tracks pro Seite)
-                } else {
-                    tracksSublist = tracks;
-                }
-                final String out = tracksSublist.stream().collect(Collectors.joining("\n"));
-                final int sideNumberAll = tracks.size() >= 20 ? tracks.size() / 20 : 1; //FIXME Make this variable (Anzahl Tracks pro Seite)
+                final String out = tracks.stream().collect(Collectors.joining("\n"));
+                final int sideNumberAll = tracks.size() >= MAX_TRACKS_PER_PAGE ? tracks.size() / MAX_TRACKS_PER_PAGE : 1;
                 tracks.clear();
-                tracksSublist.clear();
+                infos.clear();
                 event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE:**%n*[%s Tracks | Side %d / %d]*%s", manager_.getQueue().size(), sideNumber, sideNumberAll, out).build());
             } else {
                 return; //TODO make it usefull!
