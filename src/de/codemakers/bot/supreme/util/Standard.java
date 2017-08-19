@@ -86,6 +86,8 @@ public class Standard {
 
     public static final ArrayList<Runnable> SHUTDOWNHOOKS = new ArrayList<>();
 
+    public static final boolean DEBUG_PERMISSION_HANDLER = false;
+
     public static final boolean reloadSettings() {
         try {
             STANDARD_SETTINGS.loadSettings();
@@ -210,6 +212,17 @@ public class Standard {
     //****************************************************************//
     //*********************GUILD SPECIFIC START***********************//
     //****************************************************************//
+    public static final boolean initAdvancedGuilds() {
+        try {
+            GUILDS.stream().forEach((advancedGuild) -> {
+                advancedGuild.sayHi();
+            });
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
     public static final boolean loadAllGuilds() {
         try {
             GUILDS.clear();
@@ -322,6 +335,15 @@ public class Standard {
         if (advancedGuild == null) {
             advancedGuild = new AdvancedGuild(guild_id);
             advancedGuild.getSettings().loadSettings();
+            try {
+                final File permissions = advancedGuild.getFile(Standard.STANDARD_PERMISSIONS_FILE_NAME);
+                if (!permissions.exists()) {
+                    permissions.getParentFile().mkdirs();
+                    permissions.createNewFile();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
             GUILDS.add(advancedGuild);
         }
         return advancedGuild;
@@ -633,5 +655,7 @@ public class Standard {
     public static final Argument ARGUMENT_XMLEDITOR_EDIT = new Argument("edit", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_XMLEDITOR_INFO = new Argument("info", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_XMLEDITOR_LIST = new Argument("list", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_COPY_MESSAGE = new Argument("message", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_COPY_SERVER = new Argument("server", STANDARD_ARGUMENT_PREFIXES);
 
 }

@@ -138,14 +138,15 @@ public class ArgumentList {
     }
     
     public final boolean isConsumed(Argument argument, ArgumentConsumeType type) {
-        return consume(argument, type) > 0;
+        return consume(argument, type, false) > 0;
     }
 
-    public final int consume(Argument argument, ArgumentConsumeType type) {
+    public final int consume(Argument argument, ArgumentConsumeType type, boolean returnIndex) {
         if (argument == null || arguments_raw.isEmpty()) {
             return 0;
         }
         int times_found = 0;
+        int index = 0;
         final Iterator<String> arguments_raw_iterator = arguments_raw.iterator();
         while (arguments_raw_iterator.hasNext()) {
             final String argument_raw = arguments_raw_iterator.next();
@@ -167,12 +168,15 @@ public class ArgumentList {
                 if (type.isConsume()) {
                     arguments_raw_iterator.remove();
                 }
-                if (!type.isAll()) {
+                if (returnIndex) {
+                    return index;
+                } else if (!type.isAll()) {
                     return times_found;
                 }
             }
+            index++;
         }
-        return times_found;
+        return (returnIndex ? -1 : times_found);
     }
 
     @Override

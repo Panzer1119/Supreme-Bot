@@ -100,8 +100,23 @@ public class AdvancedGuild {
         return game;
     }
     
-    public AdvancedGuild setGame(Game game) {
+    public final AdvancedGuild setGame(Game game) {
         this.game = game;
+        return this;
+    }
+    
+    public final AdvancedGuild sayHi() {
+        if (getGuild() == null) {
+            System.out.println(String.format("No guild, no welcome message:  \"%s\"", guild));
+            return this;
+        }
+        getSettings().loadSettings();
+        String hi = getSettings().getProperty("welcome_message", null);
+        if (hi != null) {
+            guild.getTextChannels().get(0).sendMessage(hi).queue();
+        } else {
+            System.out.println(String.format("No welcome message wanted: \"%s\"", guild));
+        }
         return this;
     }
     

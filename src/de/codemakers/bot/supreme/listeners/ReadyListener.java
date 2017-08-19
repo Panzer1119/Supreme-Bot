@@ -1,6 +1,7 @@
 package de.codemakers.bot.supreme.listeners;
 
 import de.codemakers.bot.supreme.core.SupremeBot;
+import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.permission.PermissionRole;
 import de.codemakers.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.JDA;
@@ -8,6 +9,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ReconnectedEvent;
+import net.dv8tion.jda.core.events.ResumedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 /**
@@ -21,8 +23,7 @@ public class ReadyListener extends ListenerAdapter {
     public final void onReady(ReadyEvent event) {
         final JDA jda = event.getJDA();
         for (Guild guild : jda.getGuilds()) {
-            guild.getTextChannels().get(0).sendMessage("Hello!").queue();
-            Standard.getAdvancedGuild(guild);
+            final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild);
         }
         if (true) {
             return;
@@ -33,9 +34,18 @@ public class ReadyListener extends ListenerAdapter {
             for (Role role : guild.getRoles()) {
                 out += String.format("%nROLE: \"%s\" (ID: %s) %s%nLoaded ROLE: %s", role.getName(), role.getId(), role.getAsMention(), PermissionRole.getPermissionRoleByGuildAndRole(guild.getId(), role.getId()));
             }
-            out += "\n";
+            out += "\n\n\n";
         }
         System.out.println(out);
+    }
+    
+    @Override
+    public final void onResume(ResumedEvent event) {
+        final JDA jda = event.getJDA();
+        for (Guild guild : jda.getGuilds()) {
+            final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild);
+            advancedGuild.sayHi();
+        }
     }
 
     @Override

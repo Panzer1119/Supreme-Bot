@@ -14,6 +14,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.ReloadCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.RestartCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.SayCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.ChangeNicknameCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.CopyCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.SettingsCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.StopCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.UploadFileCommand;
@@ -74,6 +75,7 @@ public class SupremeBot {
             initListeners();
             initCommands();
             initPlugins();
+            loadAllGuilds();
             startJDA();
         } catch (Exception ex) {
             System.err.println("Main Error: " + ex);
@@ -108,6 +110,7 @@ public class SupremeBot {
             new ChangeNicknameCommand();
             new ClearCommand();
             new CommandCommand();
+            new CopyCommand();
             new GetCommandPrefixCommand();
             new GetFileCommand();
             new ReloadCommand();
@@ -150,6 +153,7 @@ public class SupremeBot {
             jda = builder.buildBlocking();
             try {
                 Thread.sleep(500);
+                initAdvancedGuilds();
                 SupremeBot.reload();
             } catch (Exception ex) {
                 System.err.print("Error while reloading at startup: ");
@@ -198,7 +202,7 @@ public class SupremeBot {
         try {
             reloadSettings();
             reloadPermissionRoles();
-            loadAllGuilds();
+            reloadAllGuilds();
             return true;
         } catch (Exception ex) {
             return false;
@@ -217,6 +221,24 @@ public class SupremeBot {
     public static final boolean reloadPermissionRoles() {
         try {
             Standard.reloadPermissionRoles();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    public static final boolean initAdvancedGuilds() {
+        try {
+            Standard.initAdvancedGuilds();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    public static final boolean reloadAllGuilds() {
+        try {
+            Standard.reloadAllGuilds();
             return true;
         } catch (Exception ex) {
             return false;

@@ -22,8 +22,6 @@ import org.jdom2.Element;
  */
 public class PermissionHandler {
 
-    private static final boolean DEBUG = false;
-
     public static final boolean check(PermissionRoleFilter filter, MessageEvent event, boolean withMessage) {
         if (filter == null) {
             return true;
@@ -78,7 +76,7 @@ public class PermissionHandler {
             if (Standard.STANDARD_PERMISSION_ROLE != null && Standard.STANDARD_PERMISSION_ROLE.equals(permissionRole)) {
                 continue;
             }
-            if (!filter.isPermissionGranted(permissionRole, null)) {
+            if (permissionRole == null || !filter.isPermissionGranted(permissionRole, null)) {
                 return false;
             }
         }
@@ -125,7 +123,7 @@ public class PermissionHandler {
             final Element rootElement = document.getRootElement();
             final List<Element> permissionRolesRaws = rootElement.getChildren(Standard.XML_PERMISSIONROLES);
             if (permissionRolesRaws == null) {
-                if (DEBUG) {
+                if (Standard.DEBUG_PERMISSION_HANDLER) {
                     System.err.println(String.format("No \"%s\" tag found!", Standard.XML_PERMISSIONROLES));
                 }
             } else {
@@ -142,13 +140,13 @@ public class PermissionHandler {
                                 if (permissionRoleName != null && permissionRoleID != null) {
                                     final PermissionRole permissionRole = new PermissionRole(permissionRoleName, permissionRoleID);
                                     PermissionRole.PERMISSIONROLES.add(permissionRole);
-                                    if (DEBUG) {
+                                    if (Standard.DEBUG_PERMISSION_HANDLER) {
                                         System.out.println(String.format("Added PermissionRole: \"%s\"", permissionRole));
                                     }
                                     if (standard) {
                                         if (Standard.STANDARD_PERMISSION_ROLE == null) {
                                             Standard.STANDARD_PERMISSION_ROLE = permissionRole;
-                                            if (DEBUG) {
+                                            if (Standard.DEBUG_PERMISSION_HANDLER) {
                                                 System.out.println(String.format("Setted \"%s\" as standard", permissionRole));
                                             }
                                         } else {
@@ -180,7 +178,7 @@ public class PermissionHandler {
                                 final PermissionRole permissionRoleSuper = PermissionRole.getPermissionRoleByPermissionRoleID(inherit);
                                 if (permissionRole != null && permissionRoleSuper != null) {
                                     permissionRole.inherit(permissionRoleSuper, inheritAll);
-                                    if (DEBUG) {
+                                    if (Standard.DEBUG_PERMISSION_HANDLER) {
                                         System.out.println(String.format("Added \"%s\" to \"%s\"", permissionRoleSuper, permissionRole));
                                     }
                                 } else {
@@ -246,7 +244,7 @@ public class PermissionHandler {
                             final PermissionRole permissionRole = PermissionRole.getPermissionRoleByPermissionRoleID(permissionRoleID);
                             if (permissionRole != null && roleID != null) {
                                 permissionRole.addRoleForGuild(guild_id, roleID);
-                                if (DEBUG) {
+                                if (Standard.DEBUG_PERMISSION_HANDLER) {
                                     System.out.println(String.format("Added Role \"%s\" for Guild \"%s\" to \"%s\"", roleID, guild_id, permissionRole));
                                 }
                             } else {
