@@ -44,7 +44,7 @@ public class CommandCommand extends Command {
         if (invoker_existing == null) {
             event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the command \"%s\" wasn't found!", Emoji.WARNING, event.getAuthor().getAsMention(), invoker_existing_string);
         } else if ((invoker_new != null) && !override) {
-            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the command \"%s\" already exists! Use \"%s\" to override the command!", Emoji.WARNING, event.getAuthor().getAsMention(), invoker_new_string, Standard.ARGUMENT_OVERRIDE.getCompleteArgument(0));
+            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the command \"%s\" already exists! Use \"%s\" to override the command!", Emoji.WARNING, event.getAuthor().getAsMention(), invoker_new_string, Standard.ARGUMENT_OVERRIDE.getCompleteArgument(0, -1));
         } else if ((invoker_new != null) && override) {
             final Command command = (Command) invoker_existing.getInvokeable();
             if (command != null) {
@@ -72,7 +72,7 @@ public class CommandCommand extends Command {
 
     @Override
     public EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s <Existing Invoker> <New Association> [%s]", invoker, Standard.ARGUMENT_OVERRIDE.getCompleteArgument(0)), "Associates an Invoker to an existing Invoker.", false);
+        builder.addField(String.format("%s <Existing Invoker> <New Association> [%s]", invoker, Standard.ARGUMENT_OVERRIDE.getCompleteArgument(0, -1)), "Associates an Invoker to an existing Invoker.", false);
         return builder;
     }
 

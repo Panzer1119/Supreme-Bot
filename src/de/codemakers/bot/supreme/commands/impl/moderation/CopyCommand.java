@@ -35,8 +35,8 @@ public class CopyCommand extends Command {
         }
         //Example: !copy message "MESSAGE_ID" "CHANNEL_TAG" [-server "GUILD_ID"]
         //       Invoker arg1    arg2         arg3           arg4    arg5
-        final boolean message = arguments.isConsumed(Standard.ARGUMENT_COPY_MESSAGE, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean server = arguments.isConsumed(Standard.ARGUMENT_COPY_SERVER, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean message = arguments.isConsumed(Standard.ARGUMENT_MESSAGE, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean server = arguments.isConsumed(Standard.ARGUMENT_SERVER, ArgumentConsumeType.FIRST_IGNORE_CASE);
         if (server) {
             if (message) {
                 return arguments.isSize(5);
@@ -59,9 +59,9 @@ public class CopyCommand extends Command {
             return;
         }
         final JDA jda = SupremeBot.getJDA();
-        final boolean message = arguments.isConsumed(Standard.ARGUMENT_COPY_MESSAGE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean message = arguments.isConsumed(Standard.ARGUMENT_MESSAGE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         String guild_id = null;
-        final int server = arguments.consume(Standard.ARGUMENT_COPY_SERVER, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE, true);
+        final int server = arguments.consume(Standard.ARGUMENT_SERVER, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE, true);
         if (server != -1) {
             guild_id = arguments.consume(server);
         }

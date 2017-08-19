@@ -43,11 +43,11 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
         final boolean start = arguments.isConsumed(Standard.ARGUMENT_START, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean save = arguments.isConsumed(Standard.ARGUMENT_SAVE, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean stop = arguments.isConsumed(Standard.ARGUMENT_STOP, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean up = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_UP, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean down = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_DOWN, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean edit = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_EDIT, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean info = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_INFO, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean list = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_LIST, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean up = arguments.isConsumed(Standard.ARGUMENT_UP, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean down = arguments.isConsumed(Standard.ARGUMENT_DOWN, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean edit = arguments.isConsumed(Standard.ARGUMENT_EDIT, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean info = arguments.isConsumed(Standard.ARGUMENT_INFO, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.FIRST_IGNORE_CASE);
         if (start) {
             if (!isThis) {
                 if (!override) {
@@ -94,11 +94,11 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
         final boolean start = arguments.isConsumed(Standard.ARGUMENT_START, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean save = arguments.isConsumed(Standard.ARGUMENT_SAVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean stop = arguments.isConsumed(Standard.ARGUMENT_STOP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
-        final boolean up = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_UP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
-        final boolean down = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_DOWN, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
-        final boolean edit = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_EDIT, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
-        final boolean info = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_INFO, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
-        final boolean list = arguments.isConsumed(Standard.ARGUMENT_XMLEDITOR_LIST, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean up = arguments.isConsumed(Standard.ARGUMENT_UP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean down = arguments.isConsumed(Standard.ARGUMENT_DOWN, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean edit = arguments.isConsumed(Standard.ARGUMENT_EDIT, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean info = arguments.isConsumed(Standard.ARGUMENT_INFO, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         if (start) {
             String guild_id = null;
             if (isThis) {
@@ -166,7 +166,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                         return;
                     }
                     if (file.exists() && !override) {
-                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the file \"%s\" already exists! Use \"%s\" to override the file!", Emoji.WARNING, event.getAuthor().getAsMention(), fileName, Standard.ARGUMENT_OVERRIDE.getCompleteArgument(0));
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the file \"%s\" already exists! Use \"%s\" to override the file!", Emoji.WARNING, event.getAuthor().getAsMention(), fileName, Standard.ARGUMENT_OVERRIDE.getCompleteArgument(0, -1));
                         return;
                     }
                     if (xmleditor.save(file)) {
@@ -185,7 +185,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                         return;
                     }
                     if (file.exists() && !override) {
-                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the file \"%s\" already exists! Use \"%s\" to override the file!", Emoji.WARNING, event.getAuthor().getAsMention(), fileName, Standard.ARGUMENT_OVERRIDE.getCompleteArgument(0));
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the file \"%s\" already exists! Use \"%s\" to override the file!", Emoji.WARNING, event.getAuthor().getAsMention(), fileName, Standard.ARGUMENT_OVERRIDE.getCompleteArgument(0, -1));
                         return;
                     }
                     if (xmleditor.save(file)) {
@@ -235,7 +235,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                 } else {
                     final int children = xmleditor.getChildren(childName).size();
                     if (children > 1) {
-                        event.sendMessageFormat("%s there were %d children found for \"%s\". Use \"%s %s %s #Index\" to go to the child you want.", event.getAuthor().getAsMention(), children, childName, invoker, Standard.ARGUMENT_XMLEDITOR_DOWN.getCompleteArgument(0), childName);
+                        event.sendMessageFormat("%s there were %d children found for \"%s\". Use \"%s %s %s #Index\" to go to the child you want.", event.getAuthor().getAsMention(), children, childName, invoker, Standard.ARGUMENT_DOWN.getCompleteArgument(0, -1), childName);
                     } else {
                         if (xmleditor.goDown(childName) != null) {
                             event.sendMessageFormat("%s you went to \"%s\".", event.getAuthor().getAsMention(), childName);

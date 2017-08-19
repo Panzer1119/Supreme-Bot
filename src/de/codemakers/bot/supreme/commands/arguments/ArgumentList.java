@@ -116,25 +116,17 @@ public class ArgumentList {
         if (argument_raw == null) {
             return false;
         }
-        boolean take = false;
-        take = argument_raw.equalsIgnoreCase(argument.getArgument());
-        if (!take && argument.hasPrefixes()) {
-            for (int i = 0; i < argument.getPrefixesLength(); i++) {
-                if ((type.isIgnoreCase() && argument_raw.equalsIgnoreCase(argument.getCompleteArgument(i))) || argument_raw.equals(argument.getCompleteArgument(i))) {
-                    take = true;
-                    break;
-                }
-            }
-        }
-        if (take) {
+        if (argument.takes(type, argument_raw)) {
             if (type.isConsume()) {
                 arguments_raw.remove(index);
             }
             if (type.isAll()) {
                 return consume(argument, type, index);
             }
+            return true;
+        } else {
+            return false;
         }
-        return take;
     }
     
     public final boolean isConsumed(Argument argument, ArgumentConsumeType type) {
@@ -153,17 +145,7 @@ public class ArgumentList {
             if (argument_raw == null) {
                 continue;
             }
-            boolean take = false;
-            take = argument_raw.equalsIgnoreCase(argument.getArgument());
-            if (!take && argument.hasPrefixes()) {
-                for (int i = 0; i < argument.getPrefixesLength(); i++) {
-                    if ((type.isIgnoreCase() && argument_raw.equalsIgnoreCase(argument.getCompleteArgument(i))) || argument_raw.equals(argument.getCompleteArgument(i))) {
-                        take = true;
-                        break;
-                    }
-                }
-            }
-            if (take) {
+            if (argument.takes(type, argument_raw)) {
                 times_found++;
                 if (type.isConsume()) {
                     arguments_raw_iterator.remove();

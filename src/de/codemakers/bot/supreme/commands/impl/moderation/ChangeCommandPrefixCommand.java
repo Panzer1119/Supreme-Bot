@@ -67,7 +67,7 @@ public class ChangeCommandPrefixCommand extends Command {
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s <New Command Prefix> [%s]", invoker, Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Sets the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
+        builder.addField(String.format("%s <New Command Prefix> [%s]", invoker, Standard.ARGUMENT_GLOBAL.getCompleteArgument(0, -1)), String.format("Sets the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0, -1)), false);
         return builder;
     }
 

@@ -51,7 +51,7 @@ public class GetCommandPrefixCommand extends Command {
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s [%s]", invoker, Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Returns the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
+        builder.addField(String.format("%s [%s]", invoker, Standard.ARGUMENT_GLOBAL.getCompleteArgument(0, -1)), String.format("Returns the command prefix for this guild or with the flag \"%s\" the global standard command prefix.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0, -1)), false);
         return builder;
     }
 

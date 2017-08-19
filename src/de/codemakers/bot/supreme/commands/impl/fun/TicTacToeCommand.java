@@ -71,7 +71,7 @@ public class TicTacToeCommand extends Command {
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
         builder.addField(String.format("%s <User @Mention>", invoker), "Starts TicTacToe against the mentioned user.", false);
         builder.addField(String.format("%s <Field as Number>", invoker), "Tooks the given field in the TicTacToe board.", false);
-        builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_END.getCompleteArgument(0)), "Stops the running TicTacToe game.", false);
+        builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_END.getCompleteArgument(0, -1)), "Stops the running TicTacToe game.", false);
         return builder;
     }
 

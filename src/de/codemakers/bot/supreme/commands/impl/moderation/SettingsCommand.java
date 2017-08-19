@@ -30,11 +30,11 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
         if (arguments == null || arguments.isEmpty()) {
             return false;
         }
-        final boolean set = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_SET, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean get = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_GET, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean get_default = arguments.consume(Standard.ARGUMENT_SETTINGS_DEFAULT, ArgumentConsumeType.FIRST_IGNORE_CASE, 3);
-        final boolean remove = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_REMOVE, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean list = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_LIST, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean set = arguments.isConsumed(Standard.ARGUMENT_SET, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean get = arguments.isConsumed(Standard.ARGUMENT_GET, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean get_default = arguments.consume(Standard.ARGUMENT_DEFAULT, ArgumentConsumeType.FIRST_IGNORE_CASE, 3);
+        final boolean remove = arguments.isConsumed(Standard.ARGUMENT_REMOVE, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.FIRST_IGNORE_CASE);
         if (set) {
             return arguments.isSize(3, 4);
         } else if (get && !get_default) {
@@ -52,10 +52,10 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
 
     @Override
     public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        final boolean set = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_SET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
-        final boolean get = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_GET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
-        final boolean remove = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_REMOVE, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
-        final boolean list = arguments.isConsumed(Standard.ARGUMENT_SETTINGS_LIST, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+        final boolean set = arguments.isConsumed(Standard.ARGUMENT_SET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+        final boolean get = arguments.isConsumed(Standard.ARGUMENT_GET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+        final boolean remove = arguments.isConsumed(Standard.ARGUMENT_REMOVE, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+        final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
         String guild_id = null;
         String key = "";
         String value = null;
@@ -94,7 +94,7 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
                 }
             }
         } else if (get) {
-            final boolean get_default = arguments.consume(Standard.ARGUMENT_SETTINGS_DEFAULT, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE, 2);
+            final boolean get_default = arguments.consume(Standard.ARGUMENT_DEFAULT, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE, 2);
             if (arguments.isSize(2) || (get_default && arguments.isSize(3))) {
                 guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
             }
@@ -162,10 +162,10 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
 
     @Override
     public EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s %s [Guild ID] <Key> <Value>", invoker, Standard.ARGUMENT_SETTINGS_SET.getCompleteArgument(0)), "Sets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
-        builder.addField(String.format("%s %s [Guild ID] <Key> [%s Default Value]", invoker, Standard.ARGUMENT_SETTINGS_GET.getCompleteArgument(0), Standard.ARGUMENT_SETTINGS_DEFAULT.getCompleteArgument(0)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
-        builder.addField(String.format("%s %s [Guild ID] <Key>", invoker, Standard.ARGUMENT_SETTINGS_REMOVE.getCompleteArgument(0)), "Removes the key and value. If a valid guild id is given, then the guild settings will be edited.", false);
-        builder.addField(String.format("%s %s [Guild ID]", invoker, Standard.ARGUMENT_SETTINGS_LIST.getCompleteArgument(0)), "Lists all keys and values. If a valid guild id is given, then the guild settings will be edited.", false);
+        builder.addField(String.format("%s %s [Guild ID] <Key> <Value>", invoker, Standard.ARGUMENT_SET.getCompleteArgument(0, -1)), "Sets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
+        builder.addField(String.format("%s %s [Guild ID] <Key> [%s Default Value]", invoker, Standard.ARGUMENT_GET.getCompleteArgument(0, -1), Standard.ARGUMENT_DEFAULT.getCompleteArgument(0, -1)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
+        builder.addField(String.format("%s %s [Guild ID] <Key>", invoker, Standard.ARGUMENT_REMOVE.getCompleteArgument(0, -1)), "Removes the key and value. If a valid guild id is given, then the guild settings will be edited.", false);
+        builder.addField(String.format("%s %s [Guild ID]", invoker, Standard.ARGUMENT_LIST.getCompleteArgument(0, -1)), "Lists all keys and values. If a valid guild id is given, then the guild settings will be edited.", false);
         return builder;
     }
 

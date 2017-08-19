@@ -67,7 +67,7 @@ public class ChangeNicknameCommand extends Command {
 
     @Override
     public EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s <New Nickname> [%s]", invoker, Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), String.format("Sets the Nickname for this guild or with the flag \"%s\" the global Nickname.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0)), false);
+        builder.addField(String.format("%s <New Nickname> [%s]", invoker, Standard.ARGUMENT_GLOBAL.getCompleteArgument(0, -1)), String.format("Sets the Nickname for this guild or with the flag \"%s\" the global Nickname.", Standard.ARGUMENT_GLOBAL.getCompleteArgument(0, -1)), false);
         return builder;
     }
 

@@ -58,7 +58,7 @@ public class HelpCommand extends Command {
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s [%s] [Command 1] [Command 2] [Command 3]...", invoker, Standard.ARGUMENT_PRIVATE.getCompleteArgument(0)), String.format("Returns the help for the given commands. And with the flag \"%s\" the help will be send in the private chat.", Standard.ARGUMENT_PRIVATE.getCompleteArgument(0)), false);
+        builder.addField(String.format("%s [%s] [Command 1] [Command 2] [Command 3]...", invoker, Standard.ARGUMENT_PRIVATE.getCompleteArgument(0, -1)), String.format("Returns the help for the given commands. And with the flag \"%s\" the help will be send in the private chat.", Standard.ARGUMENT_PRIVATE.getCompleteArgument(0, -1)), false);
         return builder;
     }
 
