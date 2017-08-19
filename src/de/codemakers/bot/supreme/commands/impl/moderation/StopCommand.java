@@ -56,7 +56,7 @@ public class StopCommand extends AdministrativeCommand {
                     };
                     Util.sheduleTimerAndRemove(run_3, 1000, timer_3);
                 };
-                Util.sheduleTimerAtFixedRateAndRemove(run_1, 0, 1000, timer_1);
+                Util.sheduleTimerAtFixedRate(run_1, 0, 1000, timer_1);
                 Util.sheduleTimerAndRemove(run_2, (long) (delayStopInSeconds * 1000.0 + 0.5), timer_2);
                 return;
             } catch (Exception ex) {

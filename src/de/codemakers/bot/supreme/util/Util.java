@@ -149,18 +149,26 @@ public class Util {
         return true;
     }
 
-    public static final Timer sheduleTimerAtFixedRateAndRemove(Runnable run, long delay, long period) {
-        return sheduleTimerAtFixedRateAndRemove(run, delay, period, createTimer());
+    public static final Timer sheduleTimerAtFixedRateAndRemove(Runnable run, Runnable end, long delay, long period, long duration) {
+        return sheduleTimerAtFixedRateAndRemove(run, end, delay, period, duration, createTimer());
     }
 
-    public static final Timer sheduleTimerAtFixedRateAndRemove(Runnable run, long delay, long period, Timer timer) {
-        return sheduleTimerAtFixedRate(() -> {
+    public static final Timer sheduleTimerAtFixedRateAndRemove(Runnable run, Runnable end, long delay, long period, long duration, Timer timer) {
+        final Timer t = sheduleTimerAtFixedRate(() -> {
             try {
                 run.run();
             } catch (Exception ex) {
             }
-            TIMERS.remove(timer);
         }, delay, period, timer);
+        sheduleTimerAndRemove(() -> {
+            try {
+                end.run();
+            } catch (Exception ex) {
+            }
+            t.cancel();
+            TIMERS.remove(t);
+        }, duration);
+        return t;
     }
 
     public static final Timer sheduleTimerAtFixedRate(Runnable run, long delay, long period) {
@@ -177,9 +185,6 @@ public class Util {
         if (timer == null || run == null) {
             return null;
         } else if (delay < 0 || period < 0) {
-            return null;
-        } else if (delay == 0) {
-            run.run();
             return null;
         }
         timer.scheduleAtFixedRate(new TimerTask() {

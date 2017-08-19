@@ -20,11 +20,14 @@ import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Timer;
+import de.codemakers.bot.supreme.util.Util;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -81,7 +84,7 @@ public class MusicCommand extends Command {
     private final MusicCommand loadTrack(String identifier, Member author, Message message) {
         final Guild guild = author.getGuild();
         final AudioPlayer player = getPlayer(guild);
-        manager.setFrameBufferDuration(1000); //FIXME Make this variable (ms)
+        manager.setFrameBufferDuration(5000); //FIXME Make this variable (ms)
         manager.loadItemOrdered(guild, identifier, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
@@ -158,7 +161,7 @@ public class MusicCommand extends Command {
         if (play) {
             return arguments.isSize(2); //title/url
         } else if (skip) {
-            return arguments.isSize(1, 2); //[times]
+            return arguments.isSize(1, 2); //[times or all]
         } else if (stop) {
             return arguments.isSize(1);
         } else if (shuffle) {
@@ -166,7 +169,11 @@ public class MusicCommand extends Command {
         } else if (loop) {
             return arguments.isSize(1, 2); //[toggle]
         } else if (info) {
-            return arguments.isSize(1, 2); //[playlist]
+            if (arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
+                return arguments.isSize(2, 3); //-live [playlist]
+            } else {
+                return arguments.isSize(1, 2); //[playlist]
+            }
         } else if (queue) {
             return arguments.isSize(1, 2); //[pagenumber]
         } else {
@@ -189,19 +196,23 @@ public class MusicCommand extends Command {
             if (play) {
                 final String input = arguments.consumeFirst();
                 final boolean url = (input.startsWith("http://") || input.startsWith("https://"));
-                System.out.println("Loading: " + input);
                 loadTrack((url ? "" : "ytsearch: ") + input, event.getMember(), event.getMessage());
-                System.out.println("Loaded: " + input);
             } else if (skip) {
                 if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
-                final int times = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
-                for (int i = 0; i < times; i++) {
+                final boolean all = arguments.isConsumed(Standard.ARGUMENT_ALL, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+                if (all) {
+                    manager_.purgeQueue();
                     skip(guild);
+                } else {
+                    final int times = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
+                    for (int i = 0; i < times; i++) {
+                        skip(guild);
+                    }
                 }
-            } else if (stop) {
+           } else if (stop) {
                 if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
@@ -247,9 +258,20 @@ public class MusicCommand extends Command {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
-                final AudioTrack track = getPlayer(guild).getPlayingTrack();
+                final boolean live = arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+                final AudioPlayer player = getPlayer(guild);
+                final AudioTrack track = player.getPlayingTrack();
                 final AudioTrackInfo trackInfo = track.getInfo();
-                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
+                if (!live) {
+                    event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
+                } else {
+                    final Message message = event.sendAndWaitMessage("**LIVE TRACK INFO**");
+                    Util.sheduleTimerAtFixedRateAndRemove(() -> {
+                        message.editMessage(Standard.getMessageEmbed(null, "**LIVE TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build()).queue();
+                    }, () -> {
+                        message.delete().queue();
+                    }, 0, 2000, track.getDuration() - track.getPosition());
+                }
             } else if (queue) {
                 if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
@@ -263,17 +285,21 @@ public class MusicCommand extends Command {
                 final ArrayList<String> tracks = new ArrayList<>();
                 List<AudioInfo> infos = new ArrayList<>(manager_.getQueue());
                 final int MAX_TRACKS_PER_PAGE = 20; //FIXME Make this variable (Anzahl Tracks pro Seite)
+                final String queue_name = "default"; //TODO Add queues ability to save them
+                //TODO Alle Commands muessen methode machen mit stop, damit sie herunterfahren koennen
                 if (infos.size() > MAX_TRACKS_PER_PAGE) {
                     infos = infos.subList((pageNumber - 1) * MAX_TRACKS_PER_PAGE, pageNumber * MAX_TRACKS_PER_PAGE);
                 }
+                AtomicLong length_all = new AtomicLong(0);
                 infos.stream().forEach((audioInfo) -> {
+                    length_all.addAndGet(audioInfo.getTrack().getDuration());
                     tracks.add(buildQueueMessage(audioInfo));
                 });
                 final String out = tracks.stream().collect(Collectors.joining("\n"));
                 final int pageNumberAll = tracks.size() >= MAX_TRACKS_PER_PAGE ? tracks.size() / MAX_TRACKS_PER_PAGE : 1;
                 tracks.clear();
                 infos.clear();
-                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE:**%n*[%s Tracks | Page %d / %d]*%s", manager_.getQueue().size(), pageNumber, pageNumberAll, out).build());
+                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE \"%s\"**%n%n*[%s Tracks | Duration `[ %s ]` | Page %d / %d]*%n%n%s", queue_name, manager_.getQueue().size(), getTimestamp(length_all.get()), pageNumber, pageNumberAll, out).build());
             } else {
                 return; //TODO make it usefull!
             }
@@ -290,7 +316,7 @@ public class MusicCommand extends Command {
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
         builder.addField(String.format("%s %s <URL or Text>", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1)), "Plays from an URL or searches on YouTube for a video.", false);
-        builder.addField(String.format("%s %s [Times]", invoker, Standard.ARGUMENT_SKIP.getCompleteArgument(0, -1)), "Skips 1 or more tracks.", false);
+        builder.addField(String.format("%s %s [Times/All]", invoker, Standard.ARGUMENT_SKIP.getCompleteArgument(0, -1)), "Skips 1 or more or even all tracks.", false);
         builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_STOP.getCompleteArgument(0, -1)), "Stops the music.", false);
         builder.addField(String.format("%s %s [Times]", invoker, Standard.ARGUMENT_SHUFFLE.getCompleteArgument(0, -1)), "Shuffles 1 or more times the queue.", false);
         builder.addField(String.format("%s %s [Loop]", invoker, Standard.ARGUMENT_LOOP.getCompleteArgument(0, -1)), "Toggles or sets looping.", false);
