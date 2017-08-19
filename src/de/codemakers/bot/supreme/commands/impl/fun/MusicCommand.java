@@ -197,6 +197,7 @@ public class MusicCommand extends Command {
                 final String input = arguments.consumeFirst();
                 final boolean url = (input.startsWith("http://") || input.startsWith("https://"));
                 loadTrack((url ? "" : "ytsearch: ") + input, event.getMember(), event.getMessage());
+                //TODO Add instant "life track info" option
             } else if (skip) {
                 if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
@@ -265,12 +266,34 @@ public class MusicCommand extends Command {
                 if (!live) {
                     event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
                 } else {
-                    final Message message = event.sendAndWaitMessage("**LIVE TRACK INFO**");
+                    final Message message = event.sendAndWaitMessage("**LIVE TRACK INFO**"); //TODO Add some option for showing this forever and then to kill it
                     Util.sheduleTimerAtFixedRateAndRemove(() -> {
-                        message.editMessage(Standard.getMessageEmbed(null, "**LIVE TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build()).queue();
+                        final AudioPlayer player_ = getPlayer(guild);
+                        if (player_ == null) {
+                            return false;
+                        }
+                        final AudioTrack track_ = player_.getPlayingTrack();
+                        if (track_ == null) {
+                            return false;
+                        }
+                        final AudioTrackInfo trackInfo_ = track.getInfo();
+                        if (trackInfo_ == null) {
+                            return false;
+                        }
+                        message.editMessage(Standard.getMessageEmbed(null, "**LIVE TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track_.getPosition()), getTimestamp(track_.getDuration())), false).addField("Author", trackInfo_.author, false).build()).queue();
+                        return true;
                     }, () -> {
                         message.delete().queue();
+                        try {
+                            Thread.sleep(1000);
+                            if (!isIdle(guild)) {
+                                action(invoker, new ArgumentList(Standard.ARGUMENT_INFO.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), event); //FIXME Fix this
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace(); //FIXME REMOVE THIS LINE!!!
+                        }
                     }, 0, 2000, track.getDuration() - track.getPosition());
+                    //TODO Add volume control to the live track info
                 }
             } else if (queue) {
                 if (isIdle(guild)) {

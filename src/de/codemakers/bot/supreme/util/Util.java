@@ -149,25 +149,28 @@ public class Util {
         return true;
     }
 
-    public static final Timer sheduleTimerAtFixedRateAndRemove(Runnable run, Runnable end, long delay, long period, long duration) {
+    public static final Timer sheduleTimerAtFixedRateAndRemove(RunnableFeedback run, Runnable end, long delay, long period, long duration) {
         return sheduleTimerAtFixedRateAndRemove(run, end, delay, period, duration, createTimer());
     }
 
-    public static final Timer sheduleTimerAtFixedRateAndRemove(Runnable run, Runnable end, long delay, long period, long duration, Timer timer) {
-        final Timer t = sheduleTimerAtFixedRate(() -> {
-            try {
-                run.run();
-            } catch (Exception ex) {
-            }
-        }, delay, period, timer);
-        sheduleTimerAndRemove(() -> {
+    public static final Timer sheduleTimerAtFixedRateAndRemove(RunnableFeedback run, Runnable end, long delay, long period, long duration, Timer timer) {
+        final Timer t = sheduleTimerAndRemove(() -> {
             try {
                 end.run();
             } catch (Exception ex) {
             }
-            t.cancel();
-            TIMERS.remove(t);
+            timer.cancel();
+            TIMERS.remove(timer);
         }, duration);
+        sheduleTimerAtFixedRate(() -> {
+            try {
+                if (!run.run()) {
+                    t.killAndFireAllTask();
+                    timer.cancel();
+                }
+            } catch (Exception ex) {
+            }
+        }, delay, period, timer);
         return t;
     }
 
