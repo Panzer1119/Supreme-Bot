@@ -168,7 +168,7 @@ public class MusicCommand extends Command {
         } else if (info) {
             return arguments.isSize(1, 2); //[playlist]
         } else if (queue) {
-            return arguments.isSize(1, 2); //[sidenumber]
+            return arguments.isSize(1, 2); //[pagenumber]
         } else {
             return false;
         }
@@ -255,25 +255,25 @@ public class MusicCommand extends Command {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
-                int sideNumber = 1;
+                int pageNumber = 1;
                 try {
-                    sideNumber = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
+                    pageNumber = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
                 } catch (Exception ex) {
                 }
                 final ArrayList<String> tracks = new ArrayList<>();
                 List<AudioInfo> infos = new ArrayList<>(manager_.getQueue());
                 final int MAX_TRACKS_PER_PAGE = 20; //FIXME Make this variable (Anzahl Tracks pro Seite)
                 if (infos.size() > MAX_TRACKS_PER_PAGE) {
-                    infos = infos.subList((sideNumber - 1) * MAX_TRACKS_PER_PAGE, sideNumber * MAX_TRACKS_PER_PAGE);
+                    infos = infos.subList((pageNumber - 1) * MAX_TRACKS_PER_PAGE, pageNumber * MAX_TRACKS_PER_PAGE);
                 }
                 infos.stream().forEach((audioInfo) -> {
                     tracks.add(buildQueueMessage(audioInfo));
                 });
                 final String out = tracks.stream().collect(Collectors.joining("\n"));
-                final int sideNumberAll = tracks.size() >= MAX_TRACKS_PER_PAGE ? tracks.size() / MAX_TRACKS_PER_PAGE : 1;
+                final int pageNumberAll = tracks.size() >= MAX_TRACKS_PER_PAGE ? tracks.size() / MAX_TRACKS_PER_PAGE : 1;
                 tracks.clear();
                 infos.clear();
-                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE:**%n*[%s Tracks | Side %d / %d]*%s", manager_.getQueue().size(), sideNumber, sideNumberAll, out).build());
+                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE:**%n*[%s Tracks | Page %d / %d]*%s", manager_.getQueue().size(), pageNumber, pageNumberAll, out).build());
             } else {
                 return; //TODO make it usefull!
             }
