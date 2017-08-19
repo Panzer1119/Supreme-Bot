@@ -625,6 +625,10 @@ public class Standard {
         }
         return Standard.isSuperOwner(member);
     };
+    
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER_BOT_COMMANDER = (permissionRole, member) -> {
+        return Standard.isSuperOwner(member);
+    };
 
     public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner", "nickname"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
     public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/", "!"};
