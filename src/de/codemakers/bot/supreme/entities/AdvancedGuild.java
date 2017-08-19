@@ -113,7 +113,7 @@ public class AdvancedGuild {
         getSettings().loadSettings();
         String hi = getSettings().getProperty("welcome_message", null);
         if (hi != null) {
-            guild.getTextChannels().get(0).sendMessage(hi).queue();
+            guild.getPublicChannel().sendMessage(hi).queue();
         } else {
             System.out.println(String.format("No welcome message wanted: \"%s\"", guild));
         }
