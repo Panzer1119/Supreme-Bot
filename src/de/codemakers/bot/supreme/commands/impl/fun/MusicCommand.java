@@ -220,7 +220,11 @@ public class MusicCommand extends Command {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no Player started!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
-                final int times = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
+                int times = 1;
+                try {
+                    times = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
+                } catch (Exception ex) {
+                }
                 for (int i = 0; i < times; i++) {
                     manager_.shuffleQueue();
                 }
@@ -232,7 +236,11 @@ public class MusicCommand extends Command {
                 if (arguments.isEmpty()) {
                     manager_.setLoop(!manager_.isLoop());
                 } else {
-                    manager_.setLoop(Boolean.parseBoolean(arguments.consumeFirst()));
+                    try {
+                        manager_.setLoop(Boolean.parseBoolean(arguments.consumeFirst()));
+                    } catch (Exception ex) {
+                        manager_.setLoop(!manager_.isLoop());
+                    }
                 }
             } else if (info) {
                 if (isIdle(guild)) {
@@ -247,7 +255,11 @@ public class MusicCommand extends Command {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
-                final int sideNumber = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
+                int sideNumber = 1;
+                try {
+                    sideNumber = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
+                } catch (Exception ex) {
+                }
                 final ArrayList<String> tracks = new ArrayList<>();
                 List<String> tracksSublist;
                 manager_.getQueue().forEach((audioInfo) -> {
