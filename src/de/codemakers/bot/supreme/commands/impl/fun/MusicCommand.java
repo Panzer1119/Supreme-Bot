@@ -36,9 +36,8 @@ import net.dv8tion.jda.core.entities.Message;
  */
 public class MusicCommand extends Command {
 
-    private static Guild guild;
     private static final AudioPlayerManager manager = new DefaultAudioPlayerManager();
-    private static final HashMap<Guild, Map.Entry<AudioPlayer, TrackManager>> players = new HashMap<>();
+    private static final HashMap<Guild, Map.Entry<AudioPlayer, TrackManager>> players = new HashMap<>(); //TODO Was wenn mehrere Player laufen sollen???
 
     public MusicCommand() {
         AudioSourceManagers.registerRemoteSources(manager);
@@ -137,7 +136,7 @@ public class MusicCommand extends Command {
     public final void initInvokers() {
         addInvokers(Invoker.createInvoker("music", this), Invoker.createInvoker("m", this));
     }
-    
+
     @Override
     public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         return arguments != null && arguments.size() >= 1;
@@ -147,7 +146,7 @@ public class MusicCommand extends Command {
     public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         TrackManager manager_;
         try {
-            guild = event.getGuild();
+            final Guild guild = event.getGuild();
             switch (arguments.get(0)) {
                 case "play":
                 case "p":

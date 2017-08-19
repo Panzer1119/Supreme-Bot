@@ -68,7 +68,7 @@ public class TrackManager extends AudioEventAdapter {
     public final TrackManager shuffleQueue() {
         if (queue.size() <= 2) {
             return this;
-        }
+        } //FIXME Der Player muss hier doch angehalten werdenß!
         final List<AudioInfo> queue_ = new ArrayList<>(getQueue());
         final AudioInfo current = queue_.get(0);
         queue_.remove(0);
@@ -92,7 +92,7 @@ public class TrackManager extends AudioEventAdapter {
     @Override
     public final void onTrackStart(AudioPlayer player, AudioTrack track) {
         final AudioInfo current = queue.element();
-        final VoiceChannel voiceChannel = current.getAuthor().getVoiceState().getChannel();
+        final VoiceChannel voiceChannel = current.getAuthor().getVoiceState().getChannel(); //TODO Was ist wenn Bot in unterschiedlichen Channel soll? Oder in mehreren gleichzeitig?
         if (voiceChannel == null) {
             player.stopTrack();
         } else {
