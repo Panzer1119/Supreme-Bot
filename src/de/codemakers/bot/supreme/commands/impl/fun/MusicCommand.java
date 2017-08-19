@@ -13,10 +13,12 @@ import de.codemakers.bot.supreme.audio.core.AudioInfo;
 import de.codemakers.bot.supreme.audio.core.PlayerSendHandler;
 import de.codemakers.bot.supreme.audio.core.TrackManager;
 import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -65,7 +67,11 @@ public class MusicCommand extends Command {
     }
 
     private final TrackManager getManager(Guild guild) {
-        return players.get(guild).getValue();
+        if (hasPlayer(guild)) {
+            return players.get(guild).getValue();
+        } else {
+            return null;
+        }
     }
 
     private final boolean isIdle(Guild guild) {
@@ -139,101 +145,146 @@ public class MusicCommand extends Command {
 
     @Override
     public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        return arguments != null && arguments.size() >= 1;
+        if (arguments == null || arguments.isEmpty()) {
+            return false;
+        }
+        final boolean play = arguments.isConsumed(Standard.ARGUMENT_PLAY, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean skip = arguments.isConsumed(Standard.ARGUMENT_SKIP, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean stop = arguments.isConsumed(Standard.ARGUMENT_STOP, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean shuffle = arguments.isConsumed(Standard.ARGUMENT_SHUFFLE, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean loop = arguments.isConsumed(Standard.ARGUMENT_LOOP, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean info = arguments.isConsumed(Standard.ARGUMENT_INFO, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean queue = arguments.isConsumed(Standard.ARGUMENT_QUEUE, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        if (play) {
+            return arguments.isSize(2); //title/url
+        } else if (skip) {
+            return arguments.isSize(1, 2); //[times]
+        } else if (stop) {
+            return arguments.isSize(1);
+        } else if (shuffle) {
+            return arguments.isSize(1, 2); //[times]
+        } else if (loop) {
+            return arguments.isSize(1, 2); //[toggle]
+        } else if (info) {
+            return arguments.isSize(1, 2); //[playlist]
+        } else if (queue) {
+            return arguments.isSize(1, 2); //[sidenumber]
+        } else {
+            return false;
+        }
     }
 
     @Override
     public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        TrackManager manager_;
+        final boolean play = arguments.isConsumed(Standard.ARGUMENT_PLAY, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean skip = arguments.isConsumed(Standard.ARGUMENT_SKIP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean stop = arguments.isConsumed(Standard.ARGUMENT_STOP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean shuffle = arguments.isConsumed(Standard.ARGUMENT_SHUFFLE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean loop = arguments.isConsumed(Standard.ARGUMENT_LOOP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean info = arguments.isConsumed(Standard.ARGUMENT_INFO, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean queue = arguments.isConsumed(Standard.ARGUMENT_QUEUE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final Guild guild = event.getGuild();
+        final TrackManager manager_ = getManager(guild);
         try {
-            final Guild guild = event.getGuild();
-            switch (arguments.get(0)) {
-                case "play":
-                case "p":
-                    String input = arguments.stream().skip(1).map(s -> " " + s).collect(Collectors.joining()).substring(1);
-                    if (!input.startsWith("http://") && input.startsWith("https://")) {
-                        input = "ytsearch: " + input;
-                    }
-                    System.out.println("Loading: " + input);
-                    loadTrack(input, event.getMember(), event.getMessage());
-                    System.out.println("Loaded: " + input);
-                    break;
-                case "skip":
-                case "s":
-                    if (isIdle(guild)) {
-                        return;
-                    }
-                    for (int i = (arguments.size() > 1 ? Integer.parseInt(arguments.get(1)) : 1); i == 1; i--) {
-                        skip(guild);
-                    }
-                    break;
-                case "stop":
-                    if (isIdle(guild)) {
-                        return;
-                    }
-                    getManager(guild).purgeQueue();
+            if (play) {
+                final String input = arguments.consumeFirst();
+                final boolean url = (input.startsWith("http://") || input.startsWith("https://"));
+                System.out.println("Loading: " + input);
+                loadTrack((url ? "" : "ytsearch: ") + input, event.getMember(), event.getMessage());
+                System.out.println("Loaded: " + input);
+            } else if (skip) {
+                if (isIdle(guild)) {
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
+                    return;
+                }
+                final int times = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
+                for (int i = 0; i < times; i++) {
                     skip(guild);
-                    guild.getAudioManager().closeAudioConnection();
-                    break;
-                case "shuffle":
-                    if (isIdle(guild)) {
-                        return;
-                    }
-                    getManager(guild).shuffleQueue();
-                    break;
-                case "loop":
-                case "l":
-                    manager_ = getManager(guild);
-                    if (arguments.size() >= 2) {
-                        manager_.setLoop(Boolean.parseBoolean(arguments.get(1)));
-                    } else {
-                        manager_.setLoop(!manager_.isLoop());
-                    }
-                    break;
-                case "now":
-                case "info":
-                    if (isIdle(guild)) {
-                        return;
-                    }
-                    final AudioTrack track = getPlayer(guild).getPlayingTrack();
-                    final AudioTrackInfo trackInfo = track.getInfo();
-                    event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
-                    break;
-                case "queue":
-                    if (isIdle(guild)) {
-                        return;
-                    }
-                    manager_ = getManager(guild);
-                    final int sideNumber = arguments.size() > 1 ? Integer.parseInt(arguments.get(1)) : 1;
-                    final ArrayList<String> tracks = new ArrayList<>();
-                    List<String> tracksSublist;
-                    manager_.getQueue().forEach((audioInfo) -> {
-                        tracks.add(buildQueueMessage(audioInfo));
-                    });
-                    if (tracks.size() > 20) { //FIXME Make this variable (Anzahl Tracks pro Seite)
-                        tracksSublist = tracks.subList((sideNumber - 1) * 20, sideNumber * 20); //FIXME Make this variable (Anzahl Tracks pro Seite)
-                    } else {
-                        tracksSublist = tracks;
-                    }
-                    final String out = tracksSublist.stream().collect(Collectors.joining("\n"));
-                    final int sideNumberAll = tracks.size() >= 20 ? tracks.size() / 20 : 1; //FIXME Make this variable (Anzahl Tracks pro Seite)
-                    tracks.clear();
-                    tracksSublist.clear();
-                    event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE:**%n*[%s Tracks | Side %d / %d]*%s", manager_.getQueue().size(), sideNumber, sideNumberAll, out).build());
-                    break;
+                }
+            } else if (stop) {
+                if (isIdle(guild)) {
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
+                    return;
+                } else if (manager_ == null) {
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no Player started!", Emoji.WARNING, event.getAuthor().getAsMention());
+                    return;
+                }
+                manager_.purgeQueue();
+                skip(guild);
+                guild.getAudioManager().closeAudioConnection();
+            } else if (shuffle) {
+                if (isIdle(guild)) {
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
+                    return;
+                } else if (manager_ == null) {
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no Player started!", Emoji.WARNING, event.getAuthor().getAsMention());
+                    return;
+                }
+                final int times = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
+                for (int i = 0; i < times; i++) {
+                    manager_.shuffleQueue();
+                }
+            } else if (loop) {
+                if (manager_ == null) {
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no Player started!", Emoji.WARNING, event.getAuthor().getAsMention());
+                    return;
+                }
+                if (arguments.isEmpty()) {
+                    manager_.setLoop(!manager_.isLoop());
+                } else {
+                    manager_.setLoop(Boolean.parseBoolean(arguments.consumeFirst()));
+                }
+            } else if (info) {
+                if (isIdle(guild)) {
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
+                    return;
+                }
+                final AudioTrack track = getPlayer(guild).getPlayingTrack();
+                final AudioTrackInfo trackInfo = track.getInfo();
+                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
+            } else if (queue) {
+                if (isIdle(guild)) {
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no Tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
+                    return;
+                }
+                final int sideNumber = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
+                final ArrayList<String> tracks = new ArrayList<>();
+                List<String> tracksSublist;
+                manager_.getQueue().forEach((audioInfo) -> {
+                    tracks.add(buildQueueMessage(audioInfo));
+                });
+                if (tracks.size() > 20) { //FIXME Make this variable (Anzahl Tracks pro Seite)
+                    tracksSublist = tracks.subList((sideNumber - 1) * 20, sideNumber * 20); //FIXME Make this variable (Anzahl Tracks pro Seite)
+                } else {
+                    tracksSublist = tracks;
+                }
+                final String out = tracksSublist.stream().collect(Collectors.joining("\n"));
+                final int sideNumberAll = tracks.size() >= 20 ? tracks.size() / 20 : 1; //FIXME Make this variable (Anzahl Tracks pro Seite)
+                tracks.clear();
+                tracksSublist.clear();
+                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE:**%n*[%s Tracks | Side %d / %d]*%s", manager_.getQueue().size(), sideNumber, sideNumberAll, out).build());
+            } else {
+                return; //TODO make it usefull!
             }
         } catch (Exception ex) {
-            System.err.println(ex);
+            ex.printStackTrace();
         }
     }
 
     @Override
     public final void executed(boolean success, MessageEvent event) {
-
+        System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
     }
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+        builder.addField(String.format("%s %s <URL or Text>", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1)), "Plays from an URL or searches on YouTube for a video.", false);
+        builder.addField(String.format("%s %s [Times]", invoker, Standard.ARGUMENT_SKIP.getCompleteArgument(0, -1)), "Skips 1 or more tracks.", false);
+        builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_STOP.getCompleteArgument(0, -1)), "Stops the music.", false);
+        builder.addField(String.format("%s %s [Times]", invoker, Standard.ARGUMENT_SHUFFLE.getCompleteArgument(0, -1)), "Shuffles 1 or more times the queue.", false);
+        builder.addField(String.format("%s %s [Loop]", invoker, Standard.ARGUMENT_LOOP.getCompleteArgument(0, -1)), "Toggles or sets looping.", false);
+        builder.addField(String.format("%s %s [Playlist]", invoker, Standard.ARGUMENT_INFO.getCompleteArgument(0, -1)), "Shows info about current queue or playlist.", false);
+        builder.addField(String.format("%s %s [Page]", invoker, Standard.ARGUMENT_QUEUE.getCompleteArgument(0, -1)), "Shows tracks in current queue and page.", false);
         return builder;
     }
 

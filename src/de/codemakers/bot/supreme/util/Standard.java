@@ -653,8 +653,13 @@ public class Standard {
     public static final Argument ARGUMENT_UP = new Argument("up", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_DOWN = new Argument("down", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_EDIT = new Argument("edit", STANDARD_ARGUMENT_PREFIXES);
-    public static final Argument ARGUMENT_INFO = new Argument("info", STANDARD_ARGUMENT_PREFIXES, "i");
+    public static final Argument ARGUMENT_INFO = new Argument("info", STANDARD_ARGUMENT_PREFIXES, "i", "now");
     public static final Argument ARGUMENT_MESSAGE = new Argument("message", STANDARD_ARGUMENT_PREFIXES, "msg");
     public static final Argument ARGUMENT_SERVER = new Argument("server", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_PLAY = new Argument("play", STANDARD_ARGUMENT_PREFIXES, "p");
+    public static final Argument ARGUMENT_SKIP = new Argument("skip", STANDARD_ARGUMENT_PREFIXES, "s");
+    public static final Argument ARGUMENT_SHUFFLE = new Argument("shuffle", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_LOOP = new Argument("loop", STANDARD_ARGUMENT_PREFIXES, "l");
+    public static final Argument ARGUMENT_QUEUE = new Argument("queue", STANDARD_ARGUMENT_PREFIXES);
 
 }
