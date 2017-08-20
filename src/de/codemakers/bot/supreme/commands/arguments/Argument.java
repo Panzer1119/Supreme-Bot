@@ -70,8 +70,8 @@ public class Argument {
         if ((type.isIgnoreCase() && argument_raw.equalsIgnoreCase(argument)) || argument_raw.equals(argument)) {
             return true;
         }
-        for (int p = 0; p < (hasPrefixes() ? getPrefixesLength() : 1); p++) {
-            for (int a = 0; a < (hasAliases() ? getAliasesLength() : 1); a++) {
+        for (int p = -1; p < (hasPrefixes() ? getPrefixesLength() : 1); p++) {
+            for (int a = -1; a < (hasAliases() ? getAliasesLength() : 1); a++) {
                 final String temp = getCompleteArgument(p, a);
                 if ((type.isIgnoreCase() && argument_raw.equalsIgnoreCase(temp)) || argument_raw.equals(temp)) {
                     return true;
