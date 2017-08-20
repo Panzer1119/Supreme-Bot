@@ -660,11 +660,13 @@ public class Standard {
     public static final Argument ARGUMENT_INFO = new Argument("info", STANDARD_ARGUMENT_PREFIXES, "i", "now");
     public static final Argument ARGUMENT_MESSAGE = new Argument("message", STANDARD_ARGUMENT_PREFIXES, "msg");
     public static final Argument ARGUMENT_SERVER = new Argument("server", STANDARD_ARGUMENT_PREFIXES);
-    public static final Argument ARGUMENT_PLAY = new Argument("play", STANDARD_ARGUMENT_PREFIXES, "p");
+    public static final Argument ARGUMENT_PLAY = new Argument("play", STANDARD_ARGUMENT_PREFIXES, "p", "pl", "py");
+    public static final Argument ARGUMENT_PAUSE = new Argument("pause", STANDARD_ARGUMENT_PREFIXES, "ps");
     public static final Argument ARGUMENT_SKIP = new Argument("skip", STANDARD_ARGUMENT_PREFIXES, "s");
     public static final Argument ARGUMENT_SHUFFLE = new Argument("shuffle", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_LOOP = new Argument("loop", STANDARD_ARGUMENT_PREFIXES, "l");
     public static final Argument ARGUMENT_QUEUE = new Argument("queue", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_LIVE = new Argument("live", STANDARD_ARGUMENT_PREFIXES, "l");
+    public static final Argument ARGUMENT_VOLUME = new Argument("volume", STANDARD_ARGUMENT_PREFIXES, "v");
 
 }

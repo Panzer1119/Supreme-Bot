@@ -65,19 +65,26 @@ public class MusicCommand extends Command {
         if (guild == null) {
             return null;
         }
-        final Map.Entry<AudioPlayer, TrackManager> player = players.get(guild);
+        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
         if (player != null) {
             return player;
         } else {
             return createPlayer(guild, channel);
         }
     }
+    
+    private final Map.Entry<AudioPlayer, TrackManager> getPlayer(Guild guild) {
+        if (guild == null) {
+            return null;
+        }
+        return players.get(guild);
+    }
 
     private final boolean isIdle(Guild guild) {
         if (guild == null) {
             return true;
         }
-        final Map.Entry<AudioPlayer, TrackManager> player = players.get(guild);
+        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
         return player == null || player.getKey() == null || player.getKey().getPlayingTrack() == null;
     }
 
@@ -133,12 +140,64 @@ public class MusicCommand extends Command {
         if (guild == null) {
             return this;
         }
-        final Map.Entry<AudioPlayer, TrackManager> player = players.get(guild);
+        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
         if (player == null || player.getKey() == null) {
             return this;
         }
         player.getKey().stopTrack();
         return this;
+    }
+    
+    private final boolean setPause(Guild guild, boolean pause) {
+        if (guild == null) {
+            return false;
+        }
+        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
+        if (player == null || player.getKey() == null) {
+            return false;
+        }
+        if (player.getKey().isPaused() == pause) {
+            return false;
+        }
+        player.getKey().setPaused(pause);
+        return true;
+    }
+    
+    private final boolean isPaused(Guild guild) {
+        if (guild == null) {
+            return false;
+        }
+        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
+        if (player == null || player.getKey() == null) {
+            return false;
+        }
+        return player.getKey().isPaused();
+    }
+    
+    private final boolean setVolume(Guild guild, int volume) {
+        if (guild == null) {
+            return false;
+        }
+        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
+        if (player == null || player.getKey() == null) {
+            return false;
+        }
+        if (player.getKey().getVolume() == volume) {
+            return false;
+        }
+        player.getKey().setVolume(volume);
+        return true;
+    }
+    
+    private final int getVolume(Guild guild) {
+        if (guild == null) {
+            return -1;
+        }
+        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
+        if (player == null || player.getKey() == null) {
+            return -1;
+        }
+        return player.getKey().getVolume();
     }
 
     private final long[] getTimestampAsArray(long millis) {
@@ -176,18 +235,22 @@ public class MusicCommand extends Command {
             return false;
         }
         final boolean play = arguments.isConsumed(Standard.ARGUMENT_PLAY, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean pause = arguments.isConsumed(Standard.ARGUMENT_PAUSE, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean skip = arguments.isConsumed(Standard.ARGUMENT_SKIP, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean stop = arguments.isConsumed(Standard.ARGUMENT_STOP, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean shuffle = arguments.isConsumed(Standard.ARGUMENT_SHUFFLE, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean loop = arguments.isConsumed(Standard.ARGUMENT_LOOP, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean info = arguments.isConsumed(Standard.ARGUMENT_INFO, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean queue = arguments.isConsumed(Standard.ARGUMENT_QUEUE, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean volume = arguments.isConsumed(Standard.ARGUMENT_VOLUME, ArgumentConsumeType.FIRST_IGNORE_CASE);
         if (play) {
             if (arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
                 return arguments.isSize(3); //title/url -live
             } else {
-                return arguments.isSize(2); //title/url
+                return arguments.isSize(1, 2); //[title/url]
             }
+        } else if (pause) {
+            return arguments.isSize(1, 2); //[pause]
         } else if (skip) {
             return arguments.isSize(1, 2); //[times or all]
         } else if (stop) {
@@ -204,6 +267,8 @@ public class MusicCommand extends Command {
             }
         } else if (queue) {
             return arguments.isSize(1, 2); //[pagenumber]
+        } else if (volume) {
+            return arguments.isSize(1, 2); //[New volume]
         } else {
             return false;
         }
@@ -212,32 +277,61 @@ public class MusicCommand extends Command {
     @Override
     public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         final boolean play = arguments.isConsumed(Standard.ARGUMENT_PLAY, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean pause = arguments.isConsumed(Standard.ARGUMENT_PAUSE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean skip = arguments.isConsumed(Standard.ARGUMENT_SKIP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean stop = arguments.isConsumed(Standard.ARGUMENT_STOP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean shuffle = arguments.isConsumed(Standard.ARGUMENT_SHUFFLE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean loop = arguments.isConsumed(Standard.ARGUMENT_LOOP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean info = arguments.isConsumed(Standard.ARGUMENT_INFO, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean queue = arguments.isConsumed(Standard.ARGUMENT_QUEUE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean volume = arguments.isConsumed(Standard.ARGUMENT_VOLUME, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final Guild guild = event.getGuild();
         final VoiceChannel channel = event.getMember().getVoiceState().getChannel(); //TODO Make the channel selectable
         final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild, channel);
         try {
             if (play) {
                 final boolean live = arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
-                final String input = arguments.consumeFirst();
-                final boolean url = (input.startsWith("http://") || input.startsWith("https://"));
-                loadTrack((url ? "" : "ytsearch: ") + input, event, channel);
-                if (live) {
-                    Util.sheduleTimerAndRemove(() -> {
-                        final AudioPlayer player_ = player.getKey();
-                        final AudioTrack track = player_.getPlayingTrack();
-                        final AudioTrackInfo trackInfo = track.getInfo();
-                        showLiveInfo(invoker, event, guild, channel, track, trackInfo);
-                    }, 5000); //TODO Make this variable (ms) ???
+                if (arguments.isEmpty()) {
+                    if (isIdle(guild)) {
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
+                        return;
+                    }
+                    final boolean done = setPause(guild, false);
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY * 2, "%s %scontinued the music!", event.getAuthor().getAsMention(), (done ? "" : "not "));
+                } else {
+                    final String input = arguments.consumeFirst();
+                    final boolean url = (input.startsWith("http://") || input.startsWith("https://"));
+                    loadTrack((url ? "" : "ytsearch: ") + input, event, channel);
+                    if (live) {
+                        Util.sheduleTimerAndRemove(() -> {
+                            final AudioPlayer player_ = player.getKey();
+                            final AudioTrack track = player_.getPlayingTrack();
+                            final AudioTrackInfo trackInfo = track.getInfo();
+                            showLiveInfo(invoker, event, guild, channel, track, trackInfo);
+                        }, 5000); //TODO Make this variable (ms) ???
+                    }
+                }
+            } else if (pause) {
+                if (arguments.isEmpty()) {
+                    setPause(guild, !isPaused(guild));
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %spaused the music.", event.getAuthor().getAsMention(), (isPaused(guild) ? "" : "un"));
+                } else {
+                    try {
+                        final boolean pause_ = Boolean.parseBoolean(arguments.consumeFirst());
+                        final boolean done = setPause(guild, pause_);
+                        if (done) {
+                            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %spaused the music.", event.getAuthor().getAsMention(), (isPaused(guild) ? "" : "un"));
+                        } else {
+                            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the music is already %spaused!", Emoji.WARNING, event.getAuthor().getAsMention(), (pause_ ? "" : "un"));
+                        }
+                    } catch (Exception ex) {
+                        setPause(guild, !isPaused(guild));
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %spaused the music.", event.getAuthor().getAsMention(), (isPaused(guild) ? "" : "un"));
+                    }
                 }
             } else if (skip) {
                 if (isIdle(guild)) {
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
                 final boolean all = arguments.isConsumed(Standard.ARGUMENT_ALL, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
@@ -252,10 +346,10 @@ public class MusicCommand extends Command {
                 }
            } else if (stop) {
                 if (isIdle(guild)) {
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 } else if (player.getValue() == null) {
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
                 player.getValue().purgeQueue();
@@ -263,10 +357,10 @@ public class MusicCommand extends Command {
                 guild.getAudioManager().closeAudioConnection();
             } else if (shuffle) {
                 if (isIdle(guild)) {
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 } else if (player.getValue() == null) {
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
                 int times = 1;
@@ -279,24 +373,24 @@ public class MusicCommand extends Command {
                 }
             } else if (loop) {
                 if (player.getValue() == null) {
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
                 if (arguments.isEmpty()) {
                     player.getValue().setLoop(!player.getValue().isLoop());
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode in \"%s\" to \"%b\"", event.getAuthor().getAsMention(), channel.getName(), player.getValue().isLoop());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%b\".", event.getAuthor().getAsMention(), player.getValue().isLoop());
                 } else {
                     try {
                         player.getValue().setLoop(Boolean.parseBoolean(arguments.consumeFirst()));
-                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s setted music looping mode in \"%s\" to \"%b\"", event.getAuthor().getAsMention(), channel.getName(), player.getValue().isLoop());
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s setted music looping mode to \"%b\".", event.getAuthor().getAsMention(), player.getValue().isLoop());
                     } catch (Exception ex) {
                         player.getValue().setLoop(!player.getValue().isLoop());
-                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode in \"%s\" to \"%b\"", event.getAuthor().getAsMention(), channel.getName(),  player.getValue().isLoop());
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%b\".", event.getAuthor().getAsMention(),  player.getValue().isLoop());
                     }
                 }
             } else if (info) {
                 if (isIdle(guild)) {
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
                 final boolean live = arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
@@ -304,13 +398,13 @@ public class MusicCommand extends Command {
                 final AudioTrack track = player_.getPlayingTrack();
                 final AudioTrackInfo trackInfo = track.getInfo();
                 if (!live) {
-                    event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO for \"%s\":**", channel.getName()).addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
+                    event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
                 } else {
                     showLiveInfo(invoker, event, guild, channel, track, trackInfo);
                 }
             } else if (queue) {
                 if (isIdle(guild)) {
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
                 int pageNumber = 1;
@@ -335,7 +429,29 @@ public class MusicCommand extends Command {
                 final int pageNumberAll = tracks.size() >= MAX_TRACKS_PER_PAGE ? tracks.size() / MAX_TRACKS_PER_PAGE : 1;
                 tracks.clear();
                 infos.clear();
-                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE in \"%s\": \"%s\"**%n%n*[%s Tracks | Duration `[ %s ]` | Page %d / %d]*%n%n%s", channel.getName(), queue_name, player.getValue().getQueue().size(), getTimestamp(length_all.get()), pageNumber, pageNumberAll, out).build());
+                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE: \"%s\"**%n%n*[%s Tracks | Duration `[ %s ]` | Page %d / %d]*%n%n%s", queue_name, player.getValue().getQueue().size(), getTimestamp(length_all.get()), pageNumber, pageNumberAll, out).build());
+            } else if (volume) {
+                if (player.getValue() == null) {
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running!", Emoji.WARNING, event.getAuthor().getAsMention());
+                    return;
+                }
+                int volume_ = getVolume(guild);
+                if (arguments.isEmpty()) {
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY * 2, "%s the current volume is %d.", event.getAuthor().getAsMention(), volume_);
+                } else {
+                    try {
+                        final int times = Integer.parseInt(arguments.consumeFirst());
+                        final boolean done = setVolume(guild, times);
+                        volume_ = getVolume(guild);
+                        if (done) {
+                            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s setted the volume to %d.", event.getAuthor().getAsMention(), volume_);
+                        } else {
+                            event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the volume is already %d!", Emoji.WARNING, event.getAuthor().getAsMention(), volume_);
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
             } else {
                 return; //TODO make it usefull!
             }
@@ -345,7 +461,7 @@ public class MusicCommand extends Command {
     }
     
     private final Message showLiveInfo(Invoker invoker, MessageEvent event, Guild guild, VoiceChannel channel, AudioTrack track, AudioTrackInfo trackInfo) {
-        final Message message = event.sendAndWaitMessageFormat("**LIVE TRACK INFO for \"%s\":**", channel.getName()); //TODO Add some option for showing this forever and then to kill it
+        final Message message = event.sendAndWaitMessageFormat("**LIVE TRACK INFO**"); //TODO Add some option for showing this forever and then to kill it
         Util.sheduleTimerAtFixedRateAndRemove(() -> {
             final AudioPlayer player__ = getPlayer(guild, channel).getKey();
             if (player__ == null) {
@@ -359,7 +475,7 @@ public class MusicCommand extends Command {
             if (trackInfo_ == null) {
                 return false;
             }
-            message.editMessage(Standard.getMessageEmbed(null, "**LIVE TRACK INFO for \"%s\":**", channel.getName()).addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track_.getPosition()), getTimestamp(track_.getDuration())), false).addField("Author", trackInfo_.author, false).build()).queue();
+            message.editMessage(Standard.getMessageEmbed(null, "**LIVE TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track_.getPosition()), getTimestamp(track_.getDuration())), false).addField("Author", trackInfo_.author, false).build()).queue();
             return true;
         }, () -> {
             message.delete().queue();
@@ -383,13 +499,15 @@ public class MusicCommand extends Command {
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s %s <URL or Text> [%s]", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), "Plays from an URL or searches on YouTube for a video. Optionally shows a live track info.", false);
+        builder.addField(String.format("%s %s [URL or Text] [%s]", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), "Unpauses the bot or plays from an URL or searches on YouTube for a video. Optionally shows a live track info.", false);
+        builder.addField(String.format("%s %s [Pause]", invoker, Standard.ARGUMENT_PAUSE.getCompleteArgument(0, -1)), "Toggles or sets pause.", false);
         builder.addField(String.format("%s %s [Times/All]", invoker, Standard.ARGUMENT_SKIP.getCompleteArgument(0, -1)), "Skips 1 or more or even all tracks.", false);
         builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_STOP.getCompleteArgument(0, -1)), "Stops the music.", false);
         builder.addField(String.format("%s %s [Times]", invoker, Standard.ARGUMENT_SHUFFLE.getCompleteArgument(0, -1)), "Shuffles 1 or more times the queue.", false);
         builder.addField(String.format("%s %s [Loop]", invoker, Standard.ARGUMENT_LOOP.getCompleteArgument(0, -1)), "Toggles or sets looping.", false);
         builder.addField(String.format("%s %s [Playlist]", invoker, Standard.ARGUMENT_INFO.getCompleteArgument(0, -1)), "Shows info about current queue or playlist.", false);
         builder.addField(String.format("%s %s [Page]", invoker, Standard.ARGUMENT_QUEUE.getCompleteArgument(0, -1)), "Shows tracks in current queue and page.", false);
+        builder.addField(String.format("%s %s [Volume]", invoker, Standard.ARGUMENT_VOLUME.getCompleteArgument(0, -1)), "Sets or returns the current volume.", false);
         return builder;
     }
 
