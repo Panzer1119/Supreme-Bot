@@ -25,10 +25,17 @@ public class TrackManager extends AudioEventAdapter {
     private final AudioPlayer player;
     private final Queue<AudioInfo> queue;
     private boolean loop = false;
-
-    public TrackManager(AudioPlayer player) {
+    Guild guild = null;
+    VoiceChannel voiceChannel = null;
+        
+    public TrackManager(AudioPlayer player, Guild guild, VoiceChannel voiceChannel) {
         this.player = player;
         this.queue = new LinkedBlockingQueue<>();
+        this.guild = guild;
+        this.voiceChannel = voiceChannel;
+        if (guild == null) {
+            throw new NullPointerException("The guild can never be null!");
+        }
     }
 
     public final TrackManager queue(AudioTrack track, Member author) {
@@ -58,6 +65,24 @@ public class TrackManager extends AudioEventAdapter {
             return null;
         }
         return queue.stream().filter((info) -> info.getTrack().equals(track)).findFirst().orElse(null);
+    }
+
+    public final VoiceChannel getVoiceChannel() {
+        return voiceChannel;
+    }
+
+    public final TrackManager setVoiceChannel(VoiceChannel voiceChannel) {
+        if (voiceChannel == null) {
+            throw new NullPointerException("The voicechannel can never be null!");
+        }
+        if ((this.voiceChannel != null && !this.voiceChannel.equals(voiceChannel)) || (guild.getAudioManager().isConnected() && !voiceChannel.equals(guild.getAudioManager().getConnectedChannel()))) {
+            guild.getAudioManager().closeAudioConnection();
+        }
+        if (this.voiceChannel == null || (!guild.getAudioManager().isConnected() || !voiceChannel.equals(guild.getAudioManager().getConnectedChannel()))) {
+            guild.getAudioManager().openAudioConnection(voiceChannel);
+        }
+        this.voiceChannel = voiceChannel;
+        return this;
     }
 
     public final TrackManager purgeQueue() {
@@ -91,9 +116,8 @@ public class TrackManager extends AudioEventAdapter {
 
     @Override
     public final void onTrackStart(AudioPlayer player, AudioTrack track) {
-        final AudioInfo current = queue.element();
-        final VoiceChannel voiceChannel = current.getAuthor().getVoiceState().getChannel(); //TODO Was ist wenn Bot in unterschiedlichen Channel soll? Oder in mehreren gleichzeitig?
-        if (voiceChannel == null) {
+        System.out.println("voiceChannel: " + voiceChannel);
+        if (voiceChannel == null) { //FIXME Wtf why would this happen??!
             try {
                 if (player.getPlayingTrack() != null) {
                     player.stopTrack();
@@ -102,7 +126,7 @@ public class TrackManager extends AudioEventAdapter {
                 ex.printStackTrace();
             }
         } else {
-            current.getAuthor().getGuild().getAudioManager().openAudioConnection(voiceChannel);
+            setVoiceChannel(voiceChannel);
         }
     }
 
@@ -114,7 +138,7 @@ public class TrackManager extends AudioEventAdapter {
             queue(next);
         }
         final Guild guild = next.getAuthor().getGuild();
-        if (/*!loop && */queue.isEmpty()) { //FIXME Slebst wenn loop ist und die queue empty muss trotzdem abgebrochen werden?
+        if (/*!loop && */queue.isEmpty()) { //FIXME Selbst wenn loop ist und die queue empty muss trotzdem abgebrochen werden?
             guild.getAudioManager().closeAudioConnection();
         } else {
             final AudioInfo info = queue.element();

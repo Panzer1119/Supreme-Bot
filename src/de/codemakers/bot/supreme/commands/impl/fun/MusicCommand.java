@@ -42,64 +42,46 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 public class MusicCommand extends Command {
 
     private static final AudioPlayerManager manager = new DefaultAudioPlayerManager();
-    private static final HashMap<Guild, HashMap<VoiceChannel, Map.Entry<AudioPlayer, TrackManager>>> players = new HashMap<>(); //TODO Was wenn mehrere Player laufen sollen???
+    private static final HashMap<Guild, Map.Entry<AudioPlayer, TrackManager>> players = new HashMap<>();
 
     public MusicCommand() {
         AudioSourceManagers.registerRemoteSources(manager);
     }
 
     private final Map.Entry<AudioPlayer, TrackManager> createPlayer(Guild guild, VoiceChannel channel) {
-        if (guild == null || channel == null) {
+        if (guild == null) {
             return null;
         }
         final AudioPlayer player = manager.createPlayer();
-        final TrackManager trackManager = new TrackManager(player);
+        final TrackManager trackManager = new TrackManager(player, guild, channel);
         final Map.Entry<AudioPlayer, TrackManager> player_ = new AbstractMap.SimpleEntry<>(player, trackManager);
         player.addListener(trackManager);
         guild.getAudioManager().setSendingHandler(new PlayerSendHandler(player));
-        HashMap<VoiceChannel, Map.Entry<AudioPlayer, TrackManager>> channels = players.get(guild);
-        if (channels == null) {
-            channels = new HashMap<>();
-            players.put(guild, channels);
-        }
-        channels.put(channel, player_);
+        players.put(guild, player_);
         return player_;
     }
     
-    private final HashMap<VoiceChannel, Map.Entry<AudioPlayer, TrackManager>> getChannels(Guild guild) {
-        if (guild == null) {
-            return new HashMap<>();
-        }
-        return players.get(guild);
-    }
-    
     private final Map.Entry<AudioPlayer, TrackManager> getPlayer(Guild guild, VoiceChannel channel) {
-        if (guild == null || channel == null) {
+        if (guild == null) {
             return null;
         }
-        final HashMap<VoiceChannel, Map.Entry<AudioPlayer, TrackManager>> channels = getChannels(guild);
-        if (channels != null && channels.containsKey(channel)) {
-            return channels.get(channel);
+        final Map.Entry<AudioPlayer, TrackManager> player = players.get(guild);
+        if (player != null) {
+            return player;
         } else {
             return createPlayer(guild, channel);
         }
     }
 
-    private final boolean isIdle(Guild guild, VoiceChannel channel) {
+    private final boolean isIdle(Guild guild) {
         if (guild == null) {
             return true;
         }
-        final HashMap<VoiceChannel, Map.Entry<AudioPlayer, TrackManager>> channels = getChannels(guild);
-        if (channels == null || channels.isEmpty()) {
-            return true;
-        }
-        if (channel == null) {
-            return true;
-        }
-        return channels.containsKey(channel);
+        final Map.Entry<AudioPlayer, TrackManager> player = players.get(guild);
+        return player == null || player.getKey() == null || player.getKey().getPlayingTrack() == null;
     }
 
-    private final MusicCommand loadTrack(String identifier, MessageEvent event) {
+    private final MusicCommand loadTrack(String identifier, MessageEvent event, VoiceChannel channel) {
         if (event == null) {
             return this;
         }
@@ -108,10 +90,10 @@ public class MusicCommand extends Command {
             return this;
         }
         final Guild guild = author.getGuild();
-        if (guild == null || author.getVoiceState() == null) {
+        if (guild == null) {
             return this;
         }
-        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild, author.getVoiceState().getChannel());
+        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild, channel);
         if (player == null) {
             return null;
         }
@@ -147,26 +129,15 @@ public class MusicCommand extends Command {
         return this;
     }
 
-    private final MusicCommand skip(Guild guild, VoiceChannel channel) {
+    private final MusicCommand skip(Guild guild) {
         if (guild == null) {
             return this;
         }
-        final HashMap<VoiceChannel, Map.Entry<AudioPlayer, TrackManager>> channels = getChannels(guild);
-        if (channels == null || channels.isEmpty()) {
+        final Map.Entry<AudioPlayer, TrackManager> player = players.get(guild);
+        if (player == null || player.getKey() == null) {
             return this;
         }
-        if (channel == null) {
-            channels.values().stream().forEach((player) -> {
-                if (player != null) {
-                    player.getKey().stopTrack();
-                }
-            });
-        } else {
-            final Map.Entry<AudioPlayer, TrackManager> player = channels.get(channel);
-            if (player != null) {
-                player.getKey().stopTrack();
-            }
-        }
+        player.getKey().stopTrack();
         return this;
     }
 
@@ -201,7 +172,7 @@ public class MusicCommand extends Command {
 
     @Override
     public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        if (arguments == null || arguments.isEmpty() || event == null || event.getMember() == null || event.getMember().getVoiceState() == null) {
+        if (arguments == null || arguments.isEmpty() || event == null || event.getMember() == null) {
             return false;
         }
         final boolean play = arguments.isConsumed(Standard.ARGUMENT_PLAY, ArgumentConsumeType.FIRST_IGNORE_CASE);
@@ -212,7 +183,11 @@ public class MusicCommand extends Command {
         final boolean info = arguments.isConsumed(Standard.ARGUMENT_INFO, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean queue = arguments.isConsumed(Standard.ARGUMENT_QUEUE, ArgumentConsumeType.FIRST_IGNORE_CASE);
         if (play) {
-            return arguments.isSize(2); //title/url
+            if (arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
+                return arguments.isSize(3); //title/url -live
+            } else {
+                return arguments.isSize(2); //title/url
+            }
         } else if (skip) {
             return arguments.isSize(1, 2); //[times or all]
         } else if (stop) {
@@ -248,27 +223,35 @@ public class MusicCommand extends Command {
         final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild, channel);
         try {
             if (play) {
+                final boolean live = arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
                 final String input = arguments.consumeFirst();
                 final boolean url = (input.startsWith("http://") || input.startsWith("https://"));
-                loadTrack((url ? "" : "ytsearch: ") + input, event);
-                //TODO Add instant "life track info" option
+                loadTrack((url ? "" : "ytsearch: ") + input, event, channel);
+                if (live) {
+                    Util.sheduleTimerAndRemove(() -> {
+                        final AudioPlayer player_ = player.getKey();
+                        final AudioTrack track = player_.getPlayingTrack();
+                        final AudioTrackInfo trackInfo = track.getInfo();
+                        showLiveInfo(invoker, event, guild, channel, track, trackInfo);
+                    }, 5000); //TODO Make this variable (ms) ???
+                }
             } else if (skip) {
-                if (isIdle(guild, channel)) {
+                if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
                     return;
                 }
                 final boolean all = arguments.isConsumed(Standard.ARGUMENT_ALL, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
                 if (all) {
                     player.getValue().purgeQueue();
-                    skip(guild, channel);
+                    skip(guild);
                 } else {
                     final int times = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
                     for (int i = 0; i < times; i++) {
-                        skip(guild, channel);
+                        skip(guild);
                     }
                 }
            } else if (stop) {
-                if (isIdle(guild, channel)) {
+                if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
                     return;
                 } else if (player.getValue() == null) {
@@ -276,10 +259,10 @@ public class MusicCommand extends Command {
                     return;
                 }
                 player.getValue().purgeQueue();
-                skip(guild, channel);
+                skip(guild);
                 guild.getAudioManager().closeAudioConnection();
             } else if (shuffle) {
-                if (isIdle(guild, channel)) {
+                if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
                     return;
                 } else if (player.getValue() == null) {
@@ -312,7 +295,7 @@ public class MusicCommand extends Command {
                     }
                 }
             } else if (info) {
-                if (isIdle(guild, channel)) {
+                if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
                     return;
                 }
@@ -323,37 +306,10 @@ public class MusicCommand extends Command {
                 if (!live) {
                     event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO for \"%s\":**", channel.getName()).addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
                 } else {
-                    final Message message = event.sendAndWaitMessageFormat("**LIVE TRACK INFO for \"%s\":**", channel.getName()); //TODO Add some option for showing this forever and then to kill it
-                    Util.sheduleTimerAtFixedRateAndRemove(() -> {
-                        final AudioPlayer player__ = getPlayer(guild, channel).getKey();
-                        if (player__ == null) {
-                            return false;
-                        }
-                        final AudioTrack track_ = player__.getPlayingTrack();
-                        if (track_ == null) {
-                            return false;
-                        }
-                        final AudioTrackInfo trackInfo_ = track.getInfo();
-                        if (trackInfo_ == null) {
-                            return false;
-                        }
-                        message.editMessage(Standard.getMessageEmbed(null, "**LIVE TRACK INFO for \"%s\":**", channel.getName()).addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track_.getPosition()), getTimestamp(track_.getDuration())), false).addField("Author", trackInfo_.author, false).build()).queue();
-                        return true;
-                    }, () -> {
-                        message.delete().queue();
-                        try {
-                            Thread.sleep(1000);
-                            if (!isIdle(guild, channel)) {
-                                action(invoker, new ArgumentList(Standard.ARGUMENT_INFO.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), event); //FIXME Fix this
-                            }
-                        } catch (Exception ex) {
-                            ex.printStackTrace(); //FIXME REMOVE THIS LINE!!!
-                        }
-                    }, 0, 2000, track.getDuration() - track.getPosition());
-                    //TODO Add volume control to the live track info
+                    showLiveInfo(invoker, event, guild, channel, track, trackInfo);
                 }
             } else if (queue) {
-                if (isIdle(guild, channel)) {
+                if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting in \"%s\"!", Emoji.WARNING, event.getAuthor().getAsMention(), channel.getName());
                     return;
                 }
@@ -387,6 +343,38 @@ public class MusicCommand extends Command {
             ex.printStackTrace();
         }
     }
+    
+    private final Message showLiveInfo(Invoker invoker, MessageEvent event, Guild guild, VoiceChannel channel, AudioTrack track, AudioTrackInfo trackInfo) {
+        final Message message = event.sendAndWaitMessageFormat("**LIVE TRACK INFO for \"%s\":**", channel.getName()); //TODO Add some option for showing this forever and then to kill it
+        Util.sheduleTimerAtFixedRateAndRemove(() -> {
+            final AudioPlayer player__ = getPlayer(guild, channel).getKey();
+            if (player__ == null) {
+                return false;
+            }
+            final AudioTrack track_ = player__.getPlayingTrack();
+            if (track_ == null) {
+                return false;
+            }
+            final AudioTrackInfo trackInfo_ = track.getInfo();
+            if (trackInfo_ == null) {
+                return false;
+            }
+            message.editMessage(Standard.getMessageEmbed(null, "**LIVE TRACK INFO for \"%s\":**", channel.getName()).addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track_.getPosition()), getTimestamp(track_.getDuration())), false).addField("Author", trackInfo_.author, false).build()).queue();
+            return true;
+        }, () -> {
+            message.delete().queue();
+            try {
+                Thread.sleep(1000);
+                if (!isIdle(guild)) {
+                    action(invoker, new ArgumentList(Standard.ARGUMENT_INFO.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), event); //FIXME Fix this
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace(); //FIXME REMOVE THIS LINE!!!
+            }
+        }, 0, 2000, track.getDuration() - track.getPosition());
+        //TODO Add volume control to the live track info
+        return message;
+    }
 
     @Override
     public final void executed(boolean success, MessageEvent event) {
@@ -395,7 +383,7 @@ public class MusicCommand extends Command {
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s %s <URL or Text>", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1)), "Plays from an URL or searches on YouTube for a video.", false);
+        builder.addField(String.format("%s %s <URL or Text> [%s]", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), "Plays from an URL or searches on YouTube for a video. Optionally shows a live track info.", false);
         builder.addField(String.format("%s %s [Times/All]", invoker, Standard.ARGUMENT_SKIP.getCompleteArgument(0, -1)), "Skips 1 or more or even all tracks.", false);
         builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_STOP.getCompleteArgument(0, -1)), "Stops the music.", false);
         builder.addField(String.format("%s %s [Times]", invoker, Standard.ARGUMENT_SHUFFLE.getCompleteArgument(0, -1)), "Shuffles 1 or more times the queue.", false);
