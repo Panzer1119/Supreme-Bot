@@ -44,7 +44,7 @@ public class TrackManager extends AudioEventAdapter {
         }
         queue.add(info);
         if (player.getPlayingTrack() == null) {
-            player.playTrack(info.getTrack());
+            player.playTrack(info.getTrack().makeClone());
         }
         return this;
     }
@@ -68,7 +68,7 @@ public class TrackManager extends AudioEventAdapter {
     public final TrackManager shuffleQueue() {
         if (queue.size() <= 2) {
             return this;
-        } //FIXME Der Player muss hier doch angehalten werdenß!
+        } //FIXME Der Player muss hier doch angehalten werden!
         final List<AudioInfo> queue_ = new ArrayList<>(getQueue());
         final AudioInfo current = queue_.get(0);
         queue_.remove(0);
@@ -94,7 +94,13 @@ public class TrackManager extends AudioEventAdapter {
         final AudioInfo current = queue.element();
         final VoiceChannel voiceChannel = current.getAuthor().getVoiceState().getChannel(); //TODO Was ist wenn Bot in unterschiedlichen Channel soll? Oder in mehreren gleichzeitig?
         if (voiceChannel == null) {
-            player.stopTrack();
+            try {
+                if (player.getPlayingTrack() != null) {
+                    player.stopTrack();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         } else {
             current.getAuthor().getGuild().getAudioManager().openAudioConnection(voiceChannel);
         }
@@ -102,15 +108,18 @@ public class TrackManager extends AudioEventAdapter {
 
     @Override
     public final void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        final AudioInfo next = queue.poll();
+        AudioInfo next = queue.poll();
+        System.out.println("next: " + next + ", loop: " + loop);
         if (loop) {
             queue(next);
         }
         final Guild guild = next.getAuthor().getGuild();
-        if (!loop && queue.isEmpty()) {
+        if (/*!loop && */queue.isEmpty()) { //FIXME Slebst wenn loop ist und die queue empty muss trotzdem abgebrochen werden?
             guild.getAudioManager().closeAudioConnection();
         } else {
-            player.playTrack(queue.element().getTrack());
+            final AudioInfo info = queue.element();
+            
+            player.playTrack(queue.element().getTrack().makeClone());
         }
     }
 
