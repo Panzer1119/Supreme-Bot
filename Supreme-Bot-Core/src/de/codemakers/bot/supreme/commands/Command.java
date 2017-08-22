@@ -85,6 +85,11 @@ public abstract class Command implements Invokeable {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return getCommandID();
+    }
+
     protected final MemberObject getMemberObject(User user) {
         if (user == null) {
             return null;
