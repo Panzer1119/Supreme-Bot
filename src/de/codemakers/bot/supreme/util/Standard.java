@@ -88,6 +88,12 @@ public class Standard {
 
     public static final boolean DEBUG_PERMISSION_HANDLER = false;
 
+    static {
+        SHUTDOWNHOOKS.add(() -> {
+            Util.killAndFireAllTimerTask();
+        });
+    }
+
     public static final boolean reloadSettings() {
         try {
             STANDARD_SETTINGS.loadSettings();

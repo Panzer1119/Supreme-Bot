@@ -15,12 +15,6 @@ public class Util {
 
     public static final ArrayList<Timer> TIMERS = new ArrayList<>();
 
-    static {
-        Standard.SHUTDOWNHOOKS.add(() -> {
-            killAndFireAllTimerTask();
-        });
-    }
-
     public static <T> int indexOf(T[] array, T toTest) {
         if (array == null || array.length == 0 || toTest == null) {
             return -1;
@@ -378,10 +372,6 @@ public class Util {
             out += alphabet[(int) (Math.random() * alphabet.length)];
         }
         return out;
-    }
-
-    public static final String joinNumbers(int... numbers) {
-        return joinNumbers(Standard.STANDARD_NUMBER_SEPARATOR, numbers);
     }
     
     public static final String joinNumbers(String separator, int... numbers) {

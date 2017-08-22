@@ -415,7 +415,7 @@ public class GameOfLife extends Game {
         if (field == null) {
             return null;
         }
-        return field.get(Util.joinNumbers(x));
+        return field.get(Util.joinNumbers(Standard.STANDARD_NUMBER_SEPARATOR, x));
     }
 
     public final Object getCell(int generation, int x, int y) {
@@ -423,7 +423,7 @@ public class GameOfLife extends Game {
         if (field == null) {
             return null;
         }
-        return field.get(Util.joinNumbers(x, y));
+        return field.get(Util.joinNumbers(Standard.STANDARD_NUMBER_SEPARATOR, x, y));
     }
 
     public final Object getCell(int generation, int x, int y, int z) {
@@ -431,7 +431,7 @@ public class GameOfLife extends Game {
         if (field == null) {
             return null;
         }
-        return field.get(Util.joinNumbers(x, y, z));
+        return field.get(Util.joinNumbers(Standard.STANDARD_NUMBER_SEPARATOR, x, y, z));
     }
 
     public final Object getCell(int generation, int x, int y, int z, int w) {
@@ -439,7 +439,7 @@ public class GameOfLife extends Game {
         if (field == null) {
             return null;
         }
-        return field.get(Util.joinNumbers(x, y, z, w));
+        return field.get(Util.joinNumbers(Standard.STANDARD_NUMBER_SEPARATOR, x, y, z, w));
     }
 
     public final Object putCell(Object object, int generation, int x) {
@@ -448,7 +448,7 @@ public class GameOfLife extends Game {
             field = new HashMap<>();
             generations.put("" + generation, field);
         }
-        return field.put(Util.joinNumbers(x), object);
+        return field.put(Util.joinNumbers(Standard.STANDARD_NUMBER_SEPARATOR, x), object);
     }
 
     public final Object putCell(Object object, int generation, int x, int y) {
@@ -457,7 +457,7 @@ public class GameOfLife extends Game {
             field = new HashMap<>();
             generations.put("" + generation, field);
         }
-        return field.put(Util.joinNumbers(x, y), object);
+        return field.put(Util.joinNumbers(Standard.STANDARD_NUMBER_SEPARATOR, x, y), object);
     }
 
     public final Object putCell(Object object, int generation, int x, int y, int z) {
@@ -466,7 +466,7 @@ public class GameOfLife extends Game {
             field = new HashMap<>();
             generations.put("" + generation, field);
         }
-        return field.put(Util.joinNumbers(x, y, z), object);
+        return field.put(Util.joinNumbers(Standard.STANDARD_NUMBER_SEPARATOR, x, y, z), object);
     }
 
     public final Object putCell(Object object, int generation, int x, int y, int z, int w) {
@@ -475,7 +475,7 @@ public class GameOfLife extends Game {
             field = new HashMap<>();
             generations.put("" + generation, field);
         }
-        return field.put(Util.joinNumbers(x, y, z, w), object);
+        return field.put(Util.joinNumbers(Standard.STANDARD_NUMBER_SEPARATOR, x, y, z, w), object);
     }
     
     private static final GameOfLifeRule STANDARD_GAME_OF_LIFE_2D_RULE = new GameOfLifeRule() {
