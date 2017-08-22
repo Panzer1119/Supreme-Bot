@@ -1,12 +1,17 @@
 package de.codemakers.bot.supreme.plugin;
 
+import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.plugin.PluginLoader;
 import de.codemakers.plugin.impl.StandardPluginFilter;
 import java.io.File;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * PluginManager
@@ -17,6 +22,7 @@ public class PluginManager implements PluginProvider {
 
     private final PluginLoader pluginLoader;
     private final ArrayList<Plugin> plugins = new ArrayList<>();
+    private final HashMap<Object, Map.Entry<RegisterType, Object>> registeredObjects = new HashMap<>();
 
     public PluginManager() {
         this(new PluginLoader().setPluginFilter(StandardPluginFilter.createInstance(Plugin.class)));
@@ -56,15 +62,38 @@ public class PluginManager implements PluginProvider {
         return true;
     }
 
+    /**
+     * 
+     * @param plugin
+     * @param id
+     * @param object If null then this is counted as an unregistration
+     * @param type
+     * @return 
+     */
     @Override
-    public boolean register(Plugin plugin, Object object, RegisterType type) {
-        if (plugin == null || object == null || type == null) {
+    public boolean register(Plugin plugin, Object id, Object object, RegisterType type) {
+        if (plugin == null || id == null || (registeredObjects.containsKey(id) && object != null)) {
             return false;
         }
+        final boolean unregister = (registeredObjects.containsKey(id) && object == null && registeredObjects.get(id).getKey() == type);
         switch (type) {
             case COMMAND:
-                System.out.println(format(plugin, "Registered Command: \"%s\"", object));
-                return true;
+                if (object != null && object instanceof Command) {
+                    CommandHandler.registerCommand((Command) object);
+                    registeredObjects.put(id, new AbstractMap.SimpleEntry<>(type, object));
+                    System.out.println(format(plugin, "Registered Command: \"%s\"", object));
+                    return true;
+                } else if (unregister) {
+                    final Object o = registeredObjects.get(id).getValue();
+                    if (o != null && (o instanceof Command)) {
+                        System.out.println(format(plugin, "Unregistered Command: \"%s\"", o));
+                        return CommandHandler.unregisterCommand((Command) o);
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
             case LISTENER:
                 return false;
             default:

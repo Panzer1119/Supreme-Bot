@@ -11,7 +11,7 @@ public interface PluginProvider {
     
     public boolean print(Plugin plugin, String print, Object... args);
     
-    public boolean register(Plugin plugin, Object object, RegisterType type);
+    public boolean register(Plugin plugin, Object id, Object object, RegisterType type);
     
     public Settings getSettings(Plugin plugin, String guild_id);
     
