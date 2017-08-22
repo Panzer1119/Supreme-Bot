@@ -37,15 +37,15 @@ public class TicTacToeCommand extends Command {
             if (advancedGuild != null) {
                 final Game game = new TicTacToe();
                 game.startGame(arguments, event);
-                advancedGuild.setGame(game);
+                advancedGuild.getData().put("game", game);
             } else {
                 event.sendMessage("You can't play against me, im a bot!");
             }
         } else if (arguments.consumeFirst(Standard.ARGUMENT_END, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
             if (advancedGuild != null) {
-                if (advancedGuild.getGame() != null) {
-                    if (advancedGuild.getGame() instanceof TicTacToe) {
-                        advancedGuild.getGame().endGame(arguments, event);
+                if (advancedGuild.getData().get("game") != null) {
+                    if (advancedGuild.getData().get("game") instanceof TicTacToe) {
+                        ((Game) advancedGuild.getData().get("game")).endGame(arguments, event);
                     } else {
                         event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, "This game isn't TicTacToe!");
                     }
@@ -55,8 +55,8 @@ public class TicTacToeCommand extends Command {
             } else {
                 event.sendMessage("You can't play against me, im a bot!");
             }
-        } else if (advancedGuild != null && advancedGuild.getGame() != null) {
-            advancedGuild.getGame().sendInput(arguments, event);
+        } else if (advancedGuild != null && advancedGuild.getData().get("game") != null) {
+            ((Game) advancedGuild.getData().get("game")).sendInput(arguments, event);
         } else {
             CommandHandler.sendHelpMessage(invoker, event, this, false);
         }

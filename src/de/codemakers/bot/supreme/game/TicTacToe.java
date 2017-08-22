@@ -55,7 +55,7 @@ public class TicTacToe extends Game {
             if (event.getAuthor() == starter || event.getAuthor() == opponent) {
                 event.sendMessage(Standard.getMessageEmbed(Color.GREEN, null).setTitle(String.format("%s TicTacToe", Emoji.GAME), null).setFooter(String.format("%s ended the game.", event.getAuthor().getName()), null).build());
                 game.clearBoard();
-                Standard.getAdvancedGuild(getGuildId()).setGame(null);
+                Standard.getAdvancedGuild(getGuildId()).getData().put("game", null);
                 return true;
             } else {
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s do not interfere the game!", Emoji.WARNING, event.getAuthor().getAsMention());
@@ -136,15 +136,15 @@ public class TicTacToe extends Game {
             if (game.getWinner().equals("X")) {
                 event.sendMessageFormat("%s Player %s wins!", Emoji.NO, starter.getAsMention());
                 game.clearBoard();
-                Standard.getAdvancedGuild(getGuildId()).setGame(null);
+                Standard.getAdvancedGuild(getGuildId()).getData().put("game", null);
             } else if (game.getWinner().equals("O")) {
                 event.sendMessageFormat("%s Player %s wins!", Emoji.YES, opponent.getAsMention());
                 game.clearBoard();
-                Standard.getAdvancedGuild(getGuildId()).setGame(null);
+                Standard.getAdvancedGuild(getGuildId()).getData().put("game", null);
             } else if (game.isDraw()) {
                 event.sendMessageFormat("%s Draw, no winner. %s", Emoji.NO, Emoji.YES);
                 game.clearBoard();
-                Standard.getAdvancedGuild(getGuildId()).setGame(null);
+                Standard.getAdvancedGuild(getGuildId()).getData().put("game", null);
             } else {
                 switchTurn();
             }

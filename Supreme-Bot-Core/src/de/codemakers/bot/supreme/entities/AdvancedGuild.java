@@ -1,10 +1,10 @@
 package de.codemakers.bot.supreme.entities;
 
-import de.codemakers.bot.supreme.game.Game;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.Standard;
 import java.io.File;
+import java.util.HashMap;
 import net.dv8tion.jda.core.entities.Guild;
 
 /**
@@ -18,7 +18,7 @@ public class AdvancedGuild {
     private String guild_id = null;
     private File folder = null;
     private Settings settings = null;
-    private Game game = null;
+    private final HashMap<Object, Object> data = new HashMap<>();
     
     public AdvancedGuild(Guild guild, File folder) {
         this(guild);
@@ -96,13 +96,8 @@ public class AdvancedGuild {
         return settings;
     }
     
-    public final Game getGame() {
-        return game;
-    }
-    
-    public final AdvancedGuild setGame(Game game) {
-        this.game = game;
-        return this;
+    public final HashMap<Object, Object> getData() {
+        return data;
     }
     
     public final AdvancedGuild sayHi() {

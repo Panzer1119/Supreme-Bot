@@ -1,7 +1,7 @@
 package de.codemakers.bot.supreme.util;
 
 import de.codemakers.bot.supreme.commands.arguments.Argument;
-import de.codemakers.bot.supreme.core.SupremeBot;
+//import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRole;
@@ -42,6 +42,7 @@ public class Standard {
     private static byte[] TOKEN = null;
     private static String STANDARD_COMMAND_PREFIX = "!";
     private static String NICKNAME = "Supreme-Bot";
+    public static Getter<JDA> getter = () -> null;
 
     public static final Settings STANDARD_NULL_SETTINGS = new DefaultSettings();
 
@@ -117,6 +118,10 @@ public class Standard {
             return false;
         }
     }
+    
+    public static final JDA getJDA() {
+        return getter.get();
+    }
 
     public static final boolean reloadPermissionRoles() {
         try {
@@ -178,7 +183,7 @@ public class Standard {
         Standard.NICKNAME = nickname;
         STANDARD_SETTINGS.setProperty("nickname", NICKNAME);
         try {
-            final JDA jda = SupremeBot.getJDA();
+            final JDA jda = getJDA();
             if (jda != null) {
                 final SelfUser user = jda.getSelfUser();
                 if (user != null) {
@@ -384,7 +389,7 @@ public class Standard {
         final Guild guild = getGuildById(guild_id);
         if (guild != null) {
             try {
-                final SelfUser user = SupremeBot.getJDA().getSelfUser();
+                final SelfUser user = getJDA().getSelfUser();
                 if (user != null) {
                     return guild.getMemberById(user.getId());
                 } else {
@@ -464,7 +469,7 @@ public class Standard {
         if (member != null) {
             if (!nickname.equals(member.getNickname())) {
                 try {
-                    SupremeBot.getJDA().getGuildById(guild_id).getController().setNickname(member, nickname).queue();
+                    getJDA().getGuildById(guild_id).getController().setNickname(member, nickname).queue();
                     System.out.println("Changed nickname for \"" + guild_id + "\" to \"" + nickname + "\".");
                     return true;
                 } catch (Exception ex) {
@@ -586,11 +591,11 @@ public class Standard {
     }
 
     public static final Guild getGuildById(String guild_id) {
-        if (SupremeBot.getJDA() == null) {
+        if (getJDA() == null) {
             System.err.println("Failed to get Guild by id: JDA is null!");
             return null;
         }
-        return SupremeBot.getJDA().getGuildById(guild_id);
+        return getJDA().getGuildById(guild_id);
     }
 
     public static final String resolveGuildId(Guild guild, String guild_id) {

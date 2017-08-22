@@ -54,11 +54,11 @@ public class CopyCommand extends Command {
 
     @Override
     public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        if (SupremeBot.getJDA() == null) {
+        final JDA jda = Standard.getJDA();
+        if (jda == null) {
             event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.RED, "%s Sorry %s, the Bot has no connection!", Emoji.WARNING, event.getAuthor().getAsMention()).build());
             return;
         }
-        final JDA jda = SupremeBot.getJDA();
         final boolean message = arguments.isConsumed(Standard.ARGUMENT_MESSAGE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         String guild_id = null;
         final int server = arguments.consume(Standard.ARGUMENT_SERVER, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE, true);

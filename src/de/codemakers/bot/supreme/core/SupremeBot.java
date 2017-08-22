@@ -52,6 +52,7 @@ public class SupremeBot {
                 Standard.STANDARD_SETTINGS.saveSettings();
                 Standard.saveAllGuildSettings();
             }));
+            Standard.getter = () -> jda;
             reload();
             builder = new JDABuilder(AccountType.BOT);
             builder.setAutoReconnect(true);
@@ -139,10 +140,6 @@ public class SupremeBot {
         return running;
     }
 
-    public static final JDA getJDA() {
-        return jda;
-    }
-
     public static final boolean startJDA() {
         if (running) {
             return true;
@@ -151,6 +148,7 @@ public class SupremeBot {
         try {
             builder.setToken(new String(Standard.getToken()));
             jda = builder.buildBlocking();
+            Standard.getter = () -> jda;
             try {
                 Thread.sleep(500);
                 initAdvancedGuilds();
@@ -246,7 +244,7 @@ public class SupremeBot {
     }
 
     public static final boolean loadAllGuilds() {
-        if (getJDA() == null) {
+        if (Standard.getJDA() == null) {
             return false;
         }
         try {
