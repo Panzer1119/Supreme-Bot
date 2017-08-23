@@ -201,6 +201,45 @@ public abstract class MessageEvent extends GenericMessageEvent { //FIXME JDA Dep
      * @return <tt>true</tt> if it was successful
      */
     public abstract boolean sendFile(byte[] data, String fileName, Message message);
+    
+    /**
+     * Sends a file and optionally a message to the source channel
+     * @param delay Delay in ms when the message gets deleted
+     * @param file File
+     * @param message Message
+     * @return <tt>true</tt> if it was successful
+     */
+    public abstract boolean sendFile(long delay, File file, Message message);
+
+    /**
+     * Sends a file with a custom filename and optionally a message to the source channel
+     * @param delay Delay in ms when the message gets deleted
+     * @param file File
+     * @param fileName Custom Filename
+     * @param message Message
+     * @return <tt>true</tt> if it was successful
+     */
+    public abstract boolean sendFile(long delay, File file, String fileName, Message message);
+
+    /**
+     * Sends a file read from an inputstream with a custom filename and optionally a message to the source channel
+     * @param delay Delay in ms when the message gets deleted
+     * @param inputStream InputStream
+     * @param fileName Custom Filename
+     * @param message Message
+     * @return <tt>true</tt> if it was successful
+     */
+    public abstract boolean sendFile(long delay, InputStream inputStream, String fileName, Message message);
+
+    /**
+     * Sends a file read from an byte array with a custom filename and optionally a message to the source channel
+     * @param delay Delay in ms when the message gets deleted
+     * @param data Byte Array
+     * @param fileName Custom Filename
+     * @param message Message
+     * @return <tt>true</tt> if it was successful
+     */
+    public abstract boolean sendFile(long delay, byte[] data, String fileName, Message message);
 
     /**
      * Sends a file and optionally a message to the source channel

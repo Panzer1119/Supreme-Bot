@@ -226,6 +226,26 @@ public class DefaultMessageEvent extends MessageEvent {
             return false;
         }
     }
+
+    @Override
+    public final boolean sendFile(long delay, File file, Message message) {
+        return Util.deleteMessage(sendAndWaitFile(file, message), delay);
+    }
+
+    @Override
+    public final boolean sendFile(long delay, File file, String fileName, Message message) {
+        return Util.deleteMessage(sendAndWaitFile(file, fileName, message), delay);
+    }
+
+    @Override
+    public final boolean sendFile(long delay, InputStream inputStream, String fileName, Message message) {
+        return Util.deleteMessage(sendAndWaitFile(inputStream, fileName, message), delay);
+    }
+
+    @Override
+    public final boolean sendFile(long delay, byte[] data, String fileName, Message message) {
+        return Util.deleteMessage(sendAndWaitFile(data, fileName, message), delay);
+    }
     
     @Override
     public final Message sendAndWaitFile(File file, Message message) {
