@@ -98,12 +98,12 @@ public class PluginManager implements PluginProvider {
                 if (object != null && object instanceof Command) {
                     CommandHandler.registerCommand((Command) object);
                     registeredObjects.put(id, new AbstractMap.SimpleEntry<>(type, object));
-                    System.out.println(format(plugin, "Registered Command: \"%s\"", object));
+                    System.out.println(format(plugin, "Registered Command: \"%s\" (ID: \"%s\")", object, id));
                     return true;
                 } else if (unregister) {
                     final Object o = registeredObjects.get(id).getValue();
                     if (o != null && (o instanceof Command)) {
-                        System.out.println(format(plugin, "Unregistered Command: \"%s\"", o));
+                        System.out.println(format(plugin, "Unregistered Command: \"%s\" (ID: \"%s\")", o, id));
                         return CommandHandler.unregisterCommand((Command) o);
                     } else {
                         return false;
@@ -113,7 +113,7 @@ public class PluginManager implements PluginProvider {
                 }
             case LISTENER:
                 if (object instanceof Listener) {
-                    System.out.println(format(plugin, "Registered Listener: \"%s\"", object));
+                    System.out.println(format(plugin, "Registered Listener: \"%s\" (ID: \"%s\"", object, id));
                     return ListenerManager.registerListener(id, (Listener) object);
                 }
                 System.out.println(format(plugin, "Not registered Listener: \"%s\"", object));
