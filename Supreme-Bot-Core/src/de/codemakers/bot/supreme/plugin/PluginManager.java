@@ -2,6 +2,8 @@ package de.codemakers.bot.supreme.plugin;
 
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.CommandHandler;
+import de.codemakers.bot.supreme.listeners.Listener;
+import de.codemakers.bot.supreme.listeners.ListenerManager;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.Standard;
@@ -95,6 +97,11 @@ public class PluginManager implements PluginProvider {
                     return false;
                 }
             case LISTENER:
+                if (object instanceof Listener) {
+                    System.out.println(format(plugin, "Registered Listener: \"%s\"", object));
+                    return ListenerManager.registerListener(id, (Listener) object);
+                }
+                System.out.println(format(plugin, "Not registered Listener: \"%s\"", object));
                 return false;
             default:
                 return false;

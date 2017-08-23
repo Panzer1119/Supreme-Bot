@@ -13,11 +13,11 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 /**
  * CommandListener
- * 
+ *
  * @author Panzer1119
  */
 public class CommandListener extends ListenerAdapter {
-    
+
     @Override
     public final void onMessageReceived(MessageReceivedEvent event_received) { //FIXME Bug mit privaten Nachrichten
         if (event_received == null) {
@@ -33,6 +33,10 @@ public class CommandListener extends ListenerAdapter {
             if (isCommand(message, event)) {
                 CommandHandler.handleCommand(CommandParser.parser(message, event));
             } else {
+                final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event});
+                if (output.length > 0) {
+                    System.out.println(String.format("%d plugin%s used this message:", output.length, (output.length == 1 ? "" : "s")));
+                }
                 final List<Attachment> attachments = event.getMessage().getAttachments();
                 if (attachments == null || attachments.isEmpty()) {
                     System.out.println(String.format("[%s] [%s] %s: %s", (guild != null ? guild.getName() : "PRIVATE"), event.getMessageChannel().getName(), event.getAuthor().getName(), message));
@@ -50,16 +54,15 @@ public class CommandListener extends ListenerAdapter {
                 }
             }
         } catch (Exception ex) {
-            System.err.println(ex);
             ex.printStackTrace();
         }
     }
-    
+
     private final boolean isCommand(String message, MessageEvent event) {
         if (message == null || event == null || event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
             return false;
         }
         return message.startsWith(Standard.getCommandPrefixByGuild(event.getGuild()));
     }
-    
+
 }
