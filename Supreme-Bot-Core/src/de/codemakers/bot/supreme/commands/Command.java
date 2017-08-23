@@ -63,7 +63,6 @@ public abstract class Command implements Invokeable {
     /**
      * e.g. PermissionRole.getPermissionRoleByName("Admin");
      *
-     * @param role PermissionRole
      * @return <tt>true</tt> or <tt>false</tt>
      */
     public abstract PermissionRoleFilter getPermissionRoleFilter();

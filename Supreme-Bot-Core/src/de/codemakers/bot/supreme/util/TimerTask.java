@@ -146,7 +146,7 @@ public abstract class TimerTask implements Runnable {
      * @return the time at which the most recent execution of this task was
      * scheduled to occur, in the format returned by Date.getTime(). The return
      * value is undefined if the task has yet to commence its first execution.
-     * @see Date#getTime()
+     * @see java.util.Date#getTime()
      */
     public long scheduledExecutionTime() {
         synchronized (lock) {

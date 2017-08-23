@@ -195,7 +195,7 @@ public abstract class MessageEvent extends GenericMessageEvent { //FIXME JDA Dep
 
     /**
      * Sends a file read from an byte array with a custom filename and optionally a message to the source channel
-     * @param inputStream InputStream
+     * @param data Byte Array
      * @param fileName Custom Filename
      * @param message Message
      * @return <tt>true</tt> if it was successful
@@ -238,7 +238,7 @@ public abstract class MessageEvent extends GenericMessageEvent { //FIXME JDA Dep
      * Sends a file read from an byte array with a custom filename and optionally a message to the source channel
      * and returns a Message object with that
      * you can edit your Message afterwards
-     * @param inputStream InputStream
+     * @param data Byte Array
      * @param fileName Custom Filename
      * @param message Message
      * @return Message
