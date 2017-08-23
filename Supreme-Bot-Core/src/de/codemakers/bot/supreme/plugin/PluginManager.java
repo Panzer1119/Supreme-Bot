@@ -43,9 +43,24 @@ public class PluginManager implements PluginProvider {
         if (pluginLoader.loadPlugins(files)) {
             plugins.clear();
             plugins.addAll(pluginLoader.getPluggables(Plugin.class));
+            final StringBuilder sb = new StringBuilder();
+            sb.append("Loaded Plugins: ");
             plugins.stream().forEach((plugin) -> {
-                plugin.setProvider(this);
+                if (plugin == null) {
+                    return;
+                }
+                if (plugin.setProvider(this)) {
+                    sb.append("\"");
+                    sb.append(plugin.getID());
+                    sb.append("\", ");
+                }
             });
+            sb.delete(sb.length() - ", ".length(), sb.length());
+            if (!plugins.isEmpty()) {
+                System.out.println(sb.toString());
+            } else {
+                System.out.println("Loaded no Plugins!");
+            }
         }
         return this;
     }
