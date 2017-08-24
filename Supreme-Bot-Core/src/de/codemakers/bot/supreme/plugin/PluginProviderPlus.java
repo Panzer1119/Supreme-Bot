@@ -1,13 +1,14 @@
 package de.codemakers.bot.supreme.plugin;
 
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
+import java.io.Serializable;
 
 /**
  * PluginProviderPlus
  *
  * @author Panzer1119
  */
-public class PluginProviderPlus {
+public class PluginProviderPlus implements Serializable {
 
     private final PluginProvider provider;
     private final Plugin plugin;

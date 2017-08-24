@@ -1,33 +1,28 @@
 package de.codemakers.bot.supreme.plugin;
 
+import java.io.Serializable;
+
 /**
  * Plugin
  *
  * @author Panzer1119
  */
-public abstract class Plugin {
+public interface Plugin extends Serializable {
 
     public PluginProviderPlus provider = null;
 
-    public final boolean setProvider(PluginProvider provider) {
-        this.provider = new PluginProviderPlus(provider, this);
-        return this.provider != null;
-    }
-    
-    public final PluginProviderPlus getProvider() {
-        return provider;
-    }
+    public boolean setProvider(PluginProviderPlus provider);
 
-    public abstract boolean preInit();
+    public boolean preInit();
 
-    public abstract boolean init();
+    public boolean init();
 
-    public abstract boolean postInit();
+    public boolean postInit();
 
-    public abstract boolean reload();
+    public boolean reload();
 
-    public abstract String getID();
+    public String getID();
 
-    public abstract String getPermissionID();
+    public String getPermissionID();
 
 }

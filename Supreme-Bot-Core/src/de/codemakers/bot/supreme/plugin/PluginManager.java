@@ -48,7 +48,7 @@ public class PluginManager implements PluginProvider {
                 if (plugin == null) {
                     return;
                 }
-                if (plugin.setProvider(this)) {
+                if (plugin.setProvider(new PluginProviderPlus(this, plugin))) {
                     sb.append("\"");
                     sb.append(plugin.getID());
                     sb.append("\", ");
