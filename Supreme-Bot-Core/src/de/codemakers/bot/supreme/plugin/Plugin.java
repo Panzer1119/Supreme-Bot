@@ -5,20 +5,29 @@ package de.codemakers.bot.supreme.plugin;
  *
  * @author Panzer1119
  */
-public interface Plugin {
+public abstract class Plugin {
+
+    protected PluginProviderPlus provider = null;
+
+    public final boolean setProvider(PluginProvider provider) {
+        this.provider = new PluginProviderPlus(provider, this);
+        return this.provider != null;
+    }
     
-    public boolean setProvider(PluginProvider provider);
-    
-    public boolean preInit();
-    
-    public boolean init();
-    
-    public boolean pastInit();
-    
-    public boolean reload();
-    
-    public String getID();
-    
-    public String getPermissionID();
-    
+    public final PluginProviderPlus getProvider() {
+        return provider;
+    }
+
+    public abstract boolean preInit();
+
+    public abstract boolean init();
+
+    public abstract boolean pastInit();
+
+    public abstract boolean reload();
+
+    public abstract String getID();
+
+    public abstract String getPermissionID();
+
 }

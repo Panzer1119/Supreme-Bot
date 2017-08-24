@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Properties;
 import net.dv8tion.jda.core.EmbedBuilder;
 
 /**
@@ -22,6 +23,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
  */
 public class DefaultSettings extends Settings implements Copyable {
 
+    private final Properties settings;
     private File file = null;
     private boolean autoAddProperties = false;
 
@@ -31,17 +33,28 @@ public class DefaultSettings extends Settings implements Copyable {
 
     public DefaultSettings(File file) {
         super();
+        settings = new Properties();
         setFile(file);
+    }
+
+    public final Properties getSettings() {
+        return settings;
+    }
+
+    public final Settings setSettings(Properties settings) {
+        this.settings.clear();
+        this.settings.putAll(settings);
+        return this;
     }
 
     @Override
     public final String getProperty(String key, String defaultValue) {
         try {
-            String value = settings.getProperty(key);
-            if (autoAddProperties && value == null) {
-                setProperty(key, defaultValue, true);
-                return defaultValue;
-            } else if (value == null) {
+            final String value = settings.getProperty(key);
+            if (value == null) {
+                if (autoAddProperties) {
+                    setProperty(key, defaultValue, true);
+                }
                 return defaultValue;
             } else {
                 return value;
@@ -298,7 +311,7 @@ public class DefaultSettings extends Settings implements Copyable {
     }
 
     @Override
-    public DefaultSettings copy() {
+    public final DefaultSettings copy() {
         final DefaultSettings copy = new DefaultSettings(file);
         copy.autoAddProperties = autoAddProperties;
         copy.settings.putAll(settings);
@@ -331,11 +344,10 @@ public class DefaultSettings extends Settings implements Copyable {
         return builder;
     }
 
-    
     public final boolean isAutoAddProperties() {
         return autoAddProperties;
     }
-    
+
     public final Settings setAutoAddProperties(boolean autoAddProperties) {
         this.autoAddProperties = autoAddProperties;
         return this;
@@ -345,9 +357,9 @@ public class DefaultSettings extends Settings implements Copyable {
     protected final String generateComment() {
         return "Changed on:";
     }
-    
-    public final SimpleSettings toSimpleSettings(PluginProvider provider, Plugin plugin, String guild_id) {
-        return (SimpleSettings) new SimpleSettings(provider, plugin, guild_id).setSettings(settings);
+
+    public final SimpleSettings toSimpleSettings() {
+        return new SimpleSettings(this);
     }
 
 }

@@ -2,10 +2,9 @@ package de.codemakers.bot.supreme.plugin;
 
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.CommandHandler;
+import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.listeners.Listener;
 import de.codemakers.bot.supreme.listeners.ListenerManager;
-import de.codemakers.bot.supreme.settings.DefaultSettings;
-import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.plugin.PluginLoader;
 import de.codemakers.plugin.impl.StandardPluginFilter;
@@ -64,7 +63,7 @@ public class PluginManager implements PluginProvider {
         }
         return this;
     }
-    
+
     protected final String format(Plugin plugin, String print, Object... args) {
         if (args == null || args.length == 0) {
             return String.format("[%s]: %s", plugin.getID(), print);
@@ -80,12 +79,12 @@ public class PluginManager implements PluginProvider {
     }
 
     /**
-     * 
+     *
      * @param plugin
      * @param id
      * @param object If null then this is counted as an unregistration
      * @param type
-     * @return 
+     * @return
      */
     @Override
     public boolean register(Plugin plugin, Object id, Object object, RegisterType type) {
@@ -124,30 +123,11 @@ public class PluginManager implements PluginProvider {
     }
 
     @Override
-    public Settings getSettings(Plugin plugin, String guild_id) {
+    public AdvancedGuild getAdvancedGuild(Plugin plugin, String guild_id) {
         if (plugin == null || guild_id == null || guild_id.isEmpty()) {
-            return ((DefaultSettings) Standard.STANDARD_NULL_SETTINGS).toSimpleSettings(this, plugin, guild_id);
+            return null;
         }
-        final DefaultSettings defaultSettings = (DefaultSettings) Standard.getGuildSettings(guild_id);
-        if (defaultSettings == null) {
-            return ((DefaultSettings) Standard.STANDARD_NULL_SETTINGS).toSimpleSettings(this, plugin, guild_id);
-        } else {
-            return defaultSettings.toSimpleSettings(this, plugin, guild_id);
-        }
-    }
-
-    @Override
-    public boolean setSettings(Plugin plugin, String guild_id, Settings settings) {
-        if (plugin == null || guild_id == null || guild_id.isEmpty() || settings == null) {
-            return false;
-        }
-        final DefaultSettings defaultSettings = (DefaultSettings) Standard.getGuildSettings(guild_id);
-        if (defaultSettings == null) {
-            return false;
-        } else {
-            defaultSettings.setSettings(settings.getSettings());
-            return true;
-        }
+        return Standard.getAdvancedGuild(guild_id);
     }
 
 }

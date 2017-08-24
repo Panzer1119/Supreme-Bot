@@ -1,7 +1,5 @@
 package de.codemakers.bot.supreme.settings;
 
-import de.codemakers.bot.supreme.plugin.Plugin;
-import de.codemakers.bot.supreme.plugin.PluginProvider;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,167 +13,111 @@ import net.dv8tion.jda.core.EmbedBuilder;
  * @author Panzer1119
  */
 public class SimpleSettings extends Settings {
-    
-    private final PluginProvider provider;
-    private final Plugin plugin;
-    private final String guild_id;
-    
-    public SimpleSettings(PluginProvider provider, Plugin plugin, String guild_id) {
-        this.provider = provider;
-        this.plugin = plugin;
-        this.guild_id = guild_id;
+
+    private final DefaultSettings settings;
+
+    public SimpleSettings(DefaultSettings settings) {
+        this.settings = settings;
     }
 
     @Override
     public final String getProperty(String key, String defaultValue) {
-        try {
-            loadSettings();
-            String value = settings.getProperty(key);
-            if (value == null) {
-                return defaultValue;
-            } else {
-                return value;
-            }
-        } catch (Exception ex) {
-            return defaultValue;
-        }
+        return settings.getProperty(key, defaultValue);
     }
 
     @Override
     public final byte getProperty(String key, byte defaultValue) {
-        try {
-            return Byte.parseByte(getProperty(key, "" + defaultValue));
-        } catch (Exception ex) {
-            return defaultValue;
-        }
+        return settings.getProperty(key, defaultValue);
     }
 
     @Override
     public final short getProperty(String key, short defaultValue) {
-        try {
-            return Short.parseShort(getProperty(key, "" + defaultValue));
-        } catch (Exception ex) {
-            return defaultValue;
-        }
+        return settings.getProperty(key, defaultValue);
     }
 
     @Override
     public final int getProperty(String key, int defaultValue) {
-        try {
-            return Integer.parseInt(getProperty(key, "" + defaultValue));
-        } catch (Exception ex) {
-            return defaultValue;
-        }
+        return settings.getProperty(key, defaultValue);
     }
 
     @Override
     public final long getProperty(String key, long defaultValue) {
-        try {
-            return Long.parseLong(getProperty(key, "" + defaultValue));
-        } catch (Exception ex) {
-            return defaultValue;
-        }
+        return settings.getProperty(key, defaultValue);
     }
 
     @Override
     public final float getProperty(String key, float defaultValue) {
-        try {
-            return Float.parseFloat(getProperty(key, "" + defaultValue));
-        } catch (Exception ex) {
-            return defaultValue;
-        }
+        return settings.getProperty(key, defaultValue);
     }
 
     @Override
     public final double getProperty(String key, double defaultValue) {
-        try {
-            return Double.parseDouble(getProperty(key, "" + defaultValue));
-        } catch (Exception ex) {
-            return defaultValue;
-        }
+        return settings.getProperty(key, defaultValue);
     }
 
     @Override
     public final char getProperty(String key, char defaultValue) {
-        try {
-            return getProperty(key, "" + defaultValue).charAt(0);
-        } catch (Exception ex) {
-            return defaultValue;
-        }
+        return settings.getProperty(key, defaultValue);
     }
 
     @Override
     public final boolean getProperty(String key, boolean defaultValue) {
-        try {
-            return Boolean.parseBoolean(getProperty(key, "" + defaultValue));
-        } catch (Exception ex) {
-            return defaultValue;
-        }
+        return settings.getProperty(key, defaultValue);
     }
 
     @Override
     public final boolean removeProperty(String key) {
-        try {
-            settings.remove(key);
-            saveSettings();
-            return getProperty(key, null) == null;
-        } catch (Exception ex) {
-            return false;
-        }
+        return settings.removeProperty(key);
     }
 
     @Override
     public final Object setProperty(String key, String value) {
-        return setProperty(key, value, true);
+        return settings.setProperty(key, value);
     }
 
     @Override
     public final Object setProperty(String key, byte value) {
-        return setProperty(key, "" + value, true);
+        return settings.setProperty(key, value);
     }
 
     @Override
     public final Object setProperty(String key, short value) {
-        return setProperty(key, "" + value, true);
+        return settings.setProperty(key, value);
     }
 
     @Override
     public final Object setProperty(String key, int value) {
-        return setProperty(key, "" + value, true);
+        return settings.setProperty(key, value);
     }
 
     @Override
     public final Object setProperty(String key, long value) {
-        return setProperty(key, "" + value, true);
+        return settings.setProperty(key, value);
     }
 
     @Override
     public final Object setProperty(String key, float value) {
-        return setProperty(key, "" + value, true);
+        return settings.setProperty(key, value);
     }
 
     @Override
     public final Object setProperty(String key, double value) {
-        return setProperty(key, "" + value, true);
+        return settings.setProperty(key, value);
     }
 
     @Override
     public final Object setProperty(String key, char value) {
-        return setProperty(key, "" + value, true);
+        return settings.setProperty(key, value);
     }
 
     @Override
     public final Object setProperty(String key, boolean value) {
-        return setProperty(key, "" + value, true);
+        return settings.setProperty(key, value);
     }
 
     @Override
     public final Object setProperty(String key, String value, boolean save) {
-        final Object old = settings.setProperty(key, value);
-        if (save) {
-            saveSettings();
-        }
-        return old;
+        return settings.setProperty(key, value, save);
     }
 
     @Override
@@ -185,8 +127,7 @@ public class SimpleSettings extends Settings {
 
     @Override
     public final boolean loadSettings() {
-        setSettings(provider.getSettings(plugin, guild_id).getSettings());
-        return true;
+        return false;
     }
 
     @Override
@@ -201,7 +142,7 @@ public class SimpleSettings extends Settings {
 
     @Override
     public final boolean saveSettings() {
-        return provider.setSettings(plugin, guild_id, this);
+        return false;
     }
 
     @Override

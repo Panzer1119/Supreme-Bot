@@ -15,12 +15,6 @@ import net.dv8tion.jda.core.EmbedBuilder;
  */
 public abstract class Settings {
 
-    protected final Properties settings;
-
-    public Settings() {
-        settings = new Properties();
-    }
-
     public abstract String getProperty(String key, String defaultValue);
 
     public abstract byte getProperty(String key, byte defaultValue);
@@ -74,16 +68,6 @@ public abstract class Settings {
     public abstract boolean saveSettings(File file);
 
     public abstract boolean saveSettings(OutputStream outputStream);
-
-    public Properties getSettings() {
-        return settings;
-    }
-    
-    public Settings setSettings(Properties settings) {
-        this.settings.clear();
-        this.settings.putAll(settings);
-        return this;
-    }
 
     public abstract Settings direct();
 
