@@ -9,8 +9,6 @@ import java.io.Serializable;
  */
 public interface Plugin extends Serializable {
 
-    public PluginProviderPlus provider = null;
-
     public boolean setProvider(PluginProviderPlus provider);
 
     public boolean preInit();
