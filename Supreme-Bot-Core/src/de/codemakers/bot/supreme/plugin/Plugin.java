@@ -7,7 +7,7 @@ package de.codemakers.bot.supreme.plugin;
  */
 public abstract class Plugin {
 
-    protected PluginProviderPlus provider = null;
+    public PluginProviderPlus provider = null;
 
     public final boolean setProvider(PluginProvider provider) {
         this.provider = new PluginProviderPlus(provider, this);
@@ -22,7 +22,7 @@ public abstract class Plugin {
 
     public abstract boolean init();
 
-    public abstract boolean pastInit();
+    public abstract boolean postInit();
 
     public abstract boolean reload();
 

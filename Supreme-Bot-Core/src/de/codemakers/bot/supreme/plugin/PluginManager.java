@@ -60,6 +60,60 @@ public class PluginManager implements PluginProvider {
             } else {
                 System.out.println("Loaded no Plugins!");
             }
+            sb.delete(0, sb.length());
+            sb.append("Pre-Initialized Plugins: ");
+            plugins.stream().forEach((plugin) -> {
+                if (plugin == null) {
+                    return;
+                }
+                if (plugin.preInit()) {
+                    sb.append("\"");
+                    sb.append(plugin.getID());
+                    sb.append("\", ");
+                }
+            });
+            sb.delete(sb.length() - ", ".length(), sb.length());
+            if (!plugins.isEmpty()) {
+                System.out.println(sb.toString());
+            } else {
+                System.out.println("Pre-Initialized no Plugins!");
+            }
+            sb.delete(0, sb.length());
+            sb.append("Initialized Plugins: ");
+            plugins.stream().forEach((plugin) -> {
+                if (plugin == null) {
+                    return;
+                }
+                if (plugin.init()) {
+                    sb.append("\"");
+                    sb.append(plugin.getID());
+                    sb.append("\", ");
+                }
+            });
+            sb.delete(sb.length() - ", ".length(), sb.length());
+            if (!plugins.isEmpty()) {
+                System.out.println(sb.toString());
+            } else {
+                System.out.println("Initialized no Plugins!");
+            }
+            sb.delete(0, sb.length());
+            sb.append("Post-Initialized Plugins: ");
+            plugins.stream().forEach((plugin) -> {
+                if (plugin == null) {
+                    return;
+                }
+                if (plugin.postInit()) {
+                    sb.append("\"");
+                    sb.append(plugin.getID());
+                    sb.append("\", ");
+                }
+            });
+            sb.delete(sb.length() - ", ".length(), sb.length());
+            if (!plugins.isEmpty()) {
+                System.out.println(sb.toString());
+            } else {
+                System.out.println("Post-Initialized no Plugins!");
+            }
         }
         return this;
     }
