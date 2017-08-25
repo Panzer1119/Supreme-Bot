@@ -604,6 +604,47 @@ public class Standard {
         }
         return guild_id;
     }
+    
+    public static final String DISCORD_STYLE_ITALICS = "*%s*";
+    public static final String DISCORD_STYLE_BOLD = "**%s**";
+    public static final String DISCORD_STYLE_UNDERLINE = "*%s*";
+    public static final String DISCORD_STYLE_STRIKETHROUGH = "*%s*";
+    public static final String DISCORD_STYLE_UNDERLINE_ITALICS = toUnderline(DISCORD_STYLE_ITALICS);
+    public static final String DISCORD_STYLE_UNDERLINE_BOLD = toUnderline(DISCORD_STYLE_BOLD);
+    public static final String DISCORD_STYLE_BOLD_ITALICS = toBold(DISCORD_STYLE_ITALICS);
+    public static final String DISCORD_STYLE_UNDERLINE_BOLD_ITALICS = toUnderline(DISCORD_STYLE_BOLD_ITALICS);
+    
+    public static final String toItalics(String text) {
+        return String.format(DISCORD_STYLE_ITALICS, text);
+    }
+    
+    public static final String toBold(String text) {
+        return String.format(DISCORD_STYLE_BOLD, text);
+    }
+    
+    public static final String toUnderline(String text) {
+        return String.format(DISCORD_STYLE_UNDERLINE, text);
+    }
+    
+    public static final String toStrikethrough(String text) {
+        return String.format(DISCORD_STYLE_STRIKETHROUGH, text);
+    }
+    
+    public static final String toUnderlineItalics(String text) {
+        return String.format(DISCORD_STYLE_UNDERLINE_ITALICS, text);
+    }
+    
+    public static final String toUnderlineBold(String text) {
+        return String.format(DISCORD_STYLE_UNDERLINE_BOLD, text);
+    }
+    
+    public static final String toBoldItalics(String text) {
+        return String.format(DISCORD_STYLE_BOLD_ITALICS, text);
+    }
+    
+    public static final String toUnderlineBoldItalics(String text) {
+        return String.format(DISCORD_STYLE_UNDERLINE_BOLD_ITALICS, text);
+    }
 
     public static final boolean runShutdownHooks() {
         try {
