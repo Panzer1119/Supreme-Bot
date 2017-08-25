@@ -11,7 +11,6 @@ import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.awt.Color;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
