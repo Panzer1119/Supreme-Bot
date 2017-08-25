@@ -58,15 +58,10 @@ public class RolesCommand extends Command {
         final StringBuilder sb_1 = new StringBuilder();
         final StringBuilder sb_2 = new StringBuilder();
         int count = 0;
-        final String me_start = "**";
-        final String me_end = "**";
         final List<Role> roles = guild.getRoles();
         for (Role role : roles) {
             final boolean isMe = member.getRoles().contains(role);
             final StringBuilder temp = new StringBuilder();
-            if (isMe) {
-                temp.append(me_start);
-            }
             temp.append("[");
             temp.append(count);
             temp.append("] ");
@@ -79,15 +74,13 @@ public class RolesCommand extends Command {
                 temp.append(String.format(" (ID: %s)", role.getId()));
             }
             if (isMe) {
-                temp.append(me_end);
+                sb_1.append(Standard.toBold(temp.toString()));
+            } else {
+                sb_1.append(temp.toString());
             }
-            temp.append("\n");
-            sb_1.append(temp.toString());
+            sb_1.append("\n");
             temp.delete(0, temp.length());
             final List<PermissionRole> permissionRoles_ = PermissionRole.getPermissionRolesByGuildAndRole(guild.getId(), role.getId());
-            if (isMe) {
-                temp.append(me_start);
-            }
             temp.append("[");
             temp.append(count);
             temp.append("] ");
@@ -102,13 +95,14 @@ public class RolesCommand extends Command {
                 temp.delete(temp.length() - ", ".length(), temp.length());
                 permissionRoles_.clear();
             } else {
-                temp.append("*none*");
+                temp.append(Standard.toItalics("none"));
             }
             if (isMe) {
-                temp.append(me_end);
+                sb_2.append(Standard.toBold(temp.toString()));
+            } else {
+                sb_2.append(temp.toString());
             }
-            temp.append("\n");
-            sb_2.append(temp.toString());
+            sb_2.append("\n");
             temp.delete(0, temp.length());
             count++;
         }
