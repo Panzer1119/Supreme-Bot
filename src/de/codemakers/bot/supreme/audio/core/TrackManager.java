@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import de.codemakers.bot.supreme.core.SupremeBot;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -116,6 +117,7 @@ public class TrackManager extends AudioEventAdapter {
 
     @Override
     public final void onTrackStart(AudioPlayer player, AudioTrack track) {
+        SupremeBot.setStatus(track.getInfo().title);
         System.out.println("voiceChannel: " + voiceChannel);
         if (voiceChannel == null) { //FIXME Wtf why would this happen??!
             try {
@@ -140,6 +142,7 @@ public class TrackManager extends AudioEventAdapter {
         final Guild guild = next.getAuthor().getGuild();
         if (/*!loop && */queue.isEmpty()) { //FIXME Selbst wenn loop ist und die queue empty muss trotzdem abgebrochen werden?
             guild.getAudioManager().closeAudioConnection();
+            SupremeBot.setStatus(null);
         } else {
             final AudioInfo info = queue.element();
             

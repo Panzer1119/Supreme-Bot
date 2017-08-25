@@ -16,6 +16,7 @@ import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
+import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
@@ -355,6 +356,7 @@ public class MusicCommand extends Command {
                 player.getValue().purgeQueue();
                 skip(guild);
                 guild.getAudioManager().closeAudioConnection();
+                SupremeBot.setStatus(null);
             } else if (shuffle) {
                 if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());

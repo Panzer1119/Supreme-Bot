@@ -44,6 +44,7 @@ public class SupremeBot {
     private static JDABuilder builder = null;
     private static JDA jda = null;
     private static boolean running = false;
+    private static Game game = null;
 
     public static final void main(String[] args) {
         try {
@@ -58,10 +59,10 @@ public class SupremeBot {
             builder = new JDABuilder(AccountType.BOT);
             builder.setAutoReconnect(true);
             builder.setStatus(OnlineStatus.ONLINE);
-            builder.setGame(new Game() {
+            builder.setGame(game = new Game() {
                 @Override
                 public String getName() {
-                    return "V" + Standard.VERSION;
+                    return "Supreme-Bot";
                 }
 
                 @Override
@@ -71,7 +72,7 @@ public class SupremeBot {
 
                 @Override
                 public GameType getType() {
-                    return null;
+                    return GameType.DEFAULT;
                 }
             });
             initListeners();
@@ -136,6 +137,11 @@ public class SupremeBot {
         } catch (Exception ex) {
             return false;
         }
+    }
+    
+    public static final boolean setStatus(String status) {
+        jda.getPresence().setGame(status == null ? game : Game.of(status));
+        return true;
     }
 
     public static final boolean isRunning() {
