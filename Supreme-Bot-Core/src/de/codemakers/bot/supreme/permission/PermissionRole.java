@@ -169,33 +169,33 @@ public class PermissionRole {
         return String.format("%s (ID: %s)", permissionRoleName, permissionRoleID);
     }
 
-    public static final ArrayList<PermissionRole> getPermissionRolesByGuildAndUser(Guild guild, User user) {
+    public static final List<PermissionRole> getPermissionRolesByGuildAndUser(Guild guild, User user) {
         if (guild == null || user == null) {
             return new ArrayList<>();
         }
         return getPermissionRolesByMember(guild.getMember(user));
     }
 
-    public static final ArrayList<PermissionRole> getPermissionRolesByMember(Member member) {
+    public static final List<PermissionRole> getPermissionRolesByMember(Member member) {
         if (member == null || member.getGuild() == null) {
             return new ArrayList<>();
         }
         final String guild_id = member.getGuild().getId();
         final ArrayList<PermissionRole> permissionRoles = new ArrayList<>();
         member.getRoles().stream().forEach((role) -> {
-            final PermissionRole permissionRole = getPermissionRoleByGuildAndRole(guild_id, role.getId());
-            if (permissionRole != null) {
-                permissionRoles.add(permissionRole);
+            final List<PermissionRole> permissionRoles_ = getPermissionRolesByGuildAndRole(guild_id, role.getId());
+            if (permissionRoles_ != null && !permissionRoles_.isEmpty()) {
+                permissionRoles.addAll(permissionRoles_);
             }
         });
         return permissionRoles;
     }
 
-    public static final PermissionRole getPermissionRoleByGuildAndRole(String guild_id, String role_id) {
+    public static final List<PermissionRole> getPermissionRolesByGuildAndRole(String guild_id, String role_id) {
         if (guild_id == null || guild_id.isEmpty() || role_id == null || role_id.isEmpty() || PERMISSIONROLES.isEmpty()) {
-            return null;
+            return new ArrayList<>();
         }
-        return PERMISSIONROLES.stream().filter((permissionRole) -> permissionRole.getRolesByGuild(guild_id).contains(role_id)).findFirst().orElse(null);
+        return PERMISSIONROLES.stream().filter((permissionRole) -> permissionRole.getRolesByGuild(guild_id).contains(role_id)).collect(Collectors.toList());
     }
 
     public static final PermissionRole getPermissionRoleByPermissionRoleID(String permissionRoleID) {

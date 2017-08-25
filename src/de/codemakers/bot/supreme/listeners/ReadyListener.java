@@ -31,7 +31,7 @@ public class ReadyListener extends ListenerAdapter {
         for (Guild guild : jda.getGuilds()) {
             out += guild.getName() + " (" + guild.getId() + ") \n";
             for (Role role : guild.getRoles()) {
-                out += String.format("%nROLE: \"%s\" (ID: %s) %s%nLoaded ROLE: %s", role.getName(), role.getId(), role.getAsMention(), PermissionRole.getPermissionRoleByGuildAndRole(guild.getId(), role.getId()));
+                out += String.format("%nROLE: \"%s\" (ID: %s) %s%nLoaded ROLE: %s", role.getName(), role.getId(), role.getAsMention(), PermissionRole.getPermissionRolesByGuildAndRole(guild.getId(), role.getId()));
             }
             out += "\n\n\n";
         }

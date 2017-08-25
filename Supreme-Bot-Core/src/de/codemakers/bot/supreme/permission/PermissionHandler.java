@@ -31,9 +31,11 @@ public class PermissionHandler {
         }
         if (!event.isPrivate()) {
             for (Role role : event.getGuild().getMember(event.getAuthor()).getRoles()) {
-                final PermissionRole temp = PermissionRole.getPermissionRoleByGuildAndRole(event.getGuild().getId(), role.getId());
-                if (temp != null && filter.isPermissionGranted(temp, event.getMember())) {
-                    return true;
+                final List<PermissionRole> temp = PermissionRole.getPermissionRolesByGuildAndRole(event.getGuild().getId(), role.getId());
+                for (PermissionRole role_ : temp) {
+                    if (temp != null && filter.isPermissionGranted(role_, event.getMember())) {
+                        return true;
+                    }
                 }
             }
         } else if (Standard.isSuperOwner(event.getAuthor())) {
@@ -53,9 +55,11 @@ public class PermissionHandler {
             return false;
         }
         for (Role role : member.getRoles()) {
-            final PermissionRole temp = PermissionRole.getPermissionRoleByGuildAndRole(member.getGuild().getId(), role.getId());
-            if (temp != null && filter.isPermissionGranted(temp, member)) {
-                return true;
+            final List<PermissionRole> temp = PermissionRole.getPermissionRolesByGuildAndRole(member.getGuild().getId(), role.getId());
+            for (PermissionRole role_ : temp) {
+                if (temp != null && filter.isPermissionGranted(role_, member)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -72,12 +76,17 @@ public class PermissionHandler {
             return false;
         }
         for (PermissionOverride po : channel.getRolePermissionOverrides()) {
-            final PermissionRole permissionRole = PermissionRole.getPermissionRoleByGuildAndRole(guild.getId(), po.getRole().getId());
-            if (Standard.STANDARD_PERMISSION_ROLE != null && Standard.STANDARD_PERMISSION_ROLE.equals(permissionRole)) {
-                continue;
-            }
-            if (permissionRole == null || !filter.isPermissionGranted(permissionRole, null)) {
+            final List<PermissionRole> permissionRoles = PermissionRole.getPermissionRolesByGuildAndRole(guild.getId(), po.getRole().getId());
+            if (permissionRoles.isEmpty()) { //TODO Ist das richtig?!!
                 return false;
+            }
+            for (PermissionRole permissionRole : permissionRoles) {
+                if (Standard.STANDARD_PERMISSION_ROLE != null && Standard.STANDARD_PERMISSION_ROLE.equals(permissionRole)) {
+                    continue;
+                }
+                if (permissionRole == null || !filter.isPermissionGranted(permissionRole, null)) {
+                    return false;
+                }
             }
         }
         return true;

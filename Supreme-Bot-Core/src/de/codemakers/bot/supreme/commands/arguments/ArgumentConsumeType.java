@@ -11,7 +11,7 @@ public enum ArgumentConsumeType {
     ALL                         (false, true, false),
     ALL_IGNORE_CASE             (false, true, true),
     CONSUME_FIRST               (true, false, false),
-    CONSUME_FIRST_IGNORE_CASE   (true, false, false),
+    CONSUME_FIRST_IGNORE_CASE   (true, false, true),
     CONSUME_ALL                 (true, true, false),
     CONSUME_ALL_IGNORE_CASE     (true, true, true);
     

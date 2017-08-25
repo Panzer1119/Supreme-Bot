@@ -683,5 +683,7 @@ public class Standard {
     public static final Argument ARGUMENT_QUEUE = new Argument("queue", STANDARD_ARGUMENT_PREFIXES, "q");
     public static final Argument ARGUMENT_LIVE = new Argument("live", STANDARD_ARGUMENT_PREFIXES, "l");
     public static final Argument ARGUMENT_VOLUME = new Argument("volume", STANDARD_ARGUMENT_PREFIXES, "v");
+    public static final Argument ARGUMENT_ID = new Argument("id", STANDARD_ARGUMENT_PREFIXES, "i");
+    public static final Argument ARGUMENT_ASMENTION = new Argument("asMention", STANDARD_ARGUMENT_PREFIXES, "aM");
 
 }
