@@ -12,11 +12,11 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 
 /**
- * PermissionRoleCommand
+ * RolesCommand
  *
  * @author Panzer1119
  */
-public class PermissionRoleCommand extends Command {
+public class RolesCommand extends Command {
 
     @Override
     public void initInvokers() {

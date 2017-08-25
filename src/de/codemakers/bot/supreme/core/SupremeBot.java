@@ -1,7 +1,7 @@
 package de.codemakers.bot.supreme.core;
 
 import de.codemakers.bot.supreme.commands.impl.HelpCommand;
-import de.codemakers.bot.supreme.commands.impl.PermissionRoleCommand;
+import de.codemakers.bot.supreme.commands.impl.RolesCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
 import de.codemakers.bot.supreme.commands.impl.PingCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.GameOfLifeCommand;
@@ -102,7 +102,7 @@ public class SupremeBot {
         try {
             //Normal Commands
             new HelpCommand();
-            new PermissionRoleCommand();
+            new RolesCommand();
             new PingCommand();
             //Fun Commands
             new GameOfLifeCommand();
