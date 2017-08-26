@@ -206,8 +206,8 @@ public class Standard {
             }
             return false;
         } catch (Exception ex) {
-            System.err.print("Failed to change nickname to \"" + nickname + "\": ");
-            ex.printStackTrace();
+            System.err.println("Failed to change nickname to \"" + nickname + "\"");
+            //ex.printStackTrace();
             return false;
         }
     }
@@ -472,8 +472,8 @@ public class Standard {
                     System.out.println("Changed nickname for \"" + guild_id + "\" to \"" + nickname + "\".");
                     return true;
                 } catch (Exception ex) {
-                    System.err.print("Failed to change nickname for \"" + guild_id + "\" to \"" + nickname + "\": ");
-                    ex.printStackTrace();
+                    System.err.println("Failed to change nickname for \"" + guild_id + "\" to \"" + nickname + "\"");
+                    //ex.printStackTrace();
                     return false;
                 }
             } else {
