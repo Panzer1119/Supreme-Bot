@@ -61,7 +61,7 @@ public class ClearCommand extends Command {
                 }, 3000);
             } catch (Exception ex) {
                 System.err.println(ex);
-                ex.printStackTrace();
+                //ex.printStackTrace();
             }
         } else {
             event.sendMessageFormat(":warning: Sorry, %s you need to delete at least 1 messages!", event.getAuthor());

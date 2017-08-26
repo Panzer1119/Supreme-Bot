@@ -35,6 +35,7 @@ public class Standard {
     public static final String COMMAND_DELIMITER_STRING = " ";
     public static final String STANDARD_NUMBER_SEPARATOR = ":";
     public static final String STANDARD_ARRAY_SEPARATOR = ";";
+    public static final String STANDARD_DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
     public static final int STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED = 10;
     public static final int PLAYLIST_LIMIT = 1000;
     public static final long STANDARD_MESSAGE_DELETING_DELAY = 5000L;

@@ -2,6 +2,10 @@ package de.codemakers.bot.supreme.listeners;
 
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.util.Standard;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceDeafenEvent;
 import net.dv8tion.jda.core.events.guild.voice.GuildVoiceGuildDeafenEvent;
@@ -24,6 +28,7 @@ public class VoiceListener extends ListenerAdapter {
     
     public static final String VOICECHANNEL = "VoiceChannel";
     public static final String LOG_CHANNEL_ID_VOICE = "log_channel_id_voice";
+    public static final String LOG_DATE_TIME_FORMAT = "log_date_time_format";
     public static final String LOG_VOICE_TEXT_JOIN = "log_voice_text_join";
     public static final String LOG_VOICE_TEXT_MOVE = "log_voice_text_move";
     public static final String LOG_VOICE_TEXT_LEAVE = "log_voice_text_leave";
@@ -34,16 +39,27 @@ public class VoiceListener extends ListenerAdapter {
     public static final String LOG_VOICE_TEXT_SELF_MUTE = "log_voice_text_self_mute";
     public static final String LOG_VOICE_TEXT_SELF_DEAFEN = "log_voice_text_self_deafen";
     public static final String LOG_VOICE_TEXT_SUPPRESS = "log_voice_text_suppress";
+    
+    private static boolean LOG_MUTES = false;
+    private static boolean LOG_DEAFENS = false;
 
     @Override
     public final void onGuildVoiceJoin(GuildVoiceJoinEvent event) {
+        final Instant timestamp = Instant.now();
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         final String log_channel_id_voice = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_VOICE, null);
         if (log_channel_id_voice != null) {
             final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_voice);
             if (channel != null) {
-                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_JOIN, "%1$s joined %2$s #%3$s");
-                channel.sendMessageFormat(log_voice_text, event.getVoiceState().getMember().getUser().getName(), VOICECHANNEL, event.getChannelJoined().getName()).queue();
+                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_JOIN, "[%1$s] %2$s joined %3$s #%4$s");
+                final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
+                String date_time_formatted = null;
+                try {
+                    date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(log_date_time_format));
+                } catch (Exception ex) {
+                    date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
+                }
+                channel.sendMessageFormat(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), VOICECHANNEL, event.getChannelJoined().getName()).queue();
             }
         }
     }
@@ -75,6 +91,9 @@ public class VoiceListener extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceMute(GuildVoiceMuteEvent event) {
+        if (!LOG_MUTES) {
+            return;
+        }
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         final String log_channel_id_voice = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_VOICE, null);
         if (log_channel_id_voice != null) {
@@ -88,6 +107,9 @@ public class VoiceListener extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceDeafen(GuildVoiceDeafenEvent event) {
+        if (!LOG_DEAFENS) {
+            return;
+        }
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         final String log_channel_id_voice = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_VOICE, null);
         if (log_channel_id_voice != null) {
@@ -127,6 +149,9 @@ public class VoiceListener extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceSelfMute(GuildVoiceSelfMuteEvent event) {
+        if (!LOG_MUTES) {
+            return;
+        }
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         final String log_channel_id_voice = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_VOICE, null);
         if (log_channel_id_voice != null) {
@@ -140,6 +165,9 @@ public class VoiceListener extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceSelfDeafen(GuildVoiceSelfDeafenEvent event) {
+        if (!LOG_DEAFENS) {
+            return;
+        }
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         final String log_channel_id_voice = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_VOICE, null);
         if (log_channel_id_voice != null) {
