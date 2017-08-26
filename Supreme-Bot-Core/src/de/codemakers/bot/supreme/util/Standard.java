@@ -69,6 +69,9 @@ public class Standard {
     public static final AdvancedFile STANDARD_DOWNLOAD_FOLDER = getFile(STANDARD_DOWNLOAD_FOLDER_NAME);
     public static final String STANDARD_UPLOAD_FOLDER_NAME = "uploads";
     public static final AdvancedFile STANDARD_UPLOAD_FOLDER = getFile(STANDARD_UPLOAD_FOLDER_NAME);
+    
+    public static final String STANDARD_LOG_FILE_NAME = "log.txt";
+    public static final AdvancedFile STANDARD_LOG_FILE = getFile(STANDARD_LOG_FILE_NAME);
 
     public static PermissionRole STANDARD_PERMISSION_ROLE = null;
 

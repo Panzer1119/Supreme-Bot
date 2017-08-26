@@ -24,8 +24,8 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
  *
  * @author Panzer1119
  */
-public class VoiceListener extends ListenerAdapter { //TODO Add logging to file! To prevent deleting of message by the Owner!!
-    
+public class VoiceListener extends ListenerAdapter {
+
     public static final String VOICECHANNEL = "VoiceChannel";
     public static final String LOG_CHANNEL_ID_VOICE = "log_channel_id_voice";
     public static final String LOG_DATE_TIME_FORMAT = "log_date_time_format";
@@ -39,7 +39,7 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
     public static final String LOG_VOICE_TEXT_SELF_MUTE = "log_voice_text_self_mute";
     public static final String LOG_VOICE_TEXT_SELF_DEAFEN = "log_voice_text_self_deafen";
     public static final String LOG_VOICE_TEXT_SUPPRESS = "log_voice_text_suppress";
-    
+
     private static boolean LOG_MUTES = false;
     private static boolean LOG_DEAFENS = false;
 
@@ -51,7 +51,7 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
         if (log_channel_id_voice != null) {
             final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_voice);
             if (channel != null) {
-                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_JOIN, "[%1$s] %2$s joined %3$s #%4$s");
+                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_JOIN, "[%1$s] [%2$s] %3$s joined #%4$s");
                 final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
                 String date_time_formatted = null;
                 try {
@@ -59,11 +59,13 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
                 } catch (Exception ex) {
                     date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
-                final String message = String.format(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), VOICECHANNEL, event.getChannelJoined().getName());
+                final String message = String.format(log_voice_text, date_time_formatted, VOICECHANNEL, event.getVoiceState().getMember().getUser().getName(), event.getChannelJoined().getName());
                 channel.sendMessage(message).queue();
+                Standard.addToFile(advancedGuild.getLogFile(), message);
             }
         }
     }
+
     @Override
     public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
         final Instant timestamp = Instant.now();
@@ -72,7 +74,7 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
         if (log_channel_id_voice != null) {
             final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_voice);
             if (channel != null) {
-                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_MOVE, "[%1$s] %2$s moved from #%3$s to #%4$s");
+                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_MOVE, "[%1$s] [%2$s] %3$s moved from #%4$s to #%5$s");
                 final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
                 String date_time_formatted = null;
                 try {
@@ -80,11 +82,13 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
                 } catch (Exception ex) {
                     date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
-                channel.sendMessageFormat(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), event.getChannelLeft().getName(), event.getChannelJoined().getName()).queue();
+                final String message = String.format(log_voice_text, date_time_formatted, VOICECHANNEL, event.getVoiceState().getMember().getUser().getName(), event.getChannelLeft().getName(), event.getChannelJoined().getName());
+                channel.sendMessageFormat(message).queue();
+                Standard.addToFile(advancedGuild.getLogFile(), message);
             }
         }
     }
-    
+
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         final Instant timestamp = Instant.now();
@@ -93,7 +97,7 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
         if (log_channel_id_voice != null) {
             final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_voice);
             if (channel != null) {
-                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_LEAVE, "[%1$s] %2$s left #%3$s");
+                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_LEAVE, "[%1$s] [%2$s] %3$s left #%4$s");
                 final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
                 String date_time_formatted = null;
                 try {
@@ -101,7 +105,9 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
                 } catch (Exception ex) {
                     date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
-                channel.sendMessageFormat(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), event.getChannelLeft().getName()).queue();
+                final String message = String.format(log_voice_text, date_time_formatted, VOICECHANNEL, event.getVoiceState().getMember().getUser().getName(), event.getChannelLeft().getName());
+                channel.sendMessageFormat(message).queue();
+                Standard.addToFile(advancedGuild.getLogFile(), message);
             }
         }
     }
@@ -117,7 +123,7 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
         if (log_channel_id_voice != null) {
             final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_voice);
             if (channel != null) {
-                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_MUTE, "[%1$s] %2$s was %3$s");
+                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_MUTE, "[%1$s] [%2$s] %3$s was %4$s");
                 final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
                 String date_time_formatted = null;
                 try {
@@ -125,7 +131,9 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
                 } catch (Exception ex) {
                     date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
-                channel.sendMessageFormat(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), (event.isMuted() ? "muted" : "unmuted")).queue();
+                final String message = String.format(log_voice_text, date_time_formatted, VOICECHANNEL, event.getVoiceState().getMember().getUser().getName(), (event.isMuted() ? "muted" : "unmuted"));
+                channel.sendMessageFormat(message).queue();
+                Standard.addToFile(advancedGuild.getLogFile(), message);
             }
         }
     }
@@ -141,7 +149,7 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
         if (log_channel_id_voice != null) {
             final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_voice);
             if (channel != null) {
-                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_DEAFEN, "[%1$s] %2$s was %3$s");
+                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_DEAFEN, "[%1$s] [%2$s] %3$s was %4$s");
                 final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
                 String date_time_formatted = null;
                 try {
@@ -149,7 +157,9 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
                 } catch (Exception ex) {
                     date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
-                channel.sendMessageFormat(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), (event.isDeafened() ? "deafened" : "undeafened")).queue();
+                final String message = String.format(log_voice_text, date_time_formatted, VOICECHANNEL, event.getVoiceState().getMember().getUser().getName(), (event.isDeafened() ? "deafened" : "undeafened"));
+                channel.sendMessageFormat(message).queue();
+                Standard.addToFile(advancedGuild.getLogFile(), message);
             }
         }
     }
@@ -162,7 +172,7 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
         if (log_channel_id_voice != null) {
             final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_voice);
             if (channel != null) {
-                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_GUILD_MUTE, "[%1$s] %2$s was guild %3$s");
+                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_GUILD_MUTE, "[%1$s] [%2$s] %3$s was guild %4$s");
                 final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
                 String date_time_formatted = null;
                 try {
@@ -170,7 +180,9 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
                 } catch (Exception ex) {
                     date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
-                channel.sendMessageFormat(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), (event.isGuildMuted() ? "muted" : "unmuted")).queue();
+                final String message = String.format(log_voice_text, date_time_formatted, VOICECHANNEL, event.getVoiceState().getMember().getUser().getName(), (event.isGuildMuted() ? "muted" : "unmuted"));
+                channel.sendMessageFormat(message).queue();
+                Standard.addToFile(advancedGuild.getLogFile(), message);
             }
         }
     }
@@ -183,7 +195,7 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
         if (log_channel_id_voice != null) {
             final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_voice);
             if (channel != null) {
-                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_GUILD_DEAFEN, "[%1$s] %2$s was guild %3$s");
+                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_GUILD_DEAFEN, "[%1$s] [%2$s] %3$s was guild %4$s");
                 final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
                 String date_time_formatted = null;
                 try {
@@ -191,7 +203,9 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
                 } catch (Exception ex) {
                     date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
-                channel.sendMessageFormat(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), (event.isGuildDeafened() ? "deafened" : "undeafened")).queue();
+                final String message = String.format(log_voice_text, date_time_formatted, VOICECHANNEL, event.getVoiceState().getMember().getUser().getName(), (event.isGuildDeafened() ? "deafened" : "undeafened"));
+                channel.sendMessageFormat(message).queue();
+                Standard.addToFile(advancedGuild.getLogFile(), message);
             }
         }
     }
@@ -207,7 +221,7 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
         if (log_channel_id_voice != null) {
             final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_voice);
             if (channel != null) {
-                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_SELF_MUTE, "[%1$s] %2$s was self %3$s");
+                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_SELF_MUTE, "[%1$s] [%2$s] %3$s was self %4$s");
                 final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
                 String date_time_formatted = null;
                 try {
@@ -215,7 +229,9 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
                 } catch (Exception ex) {
                     date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
-                channel.sendMessageFormat(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), (event.isSelfMuted() ? "muted" : "unmuted")).queue();
+                final String message = String.format(log_voice_text, date_time_formatted, VOICECHANNEL, event.getVoiceState().getMember().getUser().getName(), (event.isSelfMuted() ? "muted" : "unmuted"));
+                channel.sendMessageFormat(message).queue();
+                Standard.addToFile(advancedGuild.getLogFile(), message);
             }
         }
     }
@@ -231,7 +247,7 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
         if (log_channel_id_voice != null) {
             final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_voice);
             if (channel != null) {
-                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_SELF_DEAFEN, "[%1$s] %2$s was self %3$s");
+                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_SELF_DEAFEN, "[%1$s] [%2$s] %3$s was self %4$s");
                 final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
                 String date_time_formatted = null;
                 try {
@@ -239,7 +255,9 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
                 } catch (Exception ex) {
                     date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
-                channel.sendMessageFormat(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), (event.isSelfDeafened() ? "deafened" : "undeafened")).queue();
+                final String message = String.format(log_voice_text, date_time_formatted, VOICECHANNEL, event.getVoiceState().getMember().getUser().getName(), (event.isSelfDeafened() ? "deafened" : "undeafened"));
+                channel.sendMessageFormat(message).queue();
+                Standard.addToFile(advancedGuild.getLogFile(), message);
             }
         }
     }
@@ -252,7 +270,7 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
         if (log_channel_id_voice != null) {
             final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_voice);
             if (channel != null) {
-                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_SUPPRESS, "[%1$s] %2$s was %3$s");
+                final String log_voice_text = advancedGuild.getSettings().getProperty(LOG_VOICE_TEXT_SUPPRESS, "[%1$s] [%2$s] %3$s was %4$s");
                 final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
                 String date_time_formatted = null;
                 try {
@@ -260,7 +278,9 @@ public class VoiceListener extends ListenerAdapter { //TODO Add logging to file!
                 } catch (Exception ex) {
                     date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
-                channel.sendMessageFormat(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), (event.isSuppressed()? "suppressed" : "unsuppressed")).queue();
+                final String message = String.format(log_voice_text, date_time_formatted, VOICECHANNEL, event.getVoiceState().getMember().getUser().getName(), (event.isSuppressed() ? "suppressed" : "unsuppressed"));
+                channel.sendMessageFormat(message).queue();
+                Standard.addToFile(advancedGuild.getLogFile(), message);
             }
         }
     }

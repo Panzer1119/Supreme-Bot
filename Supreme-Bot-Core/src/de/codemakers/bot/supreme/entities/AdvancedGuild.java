@@ -110,6 +110,10 @@ public class AdvancedGuild {
         return getFile(Standard.STANDARD_PERMISSIONS_FILE_NAME);
     }
 
+    public final AdvancedFile getLogFile() {
+        return getFile(Standard.STANDARD_LOG_FILE_NAME);
+    }
+
     public final DefaultSettings getSettings() {
         if (settings == null) {
             getFolder();
