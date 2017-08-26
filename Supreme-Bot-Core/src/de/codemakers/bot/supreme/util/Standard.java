@@ -9,6 +9,7 @@ import de.codemakers.bot.supreme.plugin.PluginManager;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.Settings;
 import java.awt.Color;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -644,6 +645,41 @@ public class Standard {
     
     public static final String toUnderlineBoldItalics(String text) {
         return String.format(DISCORD_STYLE_UNDERLINE_BOLD_ITALICS, text);
+    }
+    
+    public static final boolean addToFile(AdvancedFile file, Object toAdd) {
+        return addToFile(file, toAdd, true);
+    }
+    
+    public static final boolean addToFile(AdvancedFile file, Object toAdd, boolean append) {
+        return addToFile(file, toAdd, true, true);
+    }
+    
+    public static final boolean addToFile(AdvancedFile file, Object toAdd, boolean append, boolean newLine) {
+        if (file == null || (toAdd == null && append)) {
+            return false;
+        }
+        if (toAdd == null) {
+            if (file.exists()) {
+                file.delete();
+                return file.createFile();
+            }
+            return true;
+        } else {
+            try {
+                final BufferedWriter writer = new BufferedWriter(file.getWriter(append));
+                writer.write(toAdd.toString());
+                if (newLine) {
+                    writer.newLine();
+                }
+                writer.flush();
+                writer.close();
+                return true;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return false;
+            }
+        }
     }
 
     public static final boolean runShutdownHooks() {
