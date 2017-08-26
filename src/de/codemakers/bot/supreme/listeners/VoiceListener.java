@@ -24,7 +24,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
  *
  * @author Panzer1119
  */
-public class VoiceListener extends ListenerAdapter {
+public class VoiceListener extends ListenerAdapter { //TODO Add logging to file! To prevent deleting of message by the Owner!!
     
     public static final String VOICECHANNEL = "VoiceChannel";
     public static final String LOG_CHANNEL_ID_VOICE = "log_channel_id_voice";
