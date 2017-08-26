@@ -1,7 +1,6 @@
 package de.codemakers.bot.supreme.util;
 
 import de.codemakers.bot.supreme.commands.arguments.Argument;
-//import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRole;
@@ -607,8 +606,8 @@ public class Standard {
     
     public static final String DISCORD_STYLE_ITALICS = "*%s*";
     public static final String DISCORD_STYLE_BOLD = "**%s**";
-    public static final String DISCORD_STYLE_UNDERLINE = "*%s*";
-    public static final String DISCORD_STYLE_STRIKETHROUGH = "*%s*";
+    public static final String DISCORD_STYLE_UNDERLINE = "__%s__";
+    public static final String DISCORD_STYLE_STRIKETHROUGH = "~~%s~~";
     public static final String DISCORD_STYLE_UNDERLINE_ITALICS = toUnderline(DISCORD_STYLE_ITALICS);
     public static final String DISCORD_STYLE_UNDERLINE_BOLD = toUnderline(DISCORD_STYLE_BOLD);
     public static final String DISCORD_STYLE_BOLD_ITALICS = toBold(DISCORD_STYLE_ITALICS);
