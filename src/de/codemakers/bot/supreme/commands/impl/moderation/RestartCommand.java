@@ -4,11 +4,11 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
-import de.codemakers.bot.supreme.util.IntegerHolder;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Timer;
 import de.codemakers.bot.supreme.util.Util;
 import java.awt.Color;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 
@@ -42,11 +42,11 @@ public class RestartCommand extends AdministrativeCommand {
                 final Message message = event.sendAndWaitMessage(getRestartingMessage(event, delayStopInSeconds, 0).build());
                 final Timer timer_1 = Util.createTimer();
                 final Timer timer_2 = Util.createTimer();
-                final IntegerHolder i = new IntegerHolder();
+                final AtomicInteger i = new AtomicInteger(0);
                 final Runnable run_1 = () -> {
-                    message.editMessage(getStoppingMessage(event, delayStopInSeconds, i.value).build()).queue();
-                    i.value++;
-                    if (i.value >= delayStopInSeconds) {
+                    message.editMessage(getStoppingMessage(event, delayStopInSeconds, i.get()).build()).queue();
+                    i.set(i.get() + 1);
+                    if (i.get() >= delayStopInSeconds) {
                         timer_1.purge();
                     }
                 };
