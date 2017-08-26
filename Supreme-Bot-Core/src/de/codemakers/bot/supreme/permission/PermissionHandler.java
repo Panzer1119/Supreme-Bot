@@ -1,6 +1,7 @@
 package de.codemakers.bot.supreme.permission;
 
 import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.XMLUtil;
 import java.io.File;
@@ -96,12 +97,12 @@ public class PermissionHandler {
         return event.sendMessage(Standard.getNoPermissionMessage(event.getAuthor(), "command"));
     }
 
-    public static final boolean loadPermissionRoles(File file) {
+    public static final boolean loadPermissionRoles(AdvancedFile file) {
         if (file == null) {
             return false;
         }
         try {
-            return loadPermissionRoles(new FileInputStream(file));
+            return loadPermissionRoles(file.createInputStream());
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;
@@ -206,12 +207,12 @@ public class PermissionHandler {
         }
     }
 
-    public static final boolean loadPermissionsForGuild(File file, String guild_id) {
+    public static final boolean loadPermissionsForGuild(AdvancedFile file, String guild_id) {
         if (file == null) {
             return false;
         }
         try {
-            return loadPermissionsForGuild(new FileInputStream(file), guild_id);
+            return loadPermissionsForGuild(file.createInputStream(), guild_id);
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;

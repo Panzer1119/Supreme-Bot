@@ -59,7 +59,8 @@ public class VoiceListener extends ListenerAdapter {
                 } catch (Exception ex) {
                     date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
-                channel.sendMessageFormat(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), VOICECHANNEL, event.getChannelJoined().getName()).queue();
+                final String message = String.format(log_voice_text, date_time_formatted, event.getVoiceState().getMember().getUser().getName(), VOICECHANNEL, event.getChannelJoined().getName());
+                channel.sendMessage(message).queue();
             }
         }
     }

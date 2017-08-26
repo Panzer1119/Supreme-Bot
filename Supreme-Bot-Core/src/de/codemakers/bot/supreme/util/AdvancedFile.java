@@ -414,6 +414,11 @@ public class AdvancedFile {
         resetValues();
         if (withFolder && parent == null) {
             setFolder(null);
+        } else if (parent instanceof String) {
+            final File file = new File((String) parent).getAbsoluteFile();
+            if (withFolder) {
+                setFolder(file);
+            }
         } else if (parent instanceof File) {
             final File file = (File) parent;
             if (withFolder && file.isAbsolute()) {
@@ -486,7 +491,7 @@ public class AdvancedFile {
      * @return <tt>true</tt> if the file was successfully created or already
      * exists
      */
-    public final boolean createFile() {
+    public final boolean createAdvancedFile() {
         if (isIntern()) {
             return false;
         }
@@ -969,6 +974,20 @@ public class AdvancedFile {
         }
         toFile().delete();
         return exists();
+    }
+
+    public static final File[] toFiles(AdvancedFile... advancedFiles) {
+        if (advancedFiles == null || advancedFiles.length == 0) {
+            return new File[0];
+        }
+        final File[] files = new File[advancedFiles.length];
+        for (int i = 0; i < advancedFiles.length; i++) {
+            if (advancedFiles[i] == null) {
+                continue;
+            }
+            files[i] = advancedFiles[i].toFile();
+        }
+        return files;
     }
 
     @Override

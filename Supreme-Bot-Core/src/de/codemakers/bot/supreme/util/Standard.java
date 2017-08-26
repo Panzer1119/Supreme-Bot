@@ -10,7 +10,6 @@ import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.Settings;
 import java.awt.Color;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -48,28 +47,28 @@ public class Standard {
     public static final Settings STANDARD_NULL_SETTINGS = new DefaultSettings();
 
     public static final String STANDARD_DATA_FOLDER_NAME = "data";
-    public static final File STANDARD_DATA_FOLDER = new File(STANDARD_DATA_FOLDER_NAME);
+    public static final AdvancedFile STANDARD_DATA_FOLDER = new AdvancedFile(false, (Object) STANDARD_DATA_FOLDER_NAME);
     public static final String STANDARD_SETTINGS_FILE_NAME = "settings.txt";
-    public static final File STANDARD_SETTINGS_FILE = getFile(STANDARD_SETTINGS_FILE_NAME);
+    public static final AdvancedFile STANDARD_SETTINGS_FILE = getFile(STANDARD_SETTINGS_FILE_NAME);
     public static final Settings STANDARD_SETTINGS = new DefaultSettings(STANDARD_SETTINGS_FILE);
 
     public static final String STANDARD_GUILDS_FOLDER_NAME = "guilds";
-    public static final File STANDARD_GUILDS_FOLDER = getFile(STANDARD_GUILDS_FOLDER_NAME);
+    public static final AdvancedFile STANDARD_GUILDS_FOLDER = getFile(STANDARD_GUILDS_FOLDER_NAME);
     public static final String STANDARD_GUILD_SETTINGS_FILE_NAME = "settings.txt";
     private static final ArrayList<AdvancedGuild> GUILDS = new ArrayList<>();
 
     public static final String STANDARD_PERMISSIONS_FILE_NAME = "permissions.xml";
-    public static final File STANDARD_PERMISSIONS_FILE = getFile(STANDARD_PERMISSIONS_FILE_NAME);
+    public static final AdvancedFile STANDARD_PERMISSIONS_FILE = getFile(STANDARD_PERMISSIONS_FILE_NAME);
     public static final String STANDARD_PERMISSIONS_PATH = '/' + PermissionRole.class.getName().substring(0, PermissionRole.class.getName().length() - PermissionRole.class.getSimpleName().length()).replace('.', '/') + STANDARD_PERMISSIONS_FILE_NAME;
 
     public static final String STANDARD_PLUGINS_FOLDER_NAME = "plugins";
-    public static final File STANDARD_PLUGINS_FOLDER = getFile(STANDARD_PLUGINS_FOLDER_NAME);
+    public static final AdvancedFile STANDARD_PLUGINS_FOLDER = getFile(STANDARD_PLUGINS_FOLDER_NAME);
     public static final PluginManager STANDARD_PLUGIN_MANAGER = new PluginManager();
 
     public static final String STANDARD_DOWNLOAD_FOLDER_NAME = "downloads";
-    public static final File STANDARD_DOWNLOAD_FOLDER = getFile(STANDARD_DOWNLOAD_FOLDER_NAME);
+    public static final AdvancedFile STANDARD_DOWNLOAD_FOLDER = getFile(STANDARD_DOWNLOAD_FOLDER_NAME);
     public static final String STANDARD_UPLOAD_FOLDER_NAME = "uploads";
-    public static final File STANDARD_UPLOAD_FOLDER = getFile(STANDARD_UPLOAD_FOLDER_NAME);
+    public static final AdvancedFile STANDARD_UPLOAD_FOLDER = getFile(STANDARD_UPLOAD_FOLDER_NAME);
 
     public static PermissionRole STANDARD_PERMISSION_ROLE = null;
 
@@ -119,7 +118,7 @@ public class Standard {
             return false;
         }
     }
-    
+
     public static final JDA getJDA() {
         return getter.get();
     }
@@ -130,7 +129,7 @@ public class Standard {
                 PermissionHandler.loadPermissionRoles(STANDARD_PERMISSIONS_FILE);
             } else if (!STANDARD_PERMISSIONS_FILE.exists()) {
                 try {
-                    FileUtils.copyInputStreamToFile(Standard.class.getResourceAsStream(STANDARD_PERMISSIONS_PATH), STANDARD_PERMISSIONS_FILE);
+                    FileUtils.copyInputStreamToFile(Standard.class.getResourceAsStream(STANDARD_PERMISSIONS_PATH), STANDARD_PERMISSIONS_FILE.toFile());
                     PermissionHandler.loadPermissionRoles(STANDARD_PERMISSIONS_FILE);
                 } catch (Exception ex) {
                     System.err.println(ex);
@@ -214,11 +213,11 @@ public class Standard {
         }
     }
 
-    public static final File getFile(String fileName) {
+    public static final AdvancedFile getFile(String fileName) {
         if (fileName == null) {
             return null;
         }
-        return new File(STANDARD_DATA_FOLDER.getAbsolutePath() + File.separator + fileName);
+        return new AdvancedFile(STANDARD_DATA_FOLDER, fileName);
     }
 
     //****************************************************************//
@@ -234,11 +233,11 @@ public class Standard {
             return false;
         }
     }
-    
+
     public static final boolean loadAllGuilds() {
         try {
             GUILDS.clear();
-            for (File file : STANDARD_GUILDS_FOLDER.listFiles()) {
+            for (AdvancedFile file : STANDARD_GUILDS_FOLDER.listAdvancedFiles()) {
                 if (file.isDirectory()) {
                     GUILDS.add(new AdvancedGuild(file.getName(), file));
                 }
@@ -284,7 +283,7 @@ public class Standard {
     private static final boolean reloadAllGuildPermissions() {
         try {
             GUILDS.stream().forEach((advancedGuild) -> {
-                final File file = advancedGuild.getPermissionsFile();
+                final AdvancedFile file = advancedGuild.getPermissionsFile();
                 if (file != null) {
                     PermissionHandler.loadPermissionsForGuild(file, advancedGuild.getGuildId());
                 }
@@ -311,20 +310,20 @@ public class Standard {
         }
     }
 
-    public static final File createGuildFolder(Guild guild) {
+    public static final AdvancedFile createGuildFolder(Guild guild) {
         if (guild == null) {
             return null;
         }
         return createGuildFolder(guild.getId());
     }
 
-    public static final File createGuildFolder(String guild_id) {
+    public static final AdvancedFile createGuildFolder(String guild_id) {
         if (guild_id == null) {
             return null;
         }
         try {
-            final File file = new File(STANDARD_GUILDS_FOLDER.getAbsolutePath() + File.separator + guild_id);
-            file.mkdirs();
+            final AdvancedFile file = new AdvancedFile(false, STANDARD_GUILDS_FOLDER, guild_id);
+            file.createAdvancedFile();
             return file;
         } catch (Exception ex) {
             System.err.println(ex);
@@ -348,11 +347,8 @@ public class Standard {
             advancedGuild = new AdvancedGuild(guild_id);
             advancedGuild.getSettings().loadSettings();
             try {
-                final File permissions = advancedGuild.getFile(Standard.STANDARD_PERMISSIONS_FILE_NAME);
-                if (!permissions.exists()) {
-                    permissions.getParentFile().mkdirs();
-                    permissions.createNewFile();
-                }
+                final AdvancedFile permissions = advancedGuild.getFile(Standard.STANDARD_PERMISSIONS_FILE_NAME);
+                permissions.createAdvancedFile();
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -605,7 +601,7 @@ public class Standard {
         }
         return guild_id;
     }
-    
+
     public static final String DISCORD_STYLE_ITALICS = "*%s*";
     public static final String DISCORD_STYLE_BOLD = "**%s**";
     public static final String DISCORD_STYLE_UNDERLINE = "__%s__";
@@ -614,47 +610,47 @@ public class Standard {
     public static final String DISCORD_STYLE_UNDERLINE_BOLD = toUnderline(DISCORD_STYLE_BOLD);
     public static final String DISCORD_STYLE_BOLD_ITALICS = toBold(DISCORD_STYLE_ITALICS);
     public static final String DISCORD_STYLE_UNDERLINE_BOLD_ITALICS = toUnderline(DISCORD_STYLE_BOLD_ITALICS);
-    
+
     public static final String toItalics(String text) {
         return String.format(DISCORD_STYLE_ITALICS, text);
     }
-    
+
     public static final String toBold(String text) {
         return String.format(DISCORD_STYLE_BOLD, text);
     }
-    
+
     public static final String toUnderline(String text) {
         return String.format(DISCORD_STYLE_UNDERLINE, text);
     }
-    
+
     public static final String toStrikethrough(String text) {
         return String.format(DISCORD_STYLE_STRIKETHROUGH, text);
     }
-    
+
     public static final String toUnderlineItalics(String text) {
         return String.format(DISCORD_STYLE_UNDERLINE_ITALICS, text);
     }
-    
+
     public static final String toUnderlineBold(String text) {
         return String.format(DISCORD_STYLE_UNDERLINE_BOLD, text);
     }
-    
+
     public static final String toBoldItalics(String text) {
         return String.format(DISCORD_STYLE_BOLD_ITALICS, text);
     }
-    
+
     public static final String toUnderlineBoldItalics(String text) {
         return String.format(DISCORD_STYLE_UNDERLINE_BOLD_ITALICS, text);
     }
-    
+
     public static final boolean addToFile(AdvancedFile file, Object toAdd) {
         return addToFile(file, toAdd, true);
     }
-    
+
     public static final boolean addToFile(AdvancedFile file, Object toAdd, boolean append) {
         return addToFile(file, toAdd, true, true);
     }
-    
+
     public static final boolean addToFile(AdvancedFile file, Object toAdd, boolean append, boolean newLine) {
         if (file == null || (toAdd == null && append)) {
             return false;
@@ -662,7 +658,7 @@ public class Standard {
         if (toAdd == null) {
             if (file.exists()) {
                 file.delete();
-                return file.createFile();
+                return file.createAdvancedFile();
             }
             return true;
         } else {
@@ -713,11 +709,11 @@ public class Standard {
         }
         return Standard.isSuperOwner(member);
     };
-    
+
     public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER_BOT_COMMANDER = (permissionRole, member) -> {
         return Standard.isSuperOwner(member);
     };
-    
+
     public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_NOBODY = (permissionRole, member) -> {
         return false;
     };

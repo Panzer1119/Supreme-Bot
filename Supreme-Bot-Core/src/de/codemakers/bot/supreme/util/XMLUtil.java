@@ -1,8 +1,5 @@
 package de.codemakers.bot.supreme.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.jdom2.Document;
@@ -21,9 +18,9 @@ public class XMLUtil {
     private static final SAXBuilder saxBuilder = new SAXBuilder();
     private static final XMLOutputter xmlOutput = new XMLOutputter();
 
-    public static final synchronized Document load(File file) {
+    public static final synchronized Document load(AdvancedFile file) {
         try {
-            return load(new FileInputStream(file));
+            return load(file.createInputStream());
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
@@ -48,13 +45,13 @@ public class XMLUtil {
         }
     }
 
-    public static final synchronized boolean save(Element rootElement, Format format, File file) {
+    public static final synchronized boolean save(Element rootElement, Format format, AdvancedFile file) {
         return save(new Document(rootElement), format, file);
     }
 
-    public static final synchronized boolean save(Document document, Format format, File file) {
+    public static final synchronized boolean save(Document document, Format format, AdvancedFile file) {
         try {
-            return save(document, format, new FileOutputStream(file, false));
+            return save(document, format, file.createOutputstream(false));
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;

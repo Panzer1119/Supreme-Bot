@@ -5,6 +5,7 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.io.File;
@@ -28,20 +29,14 @@ public class UploadFileCommand extends Command {
     public boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         if (event == null) {
             return false;
+        } else if (event.getMessage() == null) {
+            return false;
+        } else if (event.getMessage().getAttachments() == null || event.getMessage().getAttachments().isEmpty()) {
+            return false;
+        } else if (arguments != null) {
+            return arguments.isSize(-1, event.getMessage().getAttachments().size());
         } else {
-            if (event.getMessage() == null) {
-                return false;
-            } else {
-                if (event.getMessage().getAttachments() == null || event.getMessage().getAttachments().isEmpty()) {
-                    return false;
-                } else {
-                    if (arguments != null) {
-                        return arguments.isSize(-1, event.getMessage().getAttachments().size());
-                    } else {
-                        return true;
-                    }
-                }
-            }
+            return true;
         }
     }
 
@@ -52,9 +47,9 @@ public class UploadFileCommand extends Command {
             try {
                 Thread.sleep(500);
                 final String filePath = arguments.consumeFirst();
-                final File file = new File(Standard.STANDARD_UPLOAD_FOLDER.getAbsolutePath() + File.separator + (filePath != null ? filePath : attachment.getFileName())).getAbsoluteFile();
-                file.getParentFile().mkdirs();
-                attachment.download(file);
+                final AdvancedFile file = new AdvancedFile(Standard.STANDARD_UPLOAD_FOLDER, (filePath != null ? filePath : attachment.getFileName()));
+                file.getParent().createAdvancedFile();
+                attachment.download(file.toFile());
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY * 2, "%s uploaded \"%s\"%s", event.getAuthor().getAsMention(), attachment.getFileName(), (filePath != null ? String.format(" as \"%s\"", filePath) : ""));
             } catch (Exception ex) {
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY * 2, "%s %s the file \"%s\" was unable to upload (%s)!", Emoji.WARNING, event.getAuthor().getAsMention(), attachment.getFileName(), ex);

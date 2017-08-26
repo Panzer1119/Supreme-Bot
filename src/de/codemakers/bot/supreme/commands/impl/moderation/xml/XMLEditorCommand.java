@@ -9,6 +9,7 @@ import de.codemakers.bot.supreme.entities.AdvancedMember;
 import de.codemakers.bot.supreme.entities.MemberObject;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.io.File;
@@ -107,7 +108,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                 guild_id = arguments.consumeFirst();
             }
             final String fileName = arguments.consumeFirst();
-            File file = Standard.getFile(fileName);
+            AdvancedFile file = Standard.getFile(fileName);
             if (file == null) {
                 return;
             }
@@ -148,7 +149,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                         guild_id = arguments.consumeFirst();
                     }
                     final String fileName = arguments.consumeFirst();
-                    File file = Standard.getFile(fileName);
+                    AdvancedFile file = Standard.getFile(fileName);
                     if (guild_id != null) {
                         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild_id);
                         if (advancedGuild != null) {
@@ -176,7 +177,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                     }
                 } else if (arguments.isSize(1)) {
                     final String fileName = arguments.consumeFirst();
-                    final File file = Standard.getFile(fileName);
+                    final AdvancedFile file = Standard.getFile(fileName);
                     if (file == null) {
                         return;
                     }
@@ -236,19 +237,17 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                     final int children = xmleditor.getChildren(childName).size();
                     if (children > 1) {
                         event.sendMessageFormat("%s there were %d children found for \"%s\". Use \"%s %s %s #Index\" to go to the child you want.", event.getAuthor().getAsMention(), children, childName, invoker, Standard.ARGUMENT_DOWN.getCompleteArgument(0, -1), childName);
+                    } else if (xmleditor.goDown(childName) != null) {
+                        event.sendMessageFormat("%s you went to \"%s\".", event.getAuthor().getAsMention(), childName);
                     } else {
-                        if (xmleditor.goDown(childName) != null) {
-                            event.sendMessageFormat("%s you went to \"%s\".", event.getAuthor().getAsMention(), childName);
-                        } else {
-                            event.sendMessageFormat("%s Sorry %s, the child element \"%s\" wasn't found!", Emoji.WARNING, event.getAuthor().getAsMention(), childName);
-                        }
+                        event.sendMessageFormat("%s Sorry %s, the child element \"%s\" wasn't found!", Emoji.WARNING, event.getAuthor().getAsMention(), childName);
                     }
                 }
             } else if (edit) {
                 if (override) {
-                    
+
                 } else {
-                    
+
                 }
             } else if (info) { //TODO Vielleicht noch einbauen, dass man ueber das parent Element wenn vorhanden anzeigt, wie viel mal das aktuelle Element da ist
                 final Element element = xmleditor.getLast();
@@ -318,9 +317,9 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
     public String getCommandID() {
         return getClass().getName();
     }
-    
+
     private static final class ElementInfo {
-        
+
         public final Element element;
         public int times = 1;
 
@@ -334,7 +333,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
             }
             return element.getName();
         }
-        
+
         @Override
         public int hashCode() {
             int hash = 5;
@@ -356,7 +355,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
             }
             return false;
         }
-        
+
     }
 
 }

@@ -1,13 +1,9 @@
 package de.codemakers.bot.supreme.settings;
 
-import de.codemakers.bot.supreme.plugin.Plugin;
-import de.codemakers.bot.supreme.plugin.PluginProvider;
+import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Copyable;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.AbstractMap;
@@ -24,14 +20,14 @@ import net.dv8tion.jda.core.EmbedBuilder;
 public class DefaultSettings extends Settings implements Copyable {
 
     private final Properties settings;
-    private File file = null;
+    private AdvancedFile file = null;
     private boolean autoAddProperties = false;
 
     public DefaultSettings() {
         this(null);
     }
 
-    public DefaultSettings(File file) {
+    public DefaultSettings(AdvancedFile file) {
         super();
         settings = new Properties();
         setFile(file);
@@ -220,18 +216,13 @@ public class DefaultSettings extends Settings implements Copyable {
     }
 
     @Override
-    public final boolean loadSettings(File file) {
+    public final boolean loadSettings(AdvancedFile file) {
         if (file == null) {
             return false;
         }
         try {
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            return loadSettings(new FileInputStream(file));
+            file.createAdvancedFile();
+            return loadSettings(file.createInputStream());
         } catch (Exception ex) {
             System.err.println(ex);
             return false;
@@ -260,21 +251,13 @@ public class DefaultSettings extends Settings implements Copyable {
     }
 
     @Override
-    public final boolean saveSettings(File file) {
+    public final boolean saveSettings(AdvancedFile file) {
         if (file == null) {
             return false;
         }
-        if (file.getParentFile() == null) {
-            file = file.getAbsoluteFile();
-        }
         try {
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            return saveSettings(new FileOutputStream(file, false));
+            file.createAdvancedFile();
+            return saveSettings(file.createOutputstream(false));
         } catch (Exception ex) {
             System.err.println(ex);
             return false;
@@ -296,11 +279,11 @@ public class DefaultSettings extends Settings implements Copyable {
         }
     }
 
-    public final File getFile() {
+    public final AdvancedFile getFile() {
         return file;
     }
 
-    public final Settings setFile(File file) {
+    public final Settings setFile(AdvancedFile file) {
         this.file = file;
         return this;
     }

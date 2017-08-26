@@ -5,6 +5,7 @@ import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.listeners.Listener;
 import de.codemakers.bot.supreme.listeners.ListenerManager;
+import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.plugin.PluginLoader;
 import de.codemakers.plugin.impl.StandardPluginFilter;
@@ -38,8 +39,8 @@ public class PluginManager implements PluginProvider {
         return pluginLoader;
     }
 
-    public final PluginManager loadPlugins(File... files) {
-        if (pluginLoader.loadPlugins(files)) {
+    public final PluginManager loadPlugins(AdvancedFile... files) {
+        if (pluginLoader.loadPlugins(AdvancedFile.toFiles(files))) {
             plugins.clear();
             plugins.addAll(pluginLoader.getPluggables(Plugin.class));
             final StringBuilder sb = new StringBuilder();

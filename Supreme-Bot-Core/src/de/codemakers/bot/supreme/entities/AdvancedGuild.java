@@ -2,8 +2,8 @@ package de.codemakers.bot.supreme.entities;
 
 import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.SimpleSettings;
+import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
-import java.io.File;
 import java.util.HashMap;
 import net.dv8tion.jda.core.entities.Guild;
 
@@ -16,11 +16,11 @@ public class AdvancedGuild {
 
     private Guild guild = null;
     private String guild_id = null;
-    private File folder = null;
+    private AdvancedFile folder = null;
     private DefaultSettings settings = null;
     private final HashMap<Object, Object> data = new HashMap<>();
 
-    public AdvancedGuild(Guild guild, File folder) {
+    public AdvancedGuild(Guild guild, AdvancedFile folder) {
         this(guild);
         this.folder = folder;
     }
@@ -29,7 +29,7 @@ public class AdvancedGuild {
         this.guild = guild;
     }
 
-    public AdvancedGuild(String guild_id, File folder) {
+    public AdvancedGuild(String guild_id, AdvancedFile folder) {
         this(guild_id);
         this.folder = folder;
     }
@@ -38,12 +38,12 @@ public class AdvancedGuild {
         this.guild_id = guild_id;
     }
 
-    public AdvancedGuild(File folder) {
+    public AdvancedGuild(AdvancedFile folder) {
         this.folder = folder;
     }
 
     public AdvancedGuild() {
-        this((File) null);
+        this((AdvancedFile) null);
     }
 
     public Object getData(Object key) {
@@ -73,14 +73,14 @@ public class AdvancedGuild {
         }
     }
 
-    public final File getFile(String path) {
+    public final AdvancedFile getFile(String path) {
         if (getFolder() == null) {
             return null;
         }
-        return new File(folder.getAbsolutePath() + File.separator + path);
+        return new AdvancedFile(folder, path);
     }
 
-    public final File getFolder() {
+    public final AdvancedFile getFolder() {
         if (folder == null) {
             if (guild != null) {
                 folder = Standard.createGuildFolder(getGuild());
@@ -88,9 +88,7 @@ public class AdvancedGuild {
                 folder = Standard.createGuildFolder(getGuildId());
             }
         }
-        if (folder != null) {
-            folder.mkdirs();
-        }
+        folder.createAdvancedFile();
         return folder;
     }
 
@@ -108,7 +106,7 @@ public class AdvancedGuild {
         return guild_id;
     }
 
-    public final File getPermissionsFile() {
+    public final AdvancedFile getPermissionsFile() {
         return getFile(Standard.STANDARD_PERMISSIONS_FILE_NAME);
     }
 

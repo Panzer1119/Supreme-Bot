@@ -1,6 +1,6 @@
 package de.codemakers.bot.supreme.settings;
 
-import java.io.File;
+import de.codemakers.bot.supreme.util.AdvancedFile;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -131,7 +131,7 @@ public class SimpleSettings extends Settings {
     }
 
     @Override
-    public final boolean loadSettings(File file) {
+    public final boolean loadSettings(AdvancedFile file) {
         return false;
     }
 
@@ -146,7 +146,7 @@ public class SimpleSettings extends Settings {
     }
 
     @Override
-    public final boolean saveSettings(File file) {
+    public final boolean saveSettings(AdvancedFile file) {
         return false;
     }
 

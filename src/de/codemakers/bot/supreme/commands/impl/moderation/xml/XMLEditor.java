@@ -1,7 +1,7 @@
 package de.codemakers.bot.supreme.commands.impl.moderation.xml;
 
+import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.XMLUtil;
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -17,12 +17,12 @@ import org.jdom2.output.Format;
  */
 public class XMLEditor {
 
-    private File file = null;
+    private AdvancedFile file = null;
     private Document document;
     private Element rootElement;
     private final ArrayList<Element> path = new ArrayList<>();
 
-    public XMLEditor(File file) {
+    public XMLEditor(AdvancedFile file) {
         load(file);
     }
 
@@ -51,7 +51,7 @@ public class XMLEditor {
         this.rootElement = null;
     }
 
-    public final XMLEditor load(File file) {
+    public final XMLEditor load(AdvancedFile file) {
         setFile(file);
         return load(XMLUtil.load(file));
     }
@@ -98,7 +98,7 @@ public class XMLEditor {
         return save(file);
     }
 
-    public final boolean save(File file) {
+    public final boolean save(AdvancedFile file) {
         rootElement.detach();
         return XMLUtil.save(rootElement, Format.getPrettyFormat(), file);
     }
@@ -108,11 +108,11 @@ public class XMLEditor {
         return XMLUtil.save(rootElement, Format.getPrettyFormat(), outputStream);
     }
 
-    public final File getFile() {
+    public final AdvancedFile getFile() {
         return file;
     }
 
-    public final XMLEditor setFile(File file) {
+    public final XMLEditor setFile(AdvancedFile file) {
         this.file = file;
         return this;
     }
@@ -152,7 +152,7 @@ public class XMLEditor {
         addLast(child);
         return child;
     }
-    
+
     public final Element goDown(String childName, int index) {
         final Element element = getLast();
         if (element == null) {

@@ -1,11 +1,10 @@
 package de.codemakers.bot.supreme.settings;
 
-import java.io.File;
+import de.codemakers.bot.supreme.util.AdvancedFile;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Properties;
 import net.dv8tion.jda.core.EmbedBuilder;
 
 /**
@@ -59,13 +58,13 @@ public abstract class Settings {
 
     public abstract boolean loadSettings();
 
-    public abstract boolean loadSettings(File file);
+    public abstract boolean loadSettings(AdvancedFile file);
 
     public abstract boolean loadSettings(InputStream inputStream);
 
     public abstract boolean saveSettings();
 
-    public abstract boolean saveSettings(File file);
+    public abstract boolean saveSettings(AdvancedFile file);
 
     public abstract boolean saveSettings(OutputStream outputStream);
 
