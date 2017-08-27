@@ -369,6 +369,10 @@ public class Util {
         }
     }
 
+    public static final String generateRandomString(int length) {
+        return generateRandomString(Standard.STANDARD_NAMESPACE, length);
+    }
+
     public static final String generateRandomString(char[] alphabet, int length) {
         String out = "";
         for (int i = 0; i < length; i++) {
@@ -389,6 +393,21 @@ public class Util {
             out = out.substring(separator.length());
         }
         return out;
+    }
+    
+    public static final AdvancedFile generateRandomAdvancedFile(AdvancedFile parent, int length, String prefix, String suffix) {
+        return generateRandomAdvancedFile(parent, Standard.STANDARD_NAMESPACE, length, prefix, suffix);
+    }
+    
+    public static final AdvancedFile generateRandomAdvancedFile(AdvancedFile parent, char[] alphabet, int length, String prefix, String suffix) {
+        if (length < 0) {
+            return null;
+        }
+        AdvancedFile advancedFile = null;
+        while (advancedFile == null || advancedFile.exists()) {
+            advancedFile = new AdvancedFile(parent, String.format("%s%s%s", prefix, (length != 0 ? generateRandomString(alphabet, length) : ""), suffix));
+        }
+        return advancedFile;
     }
 
     public static final String joinList(List list) {

@@ -39,6 +39,8 @@ public class Standard {
     public static final String STANDARD_NUMBER_SEPARATOR = ":";
     public static final String STANDARD_ARRAY_SEPARATOR = ";";
     public static final String STANDARD_DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
+    public static final String STANDARD_NAMESPACE_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    public static final char[] STANDARD_NAMESPACE = STANDARD_NAMESPACE_STRING.toCharArray();
     public static final int STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED = 10;
     public static final int PLAYLIST_LIMIT = 1000;
     public static final long STANDARD_MESSAGE_DELETING_DELAY = 5000L;
@@ -76,6 +78,9 @@ public class Standard {
     public static final String STANDARD_LOG_FILE_NAME = "log.txt";
     public static final AdvancedFile STANDARD_LOG_FILE = getFile(STANDARD_LOG_FILE_NAME);
 
+    public static final String STANDARD_RECORDINGS_FOLDER_NAME = "recordings";
+    public static final AdvancedFile STANDARD_RECORDINGS_FOLE = getFile(STANDARD_RECORDINGS_FOLDER_NAME);
+    
     public static PermissionRole STANDARD_PERMISSION_ROLE = null;
 
     public static final String XML_PERMISSIONROLES = "permissionroles";

@@ -2,6 +2,7 @@ package de.codemakers.bot.supreme.commands.impl;
 
 import de.codemakers.bot.supreme.audio.recording.AudioReceiveListener;
 import de.codemakers.bot.supreme.audio.recording.AudioSendListener;
+import de.codemakers.bot.supreme.audio.util.AudioEncoder;
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
@@ -54,13 +55,12 @@ public class AudioRecorderCommand extends Command { //FIXME Was ist wenn Music a
         if (start) {
             final VoiceChannel voiceChannel = (arguments.isEmpty() ? event.getMember().getVoiceState().getChannel() : (arguments.getFirst().startsWith("#") ? event.getGuild().getVoiceChannelsByName(arguments.consumeFirst().substring("#".length()), false).stream().findFirst().orElse(null) : event.getGuild().getVoiceChannelById(arguments.consumeFirst())));
             if (voiceChannel != null) {
-                //write out previous channel's audio if autoSave is on
                 if (event.getGuild().getAudioManager().isConnected()) {
                     if (event.getGuild().getAudioManager().getConnectedChannel() == voiceChannel) {
                         event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, i'm already in your VoiceChannel!", Emoji.WARNING, event.getAuthor().getAsMention());
                         return;
                     } else if (advancedGuild.getSettings().getProperty(RECORDER_AUDIO_AUTO_SAVE, false)) {
-                        //DiscordEcho.writeToFile(e.getGuild()); //FIXME
+                        AudioEncoder.writeToFile(event);
                         event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you first have to leave the other VoiceChannel!", Emoji.WARNING, event.getAuthor().getAsMention());
                         return;
                     }
@@ -84,7 +84,7 @@ public class AudioRecorderCommand extends Command { //FIXME Was ist wenn Music a
                 return;
             }
             if (advancedGuild.getSettings().getProperty(RECORDER_AUDIO_AUTO_SAVE, false)) {
-                //DiscordEcho.writeToFile(e.getGuild());
+                AudioEncoder.writeToFile(event);
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you first have to leave the other VoiceChannel!", Emoji.WARNING, event.getAuthor().getAsMention());
                 return;
             }
