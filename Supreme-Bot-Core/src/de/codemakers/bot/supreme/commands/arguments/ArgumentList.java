@@ -85,11 +85,19 @@ public class ArgumentList {
     }
 
     public final String consumeNext(Argument argument, ArgumentConsumeType type) {
-        return consumeOther(argument, type, 1)[0];
+        final String[] other = consumeOther(argument, type, 1);
+        if (other == null || other.length == 0) {
+            return null;
+        }
+        return other[0];
     }
 
     public final String consumePrevious(Argument argument, ArgumentConsumeType type) {
-        return consumeOther(argument, type, -1)[0];
+        final String[] other = consumeOther(argument, type, -1);
+        if (other == null || other.length == 0) {
+            return null;
+        }
+        return other[0];
     }
 
     public final String[] consumeOther(Argument argument, ArgumentConsumeType type, int offset) {
@@ -100,23 +108,26 @@ public class ArgumentList {
             return new String[]{argument.getCompleteArgument(0, -1)};
         }
         final ArrayList<String> output = new ArrayList<>();
-        int index = 0;
-        while ((index = consume(argument, type, true, index)) != -1) {
-            if (index != -1) { //FIXME Ist das notwendig?
-                List<String> other = null;
-                if (offset > 0 && (index + offset) < arguments_raw.size()) {
-                    other = arguments_raw.subList(index + 1, index + offset);
-                } else if (offset < 0 && (index + offset) >= 0) {
-                    other = arguments_raw.subList(index + offset, index - 1);
-                }
+        int index = -1;
+        while ((index = consume(argument, type, true, index + 1)) != -1) {
+            if (type.isConsume()) {
+                index--;
+            }
+            List<String> other = null;
+            if (offset > 0) {
+                other = arguments_raw.subList(index + 1, Math.min(index + offset + 1, arguments_raw.size()));
+            } else if (offset < 0) {
+                other = arguments_raw.subList(Math.max(0, index + offset), index);
+            }
+            if (type.isAll()) {
                 if (other != null) {
-                    if (type.isAll()) {
-                        output.addAll(other);
-                        other.clear();
-                    } else {
-                        return other.toArray(new String[other.size()]);
-                    }
+                    output.addAll(other);
+                    other.clear();
                 }
+            } else if (other != null) {
+                return other.toArray(new String[other.size()]);
+            } else {
+                return new String[0];
             }
         }
         return output.toArray(new String[output.size()]);
@@ -177,7 +188,7 @@ public class ArgumentList {
     }
 
     public final int consume(Argument argument, ArgumentConsumeType type, boolean returnIndex, int index_start) {
-        if (argument == null || arguments_raw.isEmpty() || index_start < 0) {
+        if (argument == null || arguments_raw.isEmpty() || index_start < 0 || index_start >= arguments_raw.size()) {
             if (returnIndex) {
                 return -1;
             } else {
