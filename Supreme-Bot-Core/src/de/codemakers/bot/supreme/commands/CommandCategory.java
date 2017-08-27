@@ -22,6 +22,7 @@ public class CommandCategory {
         this.parent = parent;
         this.name = name;
         this.emoji = emoji;
+        register();
     }
 
     public final CommandCategory getParent() {
