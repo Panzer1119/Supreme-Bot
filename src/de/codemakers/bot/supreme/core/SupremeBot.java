@@ -22,7 +22,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.UploadFileCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.xml.XMLEditorCommand;
 import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
 import de.codemakers.bot.supreme.listeners.CommandListener;
-import de.codemakers.bot.supreme.listeners.MemberListener;
+import de.codemakers.bot.supreme.listeners.GuildMemberLogger;
 import de.codemakers.bot.supreme.listeners.ReadyListener;
 import de.codemakers.bot.supreme.listeners.GuildVoiceLogger;
 import de.codemakers.bot.supreme.util.Standard;
@@ -88,10 +88,10 @@ public class SupremeBot {
 
     private static final boolean initListeners() {
         try {
-            builder.addEventListener(new ReadyListener());
-            builder.addEventListener(new GuildVoiceLogger());
-            builder.addEventListener(new MemberListener());
             builder.addEventListener(new CommandListener());
+            builder.addEventListener(new GuildMemberLogger());
+            builder.addEventListener(new GuildVoiceLogger());
+            builder.addEventListener(new ReadyListener());
             return true;
         } catch (Exception ex) {
             return false;
@@ -138,7 +138,7 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean setStatus(String status) {
         jda.getPresence().setGame(status == null ? game : Game.of(status));
         return true;
@@ -232,7 +232,7 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean initAdvancedGuilds() {
         try {
             Standard.initAdvancedGuilds();
@@ -241,7 +241,7 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     public static final boolean reloadAllGuilds() {
         try {
             Standard.reloadAllGuilds();

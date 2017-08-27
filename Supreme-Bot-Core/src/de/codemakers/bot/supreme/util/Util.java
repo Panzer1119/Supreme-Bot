@@ -421,7 +421,9 @@ public class Util {
             if (asMention) {
                 sb.append(role.getAsMention());
             } else {
+                sb.append("\"");
                 sb.append(role.getName());
+                sb.append("\"");
             }
             sb.append(", ");
         });
