@@ -28,7 +28,7 @@ public class TrackManager extends AudioEventAdapter {
     private boolean loop = false;
     Guild guild = null;
     VoiceChannel voiceChannel = null;
-        
+
     public TrackManager(AudioPlayer player, Guild guild, VoiceChannel voiceChannel) {
         this.player = player;
         this.queue = new LinkedBlockingQueue<>();
@@ -135,17 +135,14 @@ public class TrackManager extends AudioEventAdapter {
     @Override
     public final void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         AudioInfo next = queue.poll();
-        System.out.println("next: " + next + ", loop: " + loop);
-        if (loop) {
+        System.out.println(String.format("Next AudioInfo: \"%s\", looping: %b", next, loop));
+        if (next != null && loop) {
             queue(next);
         }
-        final Guild guild = next.getAuthor().getGuild();
-        if (/*!loop && */queue.isEmpty()) { //FIXME Selbst wenn loop ist und die queue empty muss trotzdem abgebrochen werden?
+        if (next == null || /*!loop && */ queue.isEmpty()) { //FIXME Selbst wenn loop ist und die queue empty muss trotzdem abgebrochen werden?
             guild.getAudioManager().closeAudioConnection();
             SupremeBot.setStatus(null);
         } else {
-            final AudioInfo info = queue.element();
-            
             player.playTrack(queue.element().getTrack().makeClone());
         }
     }
