@@ -60,22 +60,7 @@ public class SupremeBot {
             builder = new JDABuilder(AccountType.BOT);
             builder.setAutoReconnect(true);
             builder.setStatus(OnlineStatus.ONLINE);
-            builder.setGame(game = new Game() {
-                @Override
-                public String getName() {
-                    return "Supreme-Bot";
-                }
-
-                @Override
-                public String getUrl() {
-                    return null;
-                }
-
-                @Override
-                public GameType getType() {
-                    return GameType.DEFAULT;
-                }
-            });
+            builder.setGame(game = Game.of("Supreme-Bot"));
             initListeners();
             initCommands();
             initPlugins();
