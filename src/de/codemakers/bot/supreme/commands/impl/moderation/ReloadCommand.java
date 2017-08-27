@@ -20,7 +20,7 @@ public class ReloadCommand extends Command {
 
     @Override
     public final void initInvokers() {
-        addInvokers(Invoker.createInvoker("reload", this));
+        addInvokers(Invoker.createInvoker("reload", this), Invoker.createInvoker("r", this));
     }
 
     @Override

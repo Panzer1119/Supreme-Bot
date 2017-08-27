@@ -24,7 +24,7 @@ public class CommandCommand extends Command {
 
     @Override
     public boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        if (arguments == null || !arguments.isSize(2, 3)) {
+        if (arguments == null || arguments.isEmpty()) {
             return false;
         }
         if (arguments.isConsumed(Standard.ARGUMENT_OVERRIDE, ArgumentConsumeType.FIRST_IGNORE_CASE)) {

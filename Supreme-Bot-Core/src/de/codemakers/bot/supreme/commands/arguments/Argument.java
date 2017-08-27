@@ -64,7 +64,7 @@ public class Argument {
     }
     
     public final boolean takes(ArgumentConsumeType type, String argument_raw) {
-        if (argument_raw == null) {
+        if (type == null || argument_raw == null) {
             return false;
         }
         if ((type.isIgnoreCase() && argument_raw.equalsIgnoreCase(argument)) || argument_raw.equals(argument)) {
