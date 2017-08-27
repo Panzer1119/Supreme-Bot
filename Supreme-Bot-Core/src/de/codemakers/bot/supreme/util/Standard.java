@@ -11,6 +11,8 @@ import de.codemakers.bot.supreme.settings.Settings;
 import java.awt.Color;
 import java.io.BufferedWriter;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -19,6 +21,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.managers.AccountManager;
 import org.apache.commons.io.FileUtils;
 
@@ -69,7 +72,7 @@ public class Standard {
     public static final AdvancedFile STANDARD_DOWNLOAD_FOLDER = getFile(STANDARD_DOWNLOAD_FOLDER_NAME);
     public static final String STANDARD_UPLOAD_FOLDER_NAME = "uploads";
     public static final AdvancedFile STANDARD_UPLOAD_FOLDER = getFile(STANDARD_UPLOAD_FOLDER_NAME);
-    
+
     public static final String STANDARD_LOG_FILE_NAME = "log.txt";
     public static final AdvancedFile STANDARD_LOG_FILE = getFile(STANDARD_LOG_FILE_NAME);
 
@@ -561,7 +564,7 @@ public class Standard {
     //*********************PLUGIN SPECIFIC STOP***********************//
     //****************************************************************//
     public static final Message getNoPermissionMessage(User user, String extra) {
-        return new MessageBuilder().append(String.format(":warning: Sorry %s, you don't have the permissions to use this %s!", user.getAsMention(), extra)).build();
+        return new MessageBuilder().append(String.format("%s Sorry %s, you don't have the permissions to use this %s!", Emoji.WARNING, user.getAsMention(), extra)).build();
     }
 
     public static final EmbedBuilder getMessageEmbed(Color color, String message) {
@@ -603,6 +606,35 @@ public class Standard {
             guild_id = guild.getId();
         }
         return guild_id;
+    }
+
+    public static final List<Member> muteAll(VoiceChannel voiceChannel, boolean mute) {
+        try {
+            final Member self_member = getSelfMemberByGuild(voiceChannel.getGuild());
+            final List<Member> members = voiceChannel.getMembers().stream().filter((member) -> {
+                return (member != self_member && !self_member.equals(member));
+            }).collect(Collectors.toList());
+            members.stream().forEach((member) -> {
+                voiceChannel.getGuild().getController().setMute(member, mute);
+            });
+            return members;
+        } catch (Exception ex) {
+            return new ArrayList<>();
+        }
+    }
+
+    public static final List<Member> muteAll(List<Member> members, boolean mute) {
+        try {
+            members.stream().filter((member) -> {
+                final Member self_member = Standard.getSelfMemberByGuild(member.getGuild());
+                return (member != self_member && !self_member.equals(member));
+            }).forEach((member) -> {
+                member.getGuild().getController().setMute(member, mute);
+            });
+            return members;
+        } catch (Exception ex) {
+            return new ArrayList<>();
+        }
     }
 
     public static final String DISCORD_STYLE_ITALICS = "*%s*";

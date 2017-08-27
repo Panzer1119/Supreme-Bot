@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
 
 /**
  * CommandHandler
@@ -47,11 +46,7 @@ public class CommandHandler {
                     return safe;
                 }
             }
-            final Message message = commandContainer.event.sendAndWaitMessageFormat("%s Sorry %s, the command \"%s\" wasn't found!", Emoji.WARNING, commandContainer.event.getAuthor().getAsMention(), commandContainer.invoker);
-            final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild());
-            if (delay != -1) {
-                Util.deleteMessage(message, delay);
-            }
+            commandContainer.event.sendMessageFormat(Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild()), "%s Sorry %s, the command \"%s\" wasn't found!", Emoji.WARNING, commandContainer.event.getAuthor().getAsMention(), commandContainer.invoker);
             return false;
         } catch (Exception ex) {
             ex.printStackTrace();

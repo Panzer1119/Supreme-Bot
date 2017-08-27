@@ -4,8 +4,6 @@ import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.XMLUtil;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
 import net.dv8tion.jda.core.entities.Channel;
