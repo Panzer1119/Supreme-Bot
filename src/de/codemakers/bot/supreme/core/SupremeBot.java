@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.core;
 
+import de.codemakers.bot.supreme.commands.impl.AudioRecorderCommand;
 import de.codemakers.bot.supreme.commands.impl.HelpCommand;
 import de.codemakers.bot.supreme.commands.impl.RolesCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
@@ -101,6 +102,7 @@ public class SupremeBot {
     private static final boolean initCommands() {
         try {
             //Normal Commands
+            new AudioRecorderCommand();
             new HelpCommand();
             new RolesCommand();
             new PingCommand();
