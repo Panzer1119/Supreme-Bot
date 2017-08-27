@@ -394,11 +394,11 @@ public class Util {
         }
         return out;
     }
-    
+
     public static final AdvancedFile generateRandomAdvancedFile(AdvancedFile parent, int length, String prefix, String suffix) {
         return generateRandomAdvancedFile(parent, Standard.STANDARD_NAMESPACE, length, prefix, suffix);
     }
-    
+
     public static final AdvancedFile generateRandomAdvancedFile(AdvancedFile parent, char[] alphabet, int length, String prefix, String suffix) {
         if (length < 0) {
             return null;
@@ -448,6 +448,49 @@ public class Util {
         });
         sb.delete(sb.length() - ", ".length(), sb.length());
         return sb.toString();
+    }
+
+    public static <T> String makeTable(List<T> items, Converter<T, String> converter) {
+        return makeTable(items, converter, 16, 4);
+    }
+
+    /**
+     * Makes a controllers-like display of list of items
+     *
+     * @param items items in the controllers
+     * @param columnLength length of a column(filled up with whitespace)
+     * @param columns amount of columns
+     * @return formatted controllers
+     */
+    public static <T> String makeTable(List<T> items, Converter<T, String> converter, int columnLength, int columns) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("```\n");
+        int counter = 0;
+        for (T item : items) {
+            counter++;
+            sb.append(String.format("%-" + columnLength + "s", converter.convert(item)));
+            if (counter % columns == 0) {
+                sb.append("\n");
+            }
+        }
+        if (counter % columns != 0) {
+            sb.append("\n");
+        }
+        sb.append("```\n");
+        return sb.toString();
+    }
+
+    public static String makeTable(String text) {
+        return String.format("```%n%s%n```%n", text);
+    }
+
+    public static final int getGoodSquareNumber(int number) {
+        final double temp = Math.sqrt(number);
+        if (temp % 1.0 == 0) {
+            return (int) temp;
+        } else {
+            return (int) (temp + 1);
+        }
     }
 
 }

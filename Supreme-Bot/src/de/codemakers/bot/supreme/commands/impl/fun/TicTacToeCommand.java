@@ -1,6 +1,7 @@
 package de.codemakers.bot.supreme.commands.impl.fun;
 
 import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
@@ -83,6 +84,11 @@ public class TicTacToeCommand extends Command {
     @Override
     public final String getCommandID() {
         return getClass().getName();
+    }
+
+    @Override
+    public CommandCategory getCommandCategory() {
+        return Standard.COMMANDCATEGORY_FUN;
     }
 
 }

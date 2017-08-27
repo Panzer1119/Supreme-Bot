@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.commands.impl.moderation;
 
+import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import static de.codemakers.bot.supreme.core.SupremeBot.stopCompletely;
@@ -89,6 +90,11 @@ public class StopCommand extends AdministrativeCommand {
     @Override
     public final String getCommandID() {
         return getClass().getName();
+    }
+
+    @Override
+    public CommandCategory getCommandCategory() {
+        return Standard.COMMANDCATEGORY_MODERATION;
     }
 
 }

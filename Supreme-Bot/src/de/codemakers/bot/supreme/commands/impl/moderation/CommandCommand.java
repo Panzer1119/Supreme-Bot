@@ -1,6 +1,7 @@
 package de.codemakers.bot.supreme.commands.impl.moderation;
 
 import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
@@ -84,6 +85,11 @@ public class CommandCommand extends Command {
     @Override
     public String getCommandID() {
         return getClass().getName();
+    }
+
+    @Override
+    public CommandCategory getCommandCategory() {
+        return Standard.COMMANDCATEGORY_MODERATION;
     }
 
 }

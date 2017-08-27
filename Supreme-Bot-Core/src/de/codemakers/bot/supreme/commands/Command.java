@@ -69,6 +69,8 @@ public abstract class Command implements Invokeable {
 
     public abstract String getCommandID();
 
+    public abstract CommandCategory getCommandCategory();
+
     @Override
     public final boolean equals(Object object) {
         if (object == null) {

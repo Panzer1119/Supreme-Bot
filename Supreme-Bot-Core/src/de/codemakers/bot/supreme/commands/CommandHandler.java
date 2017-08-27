@@ -8,7 +8,9 @@ import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -19,6 +21,8 @@ import net.dv8tion.jda.core.entities.Guild;
  * @author Panzer1119
  */
 public class CommandHandler {
+
+    public static final String SEND_HELP_ALWAYS_PRIVATE = "send_help_always_private";
 
     public static final ArrayList<Command> COMMANDS = new ArrayList<>();
 
@@ -87,7 +91,7 @@ public class CommandHandler {
             return false;
         }
     }
-    
+
     public static final boolean sendHelpMessage(Invoker invoker, MessageEvent event, Command command, boolean sendPrivate) {
         if (event == null || command == null) {
             return false;
@@ -99,19 +103,92 @@ public class CommandHandler {
         if (!sendPrivate && event.isPrivate()) {
             sendPrivate = true;
         }
-        if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty("send_help_always_private", false)) {
+        if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty(SEND_HELP_ALWAYS_PRIVATE, false)) {
             Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
         } else {
             final Guild guild = event.getGuild();
             if (!PermissionHandler.check(filter, guild, event.getTextChannel())) {
                 Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
-                return false;
+                return true;
             }
             event.sendMessage(generateHelpMessage(invoker, event, command).build());
         }
         return true;
     }
-    
+
+    public static final boolean sendHelpList(MessageEvent event, boolean sendPrivate) {
+        if (event == null) {
+            return false;
+        }
+        if (!sendPrivate && event.isPrivate()) {
+            sendPrivate = true;
+        }
+        try {
+            final List<Command> commands = CommandHandler.COMMANDS.stream().filter((command) -> {
+                PermissionHandler.check(command.getPermissionRoleFilter(), event, false);
+                return true;
+            }).sorted((c1, c2) -> {
+                if (c1 == null || c1.getInvokers() == null || c1.getInvokers().isEmpty() || c1.getInvokers().get(0).getInvoker() == null) {
+                    return 1;
+                }
+                if (c2 == null || c2.getInvokers() == null || c2.getInvokers().isEmpty() || c2.getInvokers().get(0).getInvoker() == null) {
+                    return -1;
+                }
+                return c1.getInvokers().get(0).getInvoker().compareToIgnoreCase(c2.getInvokers().get(0).getInvoker());
+            }).collect(Collectors.toList());
+            final StringBuilder sb = new StringBuilder();
+            final String command_prefix = sendPrivate ? Standard.getStandardCommandPrefix() : Standard.getCommandPrefixByGuild(event.getGuild());
+            sb.append("Help Overview | Command Prefix: ");
+            sb.append(command_prefix);
+            sb.append("\n\n");
+            final HashMap<CommandCategory, List<Command>> commands_categorized = new HashMap<>();
+            commands.stream().forEach((command) -> {
+                final CommandCategory commandCategory = Standard.getCommandCategory(command.getCommandCategory());
+                List<Command> commands__ = commands_categorized.get(commandCategory);
+                if (commands__ == null) {
+                    commands__ = new ArrayList<>();
+                    commands_categorized.put(commandCategory, commands__);
+                }
+                commands__.add(command);
+            });
+            final AtomicInteger length_max = new AtomicInteger(0);
+            commands_categorized.keySet().stream().sorted((cc1, cc2) -> {
+                if (cc1 == null || cc1.getName() == null || cc1.getName().isEmpty()) {
+                    return 1;
+                }
+                if (cc2 == null || cc2.getName() == null || cc2.getName().isEmpty()) {
+                    return -1;
+                }
+                return cc1.getName().compareToIgnoreCase(cc2.getName());
+            }).forEach((commandCategory) -> {
+                sb.append(commandCategory.getEmoji());
+                sb.append(" - ");
+                sb.append(commandCategory.getName());
+                sb.append("\n");
+                length_max.set(0);
+                final List<Command> commands_ = commands_categorized.get(commandCategory);
+                commands_.stream().forEach((command) -> {
+                    length_max.set(Math.max(length_max.get(), command.getInvokers().get(0).toString().length()));
+                });
+                sb.append(Util.makeTable(commands_, (command) -> command.getInvokers().get(0).toString(), length_max.get() + 2, Util.getGoodSquareNumber(commands_.size())));
+                sb.append("\n");
+            });
+            if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty(SEND_HELP_ALWAYS_PRIVATE, false)) {
+                Util.sendPrivateMessage(event.getAuthor(), sb.toString());
+            } else {
+                final Guild guild = event.getGuild();
+                if (!PermissionHandler.check(commands, guild, event.getTextChannel())) {
+                    Util.sendPrivateMessage(event.getAuthor(), sb.toString());
+                    return true;
+                }
+                event.sendMessage(sb.toString());
+            }
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     public static final EmbedBuilder generateHelpMessage(Invoker invoker, MessageEvent event, Command command) {
         final EmbedBuilder builder = command.getHelp(invoker, new EmbedBuilder().setTitle(String.format("Help for \"%s\"", invoker)));
         final ArrayList<Invoker> invokers = command.getInvokers();
@@ -120,7 +197,7 @@ public class CommandHandler {
         }
         return builder;
     }
-    
+
     public static final String getInvokersAsString(List<Invoker> invokers) {
         if (invokers == null || invokers.isEmpty()) {
             return "";

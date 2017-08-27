@@ -4,6 +4,7 @@ import de.codemakers.bot.supreme.audio.recording.AudioReceiveListener;
 import de.codemakers.bot.supreme.audio.recording.AudioSendListener;
 import de.codemakers.bot.supreme.audio.util.AudioEncoder;
 import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
@@ -130,6 +131,11 @@ public class AudioRecorderCommand extends Command { //FIXME Was ist wenn Music a
     @Override
     public String getCommandID() {
         return getClass().getName();
+    }
+
+    @Override
+    public CommandCategory getCommandCategory() {
+        return Standard.COMMANDCATEGORY_NORMAL;
     }
 
 }

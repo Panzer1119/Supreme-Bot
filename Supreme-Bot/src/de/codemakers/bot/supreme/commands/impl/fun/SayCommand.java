@@ -1,10 +1,12 @@
 package de.codemakers.bot.supreme.commands.impl.fun;
 
 import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.EmbedBuilder;
 
 /**
@@ -48,6 +50,11 @@ public class SayCommand extends Command {
     @Override
     public final String getCommandID() {
         return getClass().getName();
+    }
+
+    @Override
+    public CommandCategory getCommandCategory() {
+        return Standard.COMMANDCATEGORY_FUN;
     }
 
 }

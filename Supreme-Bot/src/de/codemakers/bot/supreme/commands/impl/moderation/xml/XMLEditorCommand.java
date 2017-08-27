@@ -1,6 +1,7 @@
 package de.codemakers.bot.supreme.commands.impl.moderation.xml;
 
 import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
@@ -356,6 +357,11 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
             return false;
         }
 
+    }
+
+    @Override
+    public CommandCategory getCommandCategory() {
+        return Standard.COMMANDCATEGORY_MODERATION_XML;
     }
 
 }

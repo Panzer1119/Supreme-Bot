@@ -1,15 +1,15 @@
 package de.codemakers.bot.supreme.commands.impl;
 
 import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
-import de.codemakers.bot.supreme.util.Util;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Message;
 
 /**
  * HelpCommand
@@ -29,9 +29,13 @@ public class HelpCommand extends Command {
     }
 
     @Override
-    public final void action(Invoker invoker, ArgumentList arguments, de.codemakers.bot.supreme.entities.MessageEvent event) { //TODO Das mit Seiten und so machen, wie bei der Musik Playlist....
-        if (arguments != null && arguments.isSize(1, -1)) {
-            final boolean sendPrivate = arguments.isConsumed(Standard.ARGUMENT_PRIVATE, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
+    public final void action(Invoker invoker, ArgumentList arguments, de.codemakers.bot.supreme.entities.MessageEvent event) {
+        if (arguments == null || arguments.isEmpty()) {
+            CommandHandler.sendHelpList(event, false);
+        } else if (arguments.isSize(1) && arguments.isConsumed(Standard.ARGUMENT_PRIVATE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
+            CommandHandler.sendHelpList(event, true);
+        } else if (arguments.isSize(1, -1)) {
+            final boolean sendPrivate = arguments.isConsumed(Standard.ARGUMENT_PRIVATE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
             while (arguments.hasArguments()) {
                 final String command_help_invoker_string = arguments.consumeFirst();
                 final Invoker command_help_invoker = Invoker.getInvokerByInvokerString(command_help_invoker_string);
@@ -39,15 +43,9 @@ public class HelpCommand extends Command {
                 if (command != null) {
                     CommandHandler.sendHelpMessage(command_help_invoker, event, command, sendPrivate);
                 } else {
-                    final Message message = event.sendAndWaitMessageFormat(":warning: Sorry %s, the command \"%s\" wasn't found!", event.getAuthor().getAsMention(), command_help_invoker_string);
-                    final long delay = Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(event.getGuild());
-                    if (delay != -1) {
-                        Util.deleteMessage(message, delay);
-                    }
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the command \"%s\" wasn't found!", Emoji.WARNING, event.getAuthor().getAsMention(), command_help_invoker_string);
                 }
             }
-        } else {
-            CommandHandler.sendHelpMessage(invoker, event, this, false);
         }
     }
 
@@ -70,6 +68,11 @@ public class HelpCommand extends Command {
     @Override
     public final String getCommandID() {
         return getClass().getName();
+    }
+
+    @Override
+    public CommandCategory getCommandCategory() {
+        return Standard.COMMANDCATEGORY_NORMAL;
     }
 
 }

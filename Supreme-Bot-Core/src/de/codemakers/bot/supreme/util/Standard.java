@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.util;
 
+import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.Argument;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
@@ -80,7 +81,7 @@ public class Standard {
 
     public static final String STANDARD_RECORDINGS_FOLDER_NAME = "recordings";
     public static final AdvancedFile STANDARD_RECORDINGS_FOLE = getFile(STANDARD_RECORDINGS_FOLDER_NAME);
-    
+
     public static PermissionRole STANDARD_PERMISSION_ROLE = null;
 
     public static final String XML_PERMISSIONROLES = "permissionroles";
@@ -732,6 +733,10 @@ public class Standard {
         }
     }
 
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER_BOT_COMMANDER = (permissionRole, member) -> {
+        return Standard.isSuperOwner(member);
+    };
+
     public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_OWNER_BOT_COMMANDER = (permissionRole, member) -> {
         final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
         final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
@@ -750,13 +755,29 @@ public class Standard {
         return Standard.isSuperOwner(member);
     };
 
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER_BOT_COMMANDER = (permissionRole, member) -> {
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_MODERATOR = (permissionRole, member) -> {
+        final PermissionRole admin = PermissionRole.getPermissionRoleByName("Moderator");
+        if (permissionRole.isPermissionGranted(admin)) {
+            return true;
+        }
         return Standard.isSuperOwner(member);
     };
 
     public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_NOBODY = (permissionRole, member) -> {
         return false;
     };
+
+    public static final CommandCategory COMMANDCATEGORY_NONE = new CommandCategory(null, "None", ":children_crossing:");
+    public static final CommandCategory COMMANDCATEGORY_ALL = new CommandCategory(null, "All", ":ledger:");
+    public static final CommandCategory COMMANDCATEGORY_NORMAL = new CommandCategory(COMMANDCATEGORY_ALL, "Normal", Emoji.INFORMATION);
+    public static final CommandCategory COMMANDCATEGORY_FUN = new CommandCategory(COMMANDCATEGORY_ALL, "Fun", Emoji.ROLL);
+    public static final CommandCategory COMMANDCATEGORY_MODERATION = new CommandCategory(COMMANDCATEGORY_ALL, "Moderation", ":level_slider:");
+    public static final CommandCategory COMMANDCATEGORY_MODERATION_XML = new CommandCategory(COMMANDCATEGORY_MODERATION, "Moderation - XML", ":pencil:");
+    public static final CommandCategory COMMANDCATEGORY_TEST = new CommandCategory(COMMANDCATEGORY_ALL, "Test", Emoji.WARNING);
+    
+    public static final CommandCategory getCommandCategory(CommandCategory commandCategory) {
+        return commandCategory == null ? COMMANDCATEGORY_NONE : commandCategory;
+    }
 
     public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner", "nickname"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
     public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/", "!"};

@@ -1,7 +1,9 @@
 package de.codemakers.bot.supreme.permission;
 
+import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.util.AdvancedFile;
+import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.XMLUtil;
 import java.io.InputStream;
@@ -11,6 +13,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.PermissionOverride;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -89,6 +92,29 @@ public class PermissionHandler {
             }
         }
         return true;
+    }
+
+    public static final boolean check(List<Command> commands, Guild guild, Channel channel) {
+        if (guild == null || channel == null) {
+            return false;
+        }
+        if (commands == null || commands.isEmpty()) {
+            return true;
+        }
+        if (channel.getRolePermissionOverrides().isEmpty()) {
+            return false;
+        }
+        boolean ok = true;
+        for (Command command : commands) {
+            if (!check(command.getPermissionRoleFilter(), guild, channel)) {
+                if (channel instanceof TextChannel) {
+                    ((TextChannel) channel).sendMessageFormat("%s Sorry, you don't have the permissions to use \"%s\"!", Emoji.WARNING, command.getInvokers().get(0)).queue();
+                }
+                ok = false;
+            }
+        }
+        return ok;
+        //return commands.stream().noneMatch((command) -> (!check(command.getPermissionRoleFilter(), guild, channel)));
     }
 
     public static final boolean sendNoPermissionMessage(MessageEvent event) {

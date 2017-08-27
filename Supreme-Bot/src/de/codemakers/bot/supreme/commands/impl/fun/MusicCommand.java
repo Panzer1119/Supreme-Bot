@@ -13,6 +13,7 @@ import de.codemakers.bot.supreme.audio.core.AudioInfo;
 import de.codemakers.bot.supreme.audio.core.PlayerSendHandler;
 import de.codemakers.bot.supreme.audio.core.TrackManager;
 import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
@@ -521,6 +522,11 @@ public class MusicCommand extends Command {
     @Override
     public final String getCommandID() {
         return getClass().getName();
+    }
+
+    @Override
+    public CommandCategory getCommandCategory() {
+        return Standard.COMMANDCATEGORY_FUN;
     }
 
 }

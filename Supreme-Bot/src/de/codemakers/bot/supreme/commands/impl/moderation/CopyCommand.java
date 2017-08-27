@@ -1,6 +1,7 @@
 package de.codemakers.bot.supreme.commands.impl.moderation;
 
 import de.codemakers.bot.supreme.commands.Command;
+import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
@@ -18,6 +19,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 
 /**
  * Copy Command
+ *
  * @author Panzer1119
  */
 public class CopyCommand extends Command {
@@ -42,12 +44,10 @@ public class CopyCommand extends Command {
             } else {
                 return false;
             }
+        } else if (message) {
+            return arguments.isSize(3);
         } else {
-            if (message) {
-                return arguments.isSize(3);
-            } else {
-                return false;
-            }
+            return false;
         }
     }
 
@@ -116,5 +116,10 @@ public class CopyCommand extends Command {
     public String getCommandID() {
         return getClass().getName();
     }
-    
+
+    @Override
+    public CommandCategory getCommandCategory() {
+        return Standard.COMMANDCATEGORY_MODERATION;
+    }
+
 }
