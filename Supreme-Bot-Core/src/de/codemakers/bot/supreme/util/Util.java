@@ -1,9 +1,12 @@
 package de.codemakers.bot.supreme.util;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 
 /**
@@ -373,7 +376,7 @@ public class Util {
         }
         return out;
     }
-    
+
     public static final String joinNumbers(String separator, int... numbers) {
         if (numbers == null || numbers.length == 0) {
             return "";
@@ -386,6 +389,44 @@ public class Util {
             out = out.substring(separator.length());
         }
         return out;
+    }
+
+    public static final String joinList(List list) {
+        if (list == null || list.isEmpty()) {
+            return "";
+        }
+        return (String) list.stream().collect(Collectors.joining());
+    }
+
+    public static final String joinList(List list, String delimiter) {
+        if (list == null || list.isEmpty()) {
+            return "";
+        }
+        return (String) list.stream().collect(Collectors.joining(delimiter));
+    }
+
+    public static final String joinList(List list, String delimiter, String prefix, String suffix) {
+        if (list == null || list.isEmpty()) {
+            return "";
+        }
+        return (String) list.stream().collect(Collectors.joining(delimiter, prefix, suffix));
+    }
+
+    public static final String rolesToString(List<Role> roles, boolean asMention) {
+        if (roles == null || roles.isEmpty()) {
+            return "";
+        }
+        final StringBuilder sb = new StringBuilder();
+        roles.stream().forEach((role) -> {
+            if (asMention) {
+                sb.append(role.getAsMention());
+            } else {
+                sb.append(role.getName());
+            }
+            sb.append(", ");
+        });
+        sb.delete(sb.length() - ", ".length(), sb.length());
+        return sb.toString();
     }
 
 }

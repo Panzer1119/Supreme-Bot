@@ -24,7 +24,7 @@ import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
 import de.codemakers.bot.supreme.listeners.CommandListener;
 import de.codemakers.bot.supreme.listeners.MemberListener;
 import de.codemakers.bot.supreme.listeners.ReadyListener;
-import de.codemakers.bot.supreme.listeners.VoiceListener;
+import de.codemakers.bot.supreme.listeners.GuildVoiceLogger;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.SystemOutputStream;
 import java.security.Permission;
@@ -89,7 +89,7 @@ public class SupremeBot {
     private static final boolean initListeners() {
         try {
             builder.addEventListener(new ReadyListener());
-            builder.addEventListener(new VoiceListener());
+            builder.addEventListener(new GuildVoiceLogger());
             builder.addEventListener(new MemberListener());
             builder.addEventListener(new CommandListener());
             return true;
