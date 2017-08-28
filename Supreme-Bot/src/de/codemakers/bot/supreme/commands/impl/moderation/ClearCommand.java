@@ -5,13 +5,10 @@ import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRole;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
-import de.codemakers.bot.supreme.util.Util;
 import java.awt.Color;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageHistory;
 
 /**
@@ -56,10 +53,7 @@ public class ClearCommand extends Command {
                 history.retrievePast(clearLines).complete().stream().forEach((message) -> {
                     event.getMessageChannel().deleteMessageById(message.getId()).queue();
                 });
-                final Message message = event.sendAndWaitMessage(Standard.getMessageEmbed(Color.GREEN, "Deleted %d messages!", clearLines).build());
-                Util.sheduleTimerAndRemove(() -> {
-                    message.delete().queue();
-                }, 3000);
+                event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.GREEN, "Deleted %d messages!", clearLines).build());
             } catch (Exception ex) {
                 System.err.println(ex);
                 //ex.printStackTrace();

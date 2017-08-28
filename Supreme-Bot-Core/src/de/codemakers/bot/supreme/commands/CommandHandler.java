@@ -131,8 +131,7 @@ public class CommandHandler {
         }
         try {
             final List<Command> commands = CommandHandler.COMMANDS.stream().filter((command) -> {
-                PermissionHandler.check(command.getPermissionRoleFilter(), event, false);
-                return true;
+                return PermissionHandler.check(command.getPermissionRoleFilter(), event, false); //FIXME Should a user only can see the Commands he is allowed to use?
             }).sorted(Command.COMPARATOR).collect(Collectors.toList());
             final StringBuilder sb = new StringBuilder();
             final String command_prefix = sendPrivate ? Standard.getStandardCommandPrefix() : Standard.getCommandPrefixByGuild(event.getGuild());

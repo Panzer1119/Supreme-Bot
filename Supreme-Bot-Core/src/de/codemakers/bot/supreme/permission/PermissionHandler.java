@@ -5,6 +5,7 @@ import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Util;
 import de.codemakers.bot.supreme.util.XMLUtil;
 import java.io.InputStream;
 import java.util.List;
@@ -108,7 +109,7 @@ public class PermissionHandler {
         for (Command command : commands) {
             if (!check(command.getPermissionRoleFilter(), guild, channel)) {
                 if (channel instanceof TextChannel) {
-                    ((TextChannel) channel).sendMessageFormat("%s Sorry, you don't have the permissions to use \"%s\"!", Emoji.WARNING, command.getInvokers().get(0)).queue();
+                    Util.deleteMessage(((TextChannel) channel).sendMessageFormat("%s Sorry, someone in this TextChannel doesn't have the permissions to use \"%s\"!", Emoji.WARNING, command.getInvokers().get(0)).complete(), Standard.STANDARD_MESSAGE_DELETING_DELAY);
                 }
                 ok = false;
             }
