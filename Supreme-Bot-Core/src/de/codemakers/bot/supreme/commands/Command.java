@@ -10,6 +10,7 @@ import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
@@ -22,6 +23,15 @@ import net.dv8tion.jda.core.entities.User;
 public abstract class Command implements Invokeable {
 
     private final ArrayList<Invoker> invokers = Invoker.createInvokerArrayList();
+    public static final Comparator<Command> COMPARATOR = (c1, c2) -> {
+        if (c1 == null || c1.getInvokers() == null || c1.getInvokers().isEmpty() || c1.getInvokers().get(0).getInvoker() == null) {
+            return 1;
+        }
+        if (c2 == null || c2.getInvokers() == null || c2.getInvokers().isEmpty() || c2.getInvokers().get(0).getInvoker() == null) {
+            return -1;
+        }
+        return c1.getInvokers().get(0).getInvoker().compareToIgnoreCase(c2.getInvokers().get(0).getInvoker());
+    };
 
     public Command(Invoker... invokers) {
         addInvokers(invokers);

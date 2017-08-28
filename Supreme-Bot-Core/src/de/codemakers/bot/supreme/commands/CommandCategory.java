@@ -1,6 +1,7 @@
 package de.codemakers.bot.supreme.commands;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,15 @@ import java.util.stream.Collectors;
 public class CommandCategory {
 
     public static final ArrayList<CommandCategory> COMMANDCATEGORIES = new ArrayList<>();
+    public static final Comparator<CommandCategory> COMPARATOR = (cc1, cc2) -> {
+        if (cc1 == null || cc1.getName() == null || cc1.getName().isEmpty()) {
+            return 1;
+        }
+        if (cc2 == null || cc2.getName() == null || cc2.getName().isEmpty()) {
+            return -1;
+        }
+        return cc1.getName().compareToIgnoreCase(cc2.getName());
+    };
 
     private final CommandCategory ME = this;
     private CommandCategory parent = null;
@@ -50,6 +60,10 @@ public class CommandCategory {
     public final CommandCategory setEmoji(String emoji) {
         this.emoji = emoji;
         return this;
+    }
+
+    public final String toListEntry() {
+        return emoji + " - " + name;
     }
 
     public final boolean register() {
@@ -113,6 +127,15 @@ public class CommandCategory {
     @Override
     public String toString() {
         return name;
+    }
+
+    public static final List<CommandCategory> getRoots() {
+        if (COMMANDCATEGORIES.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return COMMANDCATEGORIES.stream().filter((commandCategory) -> {
+            return (commandCategory.parent == null);
+        }).collect(Collectors.toList());
     }
 
 }

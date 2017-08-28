@@ -768,6 +768,7 @@ public class Standard {
     };
 
     public static final CommandCategory COMMANDCATEGORY_NONE = new CommandCategory(null, "None", ":children_crossing:");
+    public static final CommandCategory COMMANDCATEGORY_FORBIDDEN = new CommandCategory(null, "Forbidden", ":no_entry:");
     public static final CommandCategory COMMANDCATEGORY_ALL = new CommandCategory(null, "All", ":ledger:");
     public static final CommandCategory COMMANDCATEGORY_NORMAL = new CommandCategory(COMMANDCATEGORY_ALL, "Normal", Emoji.INFORMATION);
     public static final CommandCategory COMMANDCATEGORY_FUN = new CommandCategory(COMMANDCATEGORY_ALL, "Fun", Emoji.ROLL);

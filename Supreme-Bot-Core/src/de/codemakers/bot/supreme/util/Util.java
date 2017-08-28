@@ -493,4 +493,39 @@ public class Util {
         }
     }
 
+    /**
+     * Example:
+     *
+     * text = "123\n456\n789";
+     *
+     * text_new = modifyColumnwiseToString(text, "|", ":");
+     *
+     * text_new == "|123:\n|456:\n|789:";
+     *
+     * @param text Text to modify
+     * @param delimiter Delimiter
+     * @param prefix Prefix
+     * @param suffix Suffix
+     * @return Modified String
+     */
+    public static final String modifyColumnwiseToString(String text, String delimiter, String prefix, String suffix) {
+        if (prefix == null && suffix == null) {
+            return text;
+        }
+        if (text == null) {
+            return null;
+        } else if (text.isEmpty()) {
+            return prefix + suffix;
+        }
+        if (delimiter == null) {
+            delimiter = "\n";
+        }
+        final String[] split = text.split(delimiter);
+        String out = "";
+        for (String g : split) {
+            out += prefix + g + suffix + delimiter;
+        }
+        return out;
+    }
+
 }

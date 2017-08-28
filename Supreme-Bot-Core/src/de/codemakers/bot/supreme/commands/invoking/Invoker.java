@@ -5,25 +5,25 @@ import java.util.ArrayList;
 
 /**
  * Invoke
- * 
+ *
  * @author Panzer1119
  */
 public class Invoker implements Invokeable {
-    
+
     public static final ArrayList<Invoker> INVOKERS = createInvokerArrayList();
-    
+
     private final String invoker;
     private Invokeable invokeable;
-    
+
     public Invoker(String invoker) {
         this(invoker, null);
     }
-    
+
     public Invoker(String invoker, Invokeable invokeable) {
         this.invoker = invoker;
         this.invokeable = invokeable;
     }
-    
+
     public final String getInvoker() {
         return invoker;
     }
@@ -35,7 +35,7 @@ public class Invoker implements Invokeable {
         }
         return invokeable.getInvokeable();
     }
-    
+
     public final Invokeable getDirectInvokeable() {
         return invokeable;
     }
@@ -44,7 +44,7 @@ public class Invoker implements Invokeable {
         this.invokeable = invokeable;
         return this;
     }
-    
+
     @Override
     public boolean equals(Object object) {
         if (object == null) {
@@ -63,24 +63,24 @@ public class Invoker implements Invokeable {
             return false;
         }
     }
-    
+
     @Override
     public final String toString() {
         return getInvoker();
     }
-    
+
     public static final Invoker createInvoker(String invoker_string) {
         final Invoker invoker = new Invoker(invoker_string);
         INVOKERS.add(invoker);
         return invoker;
     }
-    
+
     public static final Invoker createInvoker(String invoker_string, Invokeable invokeable) {
         final Invoker invoker = new Invoker(invoker_string, invokeable);
         INVOKERS.add(invoker);
         return invoker;
     }
-    
+
     public static final boolean deleteInvoker(Invoker invoker) {
         if (invoker == null || !INVOKERS.contains(invoker)) {
             return false;
@@ -91,7 +91,7 @@ public class Invoker implements Invokeable {
         }
         return true;
     }
-    
+
     public static final Invoker getInvokerByInvokerString(String invoker_string) {
         if (invoker_string == null || INVOKERS.isEmpty()) {
             return null;
@@ -103,7 +103,7 @@ public class Invoker implements Invokeable {
         }
         return null;
     }
-    
+
     public static final ArrayList<Invoker> getInvokersByCommand(Command command) {
         if (command == null || INVOKERS.isEmpty()) {
             return new ArrayList<>();
@@ -114,7 +114,7 @@ public class Invoker implements Invokeable {
         });
         return invokers;
     }
-    
+
     public static final ArrayList<Invoker> createInvokerArrayList() {
         return new ArrayList<Invoker>() {
             @Override
@@ -141,5 +141,5 @@ public class Invoker implements Invokeable {
             }
         };
     }
-    
+
 }

@@ -24,6 +24,12 @@ public class CommandHandler {
 
     public static final String SEND_HELP_ALWAYS_PRIVATE = "send_help_always_private";
 
+    public static final String COMMANDCATEGORY_HIERARCHY_SPACER = "   ";
+    public static final String COMMANDCATEGORY_HIERARCHY_NEW_LINE = "\n";
+    public static final String COMMANDCATEGORY_HIERARCHY_LINE_DOWN = " |";
+    public static final String COMMANDCATEGORY_HIERARCHY_LINE_CROSS = "├──";
+    public static final String COMMANDCATEGORY_HIERARCHY_LINE_END = "└──";
+
     public static final ArrayList<Command> COMMANDS = new ArrayList<>();
 
     public static final boolean handleCommand(CommandContainer commandContainer) {
@@ -127,20 +133,17 @@ public class CommandHandler {
             final List<Command> commands = CommandHandler.COMMANDS.stream().filter((command) -> {
                 PermissionHandler.check(command.getPermissionRoleFilter(), event, false);
                 return true;
-            }).sorted((c1, c2) -> {
-                if (c1 == null || c1.getInvokers() == null || c1.getInvokers().isEmpty() || c1.getInvokers().get(0).getInvoker() == null) {
-                    return 1;
-                }
-                if (c2 == null || c2.getInvokers() == null || c2.getInvokers().isEmpty() || c2.getInvokers().get(0).getInvoker() == null) {
-                    return -1;
-                }
-                return c1.getInvokers().get(0).getInvoker().compareToIgnoreCase(c2.getInvokers().get(0).getInvoker());
-            }).collect(Collectors.toList());
+            }).sorted(Command.COMPARATOR).collect(Collectors.toList());
             final StringBuilder sb = new StringBuilder();
             final String command_prefix = sendPrivate ? Standard.getStandardCommandPrefix() : Standard.getCommandPrefixByGuild(event.getGuild());
-            sb.append("Help Overview | Command Prefix: ");
-            sb.append(command_prefix);
+            sb.append(Standard.toBold("Help Overview | Command Prefix: " + command_prefix));
+            sb.append("\n\n\n");
+            sb.append(Standard.toUnderlineBold("Command Hierarchy:"));
             sb.append("\n\n");
+            sb.append(generateCommandCategoriesHierarchy());
+            sb.append("\n\n");
+            sb.append(Standard.toUnderlineBold("Commands:"));
+            sb.append("\n\n\n");
             final HashMap<CommandCategory, List<Command>> commands_categorized = new HashMap<>();
             commands.stream().forEach((command) -> {
                 final CommandCategory commandCategory = Standard.getCommandCategory(command.getCommandCategory());
@@ -152,18 +155,10 @@ public class CommandHandler {
                 commands__.add(command);
             });
             final AtomicInteger length_max = new AtomicInteger(0);
-            commands_categorized.keySet().stream().sorted((cc1, cc2) -> {
-                if (cc1 == null || cc1.getName() == null || cc1.getName().isEmpty()) {
-                    return 1;
-                }
-                if (cc2 == null || cc2.getName() == null || cc2.getName().isEmpty()) {
-                    return -1;
-                }
-                return cc1.getName().compareToIgnoreCase(cc2.getName());
-            }).forEach((commandCategory) -> {
+            commands_categorized.keySet().stream().sorted(CommandCategory.COMPARATOR).forEach((commandCategory) -> {
                 sb.append(commandCategory.getEmoji());
                 sb.append(" - ");
-                sb.append(commandCategory.getName());
+                sb.append(Standard.toUnderlineBold(commandCategory.getName()));
                 sb.append("\n");
                 length_max.set(0);
                 final List<Command> commands_ = commands_categorized.get(commandCategory);
@@ -173,15 +168,17 @@ public class CommandHandler {
                 sb.append(Util.makeTable(commands_, (command) -> command.getInvokers().get(0).toString(), length_max.get() + 2, Util.getGoodSquareNumber(commands_.size())));
                 sb.append("\n");
             });
+            final String output = sb.toString();
+            sb.delete(0, sb.length());
             if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty(SEND_HELP_ALWAYS_PRIVATE, false)) {
-                Util.sendPrivateMessage(event.getAuthor(), sb.toString());
+                Util.sendPrivateMessage(event.getAuthor(), output);
             } else {
                 final Guild guild = event.getGuild();
                 if (!PermissionHandler.check(commands, guild, event.getTextChannel())) {
-                    Util.sendPrivateMessage(event.getAuthor(), sb.toString());
+                    Util.sendPrivateMessage(event.getAuthor(), output);
                     return true;
                 }
-                event.sendMessage(sb.toString());
+                event.sendMessage(output);
             }
             return true;
         } catch (Exception ex) {
@@ -196,6 +193,64 @@ public class CommandHandler {
             builder.setDescription(String.format("Associated Command Invokers: %s", getInvokersAsString(invokers.stream().filter((invoker_) -> !invoker.equals(invoker_)).collect(Collectors.toList()))));
         }
         return builder;
+    }
+
+    public static final String generateCommandCategoriesHierarchy() {
+        final StringBuilder sb = new StringBuilder();
+        final List<CommandCategory> commandCategory_roots = CommandCategory.getRoots();
+        commandCategory_roots.stream().sorted(CommandCategory.COMPARATOR).forEach((commandCategory) -> {
+            generateCommandCategoriesHierarchy(sb, commandCategory, -1, false);
+        });
+        String output = sb.toString();
+        final String[] split = output.split(COMMANDCATEGORY_HIERARCHY_NEW_LINE);
+        for (int i = 0; i < split.length; i++) {
+            if (!split[i].contains(COMMANDCATEGORY_HIERARCHY_LINE_END)) {
+                continue;
+            }
+            int index = -1;
+            while ((index = split[i].indexOf(COMMANDCATEGORY_HIERARCHY_LINE_END, index + 1)) != -1) {
+                int z = 1;
+                while (((i + z) < split.length) && (split[i + z].contains(COMMANDCATEGORY_HIERARCHY_LINE_DOWN))) {
+                    split[i + z] = split[i + z].substring(0, index + COMMANDCATEGORY_HIERARCHY_LINE_DOWN.length() - 1) + " " + split[i + z].substring(index + COMMANDCATEGORY_HIERARCHY_LINE_DOWN.length());
+                    z++;
+                }
+            }
+        }
+        output = "";
+        for (String g : split) {
+            output += g + COMMANDCATEGORY_HIERARCHY_NEW_LINE;
+        }
+        return output;
+    }
+
+    private static final boolean generateCommandCategoriesHierarchy(StringBuilder sb, CommandCategory commandCategory, int depth, boolean last) {
+        if (depth > -1) {
+            sb.append(COMMANDCATEGORY_HIERARCHY_SPACER);
+        }
+        for (int i = 0; i < depth; i++) {
+            if (depth > 0) {
+                sb.append(COMMANDCATEGORY_HIERARCHY_LINE_DOWN);
+            }
+            sb.append(COMMANDCATEGORY_HIERARCHY_SPACER);
+            sb.append(COMMANDCATEGORY_HIERARCHY_SPACER);
+            sb.append(COMMANDCATEGORY_HIERARCHY_SPACER);
+        }
+        final List<CommandCategory> children = commandCategory.getChildren(false);
+        if (depth >= 0) {
+            if (last) {
+                sb.append(COMMANDCATEGORY_HIERARCHY_LINE_END);
+            } else {
+                sb.append(COMMANDCATEGORY_HIERARCHY_LINE_CROSS);
+            }
+        }
+        sb.append(commandCategory.toListEntry());
+        sb.append(COMMANDCATEGORY_HIERARCHY_NEW_LINE);
+        final AtomicInteger index = new AtomicInteger(1);
+        children.stream().sorted(CommandCategory.COMPARATOR).forEach((commandCategory_) -> {
+            generateCommandCategoriesHierarchy(sb, commandCategory_, depth + 1, index.get() >= children.size());
+            index.set(index.get() + 1);
+        });
+        return true;
     }
 
     public static final String getInvokersAsString(List<Invoker> invokers) {
