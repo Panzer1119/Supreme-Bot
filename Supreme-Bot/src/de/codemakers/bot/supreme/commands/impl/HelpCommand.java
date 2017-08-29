@@ -31,9 +31,11 @@ public class HelpCommand extends Command {
     @Override
     public final void action(Invoker invoker, ArgumentList arguments, de.codemakers.bot.supreme.entities.MessageEvent event) {
         if (arguments == null || arguments.isEmpty()) {
-            CommandHandler.sendHelpList(event, false);
+            CommandHandler.sendHelpList(event, false, false);
         } else if (arguments.isSize(1) && arguments.isConsumed(Standard.ARGUMENT_PRIVATE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
-            CommandHandler.sendHelpList(event, true);
+            CommandHandler.sendHelpList(event, false, true);
+        } else if (arguments.isSize(1) && arguments.isConsumed(Standard.ARGUMENT_HERE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
+            CommandHandler.sendHelpList(event, true, false);
         } else if (arguments.isSize(1, -1)) {
             final boolean sendPrivate = arguments.isConsumed(Standard.ARGUMENT_PRIVATE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
             while (arguments.hasArguments()) {
@@ -56,7 +58,7 @@ public class HelpCommand extends Command {
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s [%s] [Command 1] [Command 2] [Command 3]...", invoker, Standard.ARGUMENT_PRIVATE.getCompleteArgument(0, -1)), String.format("Returns the help for the given commands. And with the flag \"%s\" the help will be send in the private chat.", Standard.ARGUMENT_PRIVATE.getCompleteArgument(0, -1)), false);
+        builder.addField(String.format("%s [%s|%s] [Command 1] [Command 2] [Command 3]...", invoker, Standard.ARGUMENT_PRIVATE.getCompleteArgument(0, -1), Standard.ARGUMENT_HERE.getCompleteArgument(0, -1)), String.format("Returns the help for the given commands. With the flag \"%s\" the help will be send in the private chat, or with the flag \"%s\" the bot tries to send the help in the current TextChannel.", Standard.ARGUMENT_PRIVATE.getCompleteArgument(0, -1), Standard.ARGUMENT_HERE.getCompleteArgument(0, -1)), false);
         return builder;
     }
 

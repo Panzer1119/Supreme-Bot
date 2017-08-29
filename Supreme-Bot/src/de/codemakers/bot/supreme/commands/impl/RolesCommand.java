@@ -106,7 +106,7 @@ public class RolesCommand extends Command {
             temp.delete(0, temp.length());
             count++;
         }
-        final EmbedBuilder builder = Standard.getMessageEmbed(Color.YELLOW, "%s here are the Discord/Bot Roles\nYour Roles are bold", event.getAuthor().getAsMention());
+        final EmbedBuilder builder = Standard.getMessageEmbed(Color.YELLOW, "%s here are the Discord/Bot Roles\nYour Roles are bold%s", event.getAuthor().getAsMention(), (id ? String.format(" (Your ID: %s)", event.getAuthor().getId()) : ""));
         builder.addField("Discord Roles", sb_1.toString(), true);
         builder.addField("Bot Roles", sb_2.toString(), true);
         event.sendMessage(builder.build());

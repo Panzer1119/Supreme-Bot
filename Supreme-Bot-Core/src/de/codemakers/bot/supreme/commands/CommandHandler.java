@@ -122,7 +122,7 @@ public class CommandHandler {
         return true;
     }
 
-    public static final boolean sendHelpList(MessageEvent event, boolean sendPrivate) {
+    public static final boolean sendHelpList(MessageEvent event, boolean forceSendInChannel, boolean sendPrivate) {
         if (event == null) {
             return false;
         }
@@ -130,8 +130,12 @@ public class CommandHandler {
             sendPrivate = true;
         }
         try {
+            final boolean sendPrivate_ = sendPrivate;
             final List<Command> commands = CommandHandler.COMMANDS.stream().filter((command) -> {
-                return PermissionHandler.check(command.getPermissionRoleFilter(), event, false); //FIXME Should a user only can see the Commands he is allowed to use?
+                if (!sendPrivate_ && forceSendInChannel && !PermissionHandler.check(command.getPermissionRoleFilter(), event.getGuild(), event.getTextChannel())) {
+                    return false;
+                }
+                return PermissionHandler.check(command.getPermissionRoleFilter(), event, false); //TODO Should a user only can see the Commands he is allowed to use?
             }).sorted(Command.COMPARATOR).collect(Collectors.toList());
             final StringBuilder sb = new StringBuilder();
             final String command_prefix = sendPrivate ? Standard.getStandardCommandPrefix() : Standard.getCommandPrefixByGuild(event.getGuild());
@@ -139,7 +143,7 @@ public class CommandHandler {
             sb.append("\n\n\n");
             sb.append(Standard.toUnderlineBold("Command Hierarchy:"));
             sb.append("\n\n");
-            sb.append(generateCommandCategoriesHierarchy());
+            sb.append(generateCommandCategoriesHierarchy(commands));
             sb.append("\n\n");
             sb.append(Standard.toUnderlineBold("Commands:"));
             sb.append("\n\n\n");
@@ -173,7 +177,7 @@ public class CommandHandler {
                 Util.sendPrivateMessage(event.getAuthor(), output);
             } else {
                 final Guild guild = event.getGuild();
-                if (!PermissionHandler.check(commands, guild, event.getTextChannel())) {
+                if (!PermissionHandler.check(commands, guild, event.getTextChannel(), false)) {
                     Util.sendPrivateMessage(event.getAuthor(), output);
                     return true;
                 }
@@ -194,11 +198,11 @@ public class CommandHandler {
         return builder;
     }
 
-    public static final String generateCommandCategoriesHierarchy() {
+    public static final String generateCommandCategoriesHierarchy(List<Command> commands) {
         final StringBuilder sb = new StringBuilder();
         final List<CommandCategory> commandCategory_roots = CommandCategory.getRoots();
         commandCategory_roots.stream().sorted(CommandCategory.COMPARATOR).forEach((commandCategory) -> {
-            generateCommandCategoriesHierarchy(sb, commandCategory, -1, false);
+            generateCommandCategoriesHierarchy(commands, sb, commandCategory, -1, false);
         });
         String output = sb.toString();
         final String[] split = output.split(COMMANDCATEGORY_HIERARCHY_NEW_LINE);
@@ -222,7 +226,13 @@ public class CommandHandler {
         return output;
     }
 
-    private static final boolean generateCommandCategoriesHierarchy(StringBuilder sb, CommandCategory commandCategory, int depth, boolean last) {
+    private static final boolean generateCommandCategoriesHierarchy(List<Command> commands, StringBuilder sb, CommandCategory commandCategory, int depth, boolean last) {
+        if (commands.isEmpty()) {
+            return false;
+        }
+        if (commandCategory.getCommands(true).stream().noneMatch((command) -> commands.contains(command))) {
+            return false;
+        }
         if (depth > -1) {
             sb.append(COMMANDCATEGORY_HIERARCHY_SPACER);
         }
@@ -246,7 +256,7 @@ public class CommandHandler {
         sb.append(COMMANDCATEGORY_HIERARCHY_NEW_LINE);
         final AtomicInteger index = new AtomicInteger(1);
         children.stream().sorted(CommandCategory.COMPARATOR).forEach((commandCategory_) -> {
-            generateCommandCategoriesHierarchy(sb, commandCategory_, depth + 1, index.get() >= children.size());
+            generateCommandCategoriesHierarchy(commands, sb, commandCategory_, depth + 1, index.get() >= children.size());
             index.set(index.get() + 1);
         });
         return true;

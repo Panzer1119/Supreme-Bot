@@ -775,7 +775,7 @@ public class Standard {
     public static final CommandCategory COMMANDCATEGORY_MODERATION = new CommandCategory(COMMANDCATEGORY_ALL, "Moderation", ":level_slider:");
     public static final CommandCategory COMMANDCATEGORY_MODERATION_XML = new CommandCategory(COMMANDCATEGORY_MODERATION, "Moderation - XML", ":pencil:");
     public static final CommandCategory COMMANDCATEGORY_TEST = new CommandCategory(COMMANDCATEGORY_ALL, "Test", Emoji.WARNING);
-    
+
     public static final CommandCategory getCommandCategory(CommandCategory commandCategory) {
         return commandCategory == null ? COMMANDCATEGORY_NONE : commandCategory;
     }
@@ -820,5 +820,6 @@ public class Standard {
     public static final Argument ARGUMENT_VOLUME = new Argument("volume", STANDARD_ARGUMENT_PREFIXES, "v");
     public static final Argument ARGUMENT_ID = new Argument("id", STANDARD_ARGUMENT_PREFIXES, "i");
     public static final Argument ARGUMENT_ASMENTION = new Argument("asMention", STANDARD_ARGUMENT_PREFIXES, "aM");
+    public static final Argument ARGUMENT_HERE = new Argument("here", STANDARD_ARGUMENT_PREFIXES, "h");
 
 }

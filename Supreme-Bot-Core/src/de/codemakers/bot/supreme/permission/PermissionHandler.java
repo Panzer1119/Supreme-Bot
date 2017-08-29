@@ -95,7 +95,7 @@ public class PermissionHandler {
         return true;
     }
 
-    public static final boolean check(List<Command> commands, Guild guild, Channel channel) {
+    public static final boolean check(List<Command> commands, Guild guild, Channel channel, boolean withMessage) {
         if (guild == null || channel == null) {
             return false;
         }
@@ -108,6 +108,9 @@ public class PermissionHandler {
         boolean ok = true;
         for (Command command : commands) {
             if (!check(command.getPermissionRoleFilter(), guild, channel)) {
+                if (!withMessage) {
+                    return false;
+                }
                 if (channel instanceof TextChannel) {
                     Util.deleteMessage(((TextChannel) channel).sendMessageFormat("%s Sorry, someone in this TextChannel doesn't have the permissions to use \"%s\"!", Emoji.WARNING, command.getInvokers().get(0)).complete(), Standard.STANDARD_MESSAGE_DELETING_DELAY);
                 }
