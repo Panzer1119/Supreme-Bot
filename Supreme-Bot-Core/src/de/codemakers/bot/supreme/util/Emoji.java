@@ -155,6 +155,7 @@ public class Emoji {
     public static final String ON = EmojiParser.parseToUnicode(":on:");
     public static final String FAST_FORWARD = EmojiParser.parseToUnicode(":fast_forward:");
     public static final String REWIND = EmojiParser.parseToUnicode(":rewind:");
+    public static final String TOP = EmojiParser.parseToUnicode(":top:");
 
     /* Fun */
     public static final String SQUARE_LARGE_BLACK = EmojiParser.parseToUnicode(":black_large_square:");

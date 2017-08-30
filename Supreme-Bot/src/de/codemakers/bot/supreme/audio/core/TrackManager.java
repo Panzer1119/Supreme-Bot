@@ -25,7 +25,7 @@ public class TrackManager extends AudioEventAdapter {
 
     private final AudioPlayer player;
     private final Queue<AudioInfo> queue;
-    private boolean loop = false;
+    private LoopType loopType = LoopType.NONE;
     Guild guild = null;
     VoiceChannel voiceChannel = null;
 
@@ -108,12 +108,33 @@ public class TrackManager extends AudioEventAdapter {
         return this;
     }
 
-    public final boolean isLoop() {
-        return loop;
+    public final LoopType getLoopType() {
+        return loopType;
     }
 
-    public final TrackManager setLoop(boolean loop) {
-        this.loop = loop;
+    public final TrackManager setLoopType(LoopType loopType) {
+        this.loopType = loopType;
+        if (this.loopType == null) {
+            this.loopType = LoopType.NONE;
+        }
+        return this;
+    }
+
+    public final TrackManager toggleLoopType() {
+        switch (loopType) {
+            case NONE:
+                setLoopType(LoopType.LOOP);
+                break;
+            case LOOP:
+                setLoopType(LoopType.LOOP_SINGLE);
+                break;
+            case LOOP_SINGLE:
+                setLoopType(LoopType.NONE);
+                break;
+            default:
+                setLoopType(null);
+                break;
+        }
         return this;
     }
 
@@ -136,16 +157,20 @@ public class TrackManager extends AudioEventAdapter {
 
     @Override
     public final void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        AudioInfo next = queue.poll();
-        System.out.println(String.format("Next AudioInfo: \"%s\", looping: %b", next, loop));
-        if (next != null && loop) {
-            queue(next);
-        }
-        if (next == null || /*!loop && */ queue.isEmpty()) { //FIXME Selbst wenn loop ist und die queue empty muss trotzdem abgebrochen werden?
-            guild.getAudioManager().closeAudioConnection();
-            SupremeBot.setStatus(null);
+        if (loopType.isLoop() && loopType.isSingle()) {
+            player.playTrack(track.makeClone());
         } else {
-            player.playTrack(queue.element().getTrack().makeClone());
+            AudioInfo next = queue.poll();
+            System.out.println(String.format("Next AudioInfo: \"%s\", LoopType: %s", next, loopType.toString()));
+            if (next != null && loopType.isLoop()) {
+                queue(next);
+            }
+            if (next == null || /*!loop && */ queue.isEmpty()) { //FIXME Selbst wenn loop ist und die queue empty muss trotzdem abgebrochen werden?
+                guild.getAudioManager().closeAudioConnection();
+                SupremeBot.setStatus(null);
+            } else {
+                player.playTrack(queue.element().getTrack().makeClone());
+            }
         }
     }
 

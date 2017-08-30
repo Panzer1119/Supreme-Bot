@@ -10,6 +10,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import de.codemakers.bot.supreme.audio.core.AudioInfo;
+import de.codemakers.bot.supreme.audio.core.LoopType;
 import de.codemakers.bot.supreme.audio.core.PlayerSendHandler;
 import de.codemakers.bot.supreme.audio.core.TrackManager;
 import de.codemakers.bot.supreme.commands.Command;
@@ -273,7 +274,7 @@ public class MusicCommand extends Command {
         } else if (shuffle) {
             return arguments.isSize(1, 2); //[times]
         } else if (loop) {
-            return arguments.isSize(1, 2); //[toggle]
+            return arguments.isSize(1, 3); //[toggle]
         } else if (info) {
             if (arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
                 return arguments.isSize(2, 3); //-live [playlist]
@@ -319,10 +320,7 @@ public class MusicCommand extends Command {
                     loadTrack((url ? "" : "ytsearch: ") + input, event, channel);
                     if (live) {
                         Util.sheduleTimerAndRemove(() -> {
-                            final AudioPlayer player_ = player.getKey();
-                            final AudioTrack track = player_.getPlayingTrack();
-                            final AudioTrackInfo trackInfo = track.getInfo();
-                            showLiveInfo(invoker, event, guild, channel, track, trackInfo);
+                            showLiveInfo(event, guild, channel);
                         }, 5000); //TODO Make this variable (ms) ???
                     }
                 }
@@ -390,15 +388,20 @@ public class MusicCommand extends Command {
                     return;
                 }
                 if (arguments.isEmpty()) {
-                    player.getValue().setLoop(!player.getValue().isLoop());
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%b\".", event.getAuthor().getAsMention(), player.getValue().isLoop());
+                    player.getValue().toggleLoopType();
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%s\".", event.getAuthor().getAsMention(), player.getValue().getLoopType());
                 } else {
                     try {
-                        player.getValue().setLoop(Boolean.parseBoolean(arguments.consumeFirst()));
-                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s setted music looping mode to \"%b\".", event.getAuthor().getAsMention(), player.getValue().isLoop());
+                        final boolean loop_loop = Boolean.parseBoolean(arguments.consumeFirst());
+                        boolean loop_single = false;
+                        if (!arguments.isEmpty()) {
+                            loop_single = Boolean.parseBoolean(arguments.consumeFirst());
+                        }
+                        player.getValue().setLoopType(LoopType.of(loop_loop, loop_single));
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s setted music looping mode to \"%s\".", event.getAuthor().getAsMention(), player.getValue().getLoopType());
                     } catch (Exception ex) {
-                        player.getValue().setLoop(!player.getValue().isLoop());
-                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%b\".", event.getAuthor().getAsMention(), player.getValue().isLoop());
+                    player.getValue().toggleLoopType();
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%s\".", event.getAuthor().getAsMention(), player.getValue().getLoopType());
                     }
                 }
             } else if (info) {
@@ -413,7 +416,7 @@ public class MusicCommand extends Command {
                 if (!live) {
                     event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
                 } else {
-                    showLiveInfo(invoker, event, guild, channel, track, trackInfo);
+                    showLiveInfo(event, guild, channel);
                 }
             } else if (queue) {
                 if (isIdle(guild)) {
@@ -430,8 +433,11 @@ public class MusicCommand extends Command {
                 final int MAX_TRACKS_PER_PAGE = 20; //FIXME Make this variable (Anzahl Tracks pro Seite)
                 final String queue_name = "default"; //TODO Add queues ability to save them
                 //TODO Alle Commands muessen methode machen mit stop, damit sie herunterfahren koennen
+                final int track_size = infos.size();
+                final int pageNumberAll = (int) ((track_size >= MAX_TRACKS_PER_PAGE ? track_size / MAX_TRACKS_PER_PAGE : 1) + 1.0);
+                pageNumber = Math.max(1, Math.min(pageNumberAll, pageNumber));
                 if (infos.size() > MAX_TRACKS_PER_PAGE) {
-                    infos = infos.subList((pageNumber - 1) * MAX_TRACKS_PER_PAGE, pageNumber * MAX_TRACKS_PER_PAGE);
+                    infos = infos.subList(Math.max(0, (pageNumber - 1) * MAX_TRACKS_PER_PAGE), Math.min(pageNumber * MAX_TRACKS_PER_PAGE, track_size));
                 }
                 AtomicLong length_all = new AtomicLong(0);
                 infos.stream().forEach((audioInfo) -> {
@@ -439,7 +445,6 @@ public class MusicCommand extends Command {
                     tracks.add(buildQueueMessage(audioInfo));
                 });
                 final String out = tracks.stream().collect(Collectors.joining("\n"));
-                final int pageNumberAll = tracks.size() >= MAX_TRACKS_PER_PAGE ? tracks.size() / MAX_TRACKS_PER_PAGE : 1;
                 tracks.clear();
                 infos.clear();
                 event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE: \"%s\"**%n%n*[%s Tracks | Duration `[ %s ]` | Page %d / %d]*%n%n%s", queue_name, player.getValue().getQueue().size(), getTimestamp(length_all.get()), pageNumber, pageNumberAll, out).build());
@@ -473,7 +478,7 @@ public class MusicCommand extends Command {
         }
     }
 
-    private final Message showLiveInfo(Invoker invoker, MessageEvent event, Guild guild, VoiceChannel channel, AudioTrack track, AudioTrackInfo trackInfo) {
+    private final Message showLiveInfo(MessageEvent event, Guild guild, VoiceChannel channel) { //TODO Add permission control for reactions!
         final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild, channel);
         final Message message = event.sendAndWaitMessageFormat(Standard.toBold("LIVE TRACK INFO"));
         message.addReaction(Emoji.NO).queue();
@@ -488,6 +493,7 @@ public class MusicCommand extends Command {
         message.addReaction(Emoji.VOLUME_HIGH).queue();
         message.addReaction(Emoji.SHUFFLE).queue();
         message.addReaction(Emoji.STOP).queue();
+        message.addReaction(Emoji.TOP).queue();
         final AtomicInteger counter = new AtomicInteger(0);
         final Updateable updateable = new Updateable() {
             @Override
@@ -510,6 +516,7 @@ public class MusicCommand extends Command {
                 final boolean volume_high = Standard.isReacted(message_, Emoji.VOLUME_HIGH);
                 final boolean shuffle = Standard.isReacted(message_, Emoji.SHUFFLE);
                 final boolean stop = Standard.isReacted(message_, Emoji.STOP);
+                final boolean top = Standard.isReacted(message_, Emoji.TOP);
                 if (kill) {
                     Standard.removeReaction(message_, Emoji.NO);
                     message.delete().queue();
@@ -523,7 +530,7 @@ public class MusicCommand extends Command {
                 }
                 if (repeat) {
                     Standard.removeReaction(message_, Emoji.REPEAT);
-                    player.getValue().setLoop(!player.getValue().isLoop());
+                    player.getValue().toggleLoopType();
                 }
                 if (play_pause) {
                     Standard.removeReaction(message_, Emoji.PLAY_PAUSE);
@@ -535,17 +542,6 @@ public class MusicCommand extends Command {
                 } else if (track_previous) {
                     Standard.removeReaction(message_, Emoji.TRACK_PREVIOUS);
                     //FIXME Need to implement this
-                }
-                if (fast_forward) {
-                    Standard.removeReaction(message_, Emoji.FAST_FORWARD);
-                    if (track.isSeekable()) {
-                        track.setPosition(Math.min(track.getPosition() + 10000, track.getDuration()));
-                    }
-                } else if (rewind) {
-                    Standard.removeReaction(message_, Emoji.REWIND);
-                    if (track.isSeekable()) {
-                        track.setPosition(Math.max(0, track.getPosition() - 5000));
-                    }
                 }
                 if (volume_none) {
                     Standard.removeReaction(message_, Emoji.VOLUME_NONE);
@@ -562,6 +558,12 @@ public class MusicCommand extends Command {
                 if (shuffle) {
                     Standard.removeReaction(message_, Emoji.SHUFFLE);
                     player.getValue().shuffleQueue();
+                }
+                if (top) {
+                    Standard.removeReaction(message_, Emoji.TOP);
+                    message.delete().queue();
+                    showLiveInfo(event, guild, channel);
+                    return -1;
                 }
                 counter.set(counter.get() + 1);
                 if (counter.get() >= 3) {
@@ -585,12 +587,23 @@ public class MusicCommand extends Command {
                     message.delete().queue();
                     return -1;
                 }
+                if (fast_forward) {
+                    Standard.removeReaction(message_, Emoji.FAST_FORWARD);
+                    if (track__.isSeekable()) {
+                        track__.setPosition(Math.min(track__.getPosition() + 10000, track__.getDuration()));
+                    }
+                } else if (rewind) {
+                    Standard.removeReaction(message_, Emoji.REWIND);
+                    if (track__.isSeekable()) {
+                        track__.setPosition(Math.max(0, track__.getPosition() - 5000));
+                    }
+                }
                 final AudioTrackInfo audioTrackInfo__ = track__.getInfo();
                 if (audioTrackInfo__ == null) {
                     message.delete().queue();
                     return -1;
                 }
-                message.editMessage(Standard.getMessageEmbed(null, Standard.toBold("LIVE TRACK INFO:")).addField("Title", audioTrackInfo__.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track__.getPosition()), getTimestamp(track__.getDuration())), false).addField("Author", audioTrackInfo__.author, false).addField("Volume", getVolume(guild) + "%", false).addField("Status", String.format("%s, %slooping", isPaused(guild) ? "Paused" : "Playing", player.getValue().isLoop() ? "" : "not "), false).build()).queue();
+                message.editMessage(Standard.getMessageEmbed(null, Standard.toBold("LIVE TRACK INFO:")).addField("Title", audioTrackInfo__.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track__.getPosition()), getTimestamp(track__.getDuration())), false).addField("Author", audioTrackInfo__.author, false).addField("Volume", getVolume(guild) + "%", false).addField("Status", String.format("%s, %s", isPaused(guild) ? "Paused" : "Playing", player.getValue().getLoopType().getText()), false).build()).queue();
                 return 250;
             }
 
@@ -600,7 +613,6 @@ public class MusicCommand extends Command {
             }
         };
         Updater.addUpdateable(updateable);
-        //TODO Add volume control to the live track info
         return message;
     }
 
