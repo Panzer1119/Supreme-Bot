@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 
 /**
@@ -99,6 +100,13 @@ public abstract class Command implements Invokeable {
     @Override
     public String toString() {
         return getCommandID();
+    }
+
+    protected final MemberObject getMemberObject(Member member) {
+        if (member == null) {
+            return null;
+        }
+        return MemberObject.getMemberObjectByExactMembers(AdvancedMember.ofMember(member));
     }
 
     protected final MemberObject getMemberObject(User user) {

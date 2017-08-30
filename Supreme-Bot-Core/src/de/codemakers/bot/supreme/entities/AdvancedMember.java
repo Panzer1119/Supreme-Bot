@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.entities;
 
+import de.codemakers.bot.supreme.util.Registration;
 import java.util.Objects;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -10,21 +11,27 @@ import net.dv8tion.jda.core.entities.User;
  *
  * @author Panzer1119
  */
-public class AdvancedMember {
+public class AdvancedMember extends Registration {
 
     private Member member = null;
     private User user = null;
 
     public AdvancedMember() {
         this((Member) null);
+        register();
+        System.out.println("Created AdvancedMember: " + this);
     }
 
     public AdvancedMember(Member member) {
         setMember(member);
+        register();
+        System.out.println("Created AdvancedMember: " + this);
     }
 
     public AdvancedMember(User user) {
         setUser(user);
+        register();
+        System.out.println("Created AdvancedMember: " + this);
     }
 
     public final Member getMember() {
@@ -74,6 +81,12 @@ public class AdvancedMember {
     }
 
     public static final AdvancedMember ofMember(Member member) {
+        final AdvancedMember temp = getObjects(AdvancedMember.class).stream().filter((advancedMember) -> {
+            return advancedMember.member == member;
+        }).findFirst().orElse(null);
+        if (temp != null) {
+            return temp;
+        }
         return new AdvancedMember(member);
     }
 
@@ -81,10 +94,25 @@ public class AdvancedMember {
         if (guild == null) {
             return null;
         }
+        final AdvancedMember temp = getObjects(AdvancedMember.class).stream().filter((advancedMember) -> {
+            if (advancedMember.getMember() == null) {
+                return false;
+            }
+            return (advancedMember.getMember().getGuild() == guild) && (advancedMember.user == user);
+        }).findFirst().orElse(null);
+        if (temp != null) {
+            return temp;
+        }
         return new AdvancedMember(guild.getMember(user));
     }
-    
-    public static final AdvancedMember ofUser(User user) { //FIXME MAKE IT RICHTIG!
+
+    public static final AdvancedMember ofUser(User user) {
+        final AdvancedMember temp = getObjects(AdvancedMember.class).stream().filter((advancedMember) -> {
+            return advancedMember.user == user;
+        }).findFirst().orElse(null);
+        if (temp != null) {
+            return temp;
+        }
         return new AdvancedMember(user);
     }
 

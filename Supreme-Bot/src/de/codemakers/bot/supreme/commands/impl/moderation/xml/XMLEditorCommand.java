@@ -129,13 +129,13 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you can't open a folder as an .xml file!", Emoji.WARNING, event.getAuthor().getAsMention());
                 return;
             }
-            final MemberObject memberObject = new MemberObject(AdvancedMember.ofUser(event.getAuthor()));
+            final MemberObject memberObject = new MemberObject(AdvancedMember.ofMember(event.getMember()));
             final XMLEditor xmleditor = new XMLEditor(file);
             memberObject.putData(XMLEditor.class.getSimpleName(), xmleditor);
             memberObject.register();
             event.sendMessageFormat("%s you opened successfully the file \"%s\" in the %s.", event.getAuthor().getAsMention(), fileName, XMLEditor.class.getSimpleName()); //TODO Message Auto Delete?
         } else {
-            final MemberObject memberObject = getMemberObject(event.getAuthor());
+            final MemberObject memberObject = getMemberObject(event.getMember());
             final XMLEditor xmleditor = getObject(memberObject, XMLEditor.class);
             if (xmleditor == null || !(xmleditor instanceof XMLEditor)) {
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you have no open %s!", Emoji.WARNING, event.getAuthor().getAsMention(), XMLEditor.class.getSimpleName());

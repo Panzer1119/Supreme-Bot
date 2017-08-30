@@ -23,11 +23,14 @@ import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
+import de.codemakers.bot.supreme.util.updater.Updateable;
+import de.codemakers.bot.supreme.util.updater.Updater;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -180,6 +183,7 @@ public class MusicCommand extends Command {
         if (guild == null) {
             return false;
         }
+        volume = Math.max(0, Math.min(volume, 150));
         final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
         if (player == null || player.getKey() == null) {
             return false;
@@ -464,33 +468,97 @@ public class MusicCommand extends Command {
     }
 
     private final Message showLiveInfo(Invoker invoker, MessageEvent event, Guild guild, VoiceChannel channel, AudioTrack track, AudioTrackInfo trackInfo) {
-        final Message message = event.sendAndWaitMessageFormat("**LIVE TRACK INFO**"); //TODO Add some option for showing this forever and then to kill it
-        Util.sheduleTimerAtFixedRateAndRemove(() -> {
-            final AudioPlayer player__ = getPlayer(guild, channel).getKey();
-            if (player__ == null) {
-                return false;
-            }
-            final AudioTrack track_ = player__.getPlayingTrack();
-            if (track_ == null) {
-                return false;
-            }
-            final AudioTrackInfo trackInfo_ = track.getInfo();
-            if (trackInfo_ == null) {
-                return false;
-            }
-            message.editMessage(Standard.getMessageEmbed(null, "**LIVE TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track_.getPosition()), getTimestamp(track_.getDuration())), false).addField("Author", trackInfo_.author, false).build()).queue();
-            return true;
-        }, () -> {
-            message.delete().queue();
-            try {
-                Thread.sleep(1000);
-                if (!isIdle(guild)) {
-                    action(invoker, new ArgumentList(Standard.ARGUMENT_INFO.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), event); //FIXME Fix this
+        final Message message = event.sendAndWaitMessageFormat(Standard.toBold("LIVE TRACK INFO"));
+        message.addReaction(Emoji.CHECK_MARK).queue();
+        message.addReaction(Emoji.PAUSE).queue();
+        message.addReaction(Emoji.VOLUME_NONE).queue();
+        message.addReaction(Emoji.VOLUME_LOW).queue();
+        message.addReaction(Emoji.VOLUME_HIGH).queue();
+        message.addReaction(Emoji.NO).queue();
+        final AtomicInteger counter = new AtomicInteger(0);
+        final Updateable updateable = new Updateable() {
+            @Override
+            public long update(long timestamp) {
+                final AudioPlayer player__ = getPlayer(guild, channel).getKey();
+                if (player__ == null) {
+                    message.delete().queue();
+                    return -1;
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace(); //FIXME REMOVE THIS LINE!!!
+                final Message message_ = Standard.getUpdatedMessage(message);
+                final boolean keep_on = Standard.isReacted(message_, Emoji.CHECK_MARK);
+                final boolean pause = Standard.isReacted(message_, Emoji.PAUSE);
+                final boolean volume_none = Standard.isReacted(message_, Emoji.VOLUME_NONE);
+                final boolean volume_low = Standard.isReacted(message_, Emoji.VOLUME_LOW);
+                final boolean volume_high = Standard.isReacted(message_, Emoji.VOLUME_HIGH);
+                final boolean kill = Standard.isReacted(message_, Emoji.NO);
+                if (pause) {
+                    if (!isPaused(guild)) {
+                        setPause(guild, true);
+                    }
+                } else {
+                    if (isPaused(guild)) {
+                        setPause(guild, false);
+                    }
+                }
+                if (volume_none) {
+                    Standard.removeReaction(message_, Emoji.VOLUME_NONE);
+                    setVolume(guild, 0);
+                }
+                if (volume_low) {
+                    Standard.removeReaction(message_, Emoji.VOLUME_LOW);
+                    setVolume(guild, getVolume(guild) - 10);
+                }
+                if (volume_high) {
+                    Standard.removeReaction(message_, Emoji.VOLUME_HIGH);
+                    setVolume(guild, getVolume(guild) + 10);
+                }
+                if (kill) {
+                    message.delete().queue();
+                    return -1;
+                }
+                counter.set(counter.get() + 1);
+                if (counter.get() >= 3) {
+                    counter.set(0);
+                } else {
+                    return 250;
+                }
+                AudioTrack track__ = player__.getPlayingTrack();
+                if (keep_on && track__ == null) {
+                    for (int i = 0; i < 10; i++) {
+                        if ((track__ = player__.getPlayingTrack()) != null) {
+                            break;
+                        }
+                        try {
+                            Thread.sleep(250);
+                        } catch (Exception ex) {
+                        }
+                    }
+                }
+                if (track__ == null) {
+                    message.delete().queue();
+                    return -1;
+                }
+                if (!keep_on) {
+                    if (track__ != track) {
+                        message.delete().queue();
+                        return -1;
+                    }
+                }
+                final AudioTrackInfo audioTrackInfo__ = track__.getInfo();
+                if (audioTrackInfo__ == null) {
+                    message.delete().queue();
+                    return -1;
+                }
+                message.editMessage(Standard.getMessageEmbed(null, Standard.toBold("LIVE TRACK INFO:")).addField("Title", audioTrackInfo__.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track__.getPosition()), getTimestamp(track__.getDuration())), false).addField("Volume", getVolume(guild) + "%", false).addField("Author", audioTrackInfo__.author, false).build()).queue();
+                return 250;
             }
-        }, 0, 2000, track.getDuration() - track.getPosition());
+
+            @Override
+            public void delete() {
+                message.delete().complete();
+            }
+        };
+        Updater.addUpdateable(updateable);
         //TODO Add volume control to the live track info
         return message;
     }

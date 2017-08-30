@@ -9,10 +9,12 @@ import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.plugin.PluginManager;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.Settings;
+import de.codemakers.bot.supreme.util.updater.Updater;
 import java.awt.Color;
 import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -20,6 +22,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -104,6 +107,7 @@ public class Standard {
     static {
         SHUTDOWNHOOKS.add(() -> {
             Util.killAndFireAllTimerTask();
+            Updater.kill(1, TimeUnit.MINUTES);
         });
     }
 
@@ -731,6 +735,51 @@ public class Standard {
         } catch (Exception ex) {
             return false;
         }
+    }
+    
+    public static final MessageReaction getReaction(Message message, String emoji) {
+        if (message == null || emoji == null) {
+            return null;
+        }
+        return message.getReactions().stream().filter((reaction) -> {
+            return emoji.equals(reaction.getEmote().getName());
+        }).findFirst().orElse(null);
+    }
+
+    public static final boolean isReacted(Message message, String emoji) {
+        if (message == null || emoji == null) {
+            return false;
+        }
+        final MessageReaction reaction = getReaction(message, emoji);
+        if (reaction == null) {
+            return false;
+        }
+        return reaction.getCount() > 1;
+    }
+    
+    public static final boolean removeReaction(Message message, String emoji) {
+        if (message == null || emoji == null) {
+            return false;
+        }
+        final MessageReaction reaction = getReaction(message, emoji);
+        if (reaction == null) {
+            return true;
+        }
+        reaction.getUsers().stream().filter((user) -> !user.isBot()).forEach((user) -> {
+            reaction.removeReaction(user).queue();
+        });
+        return true;
+    }
+
+    public static final Message getUpdatedMessage(Message message) {
+        if (message == null) {
+            return null;
+        }
+        return message.getGuild().getTextChannelById(message.getChannel().getId()).getMessageById(message.getId()).complete();
+    }
+
+    public static final long getCurrentTime() {
+        return System.currentTimeMillis();
     }
 
     public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER = (permissionRole, member) -> {

@@ -91,10 +91,11 @@ public class TrackManager extends AudioEventAdapter {
         return this;
     }
 
-    public final TrackManager shuffleQueue() {
+    public final TrackManager shuffleQueue() { //TODO Test it
         if (queue.size() <= 2) {
             return this;
-        } //FIXME Der Player muss hier doch angehalten werden!
+        }
+        player.setPaused(true);
         final List<AudioInfo> queue_ = new ArrayList<>(getQueue());
         final AudioInfo current = queue_.get(0);
         queue_.remove(0);
@@ -103,6 +104,7 @@ public class TrackManager extends AudioEventAdapter {
         purgeQueue();
         queue.addAll(queue_);
         queue_.clear();
+        player.setPaused(false);
         return this;
     }
 

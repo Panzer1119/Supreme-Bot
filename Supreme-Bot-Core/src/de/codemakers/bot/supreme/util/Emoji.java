@@ -115,7 +115,9 @@ public class Emoji {
     public static final String MARK_PLUS_SIGN = EmojiParser.parseToUnicode(":heavy_plus_sign:");
     public static final String MARK_MINUS_SIGN = EmojiParser.parseToUnicode(":heavy_minus_sign:");
     public static final String MARK_DEVIDE_SIGN = EmojiParser.parseToUnicode(":heavy_division_sign:");
+    public static final String MARK_MULTIPLICATION_SIGN = EmojiParser.parseToUnicode(":heavy_multiplication_x:");
     public static final String DOT = EmojiParser.parseToUnicode(":black_circle_for_record:");
+    public static final String CHECK_MARK = EmojiParser.parseToUnicode(":heavy_check_mark:");
 
     /* SearchCommand */
     public static final String SEARCH = EmojiParser.parseToUnicode(":mag:");
@@ -148,6 +150,7 @@ public class Emoji {
     public static final String VOLUME_HIGH = EmojiParser.parseToUnicode(":loud_sound:");
     public static final String SHUFFLE = EmojiParser.parseToUnicode(":twisted_rightwards_arrows:");
     public static final String STOP = EmojiParser.parseToUnicode(":black_square_for_stop:");
+    public static final String ON = EmojiParser.parseToUnicode(":on:");
 
     /* Fun */
     public static final String SQUARE_LARGE_BLACK = EmojiParser.parseToUnicode(":black_large_square:");

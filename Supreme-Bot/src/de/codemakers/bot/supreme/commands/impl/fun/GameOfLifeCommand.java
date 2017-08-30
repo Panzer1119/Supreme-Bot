@@ -68,13 +68,13 @@ public class GameOfLifeCommand extends Command {
         final boolean stop = arguments.isConsumed(Standard.ARGUMENT_STOP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean end = arguments.isConsumed(Standard.ARGUMENT_END, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         if (create) {
-            final MemberObject memberObject = new MemberObject(AdvancedMember.ofUser(event.getAuthor()));
+            final MemberObject memberObject = new MemberObject(AdvancedMember.ofMember(event.getMember()));
             final GameOfLife game = new GameOfLife();
             game.startGame(arguments, event);
             memberObject.putData(GameOfLife.class.getSimpleName(), game);
             memberObject.register();
         } else {
-            final MemberObject memberObject = getMemberObject(event.getAuthor());
+            final MemberObject memberObject = getMemberObject(event.getMember());
             final GameOfLife game = getObject(memberObject, GameOfLife.class);
             if (game == null || !(game instanceof GameOfLife)) {
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you have no open %s!", Emoji.WARNING, event.getAuthor().getAsMention(), GameOfLife.class.getSimpleName());
