@@ -92,7 +92,7 @@ public class RestartCommand extends AdministrativeCommand {
 
     @Override
     public final PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_OWNER_BOT_COMMANDER;
+        return Standard.STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER;
     }
 
     @Override

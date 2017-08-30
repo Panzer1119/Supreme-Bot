@@ -62,7 +62,7 @@ public class MusicCommand extends Command {
         players.put(guild, player_);
         return player_;
     }
-    
+
     private final Map.Entry<AudioPlayer, TrackManager> getPlayer(Guild guild, VoiceChannel channel) {
         if (guild == null) {
             return null;
@@ -74,7 +74,7 @@ public class MusicCommand extends Command {
             return createPlayer(guild, channel);
         }
     }
-    
+
     private final Map.Entry<AudioPlayer, TrackManager> getPlayer(Guild guild) {
         if (guild == null) {
             return null;
@@ -149,7 +149,7 @@ public class MusicCommand extends Command {
         player.getKey().stopTrack();
         return this;
     }
-    
+
     private final boolean setPause(Guild guild, boolean pause) {
         if (guild == null) {
             return false;
@@ -164,7 +164,7 @@ public class MusicCommand extends Command {
         player.getKey().setPaused(pause);
         return true;
     }
-    
+
     private final boolean isPaused(Guild guild) {
         if (guild == null) {
             return false;
@@ -175,7 +175,7 @@ public class MusicCommand extends Command {
         }
         return player.getKey().isPaused();
     }
-    
+
     private final boolean setVolume(Guild guild, int volume) {
         if (guild == null) {
             return false;
@@ -190,7 +190,7 @@ public class MusicCommand extends Command {
         player.getKey().setVolume(volume);
         return true;
     }
-    
+
     private final int getVolume(Guild guild) {
         if (guild == null) {
             return -1;
@@ -346,7 +346,7 @@ public class MusicCommand extends Command {
                         skip(guild);
                     }
                 }
-           } else if (stop) {
+            } else if (stop) {
                 if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
@@ -388,7 +388,7 @@ public class MusicCommand extends Command {
                         event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s setted music looping mode to \"%b\".", event.getAuthor().getAsMention(), player.getValue().isLoop());
                     } catch (Exception ex) {
                         player.getValue().setLoop(!player.getValue().isLoop());
-                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%b\".", event.getAuthor().getAsMention(),  player.getValue().isLoop());
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%b\".", event.getAuthor().getAsMention(), player.getValue().isLoop());
                     }
                 }
             } else if (info) {
@@ -462,7 +462,7 @@ public class MusicCommand extends Command {
             ex.printStackTrace();
         }
     }
-    
+
     private final Message showLiveInfo(Invoker invoker, MessageEvent event, Guild guild, VoiceChannel channel, AudioTrack track, AudioTrackInfo trackInfo) {
         final Message message = event.sendAndWaitMessageFormat("**LIVE TRACK INFO**"); //TODO Add some option for showing this forever and then to kill it
         Util.sheduleTimerAtFixedRateAndRemove(() -> {
@@ -516,7 +516,7 @@ public class MusicCommand extends Command {
 
     @Override
     public final PermissionRoleFilter getPermissionRoleFilter() {
-        return null; //FIXME Change this
+        return Standard.STANDARD_PERMISSIONROLEFILTER_VIP;
     }
 
     @Override

@@ -49,8 +49,7 @@ public class StopCommand extends AdministrativeCommand {
                 };
                 final Runnable run_2 = () -> {
                     timer_1.purge();
-                    //run_1.cancel(); //FIXME?!??!?!
-                    message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build()).queue(); //FIXME Das funzt immer noch nicht
+                    message.editMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build()).complete();
                     final Timer timer_3 = Util.createTimer();
                     final Runnable run_3 = () -> {
                         stopCompletely(0);
@@ -84,7 +83,7 @@ public class StopCommand extends AdministrativeCommand {
 
     @Override
     public final PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER_BOT_COMMANDER;
+        return Standard.STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER;
     }
 
     @Override

@@ -733,7 +733,7 @@ public class Standard {
         }
     }
 
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER_BOT_COMMANDER = (permissionRole, member) -> {
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER = (permissionRole, member) -> {
         return Standard.isSuperOwner(member);
     };
 
@@ -757,6 +757,14 @@ public class Standard {
 
     public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_MODERATOR = (permissionRole, member) -> {
         final PermissionRole admin = PermissionRole.getPermissionRoleByName("Moderator");
+        if (permissionRole.isPermissionGranted(admin)) {
+            return true;
+        }
+        return Standard.isSuperOwner(member);
+    };
+
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_VIP = (permissionRole, member) -> {
+        final PermissionRole admin = PermissionRole.getPermissionRoleByName("VIP");
         if (permissionRole.isPermissionGranted(admin)) {
             return true;
         }
