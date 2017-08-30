@@ -49,6 +49,8 @@ public class MusicCommand extends Command {
     private static final AudioPlayerManager manager = new DefaultAudioPlayerManager();
     private static final HashMap<Guild, Map.Entry<AudioPlayer, TrackManager>> players = new HashMap<>();
 
+    public static final String PLAY_PAUSE = ":play_pause:";
+
     public MusicCommand() {
         AudioSourceManagers.registerRemoteSources(manager);
     }
@@ -206,6 +208,13 @@ public class MusicCommand extends Command {
         return player.getKey().getVolume();
     }
 
+    private final void stop(Guild guild, Map.Entry<AudioPlayer, TrackManager> player) {
+        player.getValue().purgeQueue();
+        skip(guild);
+        guild.getAudioManager().closeAudioConnection();
+        SupremeBot.setStatus(null);
+    }
+
     private final long[] getTimestampAsArray(long millis) {
         long seconds = millis / 1000;
         long hours = Math.floorDiv(seconds, 3600);
@@ -358,10 +367,7 @@ public class MusicCommand extends Command {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
-                player.getValue().purgeQueue();
-                skip(guild);
-                guild.getAudioManager().closeAudioConnection();
-                SupremeBot.setStatus(null);
+                stop(guild, player);
             } else if (shuffle) {
                 if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
@@ -468,13 +474,20 @@ public class MusicCommand extends Command {
     }
 
     private final Message showLiveInfo(Invoker invoker, MessageEvent event, Guild guild, VoiceChannel channel, AudioTrack track, AudioTrackInfo trackInfo) {
+        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild, channel);
         final Message message = event.sendAndWaitMessageFormat(Standard.toBold("LIVE TRACK INFO"));
-        message.addReaction(Emoji.CHECK_MARK).queue();
-        message.addReaction(Emoji.PAUSE).queue();
+        message.addReaction(Emoji.NO).queue();
+        message.addReaction(Emoji.REPEAT).queue();
+        message.addReaction(Emoji.TRACK_PREVIOUS).queue();
+        message.addReaction(Emoji.REWIND).queue();
+        message.addReaction(Emoji.PLAY_PAUSE).queue();
+        message.addReaction(Emoji.FAST_FORWARD).queue();
+        message.addReaction(Emoji.TRACK_NEXT).queue();
         message.addReaction(Emoji.VOLUME_NONE).queue();
         message.addReaction(Emoji.VOLUME_LOW).queue();
         message.addReaction(Emoji.VOLUME_HIGH).queue();
-        message.addReaction(Emoji.NO).queue();
+        message.addReaction(Emoji.SHUFFLE).queue();
+        message.addReaction(Emoji.STOP).queue();
         final AtomicInteger counter = new AtomicInteger(0);
         final Updateable updateable = new Updateable() {
             @Override
@@ -485,19 +498,53 @@ public class MusicCommand extends Command {
                     return -1;
                 }
                 final Message message_ = Standard.getUpdatedMessage(message);
-                final boolean keep_on = Standard.isReacted(message_, Emoji.CHECK_MARK);
-                final boolean pause = Standard.isReacted(message_, Emoji.PAUSE);
+                final boolean kill = Standard.isReacted(message_, Emoji.NO);
+                final boolean repeat = Standard.isReacted(message_, Emoji.REPEAT);
+                final boolean track_previous = Standard.isReacted(message_, Emoji.TRACK_PREVIOUS);
+                final boolean rewind = Standard.isReacted(message_, Emoji.REWIND);
+                final boolean play_pause = Standard.isReacted(message_, Emoji.PLAY_PAUSE);
+                final boolean fast_forward = Standard.isReacted(message_, Emoji.FAST_FORWARD);
+                final boolean track_next = Standard.isReacted(message_, Emoji.TRACK_NEXT);
                 final boolean volume_none = Standard.isReacted(message_, Emoji.VOLUME_NONE);
                 final boolean volume_low = Standard.isReacted(message_, Emoji.VOLUME_LOW);
                 final boolean volume_high = Standard.isReacted(message_, Emoji.VOLUME_HIGH);
-                final boolean kill = Standard.isReacted(message_, Emoji.NO);
-                if (pause) {
-                    if (!isPaused(guild)) {
-                        setPause(guild, true);
+                final boolean shuffle = Standard.isReacted(message_, Emoji.SHUFFLE);
+                final boolean stop = Standard.isReacted(message_, Emoji.STOP);
+                if (kill) {
+                    Standard.removeReaction(message_, Emoji.NO);
+                    message.delete().queue();
+                    return -1;
+                }
+                if (stop) {
+                    Standard.removeReaction(message_, Emoji.STOP);
+                    stop(guild, player);
+                    message.delete().queue();
+                    return -1;
+                }
+                if (repeat) {
+                    Standard.removeReaction(message_, Emoji.REPEAT);
+                    player.getValue().setLoop(!player.getValue().isLoop());
+                }
+                if (play_pause) {
+                    Standard.removeReaction(message_, Emoji.PLAY_PAUSE);
+                    setPause(guild, !isPaused(guild));
+                }
+                if (track_next) {
+                    Standard.removeReaction(message_, Emoji.TRACK_NEXT);
+                    skip(guild);
+                } else if (track_previous) {
+                    Standard.removeReaction(message_, Emoji.TRACK_PREVIOUS);
+                    //FIXME Need to implement this
+                }
+                if (fast_forward) {
+                    Standard.removeReaction(message_, Emoji.FAST_FORWARD);
+                    if (track.isSeekable()) {
+                        track.setPosition(Math.min(track.getPosition() + 10000, track.getDuration()));
                     }
-                } else {
-                    if (isPaused(guild)) {
-                        setPause(guild, false);
+                } else if (rewind) {
+                    Standard.removeReaction(message_, Emoji.REWIND);
+                    if (track.isSeekable()) {
+                        track.setPosition(Math.max(0, track.getPosition() - 5000));
                     }
                 }
                 if (volume_none) {
@@ -512,9 +559,9 @@ public class MusicCommand extends Command {
                     Standard.removeReaction(message_, Emoji.VOLUME_HIGH);
                     setVolume(guild, getVolume(guild) + 10);
                 }
-                if (kill) {
-                    message.delete().queue();
-                    return -1;
+                if (shuffle) {
+                    Standard.removeReaction(message_, Emoji.SHUFFLE);
+                    player.getValue().shuffleQueue();
                 }
                 counter.set(counter.get() + 1);
                 if (counter.get() >= 3) {
@@ -523,8 +570,8 @@ public class MusicCommand extends Command {
                     return 250;
                 }
                 AudioTrack track__ = player__.getPlayingTrack();
-                if (keep_on && track__ == null) {
-                    for (int i = 0; i < 10; i++) {
+                if (track__ == null) {
+                    for (int i = 0; i < 20; i++) {
                         if ((track__ = player__.getPlayingTrack()) != null) {
                             break;
                         }
@@ -538,18 +585,12 @@ public class MusicCommand extends Command {
                     message.delete().queue();
                     return -1;
                 }
-                if (!keep_on) {
-                    if (track__ != track) {
-                        message.delete().queue();
-                        return -1;
-                    }
-                }
                 final AudioTrackInfo audioTrackInfo__ = track__.getInfo();
                 if (audioTrackInfo__ == null) {
                     message.delete().queue();
                     return -1;
                 }
-                message.editMessage(Standard.getMessageEmbed(null, Standard.toBold("LIVE TRACK INFO:")).addField("Title", audioTrackInfo__.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track__.getPosition()), getTimestamp(track__.getDuration())), false).addField("Volume", getVolume(guild) + "%", false).addField("Author", audioTrackInfo__.author, false).build()).queue();
+                message.editMessage(Standard.getMessageEmbed(null, Standard.toBold("LIVE TRACK INFO:")).addField("Title", audioTrackInfo__.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track__.getPosition()), getTimestamp(track__.getDuration())), false).addField("Author", audioTrackInfo__.author, false).addField("Volume", getVolume(guild) + "%", false).addField("Status", String.format("%s, %slooping", isPaused(guild) ? "Paused" : "Playing", player.getValue().isLoop() ? "" : "not "), false).build()).queue();
                 return 250;
             }
 

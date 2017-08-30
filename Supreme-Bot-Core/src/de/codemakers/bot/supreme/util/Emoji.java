@@ -132,7 +132,6 @@ public class Emoji {
 
     /* Music */
     public static final String MUSIC = EmojiParser.parseToUnicode(":musical_keyboard:");
-    public static final String PLAYER = EmojiParser.parseToUnicode(":black_right_pointing_triangle_with_double_vertical_bar:");
     public static final String GLOBE = EmojiParser.parseToUnicode(":globe_with_meridians:");
     public static final String NOTES = EmojiParser.parseToUnicode(":notes:");
     public static final String FM = EmojiParser.parseToUnicode(":arrow_heading_down:");
@@ -140,8 +139,11 @@ public class Emoji {
     public static final String AUTOPLAY = EmojiParser.parseToUnicode(":leftwards_arrow_with_hook:");
     public static final String REPEAT = EmojiParser.parseToUnicode(":repeat:");
     public static final String REPEAT_SINGLE = EmojiParser.parseToUnicode(":repeat_one:");
+    public static final String TRACK_PREVIOUS = EmojiParser.parseToUnicode(":black_left_pointing_double_triangle_with_vertical_bar:");
     public static final String PAUSE = EmojiParser.parseToUnicode(":double_vertical_bar:");
-    public static final String NEXT_TRACK = EmojiParser.parseToUnicode(":black_right_pointing_double_triangle_with_vertical_bar:");
+    public static final String PLAY_PAUSE = EmojiParser.parseToUnicode(":black_right_pointing_triangle_with_double_vertical_bar:");
+    public static final String PLAY = EmojiParser.parseToUnicode(":arrow_forward:");
+    public static final String TRACK_NEXT = EmojiParser.parseToUnicode(":black_right_pointing_double_triangle_with_vertical_bar:");
     public static final String UP_VOTE = EmojiParser.parseToUnicode(":arrow_up_small:");
     public static final String RESUME = EmojiParser.parseToUnicode(":arrow_forward:");
     public static final String JUMP = EmojiParser.parseToUnicode(":left_right_arrow:");
@@ -151,6 +153,8 @@ public class Emoji {
     public static final String SHUFFLE = EmojiParser.parseToUnicode(":twisted_rightwards_arrows:");
     public static final String STOP = EmojiParser.parseToUnicode(":black_square_for_stop:");
     public static final String ON = EmojiParser.parseToUnicode(":on:");
+    public static final String FAST_FORWARD = EmojiParser.parseToUnicode(":fast_forward:");
+    public static final String REWIND = EmojiParser.parseToUnicode(":rewind:");
 
     /* Fun */
     public static final String SQUARE_LARGE_BLACK = EmojiParser.parseToUnicode(":black_large_square:");
