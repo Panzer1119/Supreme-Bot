@@ -8,7 +8,14 @@ import de.codemakers.bot.supreme.util.Standard;
 import java.util.List;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message.Attachment;
+import net.dv8tion.jda.core.events.message.MessageBulkDeleteEvent;
+import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.core.events.message.MessageEmbedEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveAllEvent;
+import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 /**
@@ -33,7 +40,7 @@ public class CommandListener extends ListenerAdapter {
             if (isCommand(message, event)) {
                 CommandHandler.handleCommand(CommandParser.parser(message, event));
             } else {
-                final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event});
+                final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.RECEIVED});
                 if (output.length > 0) {
                     System.out.println(String.format("%d plugin%s used this message:", output.length, (output.length == 1 ? "" : "s")));
                 }
@@ -55,6 +62,62 @@ public class CommandListener extends ListenerAdapter {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onMessageUpdate(MessageUpdateEvent event) {
+        final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.UPDATED});
+        if (output.length > 0) {
+            System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
+        }
+    }
+
+    @Override
+    public void onMessageDelete(MessageDeleteEvent event) {
+        final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.DELETED});
+        if (output.length > 0) {
+            System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
+        }
+    }
+
+    @Override
+    public void onMessageBulkDelete(MessageBulkDeleteEvent event) {
+        final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.BULK_DELETED});
+        if (output.length > 0) {
+            System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
+        }
+    }
+
+    @Override
+    public void onMessageEmbed(MessageEmbedEvent event) {
+        final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.EMBEDED});
+        if (output.length > 0) {
+            System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
+        }
+    }
+
+    @Override
+    public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.REACTION_ADDED});
+        if (output.length > 0) {
+            System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
+        }
+    }
+
+    @Override
+    public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
+        final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.REACTION_REMOVED});
+        if (output.length > 0) {
+            System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
+        }
+    }
+
+    @Override
+    public void onMessageReactionRemoveAll(MessageReactionRemoveAllEvent event) {
+        final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.REACTION_REMOVED_ALL});
+        if (output.length > 0) {
+            System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
         }
     }
 

@@ -708,6 +708,9 @@ public class Standard {
             return true;
         } else {
             try {
+                if (!file.createAdvancedFile() && !file.exists()) {
+                    return false;
+                }
                 final BufferedWriter writer = new BufferedWriter(file.getWriter(append));
                 writer.write(toAdd.toString());
                 if (newLine) {
