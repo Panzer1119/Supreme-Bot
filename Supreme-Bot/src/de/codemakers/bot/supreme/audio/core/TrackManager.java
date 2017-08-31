@@ -4,14 +4,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import de.codemakers.bot.supreme.audio.util.AudioQueue;
 import de.codemakers.bot.supreme.core.SupremeBot;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -24,18 +18,20 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 public class TrackManager extends AudioEventAdapter {
 
     private final AudioPlayer player;
-    private final Queue<AudioInfo> queue;
+    private final AudioQueue queue = new AudioQueue(); //FIXME Is this thread safe????
     private LoopType loopType = LoopType.NONE;
-    Guild guild = null;
-    VoiceChannel voiceChannel = null;
+    private Guild guild = null;
+    private VoiceChannel voiceChannel = null;
 
     public TrackManager(AudioPlayer player, Guild guild, VoiceChannel voiceChannel) {
         this.player = player;
-        this.queue = new LinkedBlockingQueue<>();
+        if (player == null) {
+            throw new NullPointerException("The player must not be null!");
+        }
         this.guild = guild;
         this.voiceChannel = voiceChannel;
         if (guild == null) {
-            throw new NullPointerException("The guild can never be null!");
+            throw new NullPointerException("The guild must not be null!");
         }
     }
 
@@ -52,13 +48,17 @@ public class TrackManager extends AudioEventAdapter {
         }
         queue.add(info);
         if (player.getPlayingTrack() == null) {
-            player.playTrack(info.getTrack().makeClone());
+            playNext();
         }
         return this;
     }
 
-    public final Set<AudioInfo> getQueue() {
-        return new LinkedHashSet<>(queue);
+    public final AudioQueue getAudioQueue() {
+        return queue;
+    }
+
+    public final AudioPlayer getPlayer() {
+        return player;
     }
 
     public final AudioInfo getAudioInfo(AudioTrack track) {
@@ -72,9 +72,13 @@ public class TrackManager extends AudioEventAdapter {
         return voiceChannel;
     }
 
+    public final Guild getGuild() {
+        return guild;
+    }
+
     public final TrackManager setVoiceChannel(VoiceChannel voiceChannel) {
         if (voiceChannel == null) {
-            throw new NullPointerException("The voicechannel can never be null!");
+            throw new NullPointerException("The VoiceChannel must not be null!");
         }
         if ((this.voiceChannel != null && !this.voiceChannel.equals(voiceChannel)) || (guild.getAudioManager().isConnected() && !voiceChannel.equals(guild.getAudioManager().getConnectedChannel()))) {
             guild.getAudioManager().closeAudioConnection();
@@ -86,24 +90,27 @@ public class TrackManager extends AudioEventAdapter {
         return this;
     }
 
-    public final TrackManager purgeQueue() {
+    public final TrackManager resetQueue() {
         queue.clear();
         return this;
     }
 
-    public final TrackManager shuffleQueue() { //TODO Test it
+    public final TrackManager resetFuture() {
+        queue.removeFuture();
+        return this;
+    }
+
+    public final TrackManager resetPast() {
+        queue.removePast();
+        return this;
+    }
+
+    public final TrackManager shuffleQueue(int times) {
         if (queue.size() <= 2) {
             return this;
         }
         player.setPaused(true);
-        final List<AudioInfo> queue_ = new ArrayList<>(getQueue());
-        final AudioInfo current = queue_.get(0);
-        queue_.remove(0);
-        Collections.shuffle(queue_);
-        queue_.add(0, current);
-        purgeQueue();
-        queue.addAll(queue_);
-        queue_.clear();
+        queue.shuffle(times);
         player.setPaused(false);
         return this;
     }
@@ -138,6 +145,15 @@ public class TrackManager extends AudioEventAdapter {
         return this;
     }
 
+    public final TrackManager setPlaying(boolean playing) {
+        player.setPaused(!playing);
+        return this;
+    }
+
+    public final boolean isPlaying() {
+        return queue.isPlaying() && !player.isPaused();
+    }
+
     @Override
     public final void onTrackStart(AudioPlayer player, AudioTrack track) {
         SupremeBot.setStatus(track.getInfo().title);
@@ -157,20 +173,51 @@ public class TrackManager extends AudioEventAdapter {
 
     @Override
     public final void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        if (loopType.isLoop() && loopType.isSingle()) {
-            player.playTrack(track.makeClone());
+        if (endReason != AudioTrackEndReason.REPLACED) {
+            if (loopType.isLoop() && loopType.isSingle()) {
+                player.playTrack(track.makeClone());
+            } else {
+                playNext();
+            }
+        }
+    }
+
+    private final boolean playNext() {
+        if (!queue.hasNext()) {
+            System.out.println("Stopping Music! LoopType: " + loopType);
+            setPlaying(false);
+            guild.getAudioManager().closeAudioConnection();
+            SupremeBot.setStatus(null);
+            return false;
         } else {
-            AudioInfo next = queue.poll();
-            System.out.println(String.format("Next AudioInfo: \"%s\", LoopType: %s", next, loopType.toString()));
-            if (next != null && loopType.isLoop()) {
+            final AudioInfo next = queue.playNext();
+            System.out.println(String.format("Next AudioInfo: \"%s\", LoopType: %s", next, loopType));
+            if (next == null) {
+                return false;
+            }
+            player.playTrack(next.getTrack().makeClone());
+            if (loopType.isLoop()) {
                 queue(next);
             }
-            if (next == null || /*!loop && */ queue.isEmpty()) { //FIXME Selbst wenn loop ist und die queue empty muss trotzdem abgebrochen werden?
-                guild.getAudioManager().closeAudioConnection();
-                SupremeBot.setStatus(null);
-            } else {
-                player.playTrack(queue.element().getTrack().makeClone());
+            return true;
+        }
+    }
+
+    public final boolean playPrevious() {
+        if (loopType.isLoop() && loopType.isSingle()) {
+            player.stopTrack();
+            return true;
+        }
+        if (!queue.hasPrevious()) {
+            return false;
+        } else {
+            final AudioInfo next = queue.playPrevious();
+            System.out.println(String.format("Previous AudioInfo: \"%s\", LoopType: %s", next, loopType));
+            if (next == null) {
+                return false;
             }
+            player.playTrack(next.getTrack().makeClone());
+            return true;
         }
     }
 

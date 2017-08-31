@@ -13,6 +13,7 @@ import de.codemakers.bot.supreme.audio.core.AudioInfo;
 import de.codemakers.bot.supreme.audio.core.LoopType;
 import de.codemakers.bot.supreme.audio.core.PlayerSendHandler;
 import de.codemakers.bot.supreme.audio.core.TrackManager;
+import de.codemakers.bot.supreme.audio.util.AudioQueue;
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
@@ -26,11 +27,9 @@ import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import de.codemakers.bot.supreme.util.updater.Updateable;
 import de.codemakers.bot.supreme.util.updater.Updater;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -48,55 +47,52 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 public class MusicCommand extends Command {
 
     private static final AudioPlayerManager manager = new DefaultAudioPlayerManager();
-    private static final HashMap<Guild, Map.Entry<AudioPlayer, TrackManager>> players = new HashMap<>();
-
-    public static final String PLAY_PAUSE = ":play_pause:";
+    private static final HashMap<Guild, TrackManager> trackManagers = new HashMap<>();
 
     public MusicCommand() {
         AudioSourceManagers.registerRemoteSources(manager);
     }
 
-    private final Map.Entry<AudioPlayer, TrackManager> createPlayer(Guild guild, VoiceChannel channel) {
+    private final TrackManager createTrackManager(Guild guild, VoiceChannel channel) {
         if (guild == null) {
             return null;
         }
         final AudioPlayer player = manager.createPlayer();
         final TrackManager trackManager = new TrackManager(player, guild, channel);
-        final Map.Entry<AudioPlayer, TrackManager> player_ = new AbstractMap.SimpleEntry<>(player, trackManager);
         player.addListener(trackManager);
         guild.getAudioManager().setSendingHandler(new PlayerSendHandler(player));
-        players.put(guild, player_);
-        return player_;
+        trackManagers.put(guild, trackManager);
+        return trackManager;
     }
 
-    private final Map.Entry<AudioPlayer, TrackManager> getPlayer(Guild guild, VoiceChannel channel) {
+    private final TrackManager getTrackManager(Guild guild, VoiceChannel channel) {
         if (guild == null) {
             return null;
         }
-        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
-        if (player != null) {
-            return player;
+        final TrackManager trackManager = getTrackManager(guild);
+        if (trackManager != null) {
+            return trackManager;
         } else {
-            return createPlayer(guild, channel);
+            return createTrackManager(guild, channel);
         }
     }
 
-    private final Map.Entry<AudioPlayer, TrackManager> getPlayer(Guild guild) {
+    private final TrackManager getTrackManager(Guild guild) {
         if (guild == null) {
             return null;
         }
-        return players.get(guild);
+        return trackManagers.get(guild);
     }
 
     private final boolean isIdle(Guild guild) {
         if (guild == null) {
             return true;
         }
-        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
-        return player == null || player.getKey() == null || player.getKey().getPlayingTrack() == null;
+        final TrackManager trackManager = getTrackManager(guild);
+        return trackManager == null || trackManager.getPlayer() == null || trackManager.getPlayer().getPlayingTrack() == null;
     }
 
-    private final MusicCommand loadTrack(String identifier, MessageEvent event, VoiceChannel channel) {
+    private final MusicCommand loadTrack(String identifier, MessageEvent event, VoiceChannel channel, int max_tracks) {
         if (event == null) {
             return this;
         }
@@ -108,8 +104,8 @@ public class MusicCommand extends Command {
         if (guild == null) {
             return this;
         }
-        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild, channel);
-        if (player == null) {
+        final TrackManager trackManager = getTrackManager(guild, channel);
+        if (trackManager == null) {
             return null;
         }
         manager.setFrameBufferDuration(5000); //FIXME Make this variable (ms)
@@ -117,7 +113,7 @@ public class MusicCommand extends Command {
             @Override
             public void trackLoaded(AudioTrack track) {
                 try {
-                    player.getValue().queue(track, author);
+                    trackManager.queue(track, author);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -127,9 +123,13 @@ public class MusicCommand extends Command {
             public void playlistLoaded(AudioPlaylist playlist) {
                 final List<AudioTrack> tracks = playlist.getTracks();
                 final int max = Math.min(tracks.size(), Standard.PLAYLIST_LIMIT);
-                final TrackManager manager_ = player.getValue();
                 for (int i = 0; i < max; i++) {
-                    manager_.queue(tracks.get(i), author);
+                    if (max_tracks >= 0) {
+                        if (i >= max_tracks) {
+                            return;
+                        }
+                    }
+                    trackManager.queue(tracks.get(i), author);
                 }
             }
 
@@ -148,11 +148,11 @@ public class MusicCommand extends Command {
         if (guild == null) {
             return this;
         }
-        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
-        if (player == null || player.getKey() == null) {
+        final TrackManager trackManager = getTrackManager(guild);
+        if (trackManager == null || trackManager.getPlayer() == null) {
             return this;
         }
-        player.getKey().stopTrack();
+        trackManager.getPlayer().stopTrack();
         return this;
     }
 
@@ -160,14 +160,14 @@ public class MusicCommand extends Command {
         if (guild == null) {
             return false;
         }
-        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
-        if (player == null || player.getKey() == null) {
+        final TrackManager trackManager = getTrackManager(guild);
+        if (trackManager == null) {
             return false;
         }
-        if (player.getKey().isPaused() == pause) {
+        if (trackManager.isPlaying() == !pause) {
             return false;
         }
-        player.getKey().setPaused(pause);
+        trackManager.setPlaying(!pause);
         return true;
     }
 
@@ -175,11 +175,11 @@ public class MusicCommand extends Command {
         if (guild == null) {
             return false;
         }
-        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
-        if (player == null || player.getKey() == null) {
+        final TrackManager trackManager = getTrackManager(guild);
+        if (trackManager == null) {
             return false;
         }
-        return player.getKey().isPaused();
+        return !trackManager.isPlaying();
     }
 
     private final boolean setVolume(Guild guild, int volume) {
@@ -187,14 +187,14 @@ public class MusicCommand extends Command {
             return false;
         }
         volume = Math.max(0, Math.min(volume, 150));
-        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
-        if (player == null || player.getKey() == null) {
+        final TrackManager trackManager = getTrackManager(guild);
+        if (trackManager == null || trackManager.getPlayer() == null) {
             return false;
         }
-        if (player.getKey().getVolume() == volume) {
+        if (trackManager.getPlayer().getVolume() == volume) {
             return false;
         }
-        player.getKey().setVolume(volume);
+        trackManager.getPlayer().setVolume(volume);
         return true;
     }
 
@@ -202,15 +202,16 @@ public class MusicCommand extends Command {
         if (guild == null) {
             return -1;
         }
-        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild);
-        if (player == null || player.getKey() == null) {
+        final TrackManager trackManager = getTrackManager(guild);
+        if (trackManager == null || trackManager.getPlayer() == null) {
             return -1;
         }
-        return player.getKey().getVolume();
+        return trackManager.getPlayer().getVolume();
     }
 
-    private final void stop(Guild guild, Map.Entry<AudioPlayer, TrackManager> player) {
-        player.getValue().purgeQueue();
+    private final void stop(Guild guild, TrackManager trackManager) {
+        trackManager.resetQueue();
+        trackManager.setPlaying(false);
         skip(guild);
         guild.getAudioManager().closeAudioConnection();
         SupremeBot.setStatus(null);
@@ -261,9 +262,9 @@ public class MusicCommand extends Command {
         final boolean volume = arguments.isConsumed(Standard.ARGUMENT_VOLUME, ArgumentConsumeType.FIRST_IGNORE_CASE);
         if (play) {
             if (arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
-                return arguments.isSize(3); //title/url -live
+                return arguments.isSize(3, 4); //title/url [max_tracks] -live
             } else {
-                return arguments.isSize(1, 2); //[title/url]
+                return arguments.isSize(1, 3); //[title/url] [max_tracks]
             }
         } else if (pause) {
             return arguments.isSize(1, 2); //[pause]
@@ -303,7 +304,7 @@ public class MusicCommand extends Command {
         final boolean volume = arguments.isConsumed(Standard.ARGUMENT_VOLUME, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final Guild guild = event.getGuild();
         final VoiceChannel channel = event.getMember().getVoiceState().getChannel(); //TODO Make the channel selectable
-        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild, channel);
+        final TrackManager trackManager = getTrackManager(guild, channel);
         try {
             if (play) {
                 final boolean live = arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
@@ -317,12 +318,17 @@ public class MusicCommand extends Command {
                 } else {
                     final String input = arguments.consumeFirst();
                     final boolean url = (input.startsWith("http://") || input.startsWith("https://"));
-                    loadTrack((url ? "" : "ytsearch: ") + input, event, channel);
+                    int max_tracks = 1;
+                    if (!arguments.isEmpty()) {
+                        max_tracks = Integer.parseInt(arguments.consumeFirst());
+                    }
+                    loadTrack((url ? "" : "ytsearch: ") + input, event, channel, max_tracks);
                     if (live) {
                         Util.sheduleTimerAndRemove(() -> {
                             showLiveInfo(event, guild, channel);
-                        }, 5000); //TODO Make this variable (ms) ???
+                        }, 2500); //TODO Make this variable (ms) ???
                     }
+                    setPause(guild, false);
                 }
             } else if (pause) {
                 if (arguments.isEmpty()) {
@@ -349,7 +355,7 @@ public class MusicCommand extends Command {
                 }
                 final boolean all = arguments.isConsumed(Standard.ARGUMENT_ALL, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
                 if (all) {
-                    player.getValue().purgeQueue();
+                    trackManager.resetFuture();
                     skip(guild);
                 } else {
                     final int times = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
@@ -361,16 +367,16 @@ public class MusicCommand extends Command {
                 if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
-                } else if (player.getValue() == null) {
+                } else if (trackManager == null) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
-                stop(guild, player);
+                stop(guild, trackManager);
             } else if (shuffle) {
                 if (isIdle(guild)) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
-                } else if (player.getValue() == null) {
+                } else if (trackManager == null) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
@@ -379,17 +385,15 @@ public class MusicCommand extends Command {
                     times = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
                 } catch (Exception ex) {
                 }
-                for (int i = 0; i < times; i++) {
-                    player.getValue().shuffleQueue();
-                }
+                trackManager.shuffleQueue(times);
             } else if (loop) {
-                if (player.getValue() == null) {
+                if (trackManager == null) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
                 if (arguments.isEmpty()) {
-                    player.getValue().toggleLoopType();
-                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%s\".", event.getAuthor().getAsMention(), player.getValue().getLoopType());
+                    trackManager.toggleLoopType();
+                    event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%s\".", event.getAuthor().getAsMention(), trackManager.getLoopType());
                 } else {
                     try {
                         final boolean loop_loop = Boolean.parseBoolean(arguments.consumeFirst());
@@ -397,11 +401,11 @@ public class MusicCommand extends Command {
                         if (!arguments.isEmpty()) {
                             loop_single = Boolean.parseBoolean(arguments.consumeFirst());
                         }
-                        player.getValue().setLoopType(LoopType.of(loop_loop, loop_single));
-                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s setted music looping mode to \"%s\".", event.getAuthor().getAsMention(), player.getValue().getLoopType());
+                        trackManager.setLoopType(LoopType.of(loop_loop, loop_single));
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s setted music looping mode to \"%s\".", event.getAuthor().getAsMention(), trackManager.getLoopType());
                     } catch (Exception ex) {
-                    player.getValue().toggleLoopType();
-                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%s\".", event.getAuthor().getAsMention(), player.getValue().getLoopType());
+                        trackManager.toggleLoopType();
+                        event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s toggled music looping mode to \"%s\".", event.getAuthor().getAsMention(), trackManager.getLoopType());
                     }
                 }
             } else if (info) {
@@ -410,11 +414,11 @@ public class MusicCommand extends Command {
                     return;
                 }
                 final boolean live = arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
-                final AudioPlayer player_ = player.getKey();
+                final AudioPlayer player_ = trackManager.getPlayer();
                 final AudioTrack track = player_.getPlayingTrack();
                 final AudioTrackInfo trackInfo = track.getInfo();
                 if (!live) {
-                    event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT TRACK INFO:**").addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
+                    event.sendMessage(Standard.getMessageEmbed(null, Standard.toBold("CURRENT TRACK INFO:")).addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
                 } else {
                     showLiveInfo(event, guild, channel);
                 }
@@ -429,12 +433,15 @@ public class MusicCommand extends Command {
                 } catch (Exception ex) {
                 }
                 final ArrayList<String> tracks = new ArrayList<>();
-                List<AudioInfo> infos = new ArrayList<>(player.getValue().getQueue());
+                List<AudioInfo> infos = new ArrayList<>(trackManager.getAudioQueue().getFuture());
+                if (trackManager.getAudioQueue().isPlaying()) {
+                    infos.add(0, trackManager.getAudioQueue().getNow());
+                }
                 final int MAX_TRACKS_PER_PAGE = 20; //FIXME Make this variable (Anzahl Tracks pro Seite)
                 final String queue_name = "default"; //TODO Add queues ability to save them
                 //TODO Alle Commands muessen methode machen mit stop, damit sie herunterfahren koennen
                 final int track_size = infos.size();
-                final int pageNumberAll = (int) ((track_size >= MAX_TRACKS_PER_PAGE ? track_size / MAX_TRACKS_PER_PAGE : 1) + 1.0);
+                final int pageNumberAll = (track_size > MAX_TRACKS_PER_PAGE ? (int) (track_size / MAX_TRACKS_PER_PAGE + 1.0) : 1);
                 pageNumber = Math.max(1, Math.min(pageNumberAll, pageNumber));
                 if (infos.size() > MAX_TRACKS_PER_PAGE) {
                     infos = infos.subList(Math.max(0, (pageNumber - 1) * MAX_TRACKS_PER_PAGE), Math.min(pageNumber * MAX_TRACKS_PER_PAGE, track_size));
@@ -447,9 +454,9 @@ public class MusicCommand extends Command {
                 final String out = tracks.stream().collect(Collectors.joining("\n"));
                 tracks.clear();
                 infos.clear();
-                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE: \"%s\"**%n%n*[%s Tracks | Duration `[ %s ]` | Page %d / %d]*%n%n%s", queue_name, player.getValue().getQueue().size(), getTimestamp(length_all.get()), pageNumber, pageNumberAll, out).build());
+                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE: \"%s\"**%n%n*[%s Tracks | Complete Duration `[ %s ]` | Page %d / %d]*%n%n**Currently Playing ->** %s", queue_name, trackManager.getAudioQueue().size(), getTimestamp(length_all.get()), pageNumber, pageNumberAll, out).build());
             } else if (volume) {
-                if (player.getValue() == null) {
+                if (trackManager == null) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
@@ -479,8 +486,8 @@ public class MusicCommand extends Command {
     }
 
     private final Message showLiveInfo(MessageEvent event, Guild guild, VoiceChannel channel) { //TODO Add permission control for reactions!
-        final Map.Entry<AudioPlayer, TrackManager> player = getPlayer(guild, channel);
-        final Message message = event.sendAndWaitMessageFormat(Standard.toBold("LIVE TRACK INFO"));
+        final TrackManager trackManager = getTrackManager(guild, channel);
+        final Message message = event.sendAndWaitMessageFormat(Standard.toBold("LIVE MUSIC INFO"));
         message.addReaction(Emoji.NO).queue();
         message.addReaction(Emoji.REPEAT).queue();
         message.addReaction(Emoji.TRACK_PREVIOUS).queue();
@@ -498,8 +505,8 @@ public class MusicCommand extends Command {
         final Updateable updateable = new Updateable() {
             @Override
             public long update(long timestamp) {
-                final AudioPlayer player__ = getPlayer(guild, channel).getKey();
-                if (player__ == null) {
+                final TrackManager trackManager_ = getTrackManager(guild, channel);
+                if (trackManager_ == null || trackManager_.getPlayer() == null) {
                     message.delete().queue();
                     return -1;
                 }
@@ -524,13 +531,13 @@ public class MusicCommand extends Command {
                 }
                 if (stop) {
                     Standard.removeReaction(message_, Emoji.STOP);
-                    stop(guild, player);
+                    stop(guild, trackManager);
                     message.delete().queue();
                     return -1;
                 }
                 if (repeat) {
                     Standard.removeReaction(message_, Emoji.REPEAT);
-                    player.getValue().toggleLoopType();
+                    trackManager.toggleLoopType();
                 }
                 if (play_pause) {
                     Standard.removeReaction(message_, Emoji.PLAY_PAUSE);
@@ -541,7 +548,7 @@ public class MusicCommand extends Command {
                     skip(guild);
                 } else if (track_previous) {
                     Standard.removeReaction(message_, Emoji.TRACK_PREVIOUS);
-                    //FIXME Need to implement this
+                    trackManager.playPrevious();
                 }
                 if (volume_none) {
                     Standard.removeReaction(message_, Emoji.VOLUME_NONE);
@@ -557,7 +564,7 @@ public class MusicCommand extends Command {
                 }
                 if (shuffle) {
                     Standard.removeReaction(message_, Emoji.SHUFFLE);
-                    player.getValue().shuffleQueue();
+                    trackManager.shuffleQueue(1);
                 }
                 if (top) {
                     Standard.removeReaction(message_, Emoji.TOP);
@@ -566,15 +573,15 @@ public class MusicCommand extends Command {
                     return -1;
                 }
                 counter.set(counter.get() + 1);
-                if (counter.get() >= 3) {
+                if (counter.get() >= 5) {
                     counter.set(0);
                 } else {
                     return 250;
                 }
-                AudioTrack track__ = player__.getPlayingTrack();
+                AudioTrack track__ = trackManager.getPlayer().getPlayingTrack();
                 if (track__ == null) {
                     for (int i = 0; i < 20; i++) {
-                        if ((track__ = player__.getPlayingTrack()) != null) {
+                        if ((track__ = trackManager.getPlayer().getPlayingTrack()) != null) {
                             break;
                         }
                         try {
@@ -603,7 +610,16 @@ public class MusicCommand extends Command {
                     message.delete().queue();
                     return -1;
                 }
-                message.editMessage(Standard.getMessageEmbed(null, Standard.toBold("LIVE TRACK INFO:")).addField("Title", audioTrackInfo__.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track__.getPosition()), getTimestamp(track__.getDuration())), false).addField("Author", audioTrackInfo__.author, false).addField("Volume", getVolume(guild) + "%", false).addField("Status", String.format("%s, %s", isPaused(guild) ? "Paused" : "Playing", player.getValue().getLoopType().getText()), false).build()).queue();
+                final AudioQueue queue = trackManager.getAudioQueue();
+                final AudioInfo next = queue.getNext();
+                message.editMessage(Standard.getMessageEmbed(null, Standard.toBold("LIVE MUSIC INFO:"))
+                        .addField("Title", audioTrackInfo__.title, false)
+                        .addField("Duration", String.format("`[%s / %s]`", getTimestamp(track__.getPosition()), getTimestamp(track__.getDuration())), false)
+                        .addField("Author", audioTrackInfo__.author, false)
+                        .addField("Next Track", (next != null ? next.getTrack().getInfo().title : "None"), false)
+                        .addField("Volume", getVolume(guild) + "%", false)
+                        .addField("Status", String.format("%s, %s", isPaused(guild) ? "Paused" : "Playing", trackManager.getLoopType().getText()), false)
+                        .build()).queue();
                 return 250;
             }
 
@@ -623,7 +639,7 @@ public class MusicCommand extends Command {
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s %s [URL or Text] [%s]", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), "Unpauses the bot or plays from an URL or searches on YouTube for a video. Optionally shows a live track info.", false);
+        builder.addField(String.format("%s %s [[URL or Text] [Maximum Number of Tracks]] [%s]", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), "Unpauses the bot or plays from an URL or searches on YouTube for a video. If loading more than one video you can set the maximum number of videos that should be loaded, or -1 for all the bot can find. Optionally shows a live track info.", false);
         builder.addField(String.format("%s %s [Pause]", invoker, Standard.ARGUMENT_PAUSE.getCompleteArgument(0, -1)), "Toggles or sets pause.", false);
         builder.addField(String.format("%s %s [Times/All]", invoker, Standard.ARGUMENT_SKIP.getCompleteArgument(0, -1)), "Skips 1 or more or even all tracks.", false);
         builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_STOP.getCompleteArgument(0, -1)), "Stops the music.", false);
