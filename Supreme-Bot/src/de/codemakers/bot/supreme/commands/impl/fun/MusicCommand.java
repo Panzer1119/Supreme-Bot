@@ -318,7 +318,7 @@ public class MusicCommand extends Command {
                 } else {
                     final String input = arguments.consumeFirst();
                     final boolean url = (input.startsWith("http://") || input.startsWith("https://"));
-                    int max_tracks = 1;
+                    int max_tracks = (url ? -1 : 1);
                     if (!arguments.isEmpty()) {
                         max_tracks = Integer.parseInt(arguments.consumeFirst());
                     }
@@ -511,6 +511,9 @@ public class MusicCommand extends Command {
                     return -1;
                 }
                 final Message message_ = Standard.getUpdatedMessage(message);
+                if (message_ == null) {
+                    return -1;
+                }
                 final boolean kill = Standard.isReacted(message_, Emoji.NO);
                 final boolean repeat = Standard.isReacted(message_, Emoji.REPEAT);
                 final boolean track_previous = Standard.isReacted(message_, Emoji.TRACK_PREVIOUS);

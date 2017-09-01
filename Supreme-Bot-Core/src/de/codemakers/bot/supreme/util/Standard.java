@@ -773,7 +773,7 @@ public class Standard {
             return true;
         }
         reaction.getUsers().stream().filter((user) -> !user.isBot()).forEach((user) -> {
-            reaction.removeReaction(user).queue();
+            reaction.removeReaction(user).complete();
         });
         return true;
     }
@@ -782,7 +782,11 @@ public class Standard {
         if (message == null) {
             return null;
         }
-        return message.getGuild().getTextChannelById(message.getChannel().getId()).getMessageById(message.getId()).complete();
+        try {
+            return message.getGuild().getTextChannelById(message.getChannel().getId()).getMessageById(message.getId()).complete();
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
     public static final long getCurrentTime() {
