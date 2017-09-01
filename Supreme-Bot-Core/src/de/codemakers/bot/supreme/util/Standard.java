@@ -420,6 +420,10 @@ public class Standard {
         }
     }
 
+    public static final User getSelfUser() {
+        return getJDA().getSelfUser();
+    }
+
     //________________________________________________________________________//
     public static final String getCommandPrefixByGuild(Guild guild) {
         if (guild == null) {
@@ -739,7 +743,7 @@ public class Standard {
             return false;
         }
     }
-    
+
     public static final MessageReaction getReaction(Message message, String emoji) {
         if (message == null || emoji == null) {
             return null;
@@ -759,7 +763,7 @@ public class Standard {
         }
         return reaction.getCount() > 1;
     }
-    
+
     public static final boolean removeReaction(Message message, String emoji) {
         if (message == null || emoji == null) {
             return false;
