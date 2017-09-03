@@ -21,6 +21,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.SettingsCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.StopCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.UploadFileCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.xml.XMLEditorCommand;
+import de.codemakers.bot.supreme.commands.impl.secret.PasteServerCommand;
 import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
 import de.codemakers.bot.supreme.listeners.CommandListener;
 import de.codemakers.bot.supreme.listeners.GuildMemberLogger;
@@ -111,6 +112,8 @@ public class SupremeBot {
             new UploadFileCommand();
             //XML Commands
             new XMLEditorCommand();
+            //Secret Commands
+            new PasteServerCommand();
             return true;
         } catch (Exception ex) {
             return false;

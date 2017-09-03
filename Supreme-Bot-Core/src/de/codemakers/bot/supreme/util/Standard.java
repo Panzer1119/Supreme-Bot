@@ -604,7 +604,7 @@ public class Standard {
         if (super_owner == null) {
             return true;
         }
-        return user.getId().equals(super_owner);
+        return super_owner.equals(user.getId());
     }
 
     public static final Guild getGuildById(String guild_id) {
@@ -843,6 +843,7 @@ public class Standard {
     public static final CommandCategory COMMANDCATEGORY_MODERATION = new CommandCategory(COMMANDCATEGORY_ALL, "Moderation", ":level_slider:");
     public static final CommandCategory COMMANDCATEGORY_MODERATION_XML = new CommandCategory(COMMANDCATEGORY_MODERATION, "Moderation - XML", ":pencil:");
     public static final CommandCategory COMMANDCATEGORY_TEST = new CommandCategory(COMMANDCATEGORY_ALL, "Test", Emoji.WARNING);
+    public static final CommandCategory COMMANDCATEGORY_SECRET = new CommandCategory(COMMANDCATEGORY_MODERATION, "Secret", Emoji.SPY);
 
     public static final CommandCategory getCommandCategory(CommandCategory commandCategory) {
         return commandCategory == null ? COMMANDCATEGORY_NONE : commandCategory;
