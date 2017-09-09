@@ -454,7 +454,7 @@ public class MusicCommand extends Command {
                 final String out = tracks.stream().collect(Collectors.joining("\n"));
                 tracks.clear();
                 infos.clear();
-                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE: \"%s\"**%n%n*[%s Tracks | Complete Duration `[ %s ]` | Page %d / %d]*%n%n**Currently Playing ->** %s", queue_name, trackManager.getAudioQueue().size(), getTimestamp(length_all.get()), pageNumber, pageNumberAll, out).build());
+                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE: \"%s\"**%n%n*[%s Tracks | Complete Duration `[ %s ]` | Page %d / %d]*%n%n**Currently Playing ->** %s", queue_name, track_size, getTimestamp(length_all.get()), pageNumber, pageNumberAll, out).build());
             } else if (volume) {
                 if (trackManager == null) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running!", Emoji.WARNING, event.getAuthor().getAsMention());
