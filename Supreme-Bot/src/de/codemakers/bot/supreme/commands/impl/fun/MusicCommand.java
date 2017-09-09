@@ -53,7 +53,7 @@ public class MusicCommand extends Command {
         AudioSourceManagers.registerRemoteSources(manager);
     }
 
-    private final TrackManager createTrackManager(Guild guild, VoiceChannel channel) {
+    static final TrackManager createTrackManager(Guild guild, VoiceChannel channel) {
         if (guild == null) {
             return null;
         }
@@ -65,7 +65,7 @@ public class MusicCommand extends Command {
         return trackManager;
     }
 
-    private final TrackManager getTrackManager(Guild guild, VoiceChannel channel) {
+    static final TrackManager getTrackManager(Guild guild, VoiceChannel channel) {
         if (guild == null) {
             return null;
         }
@@ -77,14 +77,14 @@ public class MusicCommand extends Command {
         }
     }
 
-    private final TrackManager getTrackManager(Guild guild) {
+    static final TrackManager getTrackManager(Guild guild) {
         if (guild == null) {
             return null;
         }
         return trackManagers.get(guild);
     }
 
-    private final boolean isIdle(Guild guild) {
+    static final boolean isIdle(Guild guild) {
         if (guild == null) {
             return true;
         }
@@ -144,19 +144,19 @@ public class MusicCommand extends Command {
         return this;
     }
 
-    private final MusicCommand skip(Guild guild) {
+    static final boolean skip(Guild guild) {
         if (guild == null) {
-            return this;
+            return false;
         }
         final TrackManager trackManager = getTrackManager(guild);
         if (trackManager == null || trackManager.getPlayer() == null) {
-            return this;
+            return false;
         }
         trackManager.getPlayer().stopTrack();
-        return this;
+        return true;
     }
 
-    private final boolean setPause(Guild guild, boolean pause) {
+    static final boolean setPause(Guild guild, boolean pause) {
         if (guild == null) {
             return false;
         }
@@ -171,7 +171,7 @@ public class MusicCommand extends Command {
         return true;
     }
 
-    private final boolean isPaused(Guild guild) {
+    static final boolean isPaused(Guild guild) {
         if (guild == null) {
             return false;
         }
@@ -182,7 +182,7 @@ public class MusicCommand extends Command {
         return !trackManager.isPlaying();
     }
 
-    private final boolean setVolume(Guild guild, int volume) {
+    static final boolean setVolume(Guild guild, int volume) {
         if (guild == null) {
             return false;
         }
@@ -198,7 +198,7 @@ public class MusicCommand extends Command {
         return true;
     }
 
-    private final int getVolume(Guild guild) {
+    static final int getVolume(Guild guild) {
         if (guild == null) {
             return -1;
         }
@@ -209,7 +209,7 @@ public class MusicCommand extends Command {
         return trackManager.getPlayer().getVolume();
     }
 
-    private final void stop(Guild guild, TrackManager trackManager) {
+    static final void stop(Guild guild, TrackManager trackManager) {
         trackManager.resetQueue();
         trackManager.setPlaying(false);
         skip(guild);
@@ -217,7 +217,7 @@ public class MusicCommand extends Command {
         SupremeBot.setStatus(null);
     }
 
-    private final long[] getTimestampAsArray(long millis) {
+    static final long[] getTimestampAsArray(long millis) {
         long seconds = millis / 1000;
         long hours = Math.floorDiv(seconds, 3600);
         seconds -= hours * 3600;
@@ -226,7 +226,7 @@ public class MusicCommand extends Command {
         return new long[]{seconds, minutes, hours};
     }
 
-    private final String getTimestamp(long millis) {
+    static final String getTimestamp(long millis) {
         final long[] timestamp = getTimestampAsArray(millis);
         final long seconds = timestamp[0];
         final long minutes = timestamp[1];
@@ -234,7 +234,7 @@ public class MusicCommand extends Command {
         return (hours == 0 ? "" : hours + ":") + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
     }
 
-    private final String buildQueueMessage(AudioInfo info) {
+    static final String buildQueueMessage(AudioInfo info) {
         final AudioTrackInfo trackInfo = info.getTrack().getInfo();
         final String title = trackInfo.title;
         final long length = trackInfo.length;
@@ -485,7 +485,11 @@ public class MusicCommand extends Command {
         }
     }
 
-    private final Message showLiveInfo(MessageEvent event, Guild guild, VoiceChannel channel) { //TODO Add permission control for reactions!
+    static final Message showLiveInfo(MessageEvent event, Guild guild, VoiceChannel channel) { //TODO Add permission control for reactions!
+        if (false) {
+            final MusicMessageManager musicMessageManager = new MusicMessageManager(event, guild, channel);
+            return null;
+        }
         final TrackManager trackManager = getTrackManager(guild, channel);
         final Message message = event.sendAndWaitMessageFormat(Standard.toBold("LIVE MUSIC INFO"));
         message.addReaction(Emoji.NO).queue();
