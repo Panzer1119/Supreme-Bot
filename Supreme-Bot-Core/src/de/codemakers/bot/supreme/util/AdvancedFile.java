@@ -976,20 +976,6 @@ public class AdvancedFile {
         return exists();
     }
 
-    public static final File[] toFiles(AdvancedFile... advancedFiles) {
-        if (advancedFiles == null || advancedFiles.length == 0) {
-            return new File[0];
-        }
-        final File[] files = new File[advancedFiles.length];
-        for (int i = 0; i < advancedFiles.length; i++) {
-            if (advancedFiles[i] == null) {
-                continue;
-            }
-            files[i] = advancedFiles[i].toFile();
-        }
-        return files;
-    }
-
     @Override
     public final boolean equals(Object object) {
         if (object == null) {
@@ -1004,6 +990,20 @@ public class AdvancedFile {
         } else {
             return false;
         }
+    }
+
+    public static final File[] toFiles(AdvancedFile... advancedFiles) {
+        if (advancedFiles == null || advancedFiles.length == 0) {
+            return new File[0];
+        }
+        final File[] files = new File[advancedFiles.length];
+        for (int i = 0; i < advancedFiles.length; i++) {
+            if (advancedFiles[i] == null) {
+                continue;
+            }
+            files[i] = advancedFiles[i].toFile();
+        }
+        return files;
     }
 
     public static final boolean isEqual(AdvancedFile af_1, AdvancedFile af_2) {
