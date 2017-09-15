@@ -22,6 +22,8 @@ import net.dv8tion.jda.core.entities.User;
  */
 public class DefaultMessageEvent extends MessageEvent {
 
+    public static final boolean DEBUG = true;
+
     private final Message message;
 
     public DefaultMessageEvent(JDA api, long responseNumber, Message message) {
@@ -43,22 +45,22 @@ public class DefaultMessageEvent extends MessageEvent {
     public final Member getMember() {
         return (isFromType(ChannelType.TEXT) || isFromType(ChannelType.PRIVATE)) ? getGuild().getMember(getAuthor()) : null;
     }
-    
+
     @Override
     public final MessageChannel getMessageChannel() {
         return message.getChannel();
     }
-    
+
     @Override
     public final TextChannel getTextChannel() {
         return message.getTextChannel();
     }
-    
+
     @Override
     public final PrivateChannel getPrivateChannel() {
         return message.getPrivateChannel();
     }
-    
+
     @Override
     public final boolean sendMessage(String message_) {
         try {
@@ -69,10 +71,13 @@ public class DefaultMessageEvent extends MessageEvent {
             }
             return true;
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return false;
         }
     }
-    
+
     @Override
     public final boolean sendMessageFormat(String format, Object... args) {
         try {
@@ -83,10 +88,13 @@ public class DefaultMessageEvent extends MessageEvent {
             }
             return true;
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return false;
         }
     }
-    
+
     @Override
     public final boolean sendMessage(Message message_) {
         try {
@@ -97,10 +105,13 @@ public class DefaultMessageEvent extends MessageEvent {
             }
             return true;
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return false;
         }
     }
-    
+
     @Override
     public final boolean sendMessage(MessageEmbed message_) {
         try {
@@ -111,6 +122,9 @@ public class DefaultMessageEvent extends MessageEvent {
             }
             return true;
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return false;
         }
     }
@@ -134,7 +148,7 @@ public class DefaultMessageEvent extends MessageEvent {
     public boolean sendMessage(long delay, MessageEmbed message_) {
         return Util.deleteMessage(sendAndWaitMessage(message_), delay);
     }
-    
+
     @Override
     public final Message sendAndWaitMessage(String message_) {
         try {
@@ -144,10 +158,13 @@ public class DefaultMessageEvent extends MessageEvent {
                 return message.getChannel().sendMessage(message_).complete();
             }
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return null;
         }
     }
-    
+
     @Override
     public final Message sendAndWaitMessageFormat(String format, Object... args) {
         try {
@@ -157,10 +174,13 @@ public class DefaultMessageEvent extends MessageEvent {
                 return message.getChannel().sendMessageFormat(format, args).complete();
             }
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return null;
         }
     }
-    
+
     @Override
     public final Message sendAndWaitMessage(Message message_) {
         try {
@@ -170,10 +190,13 @@ public class DefaultMessageEvent extends MessageEvent {
                 return message.getChannel().sendMessage(message_).complete();
             }
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return null;
         }
     }
-    
+
     @Override
     public final Message sendAndWaitMessage(MessageEmbed message_) {
         try {
@@ -183,46 +206,61 @@ public class DefaultMessageEvent extends MessageEvent {
                 return message.getChannel().sendMessage(message_).complete();
             }
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return null;
         }
     }
-    
+
     @Override
-    public final boolean sendFile(File file, Message message) {
+    public final boolean sendFile(File file, Message message_) {
         try {
-            message.getChannel().sendFile(file, message).queue();
+            message.getChannel().sendFile(file, message_).queue();
             return true;
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return false;
         }
     }
-    
+
     @Override
-    public final boolean sendFile(File file, String fileName, Message message) {
+    public final boolean sendFile(File file, String fileName, Message message_) {
         try {
-            message.getChannel().sendFile(file, fileName, message).queue();
+            message.getChannel().sendFile(file, fileName, message_).queue();
             return true;
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return false;
         }
     }
-    
+
     @Override
-    public final boolean sendFile(InputStream inputStream, String fileName, Message message) {
+    public final boolean sendFile(InputStream inputStream, String fileName, Message message_) {
         try {
-            message.getChannel().sendFile(inputStream, fileName, message).queue();
+            message.getChannel().sendFile(inputStream, fileName, message_).queue();
             return true;
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return false;
         }
     }
-    
+
     @Override
-    public final boolean sendFile(byte[] data, String fileName, Message message) {
+    public final boolean sendFile(byte[] data, String fileName, Message message_) {
         try {
-            message.getChannel().sendFile(data, fileName, message).queue();
+            message.getChannel().sendFile(data, fileName, message_).queue();
             return true;
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return false;
         }
     }
@@ -246,43 +284,55 @@ public class DefaultMessageEvent extends MessageEvent {
     public final boolean sendFile(long delay, byte[] data, String fileName, Message message) {
         return Util.deleteMessage(sendAndWaitFile(data, fileName, message), delay);
     }
-    
+
     @Override
-    public final Message sendAndWaitFile(File file, Message message) {
+    public final Message sendAndWaitFile(File file, Message message_) {
         try {
-            return message.getChannel().sendFile(file, message).complete();
+            return message.getChannel().sendFile(file, message_).complete();
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return null;
         }
     }
-    
+
     @Override
-    public final Message sendAndWaitFile(File file, String fileName, Message message) {
+    public final Message sendAndWaitFile(File file, String fileName, Message message_) {
         try {
-            return message.getChannel().sendFile(file, fileName, message).complete();
+            return message.getChannel().sendFile(file, fileName, message_).complete();
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return null;
         }
     }
-    
+
     @Override
-    public final Message sendAndWaitFile(InputStream inputStream, String fileName, Message message) {
+    public final Message sendAndWaitFile(InputStream inputStream, String fileName, Message message_) {
         try {
-            return message.getChannel().sendFile(inputStream, fileName, message).complete();
+            return message.getChannel().sendFile(inputStream, fileName, message_).complete();
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return null;
         }
     }
-    
+
     @Override
-    public final Message sendAndWaitFile(byte[] data, String fileName, Message message) {
+    public final Message sendAndWaitFile(byte[] data, String fileName, Message message_) {
         try {
-            return message.getChannel().sendFile(data, fileName, message).complete();
+            return message.getChannel().sendFile(data, fileName, message_).complete();
         } catch (Exception ex) {
+            if (DEBUG) {
+                ex.printStackTrace();
+            }
             return null;
         }
     }
-    
+
     @Override
     public final boolean isPrivate() {
         return getGuild() == null;
