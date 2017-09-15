@@ -841,9 +841,9 @@ public class Standard {
     public static final CommandCategory COMMANDCATEGORY_NORMAL = new CommandCategory(COMMANDCATEGORY_ALL, "Normal", Emoji.INFORMATION);
     public static final CommandCategory COMMANDCATEGORY_FUN = new CommandCategory(COMMANDCATEGORY_ALL, "Fun", Emoji.ROLL);
     public static final CommandCategory COMMANDCATEGORY_MODERATION = new CommandCategory(COMMANDCATEGORY_ALL, "Moderation", ":level_slider:");
-    public static final CommandCategory COMMANDCATEGORY_MODERATION_XML = new CommandCategory(COMMANDCATEGORY_MODERATION, "Moderation - XML", ":pencil:");
+    public static final CommandCategory COMMANDCATEGORY_MODERATION_UTIL = new CommandCategory(COMMANDCATEGORY_MODERATION, "Util", ":gear:");
     public static final CommandCategory COMMANDCATEGORY_TEST = new CommandCategory(COMMANDCATEGORY_ALL, "Test", Emoji.WARNING);
-    public static final CommandCategory COMMANDCATEGORY_SECRET = new CommandCategory(COMMANDCATEGORY_MODERATION, "Secret", Emoji.SPY);
+    public static final CommandCategory COMMANDCATEGORY_SECRET = new CommandCategory(COMMANDCATEGORY_ALL, "Secret", Emoji.SPY);
 
     public static final CommandCategory getCommandCategory(CommandCategory commandCategory) {
         return commandCategory == null ? COMMANDCATEGORY_NONE : commandCategory;

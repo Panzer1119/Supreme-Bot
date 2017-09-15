@@ -1,4 +1,4 @@
-package de.codemakers.bot.supreme.commands.impl.moderation.xml;
+package de.codemakers.bot.supreme.commands.impl.moderation.util;
 
 import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.XMLUtil;

@@ -244,7 +244,7 @@ public class CommandHandler {
             sb.append(COMMANDCATEGORY_HIERARCHY_SPACER);
             sb.append(COMMANDCATEGORY_HIERARCHY_SPACER);
         }
-        final List<CommandCategory> children = commandCategory.getChildren(false);
+        final List<CommandCategory> children = commandCategory.getChildren(false).stream().filter((commandCategory_) -> commands.stream().anyMatch((command) -> Standard.getCommandCategory(command.getCommandCategory()).equals(commandCategory_))).collect(Collectors.toList());
         if (depth >= 0) {
             if (last) {
                 sb.append(COMMANDCATEGORY_HIERARCHY_LINE_END);
