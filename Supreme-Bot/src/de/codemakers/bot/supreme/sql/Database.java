@@ -1,6 +1,9 @@
 package de.codemakers.bot.supreme.sql;
 
+import de.codemakers.bot.supreme.util.Copyable;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Arrays;
 
@@ -9,7 +12,7 @@ import java.util.Arrays;
  *
  * @author Panzer1119
  */
-public class Database {
+public class Database implements Copyable {
 
     public static final String SPLITTER = ";";
 
@@ -74,6 +77,18 @@ public class Database {
         return this;
     }
 
+    public final Database setPassword(String password) {
+        if (isConnected()) {
+            return this;
+        }
+        if (password != null) {
+            this.password = password.getBytes();
+        } else {
+            this.password = null;
+        }
+        return this;
+    }
+
     public final Connection getConnection() {
         return connection;
     }
@@ -111,12 +126,14 @@ public class Database {
         }
     }
 
-    public final Statement prepareStatement(String sql) {
+    public final PreparedStatement prepareStatement(String sql, Object... args) {
         if (!isConnected()) {
             return null;
         }
         try {
-            return connection.prepareStatement(sql);
+            String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
+            System.out.println(temp);
+            return connection.prepareStatement(temp);
         } catch (Exception ex) {
             System.err.println("Database: Statement preparing error");
             ex.printStackTrace();
@@ -124,7 +141,82 @@ public class Database {
         }
     }
 
+    public final boolean execute(String sql, Object... args) {
+        if (!isConnected()) {
+            return false;
+        }
+        try {
+            String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
+            System.out.println(temp);
+            final Statement statement = createStatement();
+            final boolean result = statement.execute(temp);
+            statement.close();
+            return result;
+        } catch (Exception ex) {
+            System.err.println("Database: Executing error");
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public final ResultSet executeQuery(String sql, Object... args) {
+        if (!isConnected()) {
+            return null;
+        }
+        try {
+            String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
+            System.out.println(temp);
+            final Statement statement = createStatement();
+            final ResultSet resultSet = statement.executeQuery(temp);
+            statement.close();
+            return resultSet;
+        } catch (Exception ex) {
+            System.err.println("Database: Executing query error");
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public final int executeUpdate(String sql, Object... args) {
+        if (!isConnected()) {
+            return -1;
+        }
+        try {
+            String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
+            System.out.println(temp);
+            final Statement statement = createStatement();
+            final int result = statement.executeUpdate(temp);
+            statement.close();
+            return result;
+        } catch (Exception ex) {
+            System.err.println("Database: Executing update error");
+            ex.printStackTrace();
+            return -1;
+        }
+    }
+
+    public final long executeLargeUpdate(String sql, Object... args) {
+        if (!isConnected()) {
+            return -1;
+        }
+        try {
+            String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
+            System.out.println(temp);
+            final Statement statement = createStatement();
+            final long result = statement.executeLargeUpdate(temp);
+            statement.close();
+            return result;
+        } catch (Exception ex) {
+            System.err.println("Database: Executing large update error");
+            ex.printStackTrace();
+            return -1;
+        }
+    }
+
     public final boolean close() {
+        if (!isConnected()) {
+            return true;
+        }
         try {
             connection.close();
             if (connection.isClosed()) {
@@ -147,6 +239,27 @@ public class Database {
             ex.printStackTrace();
             return false;
         }
+    }
+
+    public final boolean archive(String table, String id) {
+        if (!isConnected()) {
+            return false;
+        }
+        try {
+            final String table_archive = (!table.startsWith("archive_") ? "archive_" : "") + table;
+            final int result_1 = executeUpdate("SELECT * INTO %s FROM %s WHERE ID == %s;", table_archive, table, id);
+            final int result_2 = executeUpdate("DELETE FROM %s WHERE ID == %s;", table, id);
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Database: Archiving error");
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public final Database copy() {
+        return new Database(hostname, database, username, password);
     }
 
     @Override

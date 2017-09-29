@@ -2,6 +2,7 @@ package de.codemakers.bot.supreme.listeners;
 
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.permission.PermissionRole;
+import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
@@ -24,6 +25,7 @@ public class ReadyListener extends ListenerAdapter {
         for (Guild guild : jda.getGuilds()) {
             final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild);
         }
+        MySQL.init();
         if (true) {
             return;
         }
@@ -40,6 +42,7 @@ public class ReadyListener extends ListenerAdapter {
     
     @Override
     public final void onResume(ResumedEvent event) {
+        MySQL.init();
         final JDA jda = event.getJDA();
         for (Guild guild : jda.getGuilds()) {
             final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild);

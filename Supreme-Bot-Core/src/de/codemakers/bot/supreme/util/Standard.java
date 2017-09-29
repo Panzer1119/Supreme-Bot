@@ -849,7 +849,7 @@ public class Standard {
         return commandCategory == null ? COMMANDCATEGORY_NONE : commandCategory;
     }
 
-    public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner", "nickname"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
+    public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner", "nickname", "sql_hostname", "sql_database", "sql_username", "sql_password"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
     public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/", "!"};
     public static final Argument ARGUMENT_GLOBAL = new Argument("global", STANDARD_ARGUMENT_PREFIXES, "g");
     public static final Argument ARGUMENT_DIRECT = new Argument("direct", STANDARD_ARGUMENT_PREFIXES, "d");
