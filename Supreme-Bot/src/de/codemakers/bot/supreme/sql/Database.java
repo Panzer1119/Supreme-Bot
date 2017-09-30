@@ -159,7 +159,7 @@ public class Database implements Copyable {
         }
     }
 
-    public final ResultSet executeQuery(String sql, Object... args) {
+    public final Result executeQuery(String sql, Object... args) {
         if (!isConnected()) {
             return null;
         }
@@ -168,8 +168,7 @@ public class Database implements Copyable {
             System.out.println(temp);
             final Statement statement = createStatement();
             final ResultSet resultSet = statement.executeQuery(temp);
-            statement.close();
-            return resultSet;
+            return new Result(statement, resultSet);
         } catch (Exception ex) {
             System.err.println("Database: Executing query error");
             ex.printStackTrace();
@@ -247,8 +246,8 @@ public class Database implements Copyable {
         }
         try {
             final String table_archive = (!table.startsWith("archive_") ? "archive_" : "") + table;
-            final int result_1 = executeUpdate("SELECT * INTO %s FROM %s WHERE ID == %s;", table_archive, table, id);
-            final int result_2 = executeUpdate("DELETE FROM %s WHERE ID == %s;", table, id);
+            final boolean result_1 = execute("INSERT INTO %s SELECT * FROM %s WHERE ID = %s;", table_archive, table, id);
+            final int result_2 = executeUpdate("DELETE FROM %s WHERE ID = %s;", table, id);
             return true;
         } catch (Exception ex) {
             System.err.println("Database: Archiving error");

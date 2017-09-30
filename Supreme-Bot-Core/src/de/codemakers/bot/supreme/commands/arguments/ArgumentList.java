@@ -1,10 +1,16 @@
 package de.codemakers.bot.supreme.commands.arguments;
 
+import de.codemakers.bot.supreme.util.Standard;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 /**
  * ArgumentList
@@ -13,36 +19,64 @@ import java.util.stream.Stream;
  */
 public class ArgumentList {
 
-    private final ArrayList<String> arguments_raw = new ArrayList<>();
+    private final ArrayList<String> arguments_content_raw = new ArrayList<>();
+    private final ArrayList<String> arguments_content = new ArrayList<>();
+    private final Guild guild;
 
-    public ArgumentList(String... arguments) {
-        setRawArguments(arguments);
+    public ArgumentList(Guild guild) {
+        this.guild = guild;
     }
 
-    public final ArgumentList setRawArguments(String... arguments) {
-        clearRawArguments();
-        addRawArguments(arguments);
+    public final ArgumentList addArguments(String... arguments) {
+        addContentArguments(arguments);
+        addContentRawArguments(arguments);
         return this;
     }
 
-    public final ArgumentList addRawArguments(String... arguments) {
+    public final ArgumentList setContentRawArguments(String... arguments) {
+        addContentRawArguments(arguments);
+        return this;
+    }
+
+    public final ArgumentList addContentRawArguments(String... arguments) {
         if (arguments != null && arguments.length > 0) {
-            arguments_raw.addAll(Arrays.asList(arguments));
+            arguments_content_raw.addAll(Arrays.asList(arguments));
         }
         return this;
     }
 
-    public final ArgumentList clearRawArguments() {
-        arguments_raw.clear();
+    public final ArrayList<String> getContentRawArguments() {
+        return arguments_content_raw;
+    }
+
+    public final String[] getContentRawArgumentsAsArray() {
+        return arguments_content_raw.toArray(new String[arguments_content_raw.size()]);
+    }
+
+    public final ArgumentList setContentArguments(String... arguments) {
+        addContentArguments(arguments);
         return this;
     }
 
-    public final ArrayList<String> getRawArguments() {
-        return arguments_raw;
+    public final ArgumentList addContentArguments(String... arguments) {
+        if (arguments != null && arguments.length > 0) {
+            arguments_content.addAll(Arrays.asList(arguments));
+        }
+        return this;
     }
 
-    public final String[] getRawArgumentsAsArray() {
-        return arguments_raw.toArray(new String[arguments_raw.size()]);
+    public final ArrayList<String> getContentArguments() {
+        return arguments_content;
+    }
+
+    public final String[] getContentArgumentsAsArray() {
+        return arguments_content.toArray(new String[arguments_content.size()]);
+    }
+
+    public final ArgumentList clearArguments() {
+        arguments_content_raw.clear();
+        arguments_content.clear();
+        return this;
     }
 
     public final boolean hasArguments() {
@@ -54,7 +88,7 @@ public class ArgumentList {
     }
 
     public final int size() {
-        return arguments_raw.size();
+        return arguments_content.size();
     }
 
     public final boolean isSize(int size) {
@@ -70,18 +104,37 @@ public class ArgumentList {
     }
 
     public final String getLast() {
-        return get(arguments_raw.size() - 1);
+        return get(size() - 1);
     }
 
     public final String get(int index) {
         if (!isSize(index + 1, -1) || index < 0) {
             return null;
         }
-        return arguments_raw.get(index);
+        return arguments_content.get(index);
+    }
+
+    public final String getRawFirst() {
+        return getRaw(0);
+    }
+
+    public final String getRawLast() {
+        return getRaw(size() - 1);
+    }
+
+    public final String getRaw(int index) {
+        if (!isSize(index + 1, -1) || index < 0) {
+            return null;
+        }
+        return arguments_content_raw.get(index);
     }
 
     public final Stream<String> stream() {
-        return arguments_raw.stream();
+        return arguments_content.stream();
+    }
+
+    public final Stream<String> streamRaw() {
+        return arguments_content_raw.stream();
     }
 
     public final String consumeNext(Argument argument, ArgumentConsumeType type) {
@@ -115,9 +168,9 @@ public class ArgumentList {
             }
             List<String> other = null;
             if (offset > 0) {
-                other = arguments_raw.subList(index + 1, Math.min(index + offset + 1, arguments_raw.size()));
+                other = arguments_content.subList(index + 1, Math.min(index + offset + 1, arguments_content.size()));
             } else if (offset < 0) {
-                other = arguments_raw.subList(Math.max(0, index + offset), index);
+                other = arguments_content.subList(Math.max(0, index + offset), index);
             }
             if (type.isAll()) {
                 if (other != null) {
@@ -138,16 +191,124 @@ public class ArgumentList {
     }
 
     public final String consumeLast() {
-        return consume(arguments_raw.size() - 1);
+        return consume(size() - 1);
     }
 
     public final String consume(int index) {
         if (!isSize(index + 1, -1) || index < 0) {
             return null;
         }
-        final String temp = arguments_raw.get(index);
-        arguments_raw.remove(index);
+        final String temp = arguments_content.get(index);
+        arguments_content.remove(index);
+        arguments_content_raw.remove(index);
         return temp;
+    }
+
+    public final String consumeRawFirst() {
+        return consumeRaw(0);
+    }
+
+    public final String consumeRawLast() {
+        return consumeRaw(size() - 1);
+    }
+
+    public final String consumeRaw(int index) {
+        if (!isSize(index + 1, -1) || index < 0) {
+            return null;
+        }
+        final String temp = arguments_content_raw.get(index);
+        arguments_content_raw.remove(index);
+        arguments_content.remove(index);
+        return temp;
+    }
+
+    public final User consumeUserFirst() {
+        return consumeUser(0);
+    }
+
+    public final User consumeUserLast() {
+        return consumeUser(size() - 1);
+    }
+
+    public final User consumeUser(int index) {
+        final String temp = getRaw(index);
+        if (temp == null) {
+            return null;
+        }
+        if (temp.startsWith("<@") && temp.endsWith(">")) {
+            consumeRaw(index);
+            return Standard.getUserById(temp.substring("<@".length(), temp.length() - ">".length()));
+        }
+        return null;
+    }
+
+    public final Member consumeMemberFirst() {
+        return consumeMember(0);
+    }
+
+    public final Member consumeMemberLast() {
+        return consumeMember(size() - 1);
+    }
+
+    public final Member consumeMember(int index) {
+        if (guild == null) {
+            return null;
+        }
+        final String temp = getRaw(index);
+        if (temp == null) {
+            return null;
+        }
+        if (temp.startsWith("<@") && temp.endsWith(">")) {
+            consumeRaw(index);
+            return guild.getMemberById(temp.substring("<@".length(), temp.length() - ">".length()));
+        }
+        return null;
+    }
+
+    public final TextChannel consumeTextChannelFirst() {
+        return consumeTextChannel(0);
+    }
+
+    public final TextChannel consumeTextChannelLast() {
+        return consumeTextChannel(size() - 1);
+    }
+
+    public final TextChannel consumeTextChannel(int index) {
+        if (guild == null) {
+            return null;
+        }
+        final String temp = getRaw(index);
+        if (temp == null) {
+            return null;
+        }
+        if (temp.startsWith("<@") && temp.endsWith(">")) {
+            consumeRaw(index);
+            return guild.getTextChannelById(temp.substring("<@".length(), temp.length() - ">".length()));
+        }
+        return null;
+    }
+
+    public final Role consumeRoleFirst() {
+        return consumeRole(0);
+    }
+
+    public final Role consumeRoleLast() {
+        return consumeRole(size() - 1);
+    }
+
+    public final Role consumeRole(int index) {
+        if (guild == null) {
+            return null;
+        }
+        final String temp = getRaw(index);
+        if (temp == null) {
+            return null;
+        }
+        if (temp.startsWith("<@") && temp.endsWith(">")) {
+            consumeRaw(index);
+            return guild.getRoleById(temp.substring("<@".length(), temp.length() - ">".length()));
+        }
+        return null;
     }
 
     public final boolean consumeFirst(Argument argument, ArgumentConsumeType type) {
@@ -155,20 +316,21 @@ public class ArgumentList {
     }
 
     public final boolean consumeLast(Argument argument, ArgumentConsumeType type) {
-        return consume(argument, type, arguments_raw.size() - 1);
+        return consume(argument, type, size() - 1);
     }
 
     public final boolean consume(Argument argument, ArgumentConsumeType type, int index) {
-        if (argument == null || arguments_raw.isEmpty() || index < 0 || index >= arguments_raw.size()) {
+        if (argument == null || isEmpty() || index < 0 || index >= size()) {
             return false;
         }
-        final String argument_raw = arguments_raw.get(index);
+        final String argument_raw = arguments_content.get(index);
         if (argument_raw == null) {
             return false;
         }
         if (argument.takes(type, argument_raw)) {
             if (type.isConsume()) {
-                arguments_raw.remove(index);
+                arguments_content.remove(index);
+                arguments_content_raw.remove(index);
             }
             if (type.isAll()) {
                 return consume(argument, type, index);
@@ -188,7 +350,7 @@ public class ArgumentList {
     }
 
     public final int consume(Argument argument, ArgumentConsumeType type, boolean returnIndex, int index_start) {
-        if (argument == null || arguments_raw.isEmpty() || index_start < 0 || index_start >= arguments_raw.size()) {
+        if (argument == null || isEmpty() || index_start < 0 || index_start >= size()) {
             if (returnIndex) {
                 return -1;
             } else {
@@ -197,7 +359,7 @@ public class ArgumentList {
         }
         int times_found = 0;
         int index = 0;
-        final Iterator<String> arguments_raw_iterator = arguments_raw.iterator();
+        final Iterator<String> arguments_raw_iterator = arguments_content.iterator();
         while (arguments_raw_iterator.hasNext()) {
             if (index < index_start) {
                 index++;
@@ -211,6 +373,8 @@ public class ArgumentList {
                 times_found++;
                 if (type.isConsume()) {
                     arguments_raw_iterator.remove();
+                    arguments_content_raw.remove(index);
+                    index--;
                 }
                 if (returnIndex) {
                     return index;
@@ -226,7 +390,7 @@ public class ArgumentList {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        arguments_raw.stream().forEach((argument_raw) -> sb.append(" " + argument_raw));
+        arguments_content.stream().forEach((argument_raw) -> sb.append(argument_raw));
         return sb.toString().substring(1);
     }
 

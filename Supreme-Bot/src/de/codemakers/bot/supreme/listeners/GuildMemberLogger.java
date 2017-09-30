@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.listeners;
 
+import de.codemakers.bot.supreme.commands.impl.moderation.TempBan;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
@@ -35,6 +36,10 @@ public class GuildMemberLogger extends ListenerAdapter {
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         final Instant timestamp = Instant.now();
+        if (!TempBan.isAllowedToJoin(event.getMember())) {
+            event.getGuild().getController().kick(event.getMember(), TempBan.getReason(event.getMember())).queue();
+            return;
+        }
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         final String log_channel_id_member = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_MEMBER, null);
         if (log_channel_id_member != null) {

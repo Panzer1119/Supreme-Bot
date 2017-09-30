@@ -7,11 +7,16 @@ import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.sql.MySQL;
+import de.codemakers.bot.supreme.sql.Result;
 import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.updater.Updateable;
+import de.codemakers.bot.supreme.util.updater.Updater;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.User;
 
 /**
  * TempBanCommand
@@ -19,6 +24,24 @@ import net.dv8tion.jda.core.EmbedBuilder;
  * @author Panzer1119
  */
 public class TempBanCommand extends Command {
+
+    private static final Updateable TEMP_BAN_COMMAND_UPDATER = new Updateable() {
+        @Override
+        public long update(long timestamp) {
+            if (!updateAgain()) {
+                return 20000;
+            }
+            return 10000;
+        }
+
+        @Override
+        public void delete() {
+        }
+    };
+
+    static {
+        Updater.addUpdateable(TEMP_BAN_COMMAND_UPDATER);
+    }
 
     @Override
     public void initInvokers() {
@@ -30,17 +53,29 @@ public class TempBanCommand extends Command {
         if (arguments == null || arguments.isEmpty()) {
             return false;
         }
-        return arguments.isSize(2, 3);
+        return arguments.isSize(2, 4); //USER_ID BAN_TIME_IN_MS [REASON [BAN_TYPE]]
     }
 
     @Override
     public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         try {
-            final String user_id = arguments.consumeFirst();
+            final User user = arguments.consumeUserFirst();
+            final String user_id = (user == null) ? arguments.consumeFirst() : user.getId();
             final String unban_date_string = arguments.consumeFirst();
             final String reason = arguments.consumeFirst();
             final Instant ban_date = Instant.now();
-            final boolean ban_type = true;
+            final boolean ban_type = (arguments.isEmpty() ? true : Boolean.parseBoolean(arguments.consumeFirst()));
+            if (ban_type) {
+                if (reason == null) {
+                    event.getGuild().getController().ban(user_id, 0).queue();
+                } else {
+                    event.getGuild().getController().ban(user_id, 0, reason).queue();
+                }
+            } else if (reason == null) {
+                event.getGuild().getController().kick(user_id).queue();
+            } else {
+                event.getGuild().getController().kick(user_id, reason).queue();
+            }
             final PreparedStatement preparedStatement = MySQL.STANDARD_DATABASE.prepareStatement("INSERT INTO %s (guild_ID, user_ID, unban_date, reason, banner_ID, ban_date, ban_type) VALUES (?, ?, ?, ?, ?, ?, ?)", MySQL.SQL_TABLE_TEMP_BANS);
             preparedStatement.setLong(1, event.getGuild().getIdLong());
             preparedStatement.setLong(2, Long.parseLong(user_id));
@@ -80,6 +115,32 @@ public class TempBanCommand extends Command {
     @Override
     public CommandCategory getCommandCategory() {
         return Standard.COMMANDCATEGORY_MODERATION;
+    }
+
+    private static final boolean updateAgain() {
+        try {
+            final Instant instant_now = Instant.now();
+            final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM %s;", MySQL.SQL_TABLE_TEMP_BANS);
+            if (result == null) {
+                return true;
+            }
+            final ArrayList<TempBan> tempBans = TempBan.ofResultSet(result.resultSet);
+            result.statement.close();
+            if (tempBans == null || tempBans.isEmpty()) {
+                return false;
+            }
+            tempBans.stream().filter((tempBan) -> tempBan.isNeededToUnban(instant_now)).forEach((tempBan) -> {
+                if (!tempBan.unban() && tempBan.getGuild_id() == 0) {
+                    tempBan.archive();
+                }
+            });
+            tempBans.clear();
+            return true;
+        } catch (Exception ex) {
+            System.err.println("TempBanCommand: Updating again error");
+            ex.printStackTrace();
+            return true;
+        }
     }
 
 }

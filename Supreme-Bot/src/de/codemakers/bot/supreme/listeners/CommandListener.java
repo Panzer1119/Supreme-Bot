@@ -24,7 +24,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
  * @author Panzer1119
  */
 public class CommandListener extends ListenerAdapter {
-    
+
     private static final boolean DEBUG = false;
 
     @Override
@@ -37,10 +37,11 @@ public class CommandListener extends ListenerAdapter {
             if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
                 return;
             }
-            final String message = event.getMessage().getContent().trim();
+            final String content_raw = event.getMessage().getRawContent().trim();
+            final String content = event.getMessage().getContent().trim();
             final Guild guild = event.getGuild();
-            if (isCommand(message, event)) {
-                CommandHandler.handleCommand(CommandParser.parser(message, event));
+            if (isCommand(content, event)) {
+                CommandHandler.handleCommand(CommandParser.parser(content, content_raw, event));
             } else {
                 final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.RECEIVED});
                 if (output.length > 0) {
@@ -48,7 +49,7 @@ public class CommandListener extends ListenerAdapter {
                 }
                 final List<Attachment> attachments = event.getMessage().getAttachments();
                 if (attachments == null || attachments.isEmpty()) {
-                    System.out.println(String.format("[%s] [%s] %s: %s", (guild != null ? guild.getName() : "PRIVATE"), event.getMessageChannel().getName(), event.getAuthor().getName(), message));
+                    System.out.println(String.format("[%s] [%s] %s: %s", (guild != null ? guild.getName() : "PRIVATE"), event.getMessageChannel().getName(), event.getAuthor().getName(), content));
                 } else {
                     String text = "";
                     for (Attachment attachment : attachments) {
@@ -59,7 +60,7 @@ public class CommandListener extends ListenerAdapter {
                             text += String.format("+FILE: \"%s\" (ID: %s) (URL: %s)", attachment.getFileName(), attachment.getId(), attachment.getUrl());
                         }
                     }
-                    System.out.println(String.format("[%s] [%s] %s: %s%s", event.getGuild().getName(), event.getMessageChannel().getName(), event.getAuthor().getName(), message, text));
+                    System.out.println(String.format("[%s] [%s] %s: %s%s", event.getGuild().getName(), event.getMessageChannel().getName(), event.getAuthor().getName(), content, text));
                 }
             }
         } catch (Exception ex) {

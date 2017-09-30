@@ -607,6 +607,30 @@ public class Standard {
         return super_owner.equals(user.getId());
     }
 
+    public static final User getUserById(long user_id) {
+        if (getJDA() == null) {
+            System.err.println("Failed to get User by id: JDA is null!");
+            return null;
+        }
+        return getJDA().getUserById(user_id);
+    }
+
+    public static final User getUserById(String user_id) {
+        if (getJDA() == null) {
+            System.err.println("Failed to get User by id: JDA is null!");
+            return null;
+        }
+        return getJDA().getUserById(user_id);
+    }
+
+    public static final Guild getGuildById(long guild_id) {
+        if (getJDA() == null) {
+            System.err.println("Failed to get Guild by id: JDA is null!");
+            return null;
+        }
+        return getJDA().getGuildById(guild_id);
+    }
+
     public static final Guild getGuildById(String guild_id) {
         if (getJDA() == null) {
             System.err.println("Failed to get Guild by id: JDA is null!");
