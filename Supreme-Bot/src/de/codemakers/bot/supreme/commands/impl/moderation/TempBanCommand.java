@@ -5,12 +5,15 @@ import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.exceptions.ArgumentException;
+import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.sql.Result;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.updater.Updateable;
 import de.codemakers.bot.supreme.util.updater.Updater;
+import java.awt.Color;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -61,6 +64,15 @@ public class TempBanCommand extends Command {
         try {
             final User user = arguments.consumeUserFirst();
             final String user_id = (user == null) ? arguments.consumeFirst() : user.getId();
+            if (Standard.getUserById(user_id) == null) {
+                event.sendMessage(new EmbedBuilder().setColor(Color.RED).setDescription(String.format("User \"%s\" doesn't exist or isn't on this Server!", user_id)).build());
+                //event.sendMessage(new ArgumentException().setCommand(this).setArgument("1").getMessage(event.getTextChannel()).build());
+                return;
+            }
+            if (Standard.getSelfUser().getId().equals(user_id) || Standard.isSuperOwner(user_id) || event.getGuild().getOwner().getUser().getId().equals(user_id) || PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_OWNER, user_id, event.getGuild()) || (PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER, user_id, event.getGuild()) && !PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_OWNER, event.getMember()))) {
+                PermissionHandler.sendNoPermissionMessage(event);
+                return;
+            }
             final String unban_date_string = arguments.consumeFirst();
             final String reason = arguments.consumeFirst();
             final Instant ban_date = Instant.now();
@@ -88,6 +100,7 @@ public class TempBanCommand extends Command {
             preparedStatement.closeOnCompletion();
             preparedStatement.close();
         } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -103,8 +116,8 @@ public class TempBanCommand extends Command {
 
     @Override
     public PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER;
-        //return Standard.STANDARD_PERMISSIONROLEFILTER_MODERATOR; //FIXME Only to prevent the NAS from turning on
+        //return Standard.STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER;
+        return Standard.STANDARD_PERMISSIONROLEFILTER_MODERATOR; //FIXME Only to prevent the NAS from turning on
     }
 
     @Override

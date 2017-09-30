@@ -15,6 +15,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.PermissionOverride;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -66,6 +67,36 @@ public class PermissionHandler {
             }
         }
         return false;
+    }
+
+    public static final boolean check(PermissionRoleFilter filter, User user, Guild guild) {
+        if (filter == null) {
+            return true;
+        }
+        if (user == null || guild == null) {
+            return false;
+        }
+        return check(filter, guild.getMember(user));
+    }
+
+    public static final boolean check(PermissionRoleFilter filter, String user_id, Guild guild) {
+        if (filter == null) {
+            return true;
+        }
+        if (user_id == null || user_id.isEmpty() || guild == null) {
+            return false;
+        }
+        return check(filter, guild.getMemberById(user_id));
+    }
+
+    public static final boolean check(PermissionRoleFilter filter, long user_id, Guild guild) {
+        if (filter == null) {
+            return true;
+        }
+        if (guild == null) {
+            return false;
+        }
+        return check(filter, guild.getMemberById(user_id));
     }
 
     public static final boolean check(PermissionRoleFilter filter, Guild guild, Channel channel) {

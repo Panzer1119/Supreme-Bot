@@ -589,6 +589,29 @@ public class Standard {
         return getMessageEmbed(color, String.format(format, args));
     }
 
+    public static final boolean isSuperOwner(long user_id) {
+        final String super_owner = STANDARD_SETTINGS.getProperty("super_owner", null);
+        if (super_owner == null) {
+            return true;
+        }
+        return super_owner.equals("" + user_id);
+    }
+
+    public static final boolean isSuperOwner(String user_id) {
+        final String super_owner = STANDARD_SETTINGS.getProperty("super_owner", null);
+        if (super_owner == null) {
+            return true;
+        }
+        return super_owner.equals(user_id);
+    }
+
+    public static final boolean isSuperOwner(User user) {
+        if (user == null) {
+            return false;
+        }
+        return isSuperOwner(user.getIdLong());
+    }
+
     public static final boolean isSuperOwner(Member member) {
         if (member == null) {
             return false;
@@ -596,23 +619,16 @@ public class Standard {
         return isSuperOwner(member.getUser());
     }
 
-    public static final boolean isSuperOwner(User user) {
-        if (user == null) {
-            return false;
-        }
-        final String super_owner = STANDARD_SETTINGS.getProperty("super_owner", null);
-        if (super_owner == null) {
-            return true;
-        }
-        return super_owner.equals(user.getId());
-    }
-
     public static final User getUserById(long user_id) {
         if (getJDA() == null) {
             System.err.println("Failed to get User by id: JDA is null!");
             return null;
         }
-        return getJDA().getUserById(user_id);
+        try {
+            return getJDA().getUserById(user_id);
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
     public static final User getUserById(String user_id) {
@@ -620,7 +636,11 @@ public class Standard {
             System.err.println("Failed to get User by id: JDA is null!");
             return null;
         }
-        return getJDA().getUserById(user_id);
+        try {
+            return getJDA().getUserById(user_id);
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
     public static final Guild getGuildById(long guild_id) {
@@ -628,7 +648,11 @@ public class Standard {
             System.err.println("Failed to get Guild by id: JDA is null!");
             return null;
         }
-        return getJDA().getGuildById(guild_id);
+        try {
+            return getJDA().getGuildById(guild_id);
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
     public static final Guild getGuildById(String guild_id) {
@@ -636,7 +660,11 @@ public class Standard {
             System.err.println("Failed to get Guild by id: JDA is null!");
             return null;
         }
-        return getJDA().getGuildById(guild_id);
+        try {
+            return getJDA().getGuildById(guild_id);
+        } catch (Exception ex) {
+            return null;
+        }
     }
 
     public static final String resolveGuildId(Guild guild, String guild_id) {
@@ -821,6 +849,14 @@ public class Standard {
         return Standard.isSuperOwner(member);
     };
 
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_OWNER = (permissionRole, member) -> {
+        final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
+        if (permissionRole.isPermissionGranted(owner)) {
+            return true;
+        }
+        return Standard.isSuperOwner(member);
+    };
+
     public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_OWNER_BOT_COMMANDER = (permissionRole, member) -> {
         final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
         final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
@@ -830,10 +866,35 @@ public class Standard {
         return Standard.isSuperOwner(member);
     };
 
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_OWNER_ADMIN = (permissionRole, member) -> {
+        final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
+        final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
+        if (permissionRole.isPermissionGranted(owner) || permissionRole.isPermissionGranted(admin)) {
+            return true;
+        }
+        return Standard.isSuperOwner(member);
+    };
+
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_ADMIN = (permissionRole, member) -> {
+        final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
+        if (permissionRole.isPermissionGranted(admin)) {
+            return true;
+        }
+        return Standard.isSuperOwner(member);
+    };
+
     public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER = (permissionRole, member) -> {
         final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
         final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
         if (permissionRole.isPermissionGranted(admin) || permissionRole.isPermissionGranted(bot_commander)) {
+            return true;
+        }
+        return Standard.isSuperOwner(member);
+    };
+
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_BOT_COMMANDER = (permissionRole, member) -> {
+        final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
+        if (permissionRole.isPermissionGranted(bot_commander)) {
             return true;
         }
         return Standard.isSuperOwner(member);
@@ -857,6 +918,10 @@ public class Standard {
 
     public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_NOBODY = (permissionRole, member) -> {
         return false;
+    };
+
+    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_EVERYONE = (permissionRole, member) -> {
+        return true;
     };
 
     public static final CommandCategory COMMANDCATEGORY_NONE = new CommandCategory(null, "None", ":children_crossing:");
