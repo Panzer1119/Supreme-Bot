@@ -2,6 +2,7 @@ package de.codemakers.bot.supreme.commands.impl.moderation;
 
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.CommandCategory;
+import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
@@ -10,6 +11,7 @@ import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.sql.Result;
 import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Util;
 import de.codemakers.bot.supreme.util.updater.Updateable;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.awt.Color;
@@ -55,11 +57,18 @@ public class TempBanCommand extends Command {
         if (arguments == null || arguments.isEmpty()) {
             return false;
         }
-        return arguments.isSize(2, 4); //USER_ID BAN_TIME_IN_MS [REASON [BAN_TYPE]]
+        final boolean kick = arguments.isConsumed(Standard.ARGUMENT_KICK, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        if (kick) {
+            return arguments.isSize(3, 4); //USER_ID BAN_TIME(_IN_MINUTES) [REASON] -kick
+        } else {
+            return arguments.isSize(2, 3); //USER_ID BAN_TIME(_IN_MINUTES) [REASON]
+        }
     }
 
     @Override
     public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
+        final Instant ban_date = Instant.now();
+        final boolean kick = arguments.isConsumed(Standard.ARGUMENT_KICK, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         try {
             final User user = arguments.consumeUserFirst();
             final String user_id = (user == null) ? arguments.consumeFirst() : user.getId();
@@ -72,11 +81,13 @@ public class TempBanCommand extends Command {
                 PermissionHandler.sendNoPermissionMessage(event);
                 return;
             }
-            final String unban_date_string = arguments.consumeFirst();
+            final String ban_time_string = arguments.consumeFirst();
+            Long ban_time_ms = Util.getTime(ban_time_string);
+            if (ban_time_ms == null) {
+                ban_time_ms = Long.parseLong(ban_time_string) * 1_000 * 60;
+            }
             final String reason = arguments.consumeFirst();
-            final Instant ban_date = Instant.now();
-            final boolean ban_type = (arguments.isEmpty() ? true : Boolean.parseBoolean(arguments.consumeFirst()));
-            if (ban_type) {
+            if (!kick) {
                 if (reason == null) {
                     event.getGuild().getController().ban(user_id, 0).queue();
                 } else {
@@ -90,11 +101,11 @@ public class TempBanCommand extends Command {
             final PreparedStatement preparedStatement = MySQL.STANDARD_DATABASE.prepareStatement("INSERT INTO %s (guild_ID, user_ID, unban_date, reason, banner_ID, ban_date, ban_type) VALUES (?, ?, ?, ?, ?, ?, ?)", MySQL.SQL_TABLE_TEMP_BANS);
             preparedStatement.setLong(1, event.getGuild().getIdLong());
             preparedStatement.setLong(2, Long.parseLong(user_id));
-            preparedStatement.setTimestamp(3, new Timestamp(ban_date.toEpochMilli() + Long.parseLong(unban_date_string)));
+            preparedStatement.setTimestamp(3, new Timestamp(ban_date.toEpochMilli() + ban_time_ms));
             preparedStatement.setString(4, reason);
             preparedStatement.setLong(5, event.getAuthor().getIdLong());
             preparedStatement.setTimestamp(6, new Timestamp(ban_date.toEpochMilli()));
-            preparedStatement.setBoolean(7, ban_type);
+            preparedStatement.setBoolean(7, !kick);
             preparedStatement.executeUpdate();
             preparedStatement.closeOnCompletion();
             preparedStatement.close();
