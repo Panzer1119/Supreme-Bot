@@ -69,7 +69,7 @@ public class CommandListener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageUpdate(MessageUpdateEvent event) {
+    public final void onMessageUpdate(MessageUpdateEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.UPDATED});
         if (DEBUG && output.length > 0) {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
@@ -77,7 +77,7 @@ public class CommandListener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageDelete(MessageDeleteEvent event) {
+    public final void onMessageDelete(MessageDeleteEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.DELETED});
         if (DEBUG && output.length > 0) {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
@@ -85,7 +85,7 @@ public class CommandListener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageBulkDelete(MessageBulkDeleteEvent event) {
+    public final void onMessageBulkDelete(MessageBulkDeleteEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.BULK_DELETED});
         if (DEBUG && output.length > 0) {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
@@ -93,7 +93,7 @@ public class CommandListener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageEmbed(MessageEmbedEvent event) {
+    public final void onMessageEmbed(MessageEmbedEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.EMBEDED});
         if (DEBUG && output.length > 0) {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
@@ -101,7 +101,7 @@ public class CommandListener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReactionAdd(MessageReactionAddEvent event) {
+    public final void onMessageReactionAdd(MessageReactionAddEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.REACTION_ADDED});
         if (DEBUG && output.length > 0) {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
@@ -109,7 +109,7 @@ public class CommandListener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
+    public final void onMessageReactionRemove(MessageReactionRemoveEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.REACTION_REMOVED});
         if (DEBUG && output.length > 0) {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
@@ -117,7 +117,7 @@ public class CommandListener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReactionRemoveAll(MessageReactionRemoveAllEvent event) {
+    public final void onMessageReactionRemoveAll(MessageReactionRemoveAllEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, new Object[]{event, MessageType.REACTION_REMOVED_ALL});
         if (DEBUG && output.length > 0) {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));

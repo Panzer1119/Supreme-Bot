@@ -67,7 +67,7 @@ public class GuildVoiceLogger extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+    public final void onGuildVoiceMove(GuildVoiceMoveEvent event) {
         final Instant timestamp = Instant.now();
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         final String log_channel_id_voice = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_VOICE, null);
@@ -90,7 +90,7 @@ public class GuildVoiceLogger extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+    public final void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         final Instant timestamp = Instant.now();
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         final String log_channel_id_voice = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_VOICE, null);
@@ -113,7 +113,7 @@ public class GuildVoiceLogger extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceMute(GuildVoiceMuteEvent event) {
+    public final void onGuildVoiceMute(GuildVoiceMuteEvent event) {
         if (!LOG_MUTES) {
             return;
         }
@@ -139,7 +139,7 @@ public class GuildVoiceLogger extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceDeafen(GuildVoiceDeafenEvent event) {
+    public final void onGuildVoiceDeafen(GuildVoiceDeafenEvent event) {
         if (!LOG_DEAFENS) {
             return;
         }
@@ -165,7 +165,7 @@ public class GuildVoiceLogger extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceGuildMute(GuildVoiceGuildMuteEvent event) {
+    public final void onGuildVoiceGuildMute(GuildVoiceGuildMuteEvent event) {
         final Instant timestamp = Instant.now();
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         final String log_channel_id_voice = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_VOICE, null);
@@ -188,7 +188,7 @@ public class GuildVoiceLogger extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceGuildDeafen(GuildVoiceGuildDeafenEvent event) {
+    public final void onGuildVoiceGuildDeafen(GuildVoiceGuildDeafenEvent event) {
         final Instant timestamp = Instant.now();
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         final String log_channel_id_voice = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_VOICE, null);
@@ -211,7 +211,7 @@ public class GuildVoiceLogger extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceSelfMute(GuildVoiceSelfMuteEvent event) {
+    public final void onGuildVoiceSelfMute(GuildVoiceSelfMuteEvent event) {
         if (!LOG_MUTES) {
             return;
         }
@@ -237,7 +237,7 @@ public class GuildVoiceLogger extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceSelfDeafen(GuildVoiceSelfDeafenEvent event) {
+    public final void onGuildVoiceSelfDeafen(GuildVoiceSelfDeafenEvent event) {
         if (!LOG_DEAFENS) {
             return;
         }
@@ -263,7 +263,7 @@ public class GuildVoiceLogger extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildVoiceSuppress(GuildVoiceSuppressEvent event) {
+    public final void onGuildVoiceSuppress(GuildVoiceSuppressEvent event) {
         final Instant timestamp = Instant.now();
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
         final String log_channel_id_voice = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_VOICE, null);

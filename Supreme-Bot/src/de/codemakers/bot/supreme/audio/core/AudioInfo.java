@@ -28,7 +28,7 @@ public class AudioInfo {
 
     @Override
     public String toString() {
-        return String.format("%s: %s", author.getNickname(), track.getInfo().title);
+        return String.format("%s: %s", author.getEffectiveName(), track.getInfo().title);
     }
 
 }

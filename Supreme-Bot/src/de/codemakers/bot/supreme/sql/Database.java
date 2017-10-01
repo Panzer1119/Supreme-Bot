@@ -14,6 +14,7 @@ import java.util.Arrays;
  */
 public class Database implements Copyable {
 
+    public static final boolean DEBUG = false;
     public static final String SPLITTER = ";";
 
     private String hostname;
@@ -132,7 +133,9 @@ public class Database implements Copyable {
         }
         try {
             String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
-            System.out.println(temp);
+            if (DEBUG) {
+                System.out.println(temp);
+            }
             return connection.prepareStatement(temp);
         } catch (Exception ex) {
             System.err.println("Database: Statement preparing error");
@@ -147,7 +150,9 @@ public class Database implements Copyable {
         }
         try {
             String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
-            System.out.println(temp);
+            if (DEBUG) {
+                System.out.println(temp);
+            }
             final Statement statement = createStatement();
             final boolean result = statement.execute(temp);
             statement.close();
@@ -165,7 +170,9 @@ public class Database implements Copyable {
         }
         try {
             String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
-            System.out.println(temp);
+            if (DEBUG) {
+                System.out.println(temp);
+            }
             final Statement statement = createStatement();
             final ResultSet resultSet = statement.executeQuery(temp);
             return new Result(statement, resultSet);
@@ -182,7 +189,9 @@ public class Database implements Copyable {
         }
         try {
             String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
-            System.out.println(temp);
+            if (DEBUG) {
+                System.out.println(temp);
+            }
             final Statement statement = createStatement();
             final int result = statement.executeUpdate(temp);
             statement.close();
@@ -200,7 +209,9 @@ public class Database implements Copyable {
         }
         try {
             String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
-            System.out.println(temp);
+            if (DEBUG) {
+                System.out.println(temp);
+            }
             final Statement statement = createStatement();
             final long result = statement.executeLargeUpdate(temp);
             statement.close();

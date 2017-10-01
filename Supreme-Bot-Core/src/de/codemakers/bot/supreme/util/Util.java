@@ -2,6 +2,9 @@ package de.codemakers.bot.supreme.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -526,6 +529,78 @@ public class Util {
             out += prefix + g + suffix + delimiter;
         }
         return out;
+    }
+
+    /**
+     * Returns the time from a String by using RegEx
+     *
+     * @param text String
+     * @return Time in milliseconds
+     */
+    public static final Long getTime(String text) {
+        if (text == null) {
+            return null;
+        }
+        try {
+            final Matcher matcher = Standard.getTimePattern().matcher(text);
+            if (!matcher.find()) {
+                return null;
+            }
+            Long time = 0L;
+            do {
+                Integer number;
+                String type;
+                try {
+                    type = matcher.group(2);
+                    number = Integer.parseInt(matcher.group(1));
+                    type = type.toLowerCase();
+                } catch (Exception ex) {
+                    continue;
+                }
+                if (type.startsWith("w")) {
+                    time += TimeUnit.DAYS.toMillis(number * 7);
+                } else if (type.startsWith("d")) {
+                    time += TimeUnit.DAYS.toMillis(number);
+                } else if (type.startsWith("h")) {
+                    time += TimeUnit.HOURS.toMillis(number);
+                } else if (type.startsWith("m")) {
+                    time += TimeUnit.MINUTES.toMillis(number);
+                } else {
+                    time += TimeUnit.SECONDS.toMillis(number);
+                }
+            } while (matcher.find());
+            return time;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static final boolean stringEquals(String text, String[] toTest) {
+        for (String g : toTest) {
+            if (text.equals(g)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static final boolean stringEqualsIgnoreCase(String text, String[] toTest) {
+        for (String g : toTest) {
+            if (text.equalsIgnoreCase(g)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static final boolean stringContains(String text, String[] toTest) {
+        for (String g : toTest) {
+            if (text.contains(g)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

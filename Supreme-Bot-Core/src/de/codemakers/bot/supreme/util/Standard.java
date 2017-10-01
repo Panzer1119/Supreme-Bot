@@ -15,6 +15,7 @@ import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -38,7 +39,7 @@ public class Standard {
 
     public static final String VERSION = "0.1";
     public static final String COMMAND_ESCAPE_STRING = "\\";
-    public static final String COMMAND_ESCAPE_SPACE_STRING = "\"";
+    public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
     public static final String COMMAND_DELIMITER_STRING = " ";
     public static final String STANDARD_NUMBER_SEPARATOR = ":";
     public static final String STANDARD_ARRAY_SEPARATOR = ";";
@@ -52,6 +53,8 @@ public class Standard {
     private static String STANDARD_COMMAND_PREFIX = "!";
     private static String NICKNAME = "Supreme-Bot";
     public static Getter<JDA> getter = () -> null;
+
+    public static final Pattern PATTERN_TIME = Pattern.compile("(\\d+)((?:w(?:eek(?:s)?)?)|(?:d(?:ay(?:s)?)?)|(?:h(?:our(?:s)?)?)|(?:m(?:in(?:ute(?:s)?)?)?)|(?:s(?:ec(?:ond(?:s)?)?)?))", Pattern.CASE_INSENSITIVE);
 
     public static final Settings STANDARD_NULL_SETTINGS = new DefaultSettings();
 
@@ -234,6 +237,10 @@ public class Standard {
             return null;
         }
         return new AdvancedFile(STANDARD_DATA_FOLDER, fileName);
+    }
+
+    public static final Pattern getTimePattern() {
+        return PATTERN_TIME;
     }
 
     //****************************************************************//
@@ -979,5 +986,6 @@ public class Standard {
     public static final Argument ARGUMENT_ID = new Argument("id", STANDARD_ARGUMENT_PREFIXES, "i");
     public static final Argument ARGUMENT_ASMENTION = new Argument("asMention", STANDARD_ARGUMENT_PREFIXES, "aM");
     public static final Argument ARGUMENT_HERE = new Argument("here", STANDARD_ARGUMENT_PREFIXES, "h");
+    public static final Argument ARGUMENT_KICK = new Argument("kick", STANDARD_ARGUMENT_PREFIXES, "k");
 
 }

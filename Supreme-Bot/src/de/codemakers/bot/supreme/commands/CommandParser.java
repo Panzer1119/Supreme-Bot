@@ -4,6 +4,7 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -42,13 +43,17 @@ public class CommandParser {
         if (arguments == null || arguments.isEmpty()) {
             return new String[0];
         }
-        final boolean isEscaping = arguments.contains(Standard.COMMAND_ESCAPE_SPACE_STRING);
+        final boolean isEscaping = Util.stringContains(arguments, Standard.COMMAND_ESCAPE_SPACE_STRINGS);
         boolean isArg = false;
         String temp = "";
         final ArrayList<String> args = new ArrayList<>();
         for (int i = 0; i < arguments.length(); i++) {
             char c = arguments.charAt(i);
             String c_string = "" + c;
+            if (Util.stringEquals(c_string, Standard.COMMAND_ESCAPE_SPACE_STRINGS)) {
+                isArg = !isArg;
+                continue;
+            }
             switch (c_string) {
                 case Standard.COMMAND_ESCAPE_STRING:
                     if (isEscaping || isArg) {
@@ -60,9 +65,6 @@ public class CommandParser {
                     } else {
                         temp += Standard.COMMAND_ESCAPE_STRING;
                     }
-                    break;
-                case Standard.COMMAND_ESCAPE_SPACE_STRING:
-                    isArg = !isArg;
                     break;
                 default:
                     if ((!c_string.equals(Standard.COMMAND_DELIMITER_STRING) || isArg)) {
