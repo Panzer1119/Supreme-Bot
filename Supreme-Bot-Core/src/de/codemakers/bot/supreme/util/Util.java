@@ -1,13 +1,8 @@
 package de.codemakers.bot.supreme.util;
 
-import java.lang.reflect.Array;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -25,15 +20,6 @@ import net.dv8tion.jda.core.entities.User;
 public class Util {
 
     public static final ArrayList<Timer> TIMERS = new ArrayList<>();
-    private static final LinkedHashMap<Map.Entry<Character, String>, Long> TIME_SYMBOLS = new LinkedHashMap<>();
-
-    static {
-        TIME_SYMBOLS.put(new AbstractMap.SimpleEntry<>('w', "week"), 604800000L);
-        TIME_SYMBOLS.put(new AbstractMap.SimpleEntry<>('d', "day"), 86400000L);
-        TIME_SYMBOLS.put(new AbstractMap.SimpleEntry<>('h', "hour"), 3600000L);
-        TIME_SYMBOLS.put(new AbstractMap.SimpleEntry<>('m', "minute"), 60000L);
-        TIME_SYMBOLS.put(new AbstractMap.SimpleEntry<>('s', "second"), 1000L);
-    }
 
     public static <T> int indexOf(T[] array, T toTest) {
         if (array == null || array.length == 0 || toTest == null) {
@@ -560,30 +546,34 @@ public class Util {
             if (!matcher.find()) {
                 return null;
             }
-            Long time = 0L;
+            Double time = 0.0;
             do {
-                Integer number;
+                Double number;
                 String type;
                 try {
                     type = matcher.group(2);
-                    number = Integer.parseInt(matcher.group(1));
+                    number = Double.parseDouble(matcher.group(1));
                     type = type.toLowerCase();
                 } catch (Exception ex) {
                     continue;
                 }
-                if (type.startsWith("w")) {
-                    time += TimeUnit.DAYS.toMillis(number * 7);
+                if (type.startsWith("y")) {
+                    time += TimeUnit.YEARS.getMillis() * number;
+                } else if (type.startsWith("w")) {
+                    time += TimeUnit.WEEKS.getMillis() * number;
                 } else if (type.startsWith("d")) {
-                    time += TimeUnit.DAYS.toMillis(number);
+                    time += TimeUnit.DAYS.getMillis() * number;
                 } else if (type.startsWith("h")) {
-                    time += TimeUnit.HOURS.toMillis(number);
+                    time += TimeUnit.HOURS.getMillis() * number;
                 } else if (type.startsWith("m")) {
-                    time += TimeUnit.MINUTES.toMillis(number);
+                    time += TimeUnit.MINUTES.getMillis() * number;
+                } else if (type.startsWith("s")) {
+                    time += TimeUnit.SECONDS.getMillis() * number;
                 } else {
-                    time += TimeUnit.SECONDS.toMillis(number);
+                    time += TimeUnit.MILLISECONDS.getMillis() * number;
                 }
             } while (matcher.find());
-            return time;
+            return Math.round(time);
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
@@ -642,15 +632,15 @@ public class Util {
         try {
             final StringBuilder text = new StringBuilder();
             final AtomicLong time_ = new AtomicLong(time);
-            TIME_SYMBOLS.forEach((names, value) -> {
-                final int amount = (int) (time_.get() / value);
-                time_.addAndGet(-amount * value);
+            TimeUnit.forEach((timeUnit) -> {
+                final int amount = (int) (time_.get() / timeUnit.getMillis());
+                time_.addAndGet(-amount * timeUnit.getMillis());
                 if (amount != 0) {
                     text.append(amount);
                     if (withWhitespaces) {
                         text.append(" ");
                     }
-                    text.append((longNames ? names.getValue() + (amount != 1 ? "s" : "") : names.getKey()));
+                    text.append((longNames ? timeUnit.getNameLong() + (amount != 1 ? "s" : "") : timeUnit.getNameShort()));
                     if (withWhitespaces) {
                         text.append(" ");
                     }
