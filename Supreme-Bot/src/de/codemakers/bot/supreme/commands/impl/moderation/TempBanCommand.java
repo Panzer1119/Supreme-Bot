@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
 
@@ -93,16 +94,16 @@ public class TempBanCommand extends Command {
         if (arguments.isSize(1) || (arguments.isSize(2) && unban)) {
         try {
             User user = arguments.consumeUserFirst();
-            final String user_id = (User == null ? arguments.consumeFirst() : user.getId());
+            final String user_id = (user == null ? arguments.consumeFirst() : user.getId());
             if (user == null && (user = Standard.getUserById(user_id)) == null) {
-                event.sendMessage(new EmbedBuilder().setColor(Color.RED).setDescription(String.format(„User \“%s\“ doesn’t exist or isn’t on this Server!“, user_id)).build());
+                event.sendMessage(new EmbedBuilder().setColor(Color.RED).setDescription(String.format("User \"%s\" doesn’t exist or isn’t on this Server!", user_id)).build());
                 return;
             }
             if (unban) {
                 //Coming soon
             } else {
-                final List<> tempBans = TempBan.getTempBans(user);
-                event.sendMessage("The user \"%s\" (ID: %s) has %d TempBans.", user.getName(), user_id, tempBans.size());
+                final List<TempBan> tempBans = TempBan.getTempBans(user);
+                event.sendMessageFormat("The user \"%s\" (ID: %s) has %d TempBans.", user.getName(), user_id, tempBans.size());
             }
         } catch (Exception ex) {
             ex.printStackTrace();

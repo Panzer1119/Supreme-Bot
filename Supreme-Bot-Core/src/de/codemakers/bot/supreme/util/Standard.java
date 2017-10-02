@@ -1031,5 +1031,6 @@ public class Standard {
     public static final Argument ARGUMENT_HERE = new Argument("here", STANDARD_ARGUMENT_PREFIXES, "h");
     public static final Argument ARGUMENT_KICK = new Argument("kick", STANDARD_ARGUMENT_PREFIXES, "k");
     public static final Argument ARGUMENT_BAN = new Argument("ban", STANDARD_ARGUMENT_PREFIXES, "b");
+    public static final Argument ARGUMENT_UNBAN = new Argument("unban", STANDARD_ARGUMENT_PREFIXES, "ub");
 
 }
