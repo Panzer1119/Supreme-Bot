@@ -27,6 +27,7 @@ public class TempBan {
     public static final String STANDARD_REASON = "No reason available!";
     private static final ArrayList<TempBan> TEMP_BANS = new ArrayList<>();
     private static boolean getting = false;
+    public static boolean USING = false;
 
     private int id;
     private long guild_id;
@@ -237,7 +238,7 @@ public class TempBan {
     }
 
     public static final ArrayList<TempBan> ofResultSet(ResultSet resultSet) {
-        while (getting) {
+        while (getting || USING) {
         }
         TEMP_BANS.clear();
         try {

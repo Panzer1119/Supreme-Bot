@@ -11,6 +11,7 @@ import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.sql.Result;
+import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import de.codemakers.bot.supreme.util.updater.Updateable;
@@ -92,86 +93,121 @@ public class TempBanCommand extends Command {
         final boolean ban = arguments.isConsumed(Standard.ARGUMENT_BAN, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean unban = arguments.isConsumed(Standard.ARGUMENT_UNBAN, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         if (arguments.isSize(1) || (arguments.isSize(2) && unban)) {
-        try {
-            User user = arguments.consumeUserFirst();
-            final String user_id = (user == null ? arguments.consumeFirst() : user.getId());
-            if (user == null && (user = Standard.getUserById(user_id)) == null) {
-                event.sendMessage(new EmbedBuilder().setColor(Color.RED).setDescription(String.format("User \"%s\" doesn’t exist or isn’t on this Server!", user_id)).build());
-                return;
-            }
-            if (unban) {
-                //Coming soon
-            } else {
-                final List<TempBan> tempBans = TempBan.getTempBans(user);
-                event.sendMessageFormat("The user \"%s\" (ID: %s) has %d TempBans.", user.getName(), user_id, tempBans.size());
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        } else {
-        try {
-            final boolean ban_type = (invoker.getInvoker().contains("ban") ? (!kick || ban) : (invoker.getInvoker().contains("kick") ? !(kick || !ban) : true));
-            User user = arguments.consumeUserFirst();
-            final String user_id = (user == null ? arguments.consumeFirst() : user.getId());
-            if (user == null && (user = Standard.getUserById(user_id)) == null) {
-                event.sendMessage(new EmbedBuilder().setColor(Color.RED).setDescription(String.format("User \"%s\" doesn't exist or isn't on this Server!", user_id)).build());
-                return;
-            }
-            if (Standard.getSelfUser().getId().equals(user_id) || Standard.isSuperOwner(user_id) || event.getGuild().getOwner().getUser().getId().equals(user_id) || PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_OWNER, user_id, event.getGuild()) || (PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER, user_id, event.getGuild()) && !PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_OWNER, event.getMember()))) {
-                PermissionHandler.sendNoPermissionMessage(event);
-                return;
-            }
-            final String ban_time_string = arguments.consumeFirst();
-            Long ban_time_ms = Util.getTime(ban_time_string);
-            if (ban_time_ms == null) {
-                ban_time_ms = Long.parseLong(ban_time_string) * 1_000 * 60;
-            }
-            final String reason = arguments.consumeFirst();
-            if (ban_type) {
-                if (reason == null) {
-                    event.getGuild().getController().ban(user_id, 0).queue();
+            try {
+                User user = arguments.consumeUserFirst();
+                final String user_id = (user == null ? arguments.consumeFirst() : user.getId());
+                if (user == null) {
+                    user = Standard.getUserById(user_id);
+                }
+                if (Standard.getSelfUser().getId().equals(user_id)) {
+                    event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "i can't be banned!").build());
+                    return;
+                } else if (Standard.isSuperOwner(user_id)) {
+                    event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "my master can't be banned!").build());
+                    return;
+                } else if (event.getGuild().getOwner().getUser().getId().equals(user_id)) {
+                    event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "the owner of this server can't be banned!").build());
+                    return;
+                }
+                final List<TempBan> tempBans = TempBan.getTempBans(Long.parseLong(user_id));
+                final int temp_ban_count = (int) tempBans.stream().filter((tempBan) -> tempBan.isBan_type()).count();
+                final int temp_kick_count = tempBans.size() - temp_ban_count;
+                if (unban) {
+                    if (temp_ban_count != 0 && !PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN, event.getMember())) {
+                        PermissionHandler.sendNoPermissionMessage(event);
+                        return;
+                    }
+                    if (tempBans.isEmpty()) {
+                        event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.RED, "%s has no temporary bans or kicks!", (user == null ? user_id : user.getAsMention())).build());
+                        return;
+                    }
+                    TempBan.USING = true;
+                    tempBans.stream().forEach((tempBan) -> {
+                        if (!tempBan.unban() && tempBan.getGuild_id() == 0) {
+                            tempBan.archive();
+                        }
+                    });
+                    TempBan.USING = false;
+                    event.sendMessage(2 * Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.YELLOW, "Removed all temporary bans and kicks from %s.", (user == null ? user_id : user.getAsMention())).build());
                 } else {
-                    event.getGuild().getController().ban(user_id, 0, reason).queue();
+                    event.sendMessage(2 * Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.YELLOW, "%s has %d temporary ban%s and %d temporary kick%s.", (user == null ? user_id : user.getAsMention()), temp_ban_count, (temp_ban_count != 1 ? "s" : ""), temp_kick_count, (temp_kick_count != 1 ? "s" : "")).build());
                 }
-            } else if (reason == null) {
-                event.getGuild().getController().kick(user_id).queue();
-            } else {
-                event.getGuild().getController().kick(user_id, reason).queue();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-            final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
-            final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
-            String date_time_formatted_unban_date = null;
-            String ban_time_string_ = null;
-            if (ban_time_ms < 0) {
-                date_time_formatted_unban_date = "forever";
-                ban_time_string_ = "forever";
-            } else {
-                try {
-                    date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(log_date_time_format));
-                } catch (Exception ex) {
-                    date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
+        } else {
+            try {
+                final boolean ban_type = (invoker.getInvoker().contains("ban") ? (!kick || ban) : (invoker.getInvoker().contains("kick") ? !(kick || !ban) : true));
+                User user = arguments.consumeUserFirst();
+                final String user_id = (user == null ? arguments.consumeFirst() : user.getId());
+                if (user == null) {
+                    user = Standard.getUserById(user_id);
                 }
-                try {
-                    ban_time_string_ = Util.getTimeAsString(ban_time_ms, true, true);
-                } catch (Exception ex) {
-                    ban_time_string_ = "error";
+                if (Standard.getSelfUser().getId().equals(user_id)) {
+                    event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "i can't be banned!").build());
+                    return;
+                } else if (Standard.isSuperOwner(user_id)) {
+                    event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "my master can't be banned!").build());
+                    return;
+                } else if (event.getGuild().getOwner().getUser().getId().equals(user_id)) {
+                    event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "the owner of this server can't be banned!").build());
+                    return;
                 }
+                if (PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_OWNER, user_id, event.getGuild()) || (PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER, user_id, event.getGuild()) && !PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_OWNER, event.getMember())) || (ban_type && !PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN, event.getMember()))) { //FIXME Sollen Mods auch tempbannen duerfen?
+                    PermissionHandler.sendNoPermissionMessage(event);
+                    return;
+                }
+                final String ban_time_string = arguments.consumeFirst();
+                Long ban_time_ms = Util.getTime(ban_time_string);
+                if (ban_time_ms == null) {
+                    ban_time_ms = Long.parseLong(ban_time_string) * 1_000 * 60;
+                }
+                final String reason = arguments.consumeFirst();
+                if (ban_type) {
+                    if (reason == null) {
+                        event.getGuild().getController().ban(user_id, 0).queue();
+                    } else {
+                        event.getGuild().getController().ban(user_id, 0, reason).queue();
+                    }
+                } else if (reason == null) {
+                    event.getGuild().getController().kick(user_id).queue();
+                } else {
+                    event.getGuild().getController().kick(user_id, reason).queue();
+                }
+                final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
+                final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
+                String date_time_formatted_unban_date = null;
+                String ban_time_string_ = null;
+                if (ban_time_ms < 0) {
+                    date_time_formatted_unban_date = "forever";
+                    ban_time_string_ = "forever";
+                } else {
+                    try {
+                        date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(log_date_time_format));
+                    } catch (Exception ex) {
+                        date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
+                    }
+                    try {
+                        ban_time_string_ = Util.getTimeAsString(ban_time_ms, true, true);
+                    } catch (Exception ex) {
+                        ban_time_string_ = "error";
+                    }
+                }
+                Standard.log(ban_date, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_TEMP_BANS, (ban_type ? LOG_TEXT_TEMP_BANS_BANNED : LOG_TEXT_TEMP_BANS_KICKED), (ban_type ? STANDARD_LOG_TEXT_TEMP_BANS_BANNED : STANDARD_LOG_TEXT_TEMP_BANS_KICKED), LOG_DATE_TIME_FORMAT, (user == null ? user_id : event.getGuild().getMember(user).getAsMention()), event.getAuthor().getAsMention(), ban_time_string_, date_time_formatted_unban_date);
+                final PreparedStatement preparedStatement = MySQL.STANDARD_DATABASE.prepareStatement("INSERT INTO %s (guild_ID, user_ID, unban_date, reason, banner_ID, ban_date, ban_type) VALUES (?, ?, ?, ?, ?, ?, ?)", MySQL.SQL_TABLE_TEMP_BANS);
+                preparedStatement.setLong(1, event.getGuild().getIdLong());
+                preparedStatement.setLong(2, Long.parseLong(user_id));
+                preparedStatement.setTimestamp(3, (ban_time_ms < 0 ? null : new Timestamp(ban_date.toEpochMilli() + ban_time_ms)));
+                preparedStatement.setString(4, reason);
+                preparedStatement.setLong(5, event.getAuthor().getIdLong());
+                preparedStatement.setTimestamp(6, new Timestamp(ban_date.toEpochMilli()));
+                preparedStatement.setBoolean(7, ban_type);
+                preparedStatement.executeUpdate();
+                preparedStatement.closeOnCompletion();
+                preparedStatement.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-            Standard.log(ban_date, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_TEMP_BANS, (ban_type ? LOG_TEXT_TEMP_BANS_BANNED : LOG_TEXT_TEMP_BANS_KICKED), (ban_type ? STANDARD_LOG_TEXT_TEMP_BANS_BANNED : STANDARD_LOG_TEXT_TEMP_BANS_KICKED), LOG_DATE_TIME_FORMAT, event.getGuild().getMember(user).getAsMention(), event.getAuthor().getAsMention(), ban_time_string_, date_time_formatted_unban_date);
-            final PreparedStatement preparedStatement = MySQL.STANDARD_DATABASE.prepareStatement("INSERT INTO %s (guild_ID, user_ID, unban_date, reason, banner_ID, ban_date, ban_type) VALUES (?, ?, ?, ?, ?, ?, ?)", MySQL.SQL_TABLE_TEMP_BANS);
-            preparedStatement.setLong(1, event.getGuild().getIdLong());
-            preparedStatement.setLong(2, Long.parseLong(user_id));
-            preparedStatement.setTimestamp(3, (ban_time_ms < 0 ? null : new Timestamp(ban_date.toEpochMilli() + ban_time_ms)));
-            preparedStatement.setString(4, reason);
-            preparedStatement.setLong(5, event.getAuthor().getIdLong());
-            preparedStatement.setTimestamp(6, new Timestamp(ban_date.toEpochMilli()));
-            preparedStatement.setBoolean(7, ban_type);
-            preparedStatement.executeUpdate();
-            preparedStatement.closeOnCompletion();
-            preparedStatement.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
         }
     }
 
@@ -187,8 +223,7 @@ public class TempBanCommand extends Command {
 
     @Override
     public PermissionRoleFilter getPermissionRoleFilter() {
-        //return Standard.STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER;
-        return Standard.STANDARD_PERMISSIONROLEFILTER_MODERATOR; //FIXME Only to prevent the NAS from turning on
+        return Standard.STANDARD_PERMISSIONROLEFILTER_MODERATOR;
     }
 
     @Override

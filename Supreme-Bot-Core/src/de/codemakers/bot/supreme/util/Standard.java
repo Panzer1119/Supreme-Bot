@@ -630,6 +630,10 @@ public class Standard {
     public static final Message getNoPermissionMessage(User user, String extra) {
         return new MessageBuilder().append(String.format("%s Sorry %s, you don't have the permissions to use this %s!", Emoji.WARNING, user.getAsMention(), extra)).build();
     }
+    
+    public static final MessageBuilder getNoMessage(User user, String format, Object... args) {
+        return new MessageBuilder().append(String.format("%s Sorry %s, %s", Emoji.WARNING, user.getAsMention(), String.format(format, args)));
+    }
 
     public static final EmbedBuilder getMessageEmbed(Color color, String message) {
         return new EmbedBuilder().setColor(color).setDescription(message);
