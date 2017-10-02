@@ -14,6 +14,8 @@ public class ArgumentException extends BotException {
     private Command command = null;
     private String argument = null;
 
+    //event.sendMessage(new ArgumentException().setCommand(this).setArgument("1").getMessage(event.getTextChannel()).build());
+    
     public final Command getCommand() {
         return command;
     }

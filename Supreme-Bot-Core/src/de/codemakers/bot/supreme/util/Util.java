@@ -1,9 +1,14 @@
 package de.codemakers.bot.supreme.util;
 
+import java.lang.reflect.Array;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Message;
@@ -20,6 +25,15 @@ import net.dv8tion.jda.core.entities.User;
 public class Util {
 
     public static final ArrayList<Timer> TIMERS = new ArrayList<>();
+    private static final LinkedHashMap<Map.Entry<Character, String>, Long> TIME_SYMBOLS = new LinkedHashMap<>();
+
+    static {
+        TIME_SYMBOLS.put(new AbstractMap.SimpleEntry<>('w', "week"), 604800000L);
+        TIME_SYMBOLS.put(new AbstractMap.SimpleEntry<>('d', "day"), 86400000L);
+        TIME_SYMBOLS.put(new AbstractMap.SimpleEntry<>('h', "hour"), 3600000L);
+        TIME_SYMBOLS.put(new AbstractMap.SimpleEntry<>('m', "minute"), 60000L);
+        TIME_SYMBOLS.put(new AbstractMap.SimpleEntry<>('s', "second"), 1000L);
+    }
 
     public static <T> int indexOf(T[] array, T toTest) {
         if (array == null || array.length == 0 || toTest == null) {
@@ -601,6 +615,52 @@ public class Util {
             }
         }
         return false;
+    }
+
+    public static final <T> T[] concatArrays(T[]... arrays) {
+        if (arrays == null || arrays.length == 0) {
+            return null;
+        }
+        return (T[]) Arrays.asList(arrays).toArray();
+    }
+
+    public static final String getTimeAsString(long time) {
+        return getTimeAsString(time, false);
+    }
+
+    public static final String getTimeAsString(long time, boolean longNames) {
+        return getTimeAsString(time, longNames, false);
+    }
+
+    public static final String getTimeAsString(long time, boolean longNames, boolean withWhitespaces) {
+        if (time < 0) {
+            time = -time;
+        }
+        if (time < 1000) {
+            return "0s";
+        }
+        try {
+            final StringBuilder text = new StringBuilder();
+            final AtomicLong time_ = new AtomicLong(time);
+            TIME_SYMBOLS.forEach((names, value) -> {
+                final int amount = (int) (time_.get() / value);
+                time_.addAndGet(-amount * value);
+                if (amount != 0) {
+                    text.append(amount);
+                    if (withWhitespaces) {
+                        text.append(" ");
+                    }
+                    text.append((longNames ? names.getValue() + (amount != 1 ? "s" : "") : names.getKey()));
+                    if (withWhitespaces) {
+                        text.append(" ");
+                    }
+                }
+            });
+            return text.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return (time / 1000) + "s";
+        }
     }
 
 }

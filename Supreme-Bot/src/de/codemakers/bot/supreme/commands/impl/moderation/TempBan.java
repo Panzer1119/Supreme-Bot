@@ -1,11 +1,16 @@
 package de.codemakers.bot.supreme.commands.impl.moderation;
 
+import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Util;
 import java.sql.ResultSet;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Guild;
@@ -137,15 +142,66 @@ public class TempBan {
         return true;
     }
 
+    public final boolean ban() {
+        try {
+            final Guild guild = Standard.getGuildById(guild_id);
+            if (guild == null) {
+                return false;
+            }
+            final User user = Standard.getUserById(user_id);
+            final User banner = Standard.getUserById(banner_id);
+            final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild);
+            final String log_date_time_format = advancedGuild.getSettings().getProperty(TempBanCommand.LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
+            String date_time_formatted_unban_date = null;
+            String ban_time_string = null;
+            if (unban_date == null) {
+                date_time_formatted_unban_date = "forever";
+                ban_time_string = "forever";
+            } else {
+                try {
+                    date_time_formatted_unban_date = LocalDateTime.ofInstant(unban_date, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(log_date_time_format));
+                } catch (Exception ex) {
+                    date_time_formatted_unban_date = LocalDateTime.ofInstant(unban_date, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
+                }
+                try {
+                    ban_time_string = Util.getTimeAsString(Duration.between(Instant.now(), unban_date).toMillis(), true, true);
+                } catch (Exception ex) {
+                    ban_time_string = "error";
+                }
+            }
+            if (ban_type) {
+                if (guild.getBans().complete().stream().noneMatch((user_) -> user_.getIdLong() == user_id)) {
+                    if (reason == null) {
+                        guild.getController().ban("" + user_id, 0).queue();
+                    } else {
+                        guild.getController().ban("" + user_id, 0, reason).queue();
+                    }
+                    Standard.log(Instant.now(), guild, TempBanCommand.LOG_NAME, TempBanCommand.LOG_CHANNEL_ID_TEMP_BANS, TempBanCommand.LOG_TEXT_TEMP_BANS_INTERNAL_BANNED, TempBanCommand.STANDARD_LOG_TEXT_TEMP_BANS_INTERNAL_BANNED, TempBanCommand.LOG_DATE_TIME_FORMAT, user.getAsMention(), banner.getAsMention(), ban_time_string, date_time_formatted_unban_date);
+                } else {
+                    return false;
+                }
+            } else if (user != null && guild.isMember(user)) {
+                if (reason == null) {
+                    guild.getController().kick("" + user_id).queue();
+                } else {
+                    guild.getController().kick("" + user_id, reason).queue();
+                }
+                Standard.log(Instant.now(), guild, TempBanCommand.LOG_NAME, TempBanCommand.LOG_CHANNEL_ID_TEMP_BANS, TempBanCommand.LOG_TEXT_TEMP_BANS_INTERNAL_KICKED, TempBanCommand.STANDARD_LOG_TEXT_TEMP_BANS_INTERNAL_KICKED, TempBanCommand.LOG_DATE_TIME_FORMAT, user.getAsMention(), banner.getAsMention(), ban_time_string, date_time_formatted_unban_date);
+            } else {
+                return false;
+            }
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
     public final boolean unban() {
         if (!ban_type) {
-            System.out.println("KICK: " + this);
-            System.out.println("KICK: " + Arrays.toString(TEMP_BANS.toArray()));
             archive();
             return true;
         }
-        System.out.println("BAN:  " + this);
-        System.out.println("BAN:  " + Arrays.toString(TEMP_BANS.toArray()));
         try {
             final Guild guild = Standard.getGuildById(guild_id);
             if (guild != null) {

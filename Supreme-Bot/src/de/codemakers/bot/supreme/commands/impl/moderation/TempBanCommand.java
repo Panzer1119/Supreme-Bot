@@ -24,7 +24,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
 /**
@@ -39,6 +38,12 @@ public class TempBanCommand extends Command {
     public static final String LOG_DATE_TIME_FORMAT = "log_date_time_format";
     public static final String LOG_TEXT_TEMP_BANS_KICKED = "log_text_temp_bans_kicked";
     public static final String LOG_TEXT_TEMP_BANS_BANNED = "log_text_temp_bans_banned";
+    public static final String LOG_TEXT_TEMP_BANS_INTERNAL_KICKED = "log_text_temp_bans_internal_kicked";
+    public static final String LOG_TEXT_TEMP_BANS_INTERNAL_BANNED = "log_text_temp_bans_internal_banned";
+    public static final String STANDARD_LOG_TEXT_TEMP_BANS_KICKED = "[%1$s] [%2$s] %3$s was tempkicked by %4$s for %5$s (until %6$s)";
+    public static final String STANDARD_LOG_TEXT_TEMP_BANS_BANNED = "[%1$s] [%2$s] %3$s was tempbanned by %4$s for %5$s (until %6$s)";
+    public static final String STANDARD_LOG_TEXT_TEMP_BANS_INTERNAL_KICKED = "[%1$s] [%2$s] %3$s is still tempkicked by %4$s for %5$s (until %6$s)";
+    public static final String STANDARD_LOG_TEXT_TEMP_BANS_INTERNAL_BANNED = "[%1$s] [%2$s] %3$s is still tempbanned by %4$s for %5$s (until %6$s)";
     private static final Updateable TEMP_BAN_COMMAND_UPDATER = new Updateable() {
         @Override
         public long update(long timestamp) {
@@ -59,7 +64,7 @@ public class TempBanCommand extends Command {
 
     @Override
     public void initInvokers() {
-        addInvokers(Invoker.createInvoker("tempban", this), Invoker.createInvoker("tban", this));
+        addInvokers(Invoker.createInvoker("tempban", this), Invoker.createInvoker("tban", this), Invoker.createInvoker("tempkick", this), Invoker.createInvoker("tkick", this));
     }
 
     @Override
@@ -68,8 +73,11 @@ public class TempBanCommand extends Command {
             return false;
         }
         final boolean kick = arguments.isConsumed(Standard.ARGUMENT_KICK, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        if (kick) {
-            return arguments.isSize(3, 4); //USER_ID BAN_TIME(_IN_MINUTES) [REASON] -kick
+        final boolean ban = arguments.isConsumed(Standard.ARGUMENT_BAN, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        if (kick && ban) {
+            return false;
+        } else if (kick || ban) {
+            return arguments.isSize(3, 4); //USER_ID BAN_TIME(_IN_MINUTES) [REASON] [-kick/-ban]
         } else {
             return arguments.isSize(2, 3); //USER_ID BAN_TIME(_IN_MINUTES) [REASON]
         }
@@ -79,12 +87,13 @@ public class TempBanCommand extends Command {
     public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         final Instant ban_date = Instant.now();
         final boolean kick = arguments.isConsumed(Standard.ARGUMENT_KICK, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean ban = arguments.isConsumed(Standard.ARGUMENT_BAN, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         try {
+            final boolean ban_type = (invoker.getInvoker().contains("ban") ? (!kick || ban) : (invoker.getInvoker().contains("kick") ? !(kick || !ban) : true));
             User user = arguments.consumeUserFirst();
             final String user_id = (user == null) ? arguments.consumeFirst() : user.getId();
             if (user == null && (user = Standard.getUserById(user_id)) == null) {
                 event.sendMessage(new EmbedBuilder().setColor(Color.RED).setDescription(String.format("User \"%s\" doesn't exist or isn't on this Server!", user_id)).build());
-                //event.sendMessage(new ArgumentException().setCommand(this).setArgument("1").getMessage(event.getTextChannel()).build());
                 return;
             }
             if (Standard.getSelfUser().getId().equals(user_id) || Standard.isSuperOwner(user_id) || event.getGuild().getOwner().getUser().getId().equals(user_id) || PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_OWNER, user_id, event.getGuild()) || (PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER, user_id, event.getGuild()) && !PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_OWNER, event.getMember()))) {
@@ -97,7 +106,7 @@ public class TempBanCommand extends Command {
                 ban_time_ms = Long.parseLong(ban_time_string) * 1_000 * 60;
             }
             final String reason = arguments.consumeFirst();
-            if (!kick) {
+            if (ban_type) {
                 if (reason == null) {
                     event.getGuild().getController().ban(user_id, 0).queue();
                 } else {
@@ -109,37 +118,33 @@ public class TempBanCommand extends Command {
                 event.getGuild().getController().kick(user_id, reason).queue();
             }
             final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
-            final String log_channel_id_temp_bans = advancedGuild.getSettings().getProperty(LOG_CHANNEL_ID_TEMP_BANS, null);
-            if (log_channel_id_temp_bans != null) {
-                final TextChannel channel = event.getGuild().getTextChannelById(log_channel_id_temp_bans);
-                if (channel != null) {
-                    final String log_text_temp_bans = (kick ? advancedGuild.getSettings().getProperty(LOG_TEXT_TEMP_BANS_KICKED, "[%1$s] [%2$s] %3$s was tempkicked by %4$s until %5$s") : advancedGuild.getSettings().getProperty(LOG_TEXT_TEMP_BANS_BANNED, "[%1$s] [%2$s] %3$s was tempbanned by %4$s until %5$s"));
-                    final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
-                    String date_time_formatted = null;
-                    String date_time_formatted_unban_date = null;
-                    try {
-                        date_time_formatted = LocalDateTime.ofInstant(ban_date, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(log_date_time_format));
-                    } catch (Exception ex) {
-                        date_time_formatted = LocalDateTime.ofInstant(ban_date, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
-                    }
-                    try {
-                        date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(log_date_time_format));
-                    } catch (Exception ex) {
-                        date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
-                    }
-                    final String message = String.format(log_text_temp_bans, date_time_formatted, LOG_NAME, event.getGuild().getMember(user).getAsMention(), event.getAuthor().getAsMention(), date_time_formatted_unban_date);
-                    channel.sendMessage(message).queue();
-                    Standard.addToFile(advancedGuild.getLogFile(), message);
+            final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
+            String date_time_formatted_unban_date = null;
+            String ban_time_string_ = null;
+            if (ban_time_ms < 0) {
+                date_time_formatted_unban_date = "forever";
+                ban_time_string_ = "forever";
+            } else {
+                try {
+                    date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(log_date_time_format));
+                } catch (Exception ex) {
+                    date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
+                }
+                try {
+                    ban_time_string_ = Util.getTimeAsString(ban_time_ms, true, true);
+                } catch (Exception ex) {
+                    ban_time_string_ = "error";
                 }
             }
+            Standard.log(ban_date, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_TEMP_BANS, (ban_type ? LOG_TEXT_TEMP_BANS_BANNED : LOG_TEXT_TEMP_BANS_KICKED), (ban_type ? STANDARD_LOG_TEXT_TEMP_BANS_BANNED : STANDARD_LOG_TEXT_TEMP_BANS_KICKED), LOG_DATE_TIME_FORMAT, event.getGuild().getMember(user).getAsMention(), event.getAuthor().getAsMention(), ban_time_string_, date_time_formatted_unban_date);
             final PreparedStatement preparedStatement = MySQL.STANDARD_DATABASE.prepareStatement("INSERT INTO %s (guild_ID, user_ID, unban_date, reason, banner_ID, ban_date, ban_type) VALUES (?, ?, ?, ?, ?, ?, ?)", MySQL.SQL_TABLE_TEMP_BANS);
             preparedStatement.setLong(1, event.getGuild().getIdLong());
             preparedStatement.setLong(2, Long.parseLong(user_id));
-            preparedStatement.setTimestamp(3, new Timestamp(ban_date.toEpochMilli() + ban_time_ms));
+            preparedStatement.setTimestamp(3, (ban_time_ms < 0 ? null : new Timestamp(ban_date.toEpochMilli() + ban_time_ms)));
             preparedStatement.setString(4, reason);
             preparedStatement.setLong(5, event.getAuthor().getIdLong());
             preparedStatement.setTimestamp(6, new Timestamp(ban_date.toEpochMilli()));
-            preparedStatement.setBoolean(7, !kick);
+            preparedStatement.setBoolean(7, ban_type);
             preparedStatement.executeUpdate();
             preparedStatement.closeOnCompletion();
             preparedStatement.close();
@@ -186,9 +191,13 @@ public class TempBanCommand extends Command {
             if (tempBans == null || tempBans.isEmpty()) {
                 return false;
             }
-            tempBans.stream().filter((tempBan) -> tempBan.isNeededToUnban(instant_now)).forEach((tempBan) -> {
-                if (!tempBan.unban() && tempBan.getGuild_id() == 0) {
-                    tempBan.archive();
+            tempBans.stream().forEach((tempBan) -> {
+                if (tempBan.isNeededToUnban(instant_now)) {
+                    if (!tempBan.unban() && tempBan.getGuild_id() == 0) {
+                        tempBan.archive();
+                    }
+                } else {
+                    tempBan.ban();
                 }
             });
             tempBans.clear();

@@ -12,7 +12,12 @@ import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.awt.Color;
 import java.io.BufferedWriter;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -25,6 +30,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.SelfUser;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.managers.AccountManager;
@@ -570,6 +576,37 @@ public class Standard {
         return true;
     }
 
+    public static final boolean log(Instant timestamp, Guild guild, String log_name, String settings_log_channel_id, String settings_log_text, String standard_log_text, String settings_log_date_time_format, Object... args) {
+        try {
+            final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild);
+            final String log_channel_id = advancedGuild.getSettings().getProperty(settings_log_channel_id, null);
+            if (log_channel_id != null) {
+                final TextChannel channel = guild.getTextChannelById(log_channel_id);
+                if (channel != null) {
+                    final String log_text = advancedGuild.getSettings().getProperty(settings_log_text, standard_log_text);
+                    final String log_date_time_format = advancedGuild.getSettings().getProperty(settings_log_date_time_format, Standard.STANDARD_DATE_TIME_FORMAT);
+                    String date_time_formatted = null;
+                    try {
+                        date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(log_date_time_format));
+                    } catch (Exception ex) {
+                        date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
+                    }
+                    final ArrayList<Object> args_ = new ArrayList<>();
+                    args_.add(date_time_formatted);
+                    args_.add(log_name);
+                    args_.addAll(Arrays.asList(args));
+                    final String message = String.format(log_text, args_.toArray());
+                    channel.sendMessage(message).queue();
+                    Standard.addToFile(advancedGuild.getLogFile(), message);
+                }
+            }
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
     //****************************************************************//
     //*********************GUILD SPECIFIC STOP************************//
     //****************************************************************//
@@ -987,5 +1024,6 @@ public class Standard {
     public static final Argument ARGUMENT_ASMENTION = new Argument("asMention", STANDARD_ARGUMENT_PREFIXES, "aM");
     public static final Argument ARGUMENT_HERE = new Argument("here", STANDARD_ARGUMENT_PREFIXES, "h");
     public static final Argument ARGUMENT_KICK = new Argument("kick", STANDARD_ARGUMENT_PREFIXES, "k");
+    public static final Argument ARGUMENT_BAN = new Argument("ban", STANDARD_ARGUMENT_PREFIXES, "b");
 
 }
