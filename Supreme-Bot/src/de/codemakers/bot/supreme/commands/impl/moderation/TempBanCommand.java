@@ -74,12 +74,13 @@ public class TempBanCommand extends Command {
         }
         final boolean kick = arguments.isConsumed(Standard.ARGUMENT_KICK, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean ban = arguments.isConsumed(Standard.ARGUMENT_BAN, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean unban = arguments.isConsumed(Standard.ARGUMENT_UNBAN, ArgumentConsumeType.FIRST_IGNORE_CASE);
         if (kick && ban) {
             return false;
         } else if (kick || ban) {
             return arguments.isSize(3, 4); //USER_ID BAN_TIME(_IN_MINUTES) [REASON] [-kick/-ban]
         } else {
-            return arguments.isSize(2, 3); //USER_ID BAN_TIME(_IN_MINUTES) [REASON]
+            return arguments.isSize(1, 3); //USER_ID [[BAN_TIME(_IN_MINUTES) [REASON]]/-unban]
         }
     }
 
@@ -88,10 +89,29 @@ public class TempBanCommand extends Command {
         final Instant ban_date = Instant.now();
         final boolean kick = arguments.isConsumed(Standard.ARGUMENT_KICK, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean ban = arguments.isConsumed(Standard.ARGUMENT_BAN, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean unban = arguments.isConsumed(Standard.ARGUMENT_UNBAN, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        if (arguments.isSize(1) || (arguments.isSize(2) && unban)) {
+        try {
+            User user = arguments.consumeUserFirst();
+            final String user_id = (User == null ? arguments.consumeFirst() : user.getId());
+            if (user == null && (user = Standard.getUserById(user_id)) == null) {
+                event.sendMessage(new EmbedBuilder().setColor(Color.RED).setDescription(String.format(„User \“%s\“ doesn’t exist or isn’t on this Server!“, user_id)).build());
+                return;
+            }
+            if (unban) {
+                //Coming soon
+            } else {
+                final List<> tempBans = TempBan.getTempBans(user);
+                event.sendMessage("The user \"%s\" (ID: %s) has %d TempBans.", user.getName(), user_id, tempBans.size());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        } else {
         try {
             final boolean ban_type = (invoker.getInvoker().contains("ban") ? (!kick || ban) : (invoker.getInvoker().contains("kick") ? !(kick || !ban) : true));
             User user = arguments.consumeUserFirst();
-            final String user_id = (user == null) ? arguments.consumeFirst() : user.getId();
+            final String user_id = (user == null ? arguments.consumeFirst() : user.getId());
             if (user == null && (user = Standard.getUserById(user_id)) == null) {
                 event.sendMessage(new EmbedBuilder().setColor(Color.RED).setDescription(String.format("User \"%s\" doesn't exist or isn't on this Server!", user_id)).build());
                 return;
@@ -150,6 +170,7 @@ public class TempBanCommand extends Command {
             preparedStatement.close();
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
         }
     }
 
