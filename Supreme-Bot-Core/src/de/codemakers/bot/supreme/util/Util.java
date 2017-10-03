@@ -652,19 +652,19 @@ public class Util {
             return (time / 1000) + "s";
         }
     }
-    
+
     public static final String stringToLettersAndDigitsOnly(String text) {
         return stringToLettersAndDigitsOnly(text, false);
     }
-    
-    public static final String stringToLettersAndDigitsOnly(String text, boolean invert) {
+
+    public static final String stringToLettersAndDigitsOnly(String text, boolean invert, Character... exceptions) {
         if (text == null) {
             return null;
         }
         try {
             String out = "";
             for (int i = 0; i < text.length(); i++) {
-                if (Character.isLetterOrDigit(text.charAt(i)) == !invert) {
+                if (Character.isLetterOrDigit(text.charAt(i)) == !invert || contains(exceptions, text.charAt(i))) {
                     out += text.charAt(i);
                 }
             }
