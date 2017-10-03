@@ -827,6 +827,10 @@ public class Standard {
         return String.format(DISCORD_STYLE_UNDERLINE_BOLD_ITALICS, text);
     }
 
+    public static final String embedLink(String text, String link) {
+        return String.format("[%s](%s)", text, link);
+    }
+
     public static final boolean addToFile(AdvancedFile file, Object toAdd) {
         return addToFile(file, toAdd, true);
     }
