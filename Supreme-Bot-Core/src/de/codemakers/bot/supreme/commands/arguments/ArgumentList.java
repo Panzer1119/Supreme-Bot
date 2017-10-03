@@ -235,9 +235,9 @@ public class ArgumentList {
         if (temp == null) {
             return null;
         }
-        if (temp.startsWith("<@") && temp.endsWith(">")) {
+        if ((temp.startsWith("<@!") || temp.startsWith("<@")) && temp.endsWith(">")) {
             consumeRaw(index);
-            return Standard.getUserById(temp.substring("<@".length(), temp.length() - ">".length()));
+            return Standard.getUserById(temp.substring("<@".length() + (temp.startsWith("<@!") ? 1 : 0), temp.length() - ">".length()));
         }
         return null;
     }
@@ -258,9 +258,9 @@ public class ArgumentList {
         if (temp == null) {
             return null;
         }
-        if (temp.startsWith("<@") && temp.endsWith(">")) {
+        if ((temp.startsWith("<@!") || temp.startsWith("<@")) && temp.endsWith(">")) {
             consumeRaw(index);
-            return guild.getMemberById(temp.substring("<@".length(), temp.length() - ">".length()));
+            return guild.getMemberById(temp.substring("<@".length() + (temp.startsWith("<@!") ? 1 : 0), temp.length() - ">".length()));
         }
         return null;
     }
@@ -281,9 +281,9 @@ public class ArgumentList {
         if (temp == null) {
             return null;
         }
-        if (temp.startsWith("<@") && temp.endsWith(">")) {
+        if ((temp.startsWith("<@!") || temp.startsWith("<@")) && temp.endsWith(">")) {
             consumeRaw(index);
-            return guild.getTextChannelById(temp.substring("<@".length(), temp.length() - ">".length()));
+            return guild.getTextChannelById(temp.substring("<@".length() + (temp.startsWith("<@!") ? 1 : 0), temp.length() - ">".length()));
         }
         return null;
     }
@@ -304,9 +304,9 @@ public class ArgumentList {
         if (temp == null) {
             return null;
         }
-        if (temp.startsWith("<@") && temp.endsWith(">")) {
+        if ((temp.startsWith("<@!") || temp.startsWith("<@")) && temp.endsWith(">")) {
             consumeRaw(index);
-            return guild.getRoleById(temp.substring("<@".length(), temp.length() - ">".length()));
+            return guild.getRoleById(temp.substring("<@".length() + (temp.startsWith("<@!") ? 1 : 0), temp.length() - ">".length()));
         }
         return null;
     }

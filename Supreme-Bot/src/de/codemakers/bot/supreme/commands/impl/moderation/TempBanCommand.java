@@ -11,7 +11,6 @@ import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.sql.Result;
-import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import de.codemakers.bot.supreme.util.updater.Updateable;
@@ -133,6 +132,7 @@ public class TempBanCommand extends Command {
                     event.sendMessage(2 * Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.YELLOW, "%s has %d temporary ban%s and %d temporary kick%s.", (user == null ? user_id : user.getAsMention()), temp_ban_count, (temp_ban_count != 1 ? "s" : ""), temp_kick_count, (temp_kick_count != 1 ? "s" : "")).build());
                 }
             } catch (Exception ex) {
+                TempBan.USING = false;
                 ex.printStackTrace();
             }
         } else {

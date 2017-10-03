@@ -652,5 +652,26 @@ public class Util {
             return (time / 1000) + "s";
         }
     }
+    
+    public static final String stringToLettersAndDigitsOnly(String text) {
+        return stringToLettersAndDigitsOnly(text, false);
+    }
+    
+    public static final String stringToLettersAndDigitsOnly(String text, boolean invert) {
+        if (text == null) {
+            return null;
+        }
+        try {
+            String out = "";
+            for (int i = 0; i < text.length(); i++) {
+                if (Character.isLetterOrDigit(text.charAt(i)) == !invert) {
+                    out += text.charAt(i);
+                }
+            }
+            return out;
+        } catch (Exception ex) {
+            return null;
+        }
+    }
 
 }
