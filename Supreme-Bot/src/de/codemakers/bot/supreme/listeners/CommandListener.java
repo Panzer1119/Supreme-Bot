@@ -2,6 +2,7 @@ package de.codemakers.bot.supreme.listeners;
 
 import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.commands.CommandParser;
+import de.codemakers.bot.supreme.commands.CommandType;
 import de.codemakers.bot.supreme.entities.DefaultMessageEvent;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.util.Standard;
@@ -36,7 +37,7 @@ public class CommandListener extends ListenerAdapter {
     };
 
     @Override
-    public final void onMessageReceived(MessageReceivedEvent event_received) { //FIXME Bug mit privaten Nachrichten
+    public final void onMessageReceived(MessageReceivedEvent event_received) {
         if (event_received == null) {
             return;
         }
@@ -48,8 +49,9 @@ public class CommandListener extends ListenerAdapter {
             final String content_raw = event.getMessage().getRawContent().trim();
             final String content = event.getMessage().getContent().trim();
             final Guild guild = event.getGuild();
-            if (isCommand(content, event)) {
-                CommandHandler.handleCommand(CommandParser.parser(content, content_raw, event));
+            final CommandType commandType = CommandType.getCommandType(content, content_raw, event);
+            if (commandType.isCommand()) {
+                CommandHandler.handleCommand(CommandParser.parser(commandType, content, content_raw, event));
             }
             final Object[] output = ListenerManager.fireListeners(MessageListener.class, ADMIN_PREDICATE, new Object[]{event, MessageType.RECEIVED});
             if (output.length > 0) {
@@ -129,13 +131,6 @@ public class CommandListener extends ListenerAdapter {
         if (DEBUG && output.length > 0) {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
         }
-    }
-
-    private final boolean isCommand(String message, MessageEvent event) {
-        if (message == null || event == null || event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
-            return false;
-        }
-        return message.startsWith(Standard.getCommandPrefixByGuild(event.getGuild()));
     }
 
 }

@@ -471,6 +471,9 @@ public class Standard {
     }
 
     public static final User getSelfUser() {
+        if (getJDA() == null) {
+            return null;
+        }
         return getJDA().getSelfUser();
     }
 

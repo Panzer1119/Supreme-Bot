@@ -248,7 +248,7 @@ public class MusicCommand extends Command {
 
     @Override
     public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        if (arguments == null || arguments.isEmpty() || event == null || event.getMember() == null) {
+        if (arguments == null || arguments.isEmpty() || event == null || event.getGuild() == null || event.getMember() == null) {
             return false;
         }
         final boolean play = arguments.isConsumed(Standard.ARGUMENT_PLAY, ArgumentConsumeType.FIRST_IGNORE_CASE);
