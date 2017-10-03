@@ -26,6 +26,10 @@ public class PluginProviderPlus implements Serializable {
         return provider.print(plugin, print, args);
     }
 
+    public final boolean println(String print, Object... args) {
+        return provider.print(plugin, print + "\n", args);
+    }
+
     public final boolean register(Object id, Object object, RegisterType type) {
         return provider.register(plugin, id, object, type);
     }

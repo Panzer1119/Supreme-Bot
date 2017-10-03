@@ -1,7 +1,9 @@
 package de.codemakers.bot.supreme.util;
 
+import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
@@ -11,6 +13,8 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Util
@@ -670,6 +674,65 @@ public class Util {
             }
             return out;
         } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public static final String advancedFileToString(AdvancedFile file) {
+        if (file == null || !file.exists()) {
+            return null;
+        }
+        try {
+            String out = "";
+            final BufferedReader br = file.getReader();
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                out += line;
+            }
+            br.close();
+            return out;
+        } catch (Exception ex) {
+            System.err.println(ex);
+            return null;
+        }
+    }
+
+    public static final HashMap<String, String> JSONToCookies(String text_json) {
+        if (text_json == null) {
+            return new HashMap<>();
+        }
+        try {
+            final HashMap<String, String> cookies = new HashMap<>();
+            final JSONArray array = new JSONArray(text_json);
+            for (int i = 0; i < array.length(); i++) {
+                final JSONObject object = array.getJSONObject(i);
+                cookies.put(object.getString("name"), object.getString("value"));
+            }
+            return cookies;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new HashMap<>();
+        }
+    }
+
+    public static final String cookiesToString(HashMap<String, String> cookies) {
+        if (cookies == null) {
+            return null;
+        }
+        if (cookies.isEmpty()) {
+            return "";
+        }
+        try {
+            final StringBuilder out = new StringBuilder();
+            cookies.forEach((name, value) -> {
+                out.append(name);
+                out.append("=");
+                out.append(value);
+                out.append(";");
+            });
+            return out.substring(0, out.length() - ";".length());
+        } catch (Exception ex) {
+            ex.printStackTrace();
             return null;
         }
     }

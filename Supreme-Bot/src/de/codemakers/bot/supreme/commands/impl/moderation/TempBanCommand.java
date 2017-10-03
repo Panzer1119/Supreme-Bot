@@ -218,6 +218,9 @@ public class TempBanCommand extends Command {
 
     @Override
     public EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+        final boolean ban = invoker.getInvoker().contains("ban") && !invoker.getInvoker().contains("kick");
+        builder.addField(String.format("%s <Username or @Mention> <%s time in minutes or as time string> [Reason] [%s]", invoker, (ban ? "Ban" : "Kick"), (ban ? Standard.ARGUMENT_KICK : Standard.ARGUMENT_BAN).getCompleteArgument(0, -1)), String.format("Temporary %ss a user for a specified time and optionally with an reason. With the flag \"%s\" you temporary %s a user.", (ban ? "ban" : "kick"), (ban ? Standard.ARGUMENT_KICK : Standard.ARGUMENT_BAN).getCompleteArgument(0, -1), (ban ? "kick" : "ban")), false);
+        builder.addField(String.format("%s <Username or @Mention> [%s]", invoker, Standard.ARGUMENT_UNBAN.getCompleteArgument(0, -1)), String.format("Shows information about temporary bans and kicks of the user. With the flag \"%s\" you remove all temporary bans and kicks from the user.", Standard.ARGUMENT_BAN.getCompleteArgument(0, -1)), false);
         return builder;
     }
 
