@@ -735,7 +735,7 @@ public class Standard {
                 return (member != self_member && !self_member.equals(member));
             }).collect(Collectors.toList());
             members.stream().forEach((member) -> {
-                voiceChannel.getGuild().getController().setMute(member, mute);
+                voiceChannel.getGuild().getController().setMute(member, mute).queue();
             });
             return members;
         } catch (Exception ex) {
@@ -749,7 +749,7 @@ public class Standard {
                 final Member self_member = Standard.getSelfMemberByGuild(member.getGuild());
                 return (member != self_member && !self_member.equals(member));
             }).forEach((member) -> {
-                member.getGuild().getController().setMute(member, mute);
+                member.getGuild().getController().setMute(member, mute).queue();
             });
             return members;
         } catch (Exception ex) {
