@@ -51,6 +51,9 @@ public class Standard {
     public static final String STANDARD_NUMBER_SEPARATOR = ":";
     public static final String STANDARD_ARRAY_SEPARATOR = ";";
     public static final String STANDARD_DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
+    public static final DateTimeFormatter STANDARD_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(STANDARD_DATE_TIME_FORMAT);
+    public static final String STANDARD_DATE_TIME_FILE_FORMAT = "yyyy.MM.dd_HH.mm.ss";
+    public static final DateTimeFormatter STANDARD_DATE_TIME_FILE_FORMATTER = DateTimeFormatter.ofPattern(STANDARD_DATE_TIME_FILE_FORMAT);
     public static final String STANDARD_NAMESPACE_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     public static final char[] STANDARD_NAMESPACE = STANDARD_NAMESPACE_STRING.toCharArray();
     public static final int STANDARD_NUMBER_OF_LINES_TO_GET_CLEARED = 10;
@@ -97,8 +100,10 @@ public class Standard {
     public static final String STANDARD_UPLOAD_FOLDER_NAME = "uploads";
     public static final AdvancedFile STANDARD_UPLOAD_FOLDER = getFile(STANDARD_UPLOAD_FOLDER_NAME);
 
+    public static final String STANDARD_LOGS_FOLDER_NAME = "logs";
+    public static final String STANDARD_LOG_FILE_FORMAT = "log_%s.txt";
     public static final String STANDARD_LOG_FILE_NAME = "log.txt";
-    public static final AdvancedFile STANDARD_LOG_FILE = getFile(STANDARD_LOG_FILE_NAME);
+    public static final AdvancedFile STANDARD_LOG_FOLDER = getFile(STANDARD_LOGS_FOLDER_NAME);
 
     public static final String STANDARD_RECORDINGS_FOLDER_NAME = "recordings";
     public static final AdvancedFile STANDARD_RECORDINGS_FOLE = getFile(STANDARD_RECORDINGS_FOLDER_NAME);
@@ -271,6 +276,10 @@ public class Standard {
             return null;
         }
         return new AdvancedFile(STANDARD_DATA_FOLDER, fileName);
+    }
+
+    public static final AdvancedFile createLogFile() {
+        return new AdvancedFile(STANDARD_LOG_FOLDER, String.format(STANDARD_LOG_FILE_FORMAT, LocalDateTime.now().format(STANDARD_DATE_TIME_FILE_FORMATTER)));
     }
 
     public static final Pattern getTimePattern() {

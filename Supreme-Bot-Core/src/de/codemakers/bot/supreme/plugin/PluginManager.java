@@ -9,7 +9,6 @@ import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.plugin.PluginLoader;
 import de.codemakers.plugin.impl.StandardPluginFilter;
-import java.io.File;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -130,6 +129,12 @@ public class PluginManager implements PluginProvider {
     @Override
     public boolean print(Plugin plugin, String print, Object... args) {
         System.out.print(format(plugin, print, args));
+        return true;
+    }
+
+    @Override
+    public boolean println(Plugin plugin, String print, Object... args) {
+        System.out.println(format(plugin, print, args));
         return true;
     }
 

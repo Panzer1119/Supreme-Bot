@@ -10,55 +10,57 @@ import java.util.Locale;
 
 /**
  * SystemOutputStream
- * 
+ *
  * @author Panzer1119
  */
 public class SystemOutputStream extends PrintStream {
-    
+
+    public static final AdvancedFile file_log = Standard.createLogFile();
+
     private final boolean error;
-    
+
     public SystemOutputStream(OutputStream out, boolean error) {
         super(out);
         this.error = error;
     }
-    
+
     @Override
-    public void print(char c) {
+    public final void print(char c) {
         print("" + c);
     }
 
     @Override
-    public void print(long l) {
+    public final void print(long l) {
         print("" + l);
     }
 
     @Override
-    public void print(double d) {
+    public final void print(double d) {
         print("" + d);
     }
 
     @Override
-    public void print(float f) {
+    public final void print(float f) {
         print("" + f);
     }
 
     @Override
-    public void print(boolean b) {
+    public final void print(boolean b) {
         print("" + b);
     }
 
     @Override
-    public void print(int i) {
+    public final void print(int i) {
         print("" + i);
     }
 
     @Override
-    public void print(char[] c) {
+    public final void print(char[] c) {
         print(new String(c));
     }
 
     @Override
-    public void print(Object o) {
+    public final void print(Object o) {
         if (o != null) {
             print(o.toString());
         } else {
@@ -67,47 +69,47 @@ public class SystemOutputStream extends PrintStream {
     }
 
     @Override
-    public void print(String g) {
+    public final void print(String g) {
         print(g, Instant.now(), false);
     }
 
     @Override
-    public void println(char c) {
+    public final void println(char c) {
         println("" + c);
     }
 
     @Override
-    public void println(long l) {
+    public final void println(long l) {
         println("" + l);
     }
 
     @Override
-    public void println(double d) {
+    public final void println(double d) {
         println("" + d);
     }
 
     @Override
-    public void println(float f) {
+    public final void println(float f) {
         println("" + f);
     }
 
     @Override
-    public void println(boolean b) {
+    public final void println(boolean b) {
         println("" + b);
     }
 
     @Override
-    public void println(int i) {
+    public final void println(int i) {
         println("" + i);
     }
 
     @Override
-    public void println(char[] c) {
+    public final void println(char[] c) {
         println(new String(c));
     }
 
     @Override
-    public void println(Object o) {
+    public final void println(Object o) {
         if (o != null) {
             println(o.toString());
         } else {
@@ -116,48 +118,56 @@ public class SystemOutputStream extends PrintStream {
     }
 
     @Override
-    public void println(String g) {
+    public final void println(String g) {
         print(g, Instant.now(), true);
     }
 
     @Override
-    public void println() {
+    public final void println() {
         println("");
     }
 
     @Override
-    public PrintStream format(Locale l, String format, Object... args) {
+    public final PrintStream format(Locale l, String format, Object... args) {
         print(String.format(l, format, args));
         return this;
     }
 
     @Override
-    public PrintStream format(String format, Object... args) {
+    public final PrintStream format(String format, Object... args) {
         print(String.format(format, args));
         return this;
     }
 
     @Override
-    public PrintStream printf(Locale l, String format, Object... args) {
+    public final PrintStream printf(Locale l, String format, Object... args) {
         print(String.format(l, format, args));
         return this;
     }
 
     @Override
-    public PrintStream printf(String format, Object... args) {
+    public final PrintStream printf(String format, Object... args) {
         print(String.format(format, args));
         return this;
     }
 
-    private void print(String g, Instant instant, boolean newLine) {
+    private final void print(String g, Instant instant, boolean newLine) {
         final String msg = String.format("[%s]: %s", LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), g);
-        super.print(msg + (newLine ? "\n" : ""));
+        String temp = msg + (newLine ? "\n" : "");
+        super.print(temp);
+        if (file_log != null) {
+            Standard.addToFile(file_log, temp);
+        }
         if (error && false) {
             final Exception ex = new Exception();
             for (StackTraceElement e : ex.getStackTrace()) {
-                super.print(e + "\n");
+                temp = e + "\n";
+                super.print(temp);
+                if (file_log != null) {
+                    Standard.addToFile(file_log, temp);
+                }
             }
         }
     }
-    
+
 }
