@@ -391,7 +391,7 @@ public class ArgumentList {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         arguments_content.stream().forEach((argument_raw) -> sb.append(argument_raw));
-        return sb.toString().substring(1);
+        return sb.toString();
     }
 
 }
