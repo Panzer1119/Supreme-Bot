@@ -2,6 +2,7 @@ package de.codemakers.bot.supreme.listeners;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Predicate;
 
 /**
  * ListenerManager
@@ -34,9 +35,9 @@ public class ListenerManager {
         }
     }
 
-    public static final Object[] fireListeners(Class<?> clazz, Object... data) {
+    public static final Object[] fireListeners(Class<?> clazz, Predicate<Listener> predicate, Object... data) {
         final ArrayList<Object> output = new ArrayList<>();
-        listeners.values().stream().forEach((listener) -> {
+        listeners.values().stream().filter((predicate != null ? predicate : (listener) -> true)).forEach((listener) -> {
             if ((clazz == null) || ((listener.getClass() == clazz) || clazz.isInstance(listener) || listener.getClass().isInstance(clazz))) {
                 try {
                     output.add(listener.fired(data));

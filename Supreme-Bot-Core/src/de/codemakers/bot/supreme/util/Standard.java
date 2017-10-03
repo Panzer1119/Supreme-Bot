@@ -6,6 +6,7 @@ import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRole;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.plugin.Plugin;
 import de.codemakers.bot.supreme.plugin.PluginManager;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.Settings;
@@ -58,6 +59,8 @@ public class Standard {
     private static byte[] TOKEN = null;
     private static String STANDARD_COMMAND_PREFIX = "!";
     private static String NICKNAME = "Supreme-Bot";
+    private static final String PLUGIN_PERMISSION_ADMIN_STRING_NAME = "plugin_permission_admin_string";
+    private static String PLUGIN_PERMISSION_ADMIN_STRING = null;
     public static Getter<JDA> getter = () -> null;
 
     /**
@@ -141,6 +144,7 @@ public class Standard {
                 STANDARD_SETTINGS.setProperty("nickname", "Supreme-Bot");
             }
             setNickname(STANDARD_SETTINGS.getProperty("nickname", "Supreme-Bot"));
+            reloadPluginPermissionAdminString();
             System.out.println("Reloaded Settings!");
             return true;
         } catch (Exception ex) {
@@ -175,6 +179,24 @@ public class Standard {
             return true;
         } catch (Exception ex) {
             System.err.println("Not Reloaded PermissionRoles: " + ex);
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public static final boolean reloadPluginPermissionAdminString() {
+        try {
+            if (PLUGIN_PERMISSION_ADMIN_STRING == null) {
+                PLUGIN_PERMISSION_ADMIN_STRING = STANDARD_SETTINGS.getProperty(PLUGIN_PERMISSION_ADMIN_STRING_NAME, null);
+                if (PLUGIN_PERMISSION_ADMIN_STRING == null) {
+                    PLUGIN_PERMISSION_ADMIN_STRING = Util.generateRandomString(250);
+                    STANDARD_SETTINGS.setProperty(PLUGIN_PERMISSION_ADMIN_STRING_NAME, PLUGIN_PERMISSION_ADMIN_STRING);
+                }
+                System.out.println("Reloaded PluginPermissionAdminString!");
+            }
+            return true;
+        } catch (Exception ex) {
+            System.err.println("Not Reloaded PluginPermissionAdminString: " + ex);
             ex.printStackTrace();
             return false;
         }
@@ -624,13 +646,20 @@ public class Standard {
         return false;
     }
 
+    public static final boolean isPluginAdmin(Plugin plugin) {
+        if (PLUGIN_PERMISSION_ADMIN_STRING == null) {
+            return false;
+        }
+        return PLUGIN_PERMISSION_ADMIN_STRING.equals(plugin.getPermissionID());
+    }
+
     //****************************************************************//
     //*********************PLUGIN SPECIFIC STOP***********************//
     //****************************************************************//
     public static final Message getNoPermissionMessage(User user, String extra) {
         return new MessageBuilder().append(String.format("%s Sorry %s, you don't have the permissions to use this %s!", Emoji.WARNING, user.getAsMention(), extra)).build();
     }
-    
+
     public static final MessageBuilder getNoMessage(User user, String format, Object... args) {
         return new MessageBuilder().append(String.format("%s Sorry %s, %s", Emoji.WARNING, user.getAsMention(), String.format(format, args)));
     }
@@ -992,7 +1021,8 @@ public class Standard {
         return commandCategory == null ? COMMANDCATEGORY_NONE : commandCategory;
     }
 
-    public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner", "nickname", "sql_hostname", "sql_database", "sql_username", "sql_password"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
+    public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner", "nickname", PLUGIN_PERMISSION_ADMIN_STRING_NAME, "sql_hostname", "sql_database", "sql_username", "sql_password"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
+
     public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/", "!"};
     public static final Argument ARGUMENT_GLOBAL = new Argument("global", STANDARD_ARGUMENT_PREFIXES, "g");
     public static final Argument ARGUMENT_DIRECT = new Argument("direct", STANDARD_ARGUMENT_PREFIXES, "d");

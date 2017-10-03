@@ -218,12 +218,12 @@ public class TempBan {
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return "TempBan{" + "id=" + id + ", guild_id=" + guild_id + ", user_id=" + user_id + ", unban_date=" + unban_date + ", reason=" + reason + ", banner_id=" + banner_id + ", ban_date=" + ban_date + ", ban_type=" + ban_type + '}';
     }
 
     @Override
-    public boolean equals(Object object) {
+    public final boolean equals(Object object) {
         if (object == null) {
             return false;
         }
