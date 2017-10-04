@@ -1,10 +1,12 @@
 package de.codemakers.bot.supreme.sql;
 
 import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.ThreadUtil;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.concurrent.Future;
 
 /**
  * MySQL
@@ -15,6 +17,8 @@ public class MySQL {
 
     public static final Database STANDARD_DATABASE = new Database(null, null, null, null);
     public static final String SQL_TABLE_TEMP_BANS = "temp_bans";
+
+    private static boolean initiating = false;
 
     static {
         try {
@@ -35,19 +39,26 @@ public class MySQL {
         }
     }
 
-    public static final boolean init() {
-        try {
-            STANDARD_DATABASE.close();
-            STANDARD_DATABASE.setHostname(Standard.STANDARD_SETTINGS.getProperty("sql_hostname", null));
-            STANDARD_DATABASE.setDatabase(Standard.STANDARD_SETTINGS.getProperty("sql_database", null));
-            STANDARD_DATABASE.setUsername(Standard.STANDARD_SETTINGS.getProperty("sql_username", null));
-            STANDARD_DATABASE.setPassword(Standard.STANDARD_SETTINGS.getProperty("sql_password", null));
-            return STANDARD_DATABASE.connect();
-        } catch (Exception ex) {
-            System.err.println("MySQL: Init error");
-            ex.printStackTrace();
-            return false;
+    public static final Future<?> init() {
+        if (initiating) {
+            System.err.println("MySQL: Already initiating");
+            return null;
         }
+        return ThreadUtil.execute(() -> {
+            try {
+                initiating = true;
+                STANDARD_DATABASE.close();
+                STANDARD_DATABASE.setHostname(Standard.STANDARD_SETTINGS.getProperty("sql_hostname", null));
+                STANDARD_DATABASE.setDatabase(Standard.STANDARD_SETTINGS.getProperty("sql_database", null));
+                STANDARD_DATABASE.setUsername(Standard.STANDARD_SETTINGS.getProperty("sql_username", null));
+                STANDARD_DATABASE.setPassword(Standard.STANDARD_SETTINGS.getProperty("sql_password", null));
+                STANDARD_DATABASE.connect();
+            } catch (Exception ex) {
+                System.err.println("MySQL: Init error");
+                ex.printStackTrace();
+            }
+            initiating = false;
+        });
     }
 
     public static final Object[] ResultSetToArray(ResultSet resultSet) {

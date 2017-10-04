@@ -137,9 +137,6 @@ public class SQLUtil {
             });
             final String sql = sqls.stream().collect(Collectors.joining());
             sqls.clear();
-            if (true) {
-                return true;
-            }
             if (sqls.size() >= Integer.MAX_VALUE) {
                 database.executeLargeUpdate(sql);
             } else {

@@ -22,9 +22,9 @@ public class ReadyListener extends ListenerAdapter {
     @Override
     public final void onReady(ReadyEvent event) {
         final JDA jda = event.getJDA();
-        for (Guild guild : jda.getGuilds()) {
+        jda.getGuilds().stream().forEach((guild) -> {
             final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild);
-        }
+        });
         MySQL.init();
         if (true) {
             return;
@@ -44,10 +44,9 @@ public class ReadyListener extends ListenerAdapter {
     public final void onResume(ResumedEvent event) {
         MySQL.init();
         final JDA jda = event.getJDA();
-        for (Guild guild : jda.getGuilds()) {
-            final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild);
+        jda.getGuilds().stream().map((guild) -> Standard.getAdvancedGuild(guild)).forEach((advancedGuild) -> {
             advancedGuild.sayHi();
-        }
+        });
     }
 
     @Override

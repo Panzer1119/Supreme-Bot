@@ -103,6 +103,18 @@ public class AdvancedGuild {
         return guild;
     }
 
+    public final AdvancedGuild setGuild(Guild guild) {
+        this.guild = guild;
+        if (guild == null) {
+            this.guild_id = null;
+            this.guild_id_long = 0;
+        } else {
+            this.guild_id = this.guild.getId();
+            this.guild_id_long = this.guild.getIdLong();
+        }
+        return this;
+    }
+
     public final String getGuildId() {
         if (guild_id == null && guild != null) {
             guild_id = getGuild().getId();
@@ -142,15 +154,15 @@ public class AdvancedGuild {
 
     public final AdvancedGuild sayHi() {
         if (getGuild() == null) {
-            System.out.println(String.format("No guild, no welcome message:  \"%s\"", guild));
+            System.out.println(String.format("No guild, no startup message:  \"%s\"", guild));
             return this;
         }
         getSettings().loadSettings();
-        String hi = getSettings().getProperty("welcome_message", null);
+        String hi = getSettings().getProperty("startup_message", null);
         if (hi != null) {
             guild.getPublicChannel().sendMessage(hi).queue();
         } else {
-            System.out.println(String.format("No welcome message wanted: \"%s\"", guild));
+            System.out.println(String.format("No startup message wanted: \"%s\"", guild));
         }
         return this;
     }
