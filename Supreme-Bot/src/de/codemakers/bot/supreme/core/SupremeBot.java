@@ -26,10 +26,10 @@ import de.codemakers.bot.supreme.commands.impl.moderation.util.GetLogCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.XMLEditorCommand;
 import de.codemakers.bot.supreme.commands.impl.secret.PasteServerCommand;
 import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
-import de.codemakers.bot.supreme.listeners.CommandListener;
 import de.codemakers.bot.supreme.listeners.GuildMemberLogger;
 import de.codemakers.bot.supreme.listeners.ReadyListener;
 import de.codemakers.bot.supreme.listeners.GuildVoiceLogger;
+import de.codemakers.bot.supreme.listeners.MessageHandler;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.SystemOutputStream;
 import java.security.Permission;
@@ -78,7 +78,7 @@ public class SupremeBot {
 
     private static final boolean initListeners() {
         try {
-            builder.addEventListener(new CommandListener());
+            builder.addEventListener(new MessageHandler());
             builder.addEventListener(new GuildMemberLogger());
             builder.addEventListener(new GuildVoiceLogger());
             builder.addEventListener(new ReadyListener());

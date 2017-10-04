@@ -2,6 +2,11 @@ package de.codemakers.bot.supreme.commands;
 
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.listeners.CommandListener;
+import de.codemakers.bot.supreme.listeners.CommandType;
+import de.codemakers.bot.supreme.listeners.Listener;
+import de.codemakers.bot.supreme.listeners.ListenerManager;
+import de.codemakers.bot.supreme.listeners.MessageListener;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
@@ -11,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -23,6 +29,12 @@ import net.dv8tion.jda.core.entities.Guild;
 public class CommandHandler {
 
     public static final String SEND_HELP_ALWAYS_PRIVATE = "send_help_always_private";
+    public static final Predicate<Listener> ADMIN_PREDICATE = (listener) -> {
+        if (listener == null) {
+            return false;
+        }
+        return Standard.isPluginAdmin(listener.getPlugin());
+    };
 
     public static final String COMMANDCATEGORY_HIERARCHY_SPACER = "   ";
     public static final String COMMANDCATEGORY_HIERARCHY_NEW_LINE = "\n";
@@ -46,12 +58,15 @@ public class CommandHandler {
                     if (!PermissionHandler.check(command.getPermissionRoleFilter(), commandContainer.event, true)) {
                         return false;
                     }
+                    final Object[] output_called = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, CommandType.CALLED});
                     final boolean safe = command.called(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
                     if (safe) {
+                        final Object[] output_action = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, CommandType.ACTION});
                         command.action(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
                     } else {
                         sendHelpMessage(commandContainer.invoker, commandContainer.event, command, false);
                     }
+                    final Object[] output_executed = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, CommandType.EXECUTED});
                     command.executed(safe, commandContainer.event);
                     return safe;
                 }
