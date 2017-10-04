@@ -33,13 +33,13 @@ public class ReadyListener extends ListenerAdapter {
         for (Guild guild : jda.getGuilds()) {
             out += guild.getName() + " (" + guild.getId() + ") \n";
             for (Role role : guild.getRoles()) {
-                out += String.format("%nROLE: \"%s\" (ID: %s) %s%nLoaded ROLE: %s", role.getName(), role.getId(), role.getAsMention(), PermissionRole.getPermissionRolesByGuildAndRole(guild.getId(), role.getId()));
+                out += String.format("%nROLE: \"%s\" (ID: %s) %s%nLoaded ROLE: %s", role.getName(), role.getId(), role.getAsMention(), PermissionRole.getPermissionRolesByGuildAndRole(guild.getIdLong(), role.getIdLong()));
             }
             out += "\n\n\n";
         }
         System.out.println(out);
     }
-    
+
     @Override
     public final void onResume(ResumedEvent event) {
         MySQL.init();

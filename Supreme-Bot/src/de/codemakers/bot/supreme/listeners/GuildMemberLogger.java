@@ -1,6 +1,6 @@
 package de.codemakers.bot.supreme.listeners;
 
-import de.codemakers.bot.supreme.commands.impl.moderation.TempBan;
+import de.codemakers.bot.supreme.sql.entities.TempBan;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;

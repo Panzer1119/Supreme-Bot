@@ -80,7 +80,7 @@ public class RolesCommand extends Command {
             }
             sb_1.append("\n");
             temp.delete(0, temp.length());
-            final List<PermissionRole> permissionRoles_ = PermissionRole.getPermissionRolesByGuildAndRole(guild.getId(), role.getId());
+            final List<PermissionRole> permissionRoles_ = PermissionRole.getPermissionRolesByGuildAndRole(guild.getIdLong(), role.getIdLong());
             temp.append("[");
             temp.append(count);
             temp.append("] ");

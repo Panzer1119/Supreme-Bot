@@ -122,6 +122,9 @@ public class Standard {
     public static final String XML_ROLES = "roles";
     public static final String XML_ROLE = "role";
     public static final String XML_ROLEID = "roleid";
+    public static final String XML_USERID = "userid";
+    
+    public static final String STANDARD_METHOD_NAME_NEW_INSTANCE = "newInstance";
 
     public static final ArrayList<Runnable> SHUTDOWNHOOKS = new ArrayList<>();
 
@@ -351,7 +354,7 @@ public class Standard {
             GUILDS.stream().forEach((advancedGuild) -> {
                 final AdvancedFile file = advancedGuild.getPermissionsFile();
                 if (file != null) {
-                    PermissionHandler.loadPermissionsForGuild(file, advancedGuild.getGuildId());
+                    PermissionHandler.loadPermissionsForGuild(file, advancedGuild.getGuildIdLong());
                 }
             });
             System.out.println("Reloaded All Guild Permissions!");

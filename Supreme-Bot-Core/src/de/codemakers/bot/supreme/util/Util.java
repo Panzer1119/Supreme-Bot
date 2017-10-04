@@ -678,6 +678,78 @@ public class Util {
         }
     }
 
+    public static final boolean isStringLettersAndDigitsOnly(String text) {
+        if (text == null) {
+            return false;
+        }
+        if (text.isEmpty()) {
+            return true;
+        }
+        return text.equals(stringToLettersAndDigitsOnly(text));
+    }
+
+    public static final String stringToLettersOnly(String text) {
+        return stringToLettersOnly(text, false);
+    }
+
+    public static final String stringToLettersOnly(String text, boolean invert, Character... exceptions) {
+        if (text == null) {
+            return null;
+        }
+        try {
+            String out = "";
+            for (int i = 0; i < text.length(); i++) {
+                if (Character.isLetter(text.charAt(i)) == !invert || contains(exceptions, text.charAt(i))) {
+                    out += text.charAt(i);
+                }
+            }
+            return out;
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public static final boolean isStringLettersOnly(String text) {
+        if (text == null) {
+            return false;
+        }
+        if (text.isEmpty()) {
+            return true;
+        }
+        return text.equals(stringToLettersOnly(text));
+    }
+
+    public static final String stringToDigitsOnly(String text) {
+        return stringToDigitsOnly(text, false);
+    }
+
+    public static final String stringToDigitsOnly(String text, boolean invert, Character... exceptions) {
+        if (text == null) {
+            return null;
+        }
+        try {
+            String out = "";
+            for (int i = 0; i < text.length(); i++) {
+                if (Character.isDigit(text.charAt(i)) == !invert || contains(exceptions, text.charAt(i))) {
+                    out += text.charAt(i);
+                }
+            }
+            return out;
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public static final boolean isStringDigitsOnly(String text) {
+        if (text == null) {
+            return false;
+        }
+        if (text.isEmpty()) {
+            return true;
+        }
+        return text.equals(stringToDigitsOnly(text));
+    }
+
     public static final String advancedFileToString(AdvancedFile file) {
         if (file == null || !file.exists()) {
             return null;

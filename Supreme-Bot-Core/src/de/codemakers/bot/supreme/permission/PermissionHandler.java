@@ -16,6 +16,7 @@ import net.dv8tion.jda.core.entities.PermissionOverride;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 
@@ -34,15 +35,30 @@ public class PermissionHandler {
             return false;
         }
         if (!event.isPrivate()) {
-            for (Role role : event.getGuild().getMember(event.getAuthor()).getRoles()) {
-                final List<PermissionRole> temp = PermissionRole.getPermissionRolesByGuildAndRole(event.getGuild().getId(), role.getId());
-                for (PermissionRole role_ : temp) {
-                    if (temp != null && filter.isPermissionGranted(role_, event.getMember())) {
+            final List<PermissionRole> temp = PermissionRole.getPermissionRolesByGuildAndUser(event.getGuild(), event.getAuthor());
+            if (temp.stream().anyMatch((permissionRole) -> filter.isPermissionGranted(permissionRole, event.getMember()))) {
+                return true;
+            }
+            if (event.getMember().getRoles().stream().map((role) -> PermissionRole.getPermissionRolesByGuildAndRole(event.getGuild().getIdLong(), role.getIdLong())).filter((permissionRoles) -> permissionRoles != null).anyMatch((permissionRoles) -> permissionRoles.stream().anyMatch((permissionRole) -> filter.isPermissionGranted(permissionRole, event.getMember())))) {
+                return true;
+            }
+            /*
+            for (Role role : event.getMember().getRoles()) {
+                final List<PermissionRole> temp_ = PermissionRole.getPermissionRolesByGuildAndRole(event.getGuild().getIdLong(), role.getIdLong());
+                for (PermissionRole role_ : temp_) {
+                    if (temp_ != null && filter.isPermissionGranted(role_, event.getMember())) {
                         return true;
                     }
                 }
             }
-        } else if (Standard.isSuperOwner(event.getAuthor())) {
+            */
+            /*
+            if (event.getGuild().getMember(event.getAuthor()).getRoles().stream().map((role) -> PermissionRole.getPermissionRolesByGuildAndRole(event.getGuild().getIdLong(), role.getIdLong())).filter((temp) -> temp != null).anyMatch((temp) -> (temp.stream().anyMatch((premissionRole) -> filter.isPermissionGranted(premissionRole, event.getMember()))))) {
+                return true;
+            }
+            */
+        }
+        if (Standard.isSuperOwner(event.getAuthor())) {
             return true;
         }
         if (withMessage) {
@@ -58,14 +74,28 @@ public class PermissionHandler {
         if (member == null) {
             return false;
         }
+        final List<PermissionRole> temp = PermissionRole.getPermissionRolesByGuildAndUser(member.getGuild(), member.getUser());
+        if (temp.stream().anyMatch((permissionRole) -> filter.isPermissionGranted(permissionRole, member))) {
+            return true;
+        }
+        if (member.getRoles().stream().map((role) -> PermissionRole.getPermissionRolesByGuildAndRole(member.getGuild().getIdLong(), role.getIdLong())).filter((permissionRoles) -> permissionRoles != null).anyMatch((permissionRoles) -> permissionRoles.stream().anyMatch((permissionRole) -> filter.isPermissionGranted(permissionRole, member)))) {
+            return true;
+        }
+        /*
         for (Role role : member.getRoles()) {
-            final List<PermissionRole> temp = PermissionRole.getPermissionRolesByGuildAndRole(member.getGuild().getId(), role.getId());
-            for (PermissionRole role_ : temp) {
-                if (temp != null && filter.isPermissionGranted(role_, member)) {
+            final List<PermissionRole> temp_ = PermissionRole.getPermissionRolesByGuildAndRole(member.getGuild().getIdLong(), role.getIdLong());
+            if (temp_ == null) {
+                continue;
+            }
+            for (PermissionRole role_ : temp_) {
+                if (filter.isPermissionGranted(role_, member)) {
                     return true;
                 }
             }
         }
+        return false;
+        return member.getRoles().stream().map((role) -> PermissionRole.getPermissionRolesByGuildAndRole(member.getGuild().getIdLong(), role.getIdLong())).filter((temp) -> !(temp == null)).anyMatch((temp) -> (temp.stream().anyMatch((role_) -> filter.isPermissionGranted(role_, member))));
+        */
         return false;
     }
 
@@ -110,17 +140,12 @@ public class PermissionHandler {
             return false;
         }
         for (PermissionOverride po : channel.getRolePermissionOverrides()) {
-            final List<PermissionRole> permissionRoles = PermissionRole.getPermissionRolesByGuildAndRole(guild.getId(), po.getRole().getId());
+            final List<PermissionRole> permissionRoles = PermissionRole.getPermissionRolesByGuildAndRole(guild.getIdLong(), po.getRole().getIdLong());
             if (permissionRoles.isEmpty()) { //TODO Ist das richtig?!!
                 return false;
             }
-            for (PermissionRole permissionRole : permissionRoles) {
-                if (Standard.STANDARD_PERMISSION_ROLE != null && Standard.STANDARD_PERMISSION_ROLE.equals(permissionRole)) {
-                    continue;
-                }
-                if (permissionRole == null || !filter.isPermissionGranted(permissionRole, null)) {
-                    return false;
-                }
+            if (!permissionRoles.stream().filter((permissionRole) -> (Standard.STANDARD_PERMISSION_ROLE == null || !Standard.STANDARD_PERMISSION_ROLE.equals(permissionRole))).noneMatch((permissionRole) -> (permissionRole == null || !filter.isPermissionGranted(permissionRole, null)))) {
+                return false;
             }
         }
         return true;
@@ -266,7 +291,7 @@ public class PermissionHandler {
         }
     }
 
-    public static final boolean loadPermissionsForGuild(AdvancedFile file, String guild_id) {
+    public static final boolean loadPermissionsForGuild(AdvancedFile file, long guild_id) {
         if (file == null) {
             return false;
         }
@@ -278,7 +303,7 @@ public class PermissionHandler {
         }
     }
 
-    public static final boolean loadPermissionsForGuild(String jar_path, String guild_id) {
+    public static final boolean loadPermissionsForGuild(String jar_path, long guild_id) {
         if (jar_path == null) {
             return false;
         }
@@ -293,8 +318,8 @@ public class PermissionHandler {
         }
     }
 
-    public static final boolean loadPermissionsForGuild(InputStream inputStream, String guild_id) {
-        if (inputStream == null || guild_id == null) {
+    public static final boolean loadPermissionsForGuild(InputStream inputStream, long guild_id) {
+        if (inputStream == null) {
             return false;
         }
         try {
@@ -309,15 +334,29 @@ public class PermissionHandler {
                     if (roles_ != null) {
                         roles_.stream().forEach((role) -> {
                             final String permissionRoleID = role.getAttributeValue(Standard.XML_PERMISSIONROLEID);
-                            final String roleID = role.getAttributeValue(Standard.XML_ROLEID);
+                            final Attribute roleid = role.getAttribute(Standard.XML_ROLEID);
                             final PermissionRole permissionRole = PermissionRole.getPermissionRoleByPermissionRoleID(permissionRoleID);
-                            if (permissionRole != null && roleID != null) {
-                                permissionRole.addRoleForGuild(guild_id, roleID);
-                                if (Standard.DEBUG_PERMISSION_HANDLER) {
-                                    System.out.println(String.format("Added Role \"%s\" for Guild \"%s\" to \"%s\"", roleID, guild_id, permissionRole));
+                            if (roleid != null) {
+                                final String roleID = roleid.getValue();
+                                if (permissionRole != null && roleID != null) {
+                                    permissionRole.addRoleForGuild(guild_id, Long.parseLong(roleID));
+                                    if (Standard.DEBUG_PERMISSION_HANDLER) {
+                                        System.out.println(String.format("Added Role \"%s\" for Guild \"%d\" to \"%s\"", roleID, guild_id, permissionRole));
+                                    }
+                                } else {
+                                    System.err.println(String.format("Can't add permissions for Role \"%s\" to \"%s\" (GUILD ID: %d)", roleID, permissionRoleID, guild_id));
                                 }
                             } else {
-                                System.err.println(String.format("Can't add permissions for \"%s\" to \"%s\" (GUILD ID: %s)", permissionRoleID, roleID, guild_id));
+                                final Attribute userid = role.getAttribute(Standard.XML_USERID);
+                                final String userID = userid.getValue();
+                                if (permissionRole != null && userID != null) {
+                                    permissionRole.addUserForGuild(guild_id, Long.parseLong(userID));
+                                    if (Standard.DEBUG_PERMISSION_HANDLER) {
+                                        System.out.println(String.format("Added User \"%s\" for Guild \"%d\" to \"%s\"", userID, guild_id, permissionRole));
+                                    }
+                                } else {
+                                    System.err.println(String.format("Can't add permissions for User \"%s\" to \"%s\" (GUILD ID: %d)", userID, permissionRoleID, guild_id));
+                                }
                             }
                         });
                     }

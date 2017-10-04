@@ -58,7 +58,7 @@ public class GuildVoiceLogger extends ListenerAdapter {
         if (!LOG_MUTES) {
             return;
         }
-        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_MUTE, "[%1$s] [%2$s] %3$s was #%4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isMuted() ? "muted" : "unmuted"));
+        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_MUTE, "[%1$s] [%2$s] %3$s was %4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isMuted() ? "muted" : "unmuted"));
     }
 
     @Override
@@ -66,17 +66,17 @@ public class GuildVoiceLogger extends ListenerAdapter {
         if (!LOG_DEAFENS) {
             return;
         }
-        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_DEAFEN, "[%1$s] [%2$s] %3$s was #%4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isDeafened() ? "deafened" : "undeafened"));
+        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_DEAFEN, "[%1$s] [%2$s] %3$s was %4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isDeafened() ? "deafened" : "undeafened"));
     }
 
     @Override
     public final void onGuildVoiceGuildMute(GuildVoiceGuildMuteEvent event) {
-        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_GUILD_MUTE, "[%1$s] [%2$s] %3$s was guild #%4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isGuildMuted() ? "muted" : "unmuted"));
+        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_GUILD_MUTE, "[%1$s] [%2$s] %3$s was guild %4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isGuildMuted() ? "muted" : "unmuted"));
     }
 
     @Override
     public final void onGuildVoiceGuildDeafen(GuildVoiceGuildDeafenEvent event) {
-        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_GUILD_DEAFEN, "[%1$s] [%2$s] %3$s was guild #%4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isGuildDeafened() ? "deafened" : "undeafened"));
+        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_GUILD_DEAFEN, "[%1$s] [%2$s] %3$s was guild %4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isGuildDeafened() ? "deafened" : "undeafened"));
     }
 
     @Override
@@ -84,7 +84,7 @@ public class GuildVoiceLogger extends ListenerAdapter {
         if (!LOG_MUTES) {
             return;
         }
-        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_SELF_MUTE, "[%1$s] [%2$s] %3$s was self #%4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isSelfMuted() ? "muted" : "unmuted"));
+        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_SELF_MUTE, "[%1$s] [%2$s] %3$s was self %4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isSelfMuted() ? "muted" : "unmuted"));
     }
 
     @Override
@@ -92,12 +92,12 @@ public class GuildVoiceLogger extends ListenerAdapter {
         if (!LOG_DEAFENS) {
             return;
         }
-        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_SELF_DEAFEN, "[%1$s] [%2$s] %3$s was self #%4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isSelfDeafened() ? "deafened" : "undeafened"));
+        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_SELF_DEAFEN, "[%1$s] [%2$s] %3$s was self %4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isSelfDeafened() ? "deafened" : "undeafened"));
     }
 
     @Override
     public final void onGuildVoiceSuppress(GuildVoiceSuppressEvent event) {
-        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_SUPPRESS, "[%1$s] [%2$s] %3$s was #%4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isSuppressed() ? "suppressed" : "unsuppressed"));
+        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_VOICE, LOG_TEXT_VOICE_SUPPRESS, "[%1$s] [%2$s] %3$s was %4$s", LOG_DATE_TIME_FORMAT, event.getVoiceState().getMember().getAsMention(), (event.isSuppressed() ? "suppressed" : "unsuppressed"));
     }
 
 }

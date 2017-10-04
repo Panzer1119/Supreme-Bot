@@ -16,6 +16,7 @@ public class AdvancedGuild {
 
     private Guild guild = null;
     private String guild_id = null;
+    private long guild_id_long = 0;
     private AdvancedFile folder = null;
     private DefaultSettings settings = null;
     private final HashMap<Object, Object> data = new HashMap<>();
@@ -36,6 +37,9 @@ public class AdvancedGuild {
 
     public AdvancedGuild(String guild_id) {
         this.guild_id = guild_id;
+        if (guild_id != null && !guild_id.isEmpty()) {
+            this.guild_id_long = Long.parseLong(guild_id);
+        }
     }
 
     public AdvancedGuild(AdvancedFile folder) {
@@ -104,6 +108,13 @@ public class AdvancedGuild {
             guild_id = getGuild().getId();
         }
         return guild_id;
+    }
+
+    public final long getGuildIdLong() {
+        if (guild_id_long == 0 && guild != null) {
+            guild_id_long = getGuild().getIdLong();
+        }
+        return guild_id_long;
     }
 
     public final AdvancedFile getPermissionsFile() {
