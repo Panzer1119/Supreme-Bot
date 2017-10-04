@@ -22,6 +22,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.StopCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.TempBanCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.UploadFileCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.BackupCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.util.GetLogCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.XMLEditorCommand;
 import de.codemakers.bot.supreme.commands.impl.secret.PasteServerCommand;
 import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
@@ -115,6 +116,7 @@ public class SupremeBot {
             new UploadFileCommand();
             //Util Commands
             new BackupCommand();
+            new GetLogCommand();
             new XMLEditorCommand();
             //Secret Commands
             new PasteServerCommand();

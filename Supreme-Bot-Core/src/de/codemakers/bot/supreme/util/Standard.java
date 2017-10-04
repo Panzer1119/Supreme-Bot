@@ -104,6 +104,7 @@ public class Standard {
     public static final String STANDARD_LOG_FILE_FORMAT = "log_%s.txt";
     public static final String STANDARD_LOG_FILE_NAME = "log.txt";
     public static final AdvancedFile STANDARD_LOG_FOLDER = getFile(STANDARD_LOGS_FOLDER_NAME);
+    public static final AdvancedFile CURRENT_LOG_FILE = Standard.createCurrentLogFile();
 
     public static final String STANDARD_RECORDINGS_FOLDER_NAME = "recordings";
     public static final AdvancedFile STANDARD_RECORDINGS_FOLE = getFile(STANDARD_RECORDINGS_FOLDER_NAME);
@@ -123,7 +124,7 @@ public class Standard {
     public static final String XML_ROLE = "role";
     public static final String XML_ROLEID = "roleid";
     public static final String XML_USERID = "userid";
-    
+
     public static final String STANDARD_METHOD_NAME_NEW_INSTANCE = "newInstance";
 
     public static final ArrayList<Runnable> SHUTDOWNHOOKS = new ArrayList<>();
@@ -281,8 +282,12 @@ public class Standard {
         return new AdvancedFile(STANDARD_DATA_FOLDER, fileName);
     }
 
-    public static final AdvancedFile createLogFile() {
-        return new AdvancedFile(STANDARD_LOG_FOLDER, String.format(STANDARD_LOG_FILE_FORMAT, LocalDateTime.now().format(STANDARD_DATE_TIME_FILE_FORMATTER)));
+    public static final AdvancedFile createCurrentLogFile() {
+        return getLogFile(String.format(STANDARD_LOG_FILE_FORMAT, LocalDateTime.now().format(STANDARD_DATE_TIME_FILE_FORMATTER)));
+    }
+
+    public static final AdvancedFile getLogFile(String name) {
+        return new AdvancedFile(STANDARD_LOG_FOLDER, name);
     }
 
     public static final Pattern getTimePattern() {
@@ -1055,6 +1060,7 @@ public class Standard {
     public static final Argument ARGUMENT_GET = new Argument("get", STANDARD_ARGUMENT_PREFIXES, "g");
     public static final Argument ARGUMENT_REMOVE = new Argument("remove", STANDARD_ARGUMENT_PREFIXES, "r");
     public static final Argument ARGUMENT_LIST = new Argument("list", STANDARD_ARGUMENT_PREFIXES, "l");
+    public static final Argument ARGUMENT_DOWNLOAD = new Argument("download", STANDARD_ARGUMENT_PREFIXES, "dl");
     public static final Argument ARGUMENT_DEFAULT = new Argument("default", STANDARD_ARGUMENT_PREFIXES, "df");
     public static final Argument ARGUMENT_PERMISSIONS = new Argument("permissions", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_OVERRIDE = new Argument("override", STANDARD_ARGUMENT_PREFIXES, "o");

@@ -15,8 +15,6 @@ import java.util.Locale;
  */
 public class SystemOutputStream extends PrintStream {
 
-    public static final AdvancedFile file_log = Standard.createLogFile();
-
     private final boolean error;
 
     public SystemOutputStream(OutputStream out, boolean error) {
@@ -155,16 +153,16 @@ public class SystemOutputStream extends PrintStream {
         final String msg = String.format("[%s]: %s", LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), g);
         String temp = msg + (newLine ? "\n" : "");
         super.print(temp);
-        if (file_log != null) {
-            Standard.addToFile(file_log, temp);
+        if (Standard.CURRENT_LOG_FILE != null) {
+            Standard.addToFile(Standard.CURRENT_LOG_FILE, temp);
         }
         if (error && false) {
             final Exception ex = new Exception();
             for (StackTraceElement e : ex.getStackTrace()) {
                 temp = e + "\n";
                 super.print(temp);
-                if (file_log != null) {
-                    Standard.addToFile(file_log, temp);
+                if (Standard.CURRENT_LOG_FILE != null) {
+                    Standard.addToFile(Standard.CURRENT_LOG_FILE, temp);
                 }
             }
         }

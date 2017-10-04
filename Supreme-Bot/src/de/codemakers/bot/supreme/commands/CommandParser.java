@@ -53,8 +53,8 @@ public class CommandParser {
                 default:
                     return null;
             }
-            final String beheaded = content.replaceFirst(commandPrefix, "").trim();
-            final String beheaded_raw = content_raw.replaceFirst(commandPrefix_raw, "").trim();
+            final String beheaded = content.substring(commandPrefix.length()).trim();
+            final String beheaded_raw = content_raw.substring(commandPrefix_raw.length()).trim();
             final String beheaded_corrected = beheaded.replace("\\", "\\\\");
             final String beheaded_corrected_raw = beheaded_raw.replace("\\", "\\\\");
             final String[] beheaded_split = getArguments(beheaded_corrected);
