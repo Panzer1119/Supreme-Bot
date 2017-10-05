@@ -5,6 +5,8 @@ import de.codemakers.bot.supreme.util.updater.Updateable;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
@@ -16,7 +18,7 @@ import net.dv8tion.jda.core.entities.User;
  */
 public abstract class MessageManager { //TODO Add permission control for reactions!
 
-    private static final ArrayList<MessageManager> MESSAGE_MANAGER = new ArrayList<>();
+    private static final Queue<MessageManager> MESSAGE_MANAGER = new ConcurrentLinkedQueue<>();
     private static final Updateable MESSAGE_MANAGER_UPDATER = new Updateable() {
         @Override
         public long update(long timestamp) {
@@ -32,7 +34,6 @@ public abstract class MessageManager { //TODO Add permission control for reactio
             MESSAGE_MANAGER.stream().forEach((messageManager) -> messageManager.delete());
         }
     };
-    private static boolean UPDATING = false;
 
     private final boolean fireOnEveryUser;
     protected final Message message_first;
@@ -120,12 +121,6 @@ public abstract class MessageManager { //TODO Add permission control for reactio
     }
 
     public final boolean deleteThis() {
-        while (UPDATING) {
-            try {
-                Thread.sleep(1);
-            } catch (Exception ex) {
-            }
-        }
         try {
             delete();
         } catch (Exception ex) {
@@ -156,16 +151,13 @@ public abstract class MessageManager { //TODO Add permission control for reactio
     public abstract void delete();
 
     public static final boolean updateAll() {
-        UPDATING = true;
         try {
             MESSAGE_MANAGER.stream().forEach((messageManager) -> {
                 messageManager.updateThis();
             });
-            UPDATING = false;
             return true;
         } catch (Exception ex) {
             ex.printStackTrace();
-            UPDATING = false;
             return false;
         }
     }

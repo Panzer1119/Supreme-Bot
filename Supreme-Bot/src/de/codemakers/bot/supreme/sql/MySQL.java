@@ -1,7 +1,7 @@
 package de.codemakers.bot.supreme.sql;
 
 import de.codemakers.bot.supreme.util.Standard;
-import de.codemakers.bot.supreme.util.ThreadUtil;
+import de.codemakers.bot.supreme.util.updater.Updater;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -44,7 +44,7 @@ public class MySQL {
             System.err.println("MySQL: Already initiating");
             return null;
         }
-        return ThreadUtil.execute(() -> {
+        return Updater.execute(() -> {
             try {
                 initiating = true;
                 STANDARD_DATABASE.close();

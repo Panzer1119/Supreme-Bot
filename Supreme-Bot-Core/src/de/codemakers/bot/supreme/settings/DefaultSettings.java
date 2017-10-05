@@ -22,6 +22,7 @@ public class DefaultSettings extends Settings implements Copyable {
     private final Properties settings;
     private AdvancedFile file = null;
     private boolean autoAddProperties = false;
+    private boolean autoAutoAddProperties = false;
 
     public DefaultSettings() {
         this(null);
@@ -49,13 +50,19 @@ public class DefaultSettings extends Settings implements Copyable {
             final String value = settings.getProperty(key);
             if (value == null) {
                 if (autoAddProperties) {
+                    if (autoAutoAddProperties) {
+                        autoAddProperties = false;
+                    }
                     setProperty(key, defaultValue, true);
                 }
+                autoAutoAddProperties = false;
                 return defaultValue;
             } else {
+                autoAutoAddProperties = false;
                 return value;
             }
         } catch (Exception ex) {
+            autoAutoAddProperties = false;
             return defaultValue;
         }
     }
@@ -343,6 +350,13 @@ public class DefaultSettings extends Settings implements Copyable {
 
     public final SimpleSettings toSimpleSettings() {
         return new SimpleSettings(this);
+    }
+
+    @Override
+    public final DefaultSettings asAutoAdd() {
+        autoAddProperties = true;
+        autoAutoAddProperties = true;
+        return this;
     }
 
 }

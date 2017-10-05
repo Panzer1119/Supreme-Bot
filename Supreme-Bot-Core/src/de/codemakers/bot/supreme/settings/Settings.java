@@ -74,6 +74,8 @@ public abstract class Settings {
 
     public abstract EmbedBuilder toEmbed(EmbedBuilder builder);
 
+    public abstract Settings asAutoAdd();
+
     protected abstract String generateComment();
 
 }

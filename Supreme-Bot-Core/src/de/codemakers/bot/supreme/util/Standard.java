@@ -50,6 +50,7 @@ public class Standard {
     public static final String COMMAND_DELIMITER_STRING = " ";
     public static final String STANDARD_NUMBER_SEPARATOR = ":";
     public static final String STANDARD_ARRAY_SEPARATOR = ";";
+    public static final String TAB = "  ";
     public static final String STANDARD_DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
     public static final DateTimeFormatter STANDARD_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(STANDARD_DATE_TIME_FORMAT);
     public static final String STANDARD_DATE_TIME_FILE_FORMAT = "yyyy.MM.dd_HH.mm.ss";
@@ -134,7 +135,7 @@ public class Standard {
     static {
         SHUTDOWNHOOKS.add(() -> {
             Util.killAndFireAllTimerTask();
-            Updater.kill(1, TimeUnit.MINUTES);
+            Updater.kill(10, TimeUnit.SECONDS);
         });
     }
 

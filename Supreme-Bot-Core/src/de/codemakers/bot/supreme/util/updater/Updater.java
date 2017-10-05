@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
  */
 public class Updater {
 
-    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(5);
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
     private static final HashMap<Updateable, UpdateTime> UPDATEABLES = new HashMap<>();
     private static final Timer TIMER = new Timer();
     private static final TimerTask TASK = new TimerTask() {
@@ -136,6 +137,13 @@ public class Updater {
             ex.printStackTrace();
             return false;
         }
+    }
+
+    public static final Future<?> execute(Runnable run) {
+        if (run == null) {
+            return null;
+        }
+        return EXECUTOR.submit(run);
     }
 
 }

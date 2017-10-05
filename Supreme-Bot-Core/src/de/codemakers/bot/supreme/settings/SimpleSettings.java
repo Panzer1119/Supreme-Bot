@@ -175,4 +175,9 @@ public class SimpleSettings extends Settings {
         return null;
     }
 
+    @Override
+    public Settings asAutoAdd() {
+        return null;
+    }
+
 }

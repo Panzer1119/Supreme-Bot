@@ -5,11 +5,15 @@ import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
+import de.codemakers.bot.supreme.entities.DeleteMessageManager;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
-import java.awt.Color;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 
@@ -19,6 +23,9 @@ import net.dv8tion.jda.core.EmbedBuilder;
  * @author Panzer1119
  */
 public class GetLogCommand extends Command {
+
+    public static final String LOG_PREFIX = "log_";
+    public static final String LOG_SUFFIX = ".txt";
 
     @Override
     public void initInvokers() {
@@ -53,8 +60,44 @@ public class GetLogCommand extends Command {
         final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         //final boolean download = arguments.isConsumed(Standard.ARGUMENT_DOWNLOAD, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         if (list) { //-list
-            final String list_logs = Standard.STANDARD_LOG_FOLDER.listAdvancedFiles((parent, name) -> (name != null && name.startsWith("log_") && name.endsWith(".txt"))).stream().map((advancedFile) -> (/*download ? Standard.embedLink(advancedFile.getName(), event.getTextChannel().sendFile(advancedFile.toByteArray(), advancedFile.getName(), null).complete().getAttachments().get(0).getUrl()) : */advancedFile.getName())).collect(Collectors.joining("\n"));
-            event.sendMessage(4 * Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.YELLOW, null).addField("Logs:", list_logs, false).build());
+            //final String list_logs = Standard.STANDARD_LOG_FOLDER.listAdvancedFiles((parent, name) -> (name != null && name.startsWith(LOG_PREFIX) && name.endsWith(LOG_SUFFIX))).stream().map((advancedFile) -> advancedFile.toFile()).map((advancedFile) -> (/*download ? Standard.embedLink(advancedFile.getName(), event.getTextChannel().sendFile(advancedFile.toByteArray(), advancedFile.getName(), null).complete().getAttachments().get(0).getUrl()) : */advancedFile.getName())).collect(Collectors.joining("\n"));
+            final int log_file_show_count = Standard.STANDARD_SETTINGS.asAutoAdd().getProperty("log_file_show_count", 25);
+            List<AdvancedFile> files = Standard.STANDARD_LOG_FOLDER.listAdvancedFiles((parent, name) -> (name != null && name.startsWith(LOG_PREFIX) && name.endsWith(".txt")));
+            files = files.stream().skip(files.size() - log_file_show_count).collect(Collectors.toList());
+            final Map<String, Map<String, Map<String, List<AdvancedFile>>>> years = new HashMap<>();
+            files.stream().forEach((advancedFile) -> {
+                final String name = advancedFile.getName();
+                final String year = name.substring(LOG_PREFIX.length(), LOG_PREFIX.length() + 4);
+                final String month = name.substring(LOG_PREFIX.length() + 5, LOG_PREFIX.length() + 7);
+                final String day = name.substring(LOG_PREFIX.length() + 8, LOG_PREFIX.length() + 10);
+                years.computeIfAbsent(year, (key) -> new HashMap<>());
+                years.get(year).computeIfAbsent(month, (key) -> new HashMap<>());
+                years.get(year).get(month).computeIfAbsent(day, (key) -> new ArrayList<>());
+                years.get(year).get(month).get(day).add(advancedFile);
+            });
+            final StringBuilder out = new StringBuilder();
+            out.append(Standard.toUnderlineBold(String.format("Logs (last %d):", log_file_show_count))).append("\n").append("\n");
+            for (String year : years.keySet()) {
+                out.append(Standard.toBold(Standard.toUnderline("YEAR:") + " " + year)).append("\n");
+                final Map<String, Map<String, List<AdvancedFile>>> months = years.get(year);
+                for (String month : months.keySet()) {
+                    out.append(Standard.TAB).append(Standard.TAB).append(Standard.toBold(Standard.toUnderline("MONTH:") + " " + month)).append("\n");
+                    final Map<String, List<AdvancedFile>> days = months.get(month);
+                    days.keySet().stream().map((day) -> {
+                        out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.toBold(Standard.toUnderline("DAY:") + " " + day)).append("\n");
+                        return day;
+                    }).map((day) -> days.get(day)).forEach((logs) -> {
+                        logs.stream().forEach((advancedFile) -> out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(advancedFile.getName()).append("\n"));
+                    });
+                }
+            }
+            /*
+            final Map<String, List<AdvancedFile>> years = Standard.STANDARD_LOG_FOLDER.listAdvancedFiles((parent, name) -> (name != null && name.startsWith(LOG_PREFIX) && name.endsWith(LOG_SUFFIX))).stream().collect(Collectors.groupingBy((advancedFile) -> advancedFile.getName().substring(LOG_PREFIX.length(), LOG_PREFIX.length() + 4)));
+            System.err.println(years.toString());
+            final Map<String, Map<String, List<AdvancedFile>>> years_months = null;
+            System.err.println(years.keySet().stream().map((year) -> years.get(year)).map((advancedFiles) -> advancedFiles.stream().collect(Collectors.groupingBy((advancedFile) -> advancedFile.getName().substring(LOG_PREFIX.length() + 5, LOG_PREFIX.length() + 7)))).collect(Collectors.groupingBy((year) -> year)));
+             */
+            DeleteMessageManager.monitor(event.sendAndWaitMessage(out.toString()));
         } else {
             String log = "";
             if (arguments.isEmpty()) {
@@ -76,7 +119,7 @@ public class GetLogCommand extends Command {
                 event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "the log file \"%s\" can't be read!", log).build());
                 return;
             }
-            event.sendFile(4 * Standard.STANDARD_MESSAGE_DELETING_DELAY, buffer, log, null);
+            DeleteMessageManager.monitor(event.sendAndWaitFile(buffer, log, null));
         }
     }
 
