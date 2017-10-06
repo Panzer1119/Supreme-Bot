@@ -154,7 +154,7 @@ public class SystemOutputStream extends PrintStream {
         String temp = msg + (newLine ? "\n" : "");
         super.print(temp);
         if (Standard.CURRENT_LOG_FILE != null) {
-            Standard.addToFile(Standard.CURRENT_LOG_FILE, temp);
+            Standard.addToFile(Standard.CURRENT_LOG_FILE, temp, true, false);
         }
         if (error && false) {
             final Exception ex = new Exception();
@@ -162,7 +162,7 @@ public class SystemOutputStream extends PrintStream {
                 temp = e + "\n";
                 super.print(temp);
                 if (Standard.CURRENT_LOG_FILE != null) {
-                    Standard.addToFile(Standard.CURRENT_LOG_FILE, temp);
+                    Standard.addToFile(Standard.CURRENT_LOG_FILE, temp, true, false);
                 }
             }
         }
