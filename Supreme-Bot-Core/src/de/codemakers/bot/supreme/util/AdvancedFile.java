@@ -122,6 +122,7 @@ public class AdvancedFile {
     }
 
     public final AdvancedFile copyFrom(AdvancedFile advancedFile) {
+        this.paths.clear();
         this.file = advancedFile.file;
         this.folder = advancedFile.folder;
         this.path = advancedFile.path;
@@ -218,6 +219,7 @@ public class AdvancedFile {
         paths_new.addAll(this.paths);
         this.paths.clear();
         this.paths.addAll(paths_new);
+        paths_new.clear();
         return this;
     }
 
