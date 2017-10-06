@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
  */
 public class Updater {
 
-    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+    private static final int THREAD_POOL_SIZE = Math.max(2, Runtime.getRuntime().availableProcessors());
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
     private static final HashMap<Updateable, UpdateTime> UPDATEABLES = new HashMap<>();
     private static final Timer TIMER = new Timer();
     private static final TimerTask TASK = new TimerTask() {
@@ -34,6 +35,7 @@ public class Updater {
     };
 
     static {
+        System.out.println(String.format("Updater: created a FixedThreadPool with size = %d", THREAD_POOL_SIZE));
         TIMER.scheduleAtFixedRate(TASK, 0, 100);
     }
 

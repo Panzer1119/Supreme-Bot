@@ -1,11 +1,13 @@
 package de.codemakers.bot.supreme.sql;
 
 import de.codemakers.bot.supreme.util.Copyable;
+import de.codemakers.bot.supreme.util.updater.Updater;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.concurrent.Future;
 
 /**
  * Database
@@ -14,7 +16,8 @@ import java.util.Arrays;
  */
 public class Database implements Copyable {
 
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
+    public static final boolean DEBUG_SQL = false;
     public static final String SPLITTER = ";";
 
     private String hostname;
@@ -103,15 +106,22 @@ public class Database implements Copyable {
         return connection != null;
     }
 
-    public final boolean connect() {
-        try {
-            setConnection(MySQL.connect(hostname, database, username, password));
-            return isConnected();
-        } catch (Exception ex) {
-            System.err.println("Database: Connection error");
-            ex.printStackTrace();
-            return false;
-        }
+    public final Future<?> connect() {
+        return Updater.execute(() -> {
+            try {
+                final int id = (int) (Math.random() * 1_000_000);
+                if (DEBUG) {
+                    System.out.println(String.format("MySQL (%d): trying to connect to \"%s\" at database \"%s\" with username \"%s\"", id, hostname, database, username));
+                }
+                setConnection(MySQL.connect(hostname, database, username, password));
+                if (DEBUG) {
+                    System.out.println(String.format("MySQL (%d): connection established: %b", id, isConnected()));
+                }
+            } catch (Exception ex) {
+                System.err.println("Database: Connection error");
+                ex.printStackTrace();
+            }
+        });
     }
 
     public final Statement createStatement() {
@@ -133,7 +143,7 @@ public class Database implements Copyable {
         }
         try {
             String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
-            if (DEBUG) {
+            if (DEBUG_SQL) {
                 System.out.println(temp);
             }
             return connection.prepareStatement(temp);
@@ -150,7 +160,7 @@ public class Database implements Copyable {
         }
         try {
             String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
-            if (DEBUG) {
+            if (DEBUG_SQL) {
                 System.out.println(temp);
             }
             final Statement statement = createStatement();
@@ -170,7 +180,7 @@ public class Database implements Copyable {
         }
         try {
             String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
-            if (DEBUG) {
+            if (DEBUG_SQL) {
                 System.out.println(temp);
             }
             final Statement statement = createStatement();
@@ -189,7 +199,7 @@ public class Database implements Copyable {
         }
         try {
             String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
-            if (DEBUG) {
+            if (DEBUG_SQL) {
                 System.out.println(temp);
             }
             final Statement statement = createStatement();
@@ -209,7 +219,7 @@ public class Database implements Copyable {
         }
         try {
             String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
-            if (DEBUG) {
+            if (DEBUG_SQL) {
                 System.out.println(temp);
             }
             final Statement statement = createStatement();

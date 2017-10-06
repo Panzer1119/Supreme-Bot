@@ -980,8 +980,8 @@ public class AdvancedFile {
      * @param consumer Consumer
      * @return A reference to this AdvancedFile
      */
-    public final AdvancedFile forEachChild(AdvancedFileFilter filter, Consumer<AdvancedFile> consumer) {
-        listAdvancedFiles(filter).stream().forEach(consumer);
+    public final AdvancedFile forEachChild(AdvancedFileFilter advancedFileFilter, Consumer<AdvancedFile> consumer) {
+        listAdvancedFiles(advancedFileFilter).stream().forEach(consumer);
         return this;
     }
 
@@ -994,8 +994,8 @@ public class AdvancedFile {
      * @param consumer Consumer
      * @return A reference to this AdvancedFile
      */
-    public final AdvancedFile forEachChild(AdvancedFileFilter filter, boolean recursiv, Consumer<AdvancedFile> consumer) {
-        listAdvancedFiles(filter, recursiv).stream().forEach(consumer);
+    public final AdvancedFile forEachChild(AdvancedFileFilter advancedFileFilter, boolean recursiv, Consumer<AdvancedFile> consumer) {
+        listAdvancedFiles(advancedFileFilter, recursiv).stream().forEach(consumer);
         return this;
     }
 
