@@ -77,26 +77,20 @@ public class GetLogCommand extends Command {
             });
             final StringBuilder out = new StringBuilder();
             out.append(Standard.toUnderlineBold(String.format("Logs (last %d):", log_file_show_count))).append("\n").append("\n");
-            for (String year : years.keySet()) {
+            years.keySet().stream().map((year) -> {
                 out.append(Standard.toBold(Standard.toUnderline("YEAR:") + " " + year)).append("\n");
-                final Map<String, Map<String, List<AdvancedFile>>> months = years.get(year);
-                for (String month : months.keySet()) {
+                return year;
+            }).map((year) -> years.get(year)).forEach((months) -> {
+                months.keySet().stream().map((month) -> {
                     out.append(Standard.TAB).append(Standard.TAB).append(Standard.toBold(Standard.toUnderline("MONTH:") + " " + month)).append("\n");
-                    final Map<String, List<AdvancedFile>> days = months.get(month);
+                    return month;
+                }).map((month) -> months.get(month)).forEach((days) -> {
                     days.keySet().stream().map((day) -> {
                         out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.toBold(Standard.toUnderline("DAY:") + " " + day)).append("\n");
                         return day;
-                    }).map((day) -> days.get(day)).forEach((logs) -> {
-                        logs.stream().forEach((advancedFile) -> out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(advancedFile.getName()).append("\n"));
-                    });
-                }
-            }
-            /*
-            final Map<String, List<AdvancedFile>> years = Standard.STANDARD_LOG_FOLDER.listAdvancedFiles((parent, name) -> (name != null && name.startsWith(LOG_PREFIX) && name.endsWith(LOG_SUFFIX))).stream().collect(Collectors.groupingBy((advancedFile) -> advancedFile.getName().substring(LOG_PREFIX.length(), LOG_PREFIX.length() + 4)));
-            System.err.println(years.toString());
-            final Map<String, Map<String, List<AdvancedFile>>> years_months = null;
-            System.err.println(years.keySet().stream().map((year) -> years.get(year)).map((advancedFiles) -> advancedFiles.stream().collect(Collectors.groupingBy((advancedFile) -> advancedFile.getName().substring(LOG_PREFIX.length() + 5, LOG_PREFIX.length() + 7)))).collect(Collectors.groupingBy((year) -> year)));
-             */
+                    }).map((day) -> days.get(day)).forEach((logs) -> logs.stream().forEach((advancedFile) -> out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(advancedFile.getName()).append("\n")));
+                });
+            });
             DeleteMessageManager.monitor(event.sendAndWaitMessage(out.toString()));
         } else {
             String log = "";
