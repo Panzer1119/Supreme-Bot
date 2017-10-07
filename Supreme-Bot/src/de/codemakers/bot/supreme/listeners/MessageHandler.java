@@ -5,6 +5,8 @@ import de.codemakers.bot.supreme.commands.CommandParser;
 import de.codemakers.bot.supreme.commands.CommandType;
 import de.codemakers.bot.supreme.entities.DefaultMessageEvent;
 import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.updater.Updater;
 import java.util.List;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message.Attachment;
@@ -29,43 +31,42 @@ public class MessageHandler extends ListenerAdapter {
 
     @Override
     public final void onMessageReceived(MessageReceivedEvent event_received) {
-        if (event_received == null) {
+        if (event_received == null || event_received.getAuthor().getIdLong() == Standard.getSelfUser().getIdLong()) {
             return;
         }
-        final MessageEvent event = new DefaultMessageEvent(event_received.getJDA(), event_received.getResponseNumber(), event_received.getMessage());
-        try {
-            if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
-                return;
-            }
-            final String content_raw = event.getMessage().getRawContent().trim();
-            final String content = event.getMessage().getContent().trim();
-            final Guild guild = event.getGuild();
-            final CommandType commandType = CommandType.getCommandType(content, content_raw, event);
-            if (commandType.isCommand()) {
-                CommandHandler.handleCommand(CommandParser.parser(commandType, content, content_raw, event));
-            }
-            final Object[] output = ListenerManager.fireListeners(MessageListener.class, CommandHandler.ADMIN_PREDICATE, new Object[]{event, MessageType.RECEIVED});
-            if (output.length > 0) {
-                System.out.println(String.format("%d plugin%s used this message:", output.length, (output.length == 1 ? "" : "s")));
-            }
-            final List<Attachment> attachments = event.getMessage().getAttachments();
-            if (attachments == null || attachments.isEmpty()) {
-                System.out.println(String.format("[%s] [%s] %s: %s", (guild != null ? guild.getName() : "PRIVATE"), event.getMessageChannel().getName(), event.getAuthor().getName(), content));
-            } else {
-                String text = "";
-                for (Attachment attachment : attachments) {
-                    text += "\n";
-                    if (attachment.isImage()) {
-                        text += String.format("+IMAGE: \"%s\" (ID: %s) (PROXYURL: %s) (W: %d, H: %d)", attachment.getFileName(), attachment.getId(), attachment.getProxyUrl(), attachment.getWidth(), attachment.getHeight());
-                    } else {
-                        text += String.format("+FILE: \"%s\" (ID: %s) (URL: %s)", attachment.getFileName(), attachment.getId(), attachment.getUrl());
-                    }
+        Updater.execute(() -> {
+            try {
+                final MessageEvent event = new DefaultMessageEvent(event_received.getJDA(), event_received.getResponseNumber(), event_received.getMessage());
+                final String content_raw = event.getMessage().getRawContent().trim();
+                final String content = event.getMessage().getContent().trim();
+                final Guild guild = event.getGuild();
+                final CommandType commandType = CommandType.getCommandType(content, content_raw, event);
+                if (commandType.isCommand()) {
+                    CommandHandler.handleCommand(CommandParser.parser(commandType, content, content_raw, event));
                 }
-                System.out.println(String.format("[%s] [%s] %s: %s%s", event.getGuild().getName(), event.getMessageChannel().getName(), event.getAuthor().getName(), content, text));
+                final Object[] output = ListenerManager.fireListeners(MessageListener.class, CommandHandler.ADMIN_PREDICATE, new Object[]{event, MessageType.RECEIVED});
+                if (output.length > 0) {
+                    System.out.println(String.format("%d plugin%s used this message:", output.length, (output.length == 1 ? "" : "s")));
+                }
+                final List<Attachment> attachments = event.getMessage().getAttachments();
+                if (attachments == null || attachments.isEmpty()) {
+                    System.out.println(String.format("[%s] [%s] %s: %s", (guild != null ? guild.getName() : "PRIVATE"), event.getMessageChannel().getName(), event.getAuthor().getName(), content));
+                } else {
+                    String text = "";
+                    for (Attachment attachment : attachments) {
+                        text += "\n";
+                        if (attachment.isImage()) {
+                            text += String.format("+IMAGE: \"%s\" (ID: %s) (PROXYURL: %s) (W: %d, H: %d)", attachment.getFileName(), attachment.getId(), attachment.getProxyUrl(), attachment.getWidth(), attachment.getHeight());
+                        } else {
+                            text += String.format("+FILE: \"%s\" (ID: %s) (URL: %s)", attachment.getFileName(), attachment.getId(), attachment.getUrl());
+                        }
+                    }
+                    System.out.println(String.format("[%s] [%s] %s: %s%s", event.getGuild().getName(), event.getMessageChannel().getName(), event.getAuthor().getName(), content, text));
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        });
     }
 
     @Override

@@ -37,7 +37,6 @@ public class GuildBotRoleData {
 
     protected static final Queue<GuildBotRoleData> reloadData() {
         final ArrayList<GuildBotRoleData> data = SQLUtil.deserializeObjects(GuildBotRoleData.class);
-        System.err.println("LOADED DATA: " + data);
         if (data != null) {
             BOT_ROLE_DATA.clear();
             BOT_ROLE_DATA.addAll(data);
@@ -45,7 +44,7 @@ public class GuildBotRoleData {
         return BOT_ROLE_DATA;
     }
 
-    public static final boolean isRole(long guild_id, long role_id, long botRole_id) {
+    public static final boolean isGranted(long guild_id, long role_id, long botRole_id) {
         return BOT_ROLE_DATA.stream().anyMatch((guildBotRoleData) -> (guildBotRoleData.guild_id == guild_id && guildBotRoleData.role_id == role_id && guildBotRoleData.botRole_id == botRole_id));
     }
 

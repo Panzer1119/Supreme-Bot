@@ -4,7 +4,10 @@ import de.codemakers.bot.supreme.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.core.entities.User;
 
 /**
  * GlobalBotRole
@@ -12,11 +15,11 @@ import java.util.stream.Collectors;
  * @author Panzer1119
  */
 public enum GlobalBotRole {
-    OWNER("Owner", 3),
-    ADMIN("Admin", 2),
-    VIP("VIP", 1),
-    USER("User", 0),
-    NOBODY("Nobody", -1);
+    OWNER("Owner", 3, (user) -> GlobalBotRoleData.isGranted(user.getIdLong(), 3)),
+    ADMIN("Admin", 2, (user) -> GlobalBotRoleData.isGranted(user.getIdLong(), 2)),
+    VIP("VIP", 1, (user) -> GlobalBotRoleData.isGranted(user.getIdLong(), 1)),
+    USER("User", 0, (user) -> GlobalBotRoleData.isGranted(user.getIdLong(), 0)),
+    NOBODY("Nobody", -1, (user) -> GlobalBotRoleData.BOT_ROLE_DATA.stream().noneMatch((globalBotRoleData) -> globalBotRoleData.user_id == user.getIdLong()));
 
     public static final GlobalBotRole STANDARD = NOBODY;
 
@@ -27,7 +30,8 @@ public enum GlobalBotRole {
     }
 
     private final String name;
-    private final int id;
+    private final long id;
+    private final Predicate<User> detect;
     private final ArrayList<GlobalBotRole> inherits = new ArrayList<GlobalBotRole>() {
         @Override
         public boolean addAll(Collection<? extends GlobalBotRole> c) {
@@ -38,16 +42,17 @@ public enum GlobalBotRole {
         }
     };
 
-    private GlobalBotRole(String name, int id) {
+    private GlobalBotRole(String name, long id, Predicate<User> detect) {
         this.name = name;
         this.id = id;
+        this.detect = detect;
     }
 
     public final String getName() {
         return name;
     }
 
-    public final int getId() {
+    public final long getId() {
         return id;
     }
 
@@ -66,8 +71,50 @@ public enum GlobalBotRole {
         return inherits.stream().anyMatch((globalBotRole) -> Util.contains(globalBotRoles, globalBotRole));
     }
 
-    public final GlobalBotRole[] getInherits() {
+    public final boolean hasGlobalBotRoles(List<GlobalBotRole> globalBotRoles) {
+        if (globalBotRoles == null || globalBotRoles.isEmpty()) {
+            return false;
+        }
+        if (globalBotRoles.contains(this)) {
+            return true;
+        }
+        return inherits.stream().anyMatch((globalBotRole) -> globalBotRoles.contains(globalBotRole));
+    }
+
+    public final GlobalBotRole[] getInheritsAsArray() {
         return inherits.toArray(new GlobalBotRole[inherits.size()]);
+    }
+
+    public final List<GlobalBotRole> getInherits() {
+        return new ArrayList<>(inherits);
+    }
+
+    public final boolean test(User user) {
+        if (user == null) {
+            return false;
+        }
+        GlobalBotRoleData.reloadData();
+        return detect.test(user);
+    }
+
+    public static final List<GlobalBotRole> getGlobalBotRolesByUser(User user) {
+        if (user == null) {
+            return new ArrayList<>();
+        }
+        GlobalBotRoleData.reloadData();
+        return Arrays.asList(values()).stream().filter((globalBotRole) -> globalBotRole.detect.test(user)).map((globalBotRole) -> {
+            final List<GlobalBotRole> inherits = new ArrayList<>();
+            inherits.add(globalBotRole);
+            inherits.addAll(globalBotRole.getInherits());
+            return inherits;
+        }).flatMap(List::stream).distinct().collect(Collectors.toList());
+    }
+
+    public static final boolean isUserAllowed(User user, GlobalBotRole globalBotRole) {
+        if (user == null || globalBotRole == null) {
+            return false;
+        }
+        return getGlobalBotRolesByUser(user).contains(globalBotRole);
     }
 
 }

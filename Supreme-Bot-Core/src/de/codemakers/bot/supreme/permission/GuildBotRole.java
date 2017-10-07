@@ -19,16 +19,14 @@ import net.dv8tion.jda.core.entities.User;
 public enum GuildBotRole {
     BOT("Bot", 6, (guild, user) -> user.isBot()),
     OWNER("Owner", 5, (guild, user) -> (guild.isMember(user) && guild.getMember(user).isOwner())),
-    ADMIN("Admin", 4, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isRole(guild.getIdLong(), role.getIdLong(), 4)))),
-    BOT_COMMANDER("Bot Commander", 3, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isRole(guild.getIdLong(), role.getIdLong(), 3)))),
-    MODERATOR("Moderator", 2, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isRole(guild.getIdLong(), role.getIdLong(), 2)))),
-    VIP("VIP", 1, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isRole(guild.getIdLong(), role.getIdLong(), 1)))),
-    USER("User", 0, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isRole(guild.getIdLong(), role.getIdLong(), 0)))),
+    ADMIN("Admin", 4, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 4)))),
+    BOT_COMMANDER("Bot Commander", 3, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 3)))),
+    MODERATOR("Moderator", 2, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 2)))),
+    VIP("VIP", 1, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 1)))),
+    USER("User", 0, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 0)))),
     EVERYONE("Everyone", -1, (guild, user) -> guild.isMember(user)),
     NOBODY("Nobody", -2, (guild, user) -> !guild.isMember(user)),
     FAKE("Fake", -3, (guild, user) -> user.isFake());
-
-    public static final GuildBotRole STANDARD = NOBODY;
 
     static {
         OWNER.addInherits(ADMIN, BOT_COMMANDER, MODERATOR, VIP, USER);
@@ -39,7 +37,7 @@ public enum GuildBotRole {
     }
 
     private final String name;
-    private final int id;
+    private final long id;
     private final BiPredicate<Guild, User> detect;
     private final ArrayList<GuildBotRole> inherits = new ArrayList<GuildBotRole>() {
         @Override
@@ -51,7 +49,7 @@ public enum GuildBotRole {
         }
     };
 
-    private GuildBotRole(String name, int id, BiPredicate<Guild, User> detect) {
+    private GuildBotRole(String name, long id, BiPredicate<Guild, User> detect) {
         this.name = name;
         this.id = id;
         this.detect = detect;
@@ -61,7 +59,7 @@ public enum GuildBotRole {
         return name;
     }
 
-    public final int getId() {
+    public final long getId() {
         return id;
     }
 
