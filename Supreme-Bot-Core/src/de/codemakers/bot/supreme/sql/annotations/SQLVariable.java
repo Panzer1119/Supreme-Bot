@@ -1,30 +1,20 @@
 package de.codemakers.bot.supreme.sql.annotations;
 
+import de.codemakers.bot.supreme.sql.SQLVariableType;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.sql.JDBCType;
 
 /**
- * SQLField
+ * SQLVariable
  *
  * @author Panzer1119
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface SQLField {
+public @interface SQLVariable {
 
-    int index();
-
-    String column();
-
-    boolean send() default true;
-
-    boolean receive() default true;
-
-    boolean primaryKey() default false;
-
-    JDBCType type();
+    SQLVariableType type();
 
 }

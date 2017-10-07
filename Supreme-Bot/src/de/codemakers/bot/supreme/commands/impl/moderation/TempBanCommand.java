@@ -249,30 +249,7 @@ public class TempBanCommand extends Command {
     private static final boolean updateAgain() {
         try {
             final Instant instant_now = Instant.now();
-            final SQLDeserializer deserializer = new SQLDeserializer() {
-                @Override
-                public final Object deserialize(ResultSet resultSet, Map.Entry<Field, SQLField> field, Object defaultReturn) throws Exception {
-                    if (Instant.class.equals(field.getKey().getType())) {
-                        final Timestamp timestamp = resultSet.getTimestamp(field.getValue().index());
-                        return (timestamp == null ? null : timestamp.toInstant());
-                    } else if (LocalDateTime.class.equals(field.getKey().getType())) {
-                        final Timestamp timestamp = resultSet.getTimestamp(field.getValue().index());
-                        return (timestamp == null ? null : timestamp.toLocalDateTime());
-                    }
-                    return defaultReturn;
-                }
-
-                @Override
-                public final boolean acceptClass(Class<?> clazz) {
-                    return Instant.class.equals(clazz) || LocalDateTime.class.equals(clazz);
-                }
-
-                @Override
-                public boolean acceptField(Map.Entry<Field, SQLField> field) {
-                    return false;
-                }
-            };
-            final ArrayList<TempBan> tempBans = SQLUtil.deserializeObjects(TempBan.class, deserializer);
+            final ArrayList<TempBan> tempBans = SQLUtil.deserializeObjects(TempBan.class, TempBan.DESERIALIZER);
             if (tempBans == null) {
                 return true;
             }
@@ -288,6 +265,7 @@ public class TempBanCommand extends Command {
                     tempBan.ban();
                 }
             });
+            SQLUtil.removeObjects(TempBan.class, MySQL.STANDARD_DATABASE, TempBan.SERIALIZER, tempBans);
             tempBans.clear();
             return true;
         } catch (Exception ex) {

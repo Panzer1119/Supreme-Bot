@@ -3,12 +3,19 @@ package de.codemakers.bot.supreme.sql.entities;
 import de.codemakers.bot.supreme.commands.impl.moderation.TempBanCommand;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.sql.MySQL;
+import de.codemakers.bot.supreme.sql.SQLDeserializer;
+import de.codemakers.bot.supreme.sql.SQLSerializer;
+import de.codemakers.bot.supreme.sql.SQLUtil;
+import de.codemakers.bot.supreme.sql.SQLVariableType;
 import de.codemakers.bot.supreme.sql.annotations.SQLField;
 import de.codemakers.bot.supreme.sql.annotations.SQLTable;
+import de.codemakers.bot.supreme.sql.annotations.SQLVariable;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
+import java.lang.reflect.Field;
 import java.sql.JDBCType;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -16,6 +23,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -34,7 +42,7 @@ public class TempBan {
     private static boolean getting = false;
     public static boolean USING = false;
 
-    @SQLField(index = 1, column = "ID", send = false, type = JDBCType.INTEGER)
+    @SQLField(index = 1, column = "ID", send = false, primaryKey = true, type = JDBCType.INTEGER)
     public int id;
     @SQLField(index = 2, column = "guild_ID", type = JDBCType.BIGINT)
     public long guild_id;
@@ -372,5 +380,53 @@ public class TempBan {
         }
         return getReason(member.getUser());
     }
+
+    @SQLVariable(type = SQLVariableType.SERIALIZER)
+    public static final SQLSerializer SERIALIZER = new SQLSerializer() {
+        @Override
+        public final String serialize(Object object, Map.Entry<Field, SQLField> field, String defaultReturn) throws Exception {
+            if (Instant.class.equals(field.getKey().getType())) {
+                return Timestamp.from((Instant) object).toString();
+            } else if (LocalDateTime.class.equals(field.getKey().getType())) {
+                return Timestamp.valueOf((LocalDateTime) object).toString();
+            }
+            return defaultReturn;
+        }
+
+        @Override
+        public final boolean acceptClass(Class<?> clazz) {
+            return Instant.class.equals(clazz) || LocalDateTime.class.equals(clazz);
+        }
+
+        @Override
+        public boolean acceptField(Map.Entry<Field, SQLField> field) {
+            return false;
+        }
+    };
+
+    @SQLVariable(type = SQLVariableType.DESERIALIZER)
+    public static final SQLDeserializer DESERIALIZER = new SQLDeserializer() {
+        @Override
+        public final Object deserialize(ResultSet resultSet, Map.Entry<Field, SQLField> field, Object defaultReturn) throws Exception {
+            if (Instant.class.equals(field.getKey().getType())) {
+                final Timestamp timestamp = resultSet.getTimestamp(field.getValue().index());
+                return (timestamp == null ? null : timestamp.toInstant());
+            } else if (LocalDateTime.class.equals(field.getKey().getType())) {
+                final Timestamp timestamp = resultSet.getTimestamp(field.getValue().index());
+                return (timestamp == null ? null : timestamp.toLocalDateTime());
+            }
+            return defaultReturn;
+        }
+
+        @Override
+        public final boolean acceptClass(Class<?> clazz) {
+            return Instant.class.equals(clazz) || LocalDateTime.class.equals(clazz);
+        }
+
+        @Override
+        public boolean acceptField(Map.Entry<Field, SQLField> field) {
+            return false;
+        }
+    };
 
 }
