@@ -3,6 +3,7 @@ package de.codemakers.bot.supreme.sql.entities;
 import de.codemakers.bot.supreme.commands.impl.moderation.TempBanCommand;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.sql.MySQL;
+import de.codemakers.bot.supreme.sql.NullBehavior;
 import de.codemakers.bot.supreme.sql.SQLDeserializer;
 import de.codemakers.bot.supreme.sql.SQLSerializer;
 import de.codemakers.bot.supreme.sql.SQLVariableType;
@@ -43,21 +44,21 @@ public class TempBan {
     private static boolean getting = false;
     public static boolean USING = false;
 
-    @SQLField(index = 1, column = "ID", send = false, primaryKey = true, type = JDBCType.INTEGER)
+    @SQLField(index = 1, column = "ID", send = false, nullBehavior = NullBehavior.NOT_NULL, primaryKey = true, extra = " AUTO_INCREMENT", type = JDBCType.INTEGER)
     public int id;
-    @SQLField(index = 2, column = "guild_ID", type = JDBCType.BIGINT)
+    @SQLField(index = 2, column = "guild_ID", nullBehavior = NullBehavior.NULL, type = JDBCType.BIGINT)
     public long guild_id;
-    @SQLField(index = 3, column = "user_ID", type = JDBCType.BIGINT)
+    @SQLField(index = 3, column = "user_ID", nullBehavior = NullBehavior.NOT_NULL, type = JDBCType.BIGINT)
     public long user_id;
-    @SQLField(index = 4, column = "unban_date", type = JDBCType.TIMESTAMP)
+    @SQLField(index = 4, column = "unban_date", nullBehavior = NullBehavior.NULL, defaultValue = "NULL", type = JDBCType.TIMESTAMP)
     public Instant unban_date;
-    @SQLField(index = 5, column = "reason", type = JDBCType.VARCHAR)
+    @SQLField(index = 5, column = "reason", nullBehavior = NullBehavior.NULL, type = JDBCType.VARCHAR)
     public String reason;
-    @SQLField(index = 6, column = "banner_ID", type = JDBCType.BIGINT)
+    @SQLField(index = 6, column = "banner_ID", nullBehavior = NullBehavior.NOT_NULL, type = JDBCType.BIGINT)
     public long banner_id;
-    @SQLField(index = 7, column = "ban_date", type = JDBCType.TIMESTAMP)
+    @SQLField(index = 7, column = "ban_date", nullBehavior = NullBehavior.NOT_NULL, defaultValue = "CURRENT_TIMESTAMP", type = JDBCType.TIMESTAMP)
     public Instant ban_date;
-    @SQLField(index = 8, column = "ban_type", type = JDBCType.TINYINT)
+    @SQLField(index = 8, column = "ban_type", nullBehavior = NullBehavior.NOT_NULL, defaultValue = "1", type = JDBCType.TINYINT)
     public boolean ban_type;
 
     public TempBan() {

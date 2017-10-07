@@ -1,10 +1,9 @@
 package de.codemakers.bot.supreme.permission;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import de.codemakers.bot.supreme.sql.MySQL;
+import de.codemakers.bot.supreme.sql.SQLUtil;
+import de.codemakers.bot.supreme.util.Standard;
+import net.dv8tion.jda.core.entities.Member;
 
 /**
  * BotRole
@@ -13,22 +12,14 @@ import java.util.stream.Collectors;
  */
 public class BotRole {
 
-    public final List<BotRole> getInherits(List<BotRole> inherits, boolean recursiv) {
-        if (!recursiv) {
-            return inherits;
-        }
-        final ArrayList<BotRole> inherits_all = new ArrayList<BotRole>() {
-            @Override
-            public boolean addAll(Collection<? extends BotRole> c) {
-                if (c == null || c.isEmpty()) {
-                    return false;
-                }
-                return super.addAll(c.stream().filter((botRole) -> !contains(botRole)).collect(Collectors.toList()));
-            }
-        };
-        inherits_all.addAll(inherits);
-        inherits.stream().map((inherit) -> inherit.getInherits(inherits, recursiv)).forEach((inherits_) -> inherits_all.addAll(inherits_));
-        return inherits_all;
+    public static final void init() {
+        //System.err.println(SQLUtil.serializeObjects(GuildBotRoleData.class, MySQL.STANDARD_DATABASE, false, new GuildBotRoleData(336876056265097237L, 336877240581095426L, 4, 243444280495046657L)));
+        System.err.println("TEST");
+        //GuildBotRole.BOT.test(null, null);
+        final Member panzer1119 = Standard.getJDA().getGuildById(336876056265097237L).getMemberById(243444280495046657L);
+        System.err.println(panzer1119);
+        System.err.println(GuildBotRole.ADMIN);
+        System.err.println(GuildBotRole.ADMIN.test(panzer1119));
     }
 
 }

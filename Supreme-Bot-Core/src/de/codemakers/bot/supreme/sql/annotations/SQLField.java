@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.sql.annotations;
 
+import de.codemakers.bot.supreme.sql.NullBehavior;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -23,7 +24,13 @@ public @interface SQLField {
 
     boolean receive() default true;
 
+    NullBehavior nullBehavior() default NullBehavior.STANDARD;
+
+    String defaultValue() default "";
+
     boolean primaryKey() default false;
+
+    String extra() default "";
 
     JDBCType type();
 

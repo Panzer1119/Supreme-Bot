@@ -6,6 +6,7 @@ import de.codemakers.bot.supreme.sql.annotations.SQLVariable;
 import de.codemakers.bot.supreme.util.Util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.sql.JDBCType;
 import java.sql.ResultSet;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -68,7 +69,8 @@ public class SQLUtil {
                     }
                     unserializedObjects.add((T) instance);
                 } catch (Exception ex) {
-                    System.err.println(ex);
+                    System.err.println("SQLUtil: unserializeObject error");
+                    ex.printStackTrace();
                 }
             } while (resultSet.next());
             resultSet.close();
@@ -220,12 +222,18 @@ public class SQLUtil {
             return false;
         }
         try {
-            final List<Map.Entry<Field, SQLField>> fields = getFields(clazz, FieldType.of(true, false, forceAll));
-            final String sql_format = String.format("INSERT INTO %s (%s) VALUES (%%s);", table, fields.stream().map((field) -> field.getValue().column()).collect(Collectors.joining(", ")));
+            final List<Map.Entry<Field, SQLField>> fields_all = getFields(clazz, FieldType.ALL);
+            final List<Map.Entry<Field, SQLField>> fields_needed = getFields(clazz, FieldType.of(true, false, forceAll));
+            final String sql_format = String.format("INSERT INTO %s (%s) VALUES (%%s);", table, fields_needed.stream().map((field) -> field.getValue().column()).collect(Collectors.joining(", ")));
             final ArrayList<String> sqls = new ArrayList<>();
+            final String sql_create = String.format("CREATE TABLE IF NOT EXISTS %s (%s, PRIMARY KEY (%s));", table, fields_all.stream().map((field) -> field.getValue()).map((field) -> (String.format("%s %s%s%s%s", field.column(), fromJDBCType(field.type()), field.nullBehavior() == NullBehavior.NOT_NULL ? " NOT NULL" : (field.nullBehavior() == NullBehavior.NULL ? " NULL" : ""), (field.defaultValue().isEmpty() ? "" : " DEFAULT " + field.defaultValue()), field.extra()))).collect(Collectors.joining(", ")), fields_all.stream().map((field) -> field.getValue()).filter((field) -> field.primaryKey()).map((field) -> field.column()).collect(Collectors.joining(", "))); //, field.primaryKey() ? ", PRIMARY KEY(" + field.column() + ")" : ""
+            if (Database.DEBUG_SQL) {
+                System.err.println("SQL TABLE CREATION: " + sql_create);
+            }
+            sqls.add(sql_create);
             objects.stream().forEach((object) -> {
                 try {
-                    final String sql = String.format(sql_format, fields.stream().map((field) -> {
+                    final String sql = String.format(sql_format, fields_needed.stream().map((field) -> {
                         try {
                             String defaultReturn = null;
                             try {
@@ -243,7 +251,7 @@ public class SQLUtil {
                         }
                     }).collect(Collectors.joining(", ")));
                     if (Database.DEBUG_SQL) {
-                        System.err.println("SQL INSERT: " + sql);
+                        System.err.println("SQL INSERTION: " + sql);
                     }
                     sqls.add(sql);
                 } catch (Exception ex) {
@@ -325,7 +333,7 @@ public class SQLUtil {
                         }
                     }).collect(Collectors.toList()).toArray());
                     if (Database.DEBUG_SQL) {
-                        System.err.println("SQL REMOVE: " + sql);
+                        System.err.println("SQL DELETION: " + sql);
                     }
                     sqls.add(sql);
                 } catch (Exception ex) {
@@ -418,6 +426,53 @@ public class SQLUtil {
             System.err.println("SQLUtil: getSQLDeserializer error");
             ex.printStackTrace();
             return null;
+        }
+    }
+
+    public static final String fromJDBCType(JDBCType type) {
+        switch (type) {
+            case VARCHAR:
+                return type.name() + "(255)";
+            case BIT:
+            case TINYINT:
+            case SMALLINT:
+            case INTEGER:
+            case BIGINT:
+            case FLOAT:
+            case REAL:
+            case DOUBLE:
+            case NUMERIC:
+            case DECIMAL:
+            case CHAR:
+            case LONGVARCHAR:
+            case DATE:
+            case TIME:
+            case TIMESTAMP:
+            case BINARY:
+            case VARBINARY:
+            case LONGVARBINARY:
+            case NULL:
+            case OTHER:
+            case JAVA_OBJECT:
+            case DISTINCT:
+            case STRUCT:
+            case ARRAY:
+            case BLOB:
+            case CLOB:
+            case REF:
+            case DATALINK:
+            case BOOLEAN:
+            case ROWID:
+            case NCHAR:
+            case NVARCHAR:
+            case LONGNVARCHAR:
+            case NCLOB:
+            case SQLXML:
+            case REF_CURSOR:
+            case TIME_WITH_TIMEZONE:
+            case TIMESTAMP_WITH_TIMEZONE:
+            default:
+                return type.name();
         }
     }
 

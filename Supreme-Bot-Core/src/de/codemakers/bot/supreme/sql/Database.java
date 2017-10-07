@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.sql;
 
+import de.codemakers.bot.supreme.permission.BotRole;
 import de.codemakers.bot.supreme.sql.annotations.SQLTable;
 import de.codemakers.bot.supreme.util.Copyable;
 import de.codemakers.bot.supreme.util.updater.Updater;
@@ -118,6 +119,7 @@ public class Database implements Copyable {
                 if (DEBUG) {
                     System.out.println(String.format("MySQL (%d): connection established: %b", id, isConnected()));
                 }
+                BotRole.init(); //FIXME REMOVE THOIS
             } catch (Exception ex) {
                 System.err.println("Database: Connection error");
                 ex.printStackTrace();
