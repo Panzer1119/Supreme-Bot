@@ -93,8 +93,33 @@ public class SQLUtil {
     }
 
     public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, boolean forceAll, SQLDeserializer deserializer) {
-        final SQLTable sqlTable = clazz.getAnnotation(SQLTable.class);
-        final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM %s;", sqlTable.name());
+        if (clazz == null || !clazz.isAnnotationPresent(SQLTable.class)) {
+            return null;
+        }
+        try {
+            final SQLTable table = clazz.getAnnotation(SQLTable.class);
+            return deserializeObjects(clazz, forceAll, deserializer, table.name());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+
+    }
+
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, String table) {
+        return deserializeObjects(clazz, getSQLDeserializer(clazz), table);
+    }
+
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, SQLDeserializer deserializer, String table) {
+        return deserializeObjects(clazz, false, deserializer, table);
+    }
+
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, boolean forceAll, String table) {
+        return deserializeObjects(clazz, forceAll, getSQLDeserializer(clazz), table);
+    }
+
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, boolean forceAll, SQLDeserializer deserializer, String table) {
+        final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM %s;", table);
         if (result == null) {
             return null;
         }
@@ -107,10 +132,6 @@ public class SQLUtil {
         return objects;
     }
 
-    public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, T... objects) {
-        return serializeObjects(clazz, database, getSQLSerializer(clazz), objects);
-    }
-
     public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, SQLSerializer serializer, T... objects) {
         return serializeObjects(clazz, database, false, serializer, objects);
     }
@@ -120,7 +141,16 @@ public class SQLUtil {
     }
 
     public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, boolean forceAll, SQLSerializer serializer, T... objects) {
-        return serializeObjects(clazz, database, forceAll, serializer, new ArrayList<>(Arrays.asList(objects)));
+        if (clazz == null || !clazz.isAnnotationPresent(SQLTable.class)) {
+            return false;
+        }
+        try {
+            final SQLTable table = clazz.getAnnotation(SQLTable.class);
+            return serializeObjects(clazz, database, forceAll, serializer, table.name(), objects);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 
     public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, ArrayList<T> objects) {
@@ -128,7 +158,16 @@ public class SQLUtil {
     }
 
     public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, SQLSerializer serializer, ArrayList<T> objects) {
-        return serializeObjects(clazz, database, false, serializer, objects);
+        if (clazz == null || !clazz.isAnnotationPresent(SQLTable.class)) {
+            return false;
+        }
+        try {
+            final SQLTable table = clazz.getAnnotation(SQLTable.class);
+            return serializeObjects(clazz, database, serializer, table.name(), objects);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 
     public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, boolean forceAll, ArrayList<T> objects) {
@@ -136,13 +175,53 @@ public class SQLUtil {
     }
 
     public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, boolean forceAll, SQLSerializer serializer, ArrayList<T> objects) {
-        if (clazz == null || !clazz.isAnnotationPresent(SQLTable.class) || database == null || !database.isConnected() || objects == null || objects.isEmpty()) {
+        if (clazz == null || !clazz.isAnnotationPresent(SQLTable.class)) {
             return false;
         }
         try {
-            final SQLTable sqlTable = clazz.getAnnotation(SQLTable.class);
+            final SQLTable table = clazz.getAnnotation(SQLTable.class);
+            return serializeObjects(clazz, database, forceAll, serializer, table.name(), objects);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, String table, T... objects) {
+        return serializeObjects(clazz, database, getSQLSerializer(clazz), table, objects);
+    }
+
+    public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, SQLSerializer serializer, String table, T... objects) {
+        return serializeObjects(clazz, database, false, serializer, table, objects);
+    }
+
+    public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, boolean forceAll, String table, T... objects) {
+        return serializeObjects(clazz, database, forceAll, getSQLSerializer(clazz), table, objects);
+    }
+
+    public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, boolean forceAll, SQLSerializer serializer, String table, T... objects) {
+        return serializeObjects(clazz, database, forceAll, serializer, table, new ArrayList<>(Arrays.asList(objects)));
+    }
+
+    public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, String table, ArrayList<T> objects) {
+        return serializeObjects(clazz, database, getSQLSerializer(clazz), table, objects);
+    }
+
+    public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, SQLSerializer serializer, String table, ArrayList<T> objects) {
+        return serializeObjects(clazz, database, false, serializer, table, objects);
+    }
+
+    public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, boolean forceAll, String table, ArrayList<T> objects) {
+        return serializeObjects(clazz, database, forceAll, getSQLSerializer(clazz), table, objects);
+    }
+
+    public static final <T> boolean serializeObjects(Class<? extends T> clazz, Database database, boolean forceAll, SQLSerializer serializer, String table, ArrayList<T> objects) {
+        if (clazz == null || database == null || !database.isConnected() || objects == null || objects.isEmpty()) {
+            return false;
+        }
+        try {
             final List<Map.Entry<Field, SQLField>> fields = getFields(clazz, FieldType.of(true, false, forceAll));
-            final String sql_format = String.format("INSERT INTO %s (%s) VALUES (%%s);", sqlTable.name(), fields.stream().map((field) -> field.getValue().column()).collect(Collectors.joining(", ")));
+            final String sql_format = String.format("INSERT INTO %s (%s) VALUES (%%s);", table, fields.stream().map((field) -> field.getValue().column()).collect(Collectors.joining(", ")));
             final ArrayList<String> sqls = new ArrayList<>();
             objects.stream().forEach((object) -> {
                 try {
@@ -163,19 +242,16 @@ public class SQLUtil {
                             return null;
                         }
                     }).collect(Collectors.joining(", ")));
-                    System.err.println("SQL: " + sql);
+                    if (Database.DEBUG_SQL) {
+                        System.err.println("SQL INSERT: " + sql);
+                    }
                     sqls.add(sql);
                 } catch (Exception ex) {
                     System.err.println(ex);
                 }
             });
-            final String sql = sqls.stream().collect(Collectors.joining());
+            sqls.forEach((sql) -> database.executeUpdate(sql));
             sqls.clear();
-            if (sqls.size() >= Integer.MAX_VALUE) {
-                database.executeLargeUpdate(sql);
-            } else {
-                database.executeUpdate(sql);
-            }
             return true;
         } catch (Exception ex) {
             System.err.println("SQLUtil: serializeObjects error");
@@ -197,13 +273,37 @@ public class SQLUtil {
     }
 
     public static final <T> boolean removeObjects(Class<? extends T> clazz, Database database, SQLSerializer serializer, ArrayList<T> objects) {
-        if (clazz == null || !clazz.isAnnotationPresent(SQLTable.class) || database == null || !database.isConnected() || objects == null || objects.isEmpty()) {
+        if (clazz == null || !clazz.isAnnotationPresent(SQLTable.class)) {
             return false;
         }
         try {
-            final SQLTable sqlTable = clazz.getAnnotation(SQLTable.class);
+            final SQLTable table = clazz.getAnnotation(SQLTable.class);
+            return removeObjects(clazz, database, serializer, table.name(), objects);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public static final <T> boolean removeObjects(Class<? extends T> clazz, Database database, String table, T... objects) {
+        return removeObjects(clazz, database, table, new ArrayList<>(Arrays.asList(objects)));
+    }
+
+    public static final <T> boolean removeObjects(Class<? extends T> clazz, Database database, String table, ArrayList<T> objects) {
+        return removeObjects(clazz, database, getSQLSerializer(clazz), table, objects);
+    }
+
+    public static final <T> boolean removeObjects(Class<? extends T> clazz, Database database, SQLSerializer serializer, String table, T... objects) {
+        return removeObjects(clazz, database, serializer, table, new ArrayList<>(Arrays.asList(objects)));
+    }
+
+    public static final <T> boolean removeObjects(Class<? extends T> clazz, Database database, SQLSerializer serializer, String table, ArrayList<T> objects) {
+        if (clazz == null || database == null || !database.isConnected() || objects == null || objects.isEmpty()) {
+            return false;
+        }
+        try {
             final List<Map.Entry<Field, SQLField>> fields = getFields(clazz, FieldType.of(false, true, false));
-            final String sql_format = String.format("DELETE FROM %s WHERE %s;", sqlTable.name(), (fields.isEmpty() ? "0" : fields.stream().map((field) -> field.getValue().column()).collect(Collectors.joining("=%s AND ")) + "=%s"));
+            final String sql_format = String.format("DELETE FROM %s WHERE %s;", table, (fields.isEmpty() ? "0" : fields.stream().map((field) -> field.getValue().column()).collect(Collectors.joining(" = %s AND ")) + " = %s"));
             final ArrayList<String> sqls = new ArrayList<>();
             objects.stream().forEach((object) -> {
                 try {
@@ -224,22 +324,16 @@ public class SQLUtil {
                             return null;
                         }
                     }).collect(Collectors.toList()).toArray());
-                    System.err.println("SQL: " + sql);
+                    if (Database.DEBUG_SQL) {
+                        System.err.println("SQL REMOVE: " + sql);
+                    }
                     sqls.add(sql);
                 } catch (Exception ex) {
                     System.err.println(ex);
                 }
             });
-            final String sql = sqls.stream().collect(Collectors.joining());
+            sqls.forEach((sql) -> database.executeUpdate(sql));
             sqls.clear();
-            if (true) { //FIXME REMOVE THIS
-                return false;
-            }
-            if (sqls.size() >= Integer.MAX_VALUE) {
-                database.executeLargeUpdate(sql);
-            } else {
-                database.executeUpdate(sql);
-            }
             return true;
         } catch (Exception ex) {
             System.err.println("SQLUtil: removeObjects error");
@@ -295,7 +389,7 @@ public class SQLUtil {
         }
         try {
             final Object object = variables.get(0).getKey().get(null);
-            if (object == null || !object.getClass().equals(SQLSerializer.class)) {
+            if (object == null || !(object instanceof SQLSerializer)) {
                 return null;
             }
             return (SQLSerializer) object;
@@ -316,7 +410,7 @@ public class SQLUtil {
         }
         try {
             final Object object = variables.get(0).getKey().get(null);
-            if (object == null || !object.getClass().equals(SQLDeserializer.class)) {
+            if (object == null || !(object instanceof SQLDeserializer)) {
                 return null;
             }
             return (SQLDeserializer) object;

@@ -11,17 +11,13 @@ import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.sql.MySQL;
-import de.codemakers.bot.supreme.sql.SQLDeserializer;
 import de.codemakers.bot.supreme.sql.SQLUtil;
-import de.codemakers.bot.supreme.sql.annotations.SQLField;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import de.codemakers.bot.supreme.util.updater.Updateable;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.awt.Color;
-import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -29,10 +25,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
-import de.codemakers.bot.supreme.sql.SQLSerializer;
 
 /**
  * TempBanCommand
@@ -249,13 +243,15 @@ public class TempBanCommand extends Command {
     private static final boolean updateAgain() {
         try {
             final Instant instant_now = Instant.now();
-            final ArrayList<TempBan> tempBans = SQLUtil.deserializeObjects(TempBan.class, TempBan.DESERIALIZER);
+            final ArrayList<TempBan> tempBans = SQLUtil.deserializeObjects(TempBan.class);
             if (tempBans == null) {
                 return true;
             }
+            TempBan.TEMP_BANS.clear();
             if (tempBans.isEmpty()) {
                 return false;
             }
+            TempBan.TEMP_BANS.addAll(tempBans);
             tempBans.stream().forEach((tempBan) -> {
                 if (tempBan.isNeededToUnban(instant_now)) {
                     if (!tempBan.unban() && tempBan.getGuild_id() == 0) {
@@ -265,7 +261,6 @@ public class TempBanCommand extends Command {
                     tempBan.ban();
                 }
             });
-            SQLUtil.removeObjects(TempBan.class, MySQL.STANDARD_DATABASE, TempBan.SERIALIZER, tempBans);
             tempBans.clear();
             return true;
         } catch (Exception ex) {
@@ -273,36 +268,6 @@ public class TempBanCommand extends Command {
             ex.printStackTrace();
             return true;
         }
-    }
-
-    private static final void testSerialize() { //Saving the TempBans to the MySQL Database
-        final SQLSerializer serializer = new SQLSerializer() {
-            @Override
-            public String serialize(Object object, Map.Entry<Field, SQLField> field, String defaultReturn) throws Exception {
-                if (object == null) {
-                    return null;
-                }
-                if (Instant.class.equals(object.getClass())) {
-                    return Timestamp.from((Instant) object).toString();
-                } else if (LocalDateTime.class.equals(object.getClass())) {
-                    return Timestamp.valueOf((LocalDateTime) object).toString();
-                } else if (Boolean.class.equals(object.getClass())) {
-                    return ((Boolean) object) ? "1" : "0";
-                }
-                return defaultReturn;
-            }
-
-            @Override
-            public boolean acceptClass(Class<?> clazz) {
-                return Instant.class.equals(clazz) || LocalDateTime.class.equals(clazz) || Boolean.class.equals(clazz);
-            }
-
-            @Override
-            public boolean acceptField(Map.Entry<Field, SQLField> field) {
-                return field.getValue().index() == 8;
-            }
-        };
-        SQLUtil.serializeObjects(TempBan.class, MySQL.STANDARD_DATABASE, serializer/*, tempBans*/);
     }
 
 }

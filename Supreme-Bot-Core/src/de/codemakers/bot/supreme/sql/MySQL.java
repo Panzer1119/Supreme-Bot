@@ -15,6 +15,7 @@ public class MySQL {
 
     public static final Database STANDARD_DATABASE = new Database(null, null, null, null);
     public static final String SQL_TABLE_TEMP_BANS = "temp_bans";
+    public static final String SQL_TABLE_TEMP_BANS_ARCHIVE = "archive_temp_bans";
 
     static {
         try {

@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.sql;
 
+import de.codemakers.bot.supreme.sql.annotations.SQLTable;
 import de.codemakers.bot.supreme.util.Copyable;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.sql.Connection;
@@ -261,15 +262,16 @@ public class Database implements Copyable {
         }
     }
 
-    public final boolean archive(String table, String id) {
-        if (!isConnected()) {
+    public final boolean archive(Object object) {
+        if (object == null || !isConnected()) {
             return false;
         }
         try {
-            final String table_archive = (!table.startsWith("archive_") ? "archive_" : "") + table;
-            final boolean result_1 = execute("INSERT INTO %s SELECT * FROM %s WHERE ID = %s;", table_archive, table, id);
-            final int result_2 = executeUpdate("DELETE FROM %s WHERE ID = %s;", table, id);
-            return true;
+            final Class<?> clazz = object.getClass();
+            final SQLTable table = clazz.getAnnotation(SQLTable.class);
+            final String table_archive = (table.extras().length >= 1 ? table.extras()[0] : ((!table.name().startsWith("archive_") ? "archive_" : "") + table.name()));
+            SQLUtil.removeObjects(clazz, this, object);
+            return SQLUtil.serializeObjects(clazz, this, true, table_archive, object);
         } catch (Exception ex) {
             System.err.println("Database: Archiving error");
             ex.printStackTrace();

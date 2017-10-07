@@ -17,6 +17,8 @@ public @interface SQLTable {
 
     String name();
 
+    String[] extras() default {};
+
     JDBCType[] types();
 
 }

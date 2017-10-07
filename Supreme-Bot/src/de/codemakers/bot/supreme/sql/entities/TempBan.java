@@ -5,7 +5,6 @@ import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.sql.SQLDeserializer;
 import de.codemakers.bot.supreme.sql.SQLSerializer;
-import de.codemakers.bot.supreme.sql.SQLUtil;
 import de.codemakers.bot.supreme.sql.SQLVariableType;
 import de.codemakers.bot.supreme.sql.annotations.SQLField;
 import de.codemakers.bot.supreme.sql.annotations.SQLTable;
@@ -24,6 +23,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -34,11 +35,11 @@ import net.dv8tion.jda.core.entities.User;
  *
  * @author Panzer1119
  */
-@SQLTable(name = MySQL.SQL_TABLE_TEMP_BANS, types = {JDBCType.INTEGER, JDBCType.BIGINT, JDBCType.BIGINT, JDBCType.TIMESTAMP, JDBCType.VARCHAR, JDBCType.BIGINT, JDBCType.TIMESTAMP, JDBCType.TINYINT})
+@SQLTable(name = MySQL.SQL_TABLE_TEMP_BANS, extras = {MySQL.SQL_TABLE_TEMP_BANS_ARCHIVE}, types = {JDBCType.INTEGER, JDBCType.BIGINT, JDBCType.BIGINT, JDBCType.TIMESTAMP, JDBCType.VARCHAR, JDBCType.BIGINT, JDBCType.TIMESTAMP, JDBCType.TINYINT})
 public class TempBan {
 
     public static final String STANDARD_REASON = "No reason available!";
-    private static final ArrayList<TempBan> TEMP_BANS = new ArrayList<>();
+    public static final Queue<TempBan> TEMP_BANS = new ConcurrentLinkedQueue<>();
     private static boolean getting = false;
     public static boolean USING = false;
 
@@ -160,7 +161,8 @@ public class TempBan {
 
     public final boolean archive() {
         remove();
-        MySQL.STANDARD_DATABASE.archive(MySQL.SQL_TABLE_TEMP_BANS, "" + id);
+        //MySQL.STANDARD_DATABASE.archive(MySQL.SQL_TABLE_TEMP_BANS, "" + id);
+        MySQL.STANDARD_DATABASE.archive(this);
         return true;
     }
 
@@ -285,25 +287,6 @@ public class TempBan {
         }
     }
 
-    private static final TempBan of(int id, long user_id, long banner_id, Instant ban_date, boolean ban_type) {
-        return of(id, 0, user_id, null, null, banner_id, ban_date, ban_type);
-    }
-
-    private static final TempBan of(int id, long guild_id, long user_id, Instant unban_date, String reason, long banner_id, Instant ban_date, boolean ban_type) {
-        try {
-            final TempBan tempBan = new TempBan(id, guild_id, user_id, unban_date, reason, banner_id, ban_date, ban_type);
-            final int index = TEMP_BANS.indexOf(tempBan);
-            if (index == -1) {
-                TEMP_BANS.add(tempBan);
-                return tempBan;
-            }
-            return TEMP_BANS.get(index);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        }
-    }
-
     public static final List<TempBan> getTempBans(long user_id) {
         getting = true;
         final List<TempBan> tempBans = TEMP_BANS.stream().filter((tempBan) -> tempBan.getUser_id() == user_id).collect(Collectors.toList());
@@ -384,23 +367,28 @@ public class TempBan {
     @SQLVariable(type = SQLVariableType.SERIALIZER)
     public static final SQLSerializer SERIALIZER = new SQLSerializer() {
         @Override
-        public final String serialize(Object object, Map.Entry<Field, SQLField> field, String defaultReturn) throws Exception {
-            if (Instant.class.equals(field.getKey().getType())) {
+        public String serialize(Object object, Map.Entry<Field, SQLField> field, String defaultReturn) throws Exception {
+            if (object == null) {
+                return null;
+            }
+            if (object instanceof Instant) {
                 return Timestamp.from((Instant) object).toString();
-            } else if (LocalDateTime.class.equals(field.getKey().getType())) {
+            } else if (object instanceof LocalDateTime) {
                 return Timestamp.valueOf((LocalDateTime) object).toString();
+            } else if (object instanceof Boolean) {
+                return ((Boolean) object) ? "1" : "0";
             }
             return defaultReturn;
         }
 
         @Override
-        public final boolean acceptClass(Class<?> clazz) {
-            return Instant.class.equals(clazz) || LocalDateTime.class.equals(clazz);
+        public boolean acceptClass(Class<?> clazz) {
+            return Instant.class.equals(clazz) || LocalDateTime.class.equals(clazz) || Boolean.class.equals(clazz);
         }
 
         @Override
         public boolean acceptField(Map.Entry<Field, SQLField> field) {
-            return false;
+            return field.getValue().index() == 8;
         }
     };
 
