@@ -34,7 +34,7 @@ public class DeleteMessageManager extends MessageManager {
 
     @Override
     public final void delete() {
-        message.delete().queue();
+        message_first.delete().queue();
     }
 
     public static final DeleteMessageManager monitor(Message message) {

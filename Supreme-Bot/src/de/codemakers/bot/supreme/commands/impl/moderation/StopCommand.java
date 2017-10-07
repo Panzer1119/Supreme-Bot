@@ -1,6 +1,7 @@
 package de.codemakers.bot.supreme.commands.impl.moderation;
 
 import de.codemakers.bot.supreme.commands.CommandCategory;
+import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import static de.codemakers.bot.supreme.core.SupremeBot.stopCompletely;
@@ -28,12 +29,20 @@ public class StopCommand extends AdministrativeCommand {
 
     @Override
     public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        return arguments == null || arguments.isSize(0, 1);
+        if (arguments == null) {
+            return false;
+        }
+        final boolean restart = arguments.isConsumed(Standard.ARGUMENT_RESTART, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        if (restart) {
+            return arguments.isSize(1);
+        }
+        return arguments.isSize(0, 1);
     }
 
     @Override
     public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        if (arguments != null && arguments.size() >= 1) {
+        final boolean restart = arguments.isConsumed(Standard.ARGUMENT_RESTART, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        if (arguments.size() >= 1) {
             try {
                 final double delayStopInSeconds = Double.parseDouble(arguments.consumeFirst());
                 final Message message = event.sendAndWaitMessage(getRestartingMessage(event, delayStopInSeconds, 0).build());
@@ -77,7 +86,8 @@ public class StopCommand extends AdministrativeCommand {
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(invoker + " [Delay]", "Stops the bot immediately or after the given delay in seconds.", false);
+        builder.addField(String.format("%s [Delay]", invoker), "Stops the bot immediately or after the given delay in seconds.", false);
+        builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_RESTART.getCompleteArgument(0, -1)), "Restarts the bot.", false);
         return builder;
     }
 

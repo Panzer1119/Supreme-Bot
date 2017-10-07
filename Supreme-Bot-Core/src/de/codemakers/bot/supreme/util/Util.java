@@ -809,4 +809,13 @@ public class Util {
         }
     }
 
+    public static final boolean sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
 }

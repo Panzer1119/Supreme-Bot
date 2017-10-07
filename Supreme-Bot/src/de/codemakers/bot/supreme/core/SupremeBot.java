@@ -23,6 +23,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.TempBanCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.UploadFileCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.BackupCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.GetLogCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.util.SystemCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.XMLEditorCommand;
 import de.codemakers.bot.supreme.commands.impl.secret.PasteServerCommand;
 import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
@@ -30,6 +31,7 @@ import de.codemakers.bot.supreme.listeners.GuildMemberLogger;
 import de.codemakers.bot.supreme.listeners.ReadyListener;
 import de.codemakers.bot.supreme.listeners.GuildVoiceLogger;
 import de.codemakers.bot.supreme.listeners.MessageHandler;
+import de.codemakers.bot.supreme.util.NetworkUtil;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.SystemOutputStream;
 import java.security.Permission;
@@ -60,6 +62,7 @@ public class SupremeBot {
                 Standard.saveAllGuildSettings();
             }));
             Standard.getter = () -> jda;
+            NetworkUtil.init();
             reload();
             builder = new JDABuilder(AccountType.BOT);
             builder.setAutoReconnect(true);
@@ -117,6 +120,7 @@ public class SupremeBot {
             //Util Commands
             new BackupCommand();
             new GetLogCommand();
+            new SystemCommand();
             new XMLEditorCommand();
             //Secret Commands
             new PasteServerCommand();

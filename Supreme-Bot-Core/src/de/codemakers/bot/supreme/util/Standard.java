@@ -943,7 +943,7 @@ public class Standard {
             return null;
         }
         try {
-            return message.getGuild().getTextChannelById(message.getChannel().getId()).getMessageById(message.getId()).complete();
+            return message.getChannel().getMessageById(message.getId()).complete();
         } catch (Exception ex) {
             return null;
         }
@@ -1092,5 +1092,6 @@ public class Standard {
     public static final Argument ARGUMENT_KICK = new Argument("kick", STANDARD_ARGUMENT_PREFIXES, "k");
     public static final Argument ARGUMENT_BAN = new Argument("ban", STANDARD_ARGUMENT_PREFIXES, "b");
     public static final Argument ARGUMENT_UNBAN = new Argument("unban", STANDARD_ARGUMENT_PREFIXES, "ub");
+    public static final Argument ARGUMENT_RESTART = new Argument("restart", STANDARD_ARGUMENT_PREFIXES, "r");
 
 }

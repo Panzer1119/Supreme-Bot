@@ -3,7 +3,6 @@ package de.codemakers.bot.supreme.entities;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.updater.Updateable;
 import de.codemakers.bot.supreme.util.updater.Updater;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -59,6 +58,9 @@ public abstract class MessageManager { //TODO Add permission control for reactio
     }
 
     public final boolean updateThis() {
+        if (message == null) {
+            return false;
+        }
         try {
             final List<MessageReaction> reactions_old = message.getReactions();
             message = Standard.getUpdatedMessage(message);

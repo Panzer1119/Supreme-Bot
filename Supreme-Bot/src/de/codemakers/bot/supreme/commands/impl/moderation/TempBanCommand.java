@@ -11,7 +11,6 @@ import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.sql.MySQL;
-import de.codemakers.bot.supreme.sql.Result;
 import de.codemakers.bot.supreme.sql.SQLDeserializer;
 import de.codemakers.bot.supreme.sql.SQLUtil;
 import de.codemakers.bot.supreme.sql.annotations.SQLField;

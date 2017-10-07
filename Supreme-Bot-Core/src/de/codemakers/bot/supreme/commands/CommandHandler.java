@@ -58,15 +58,15 @@ public class CommandHandler {
                     if (!PermissionHandler.check(command.getPermissionRoleFilter(), commandContainer.event, true)) {
                         return false;
                     }
-                    final Object[] output_called = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, CommandType.CALLED});
+                    final Object[] output_called = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, commandContainer.arguments, CommandType.CALLED});
                     final boolean safe = command.called(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
                     if (safe) {
-                        final Object[] output_action = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, CommandType.ACTION});
+                        final Object[] output_action = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, commandContainer.arguments, CommandType.ACTION});
                         command.action(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
                     } else {
                         sendHelpMessage(commandContainer.invoker, commandContainer.event, command, false);
                     }
-                    final Object[] output_executed = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, CommandType.EXECUTED});
+                    final Object[] output_executed = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, commandContainer.arguments, CommandType.EXECUTED});
                     command.executed(safe, commandContainer.event);
                     return safe;
                 }
