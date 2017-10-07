@@ -31,7 +31,6 @@ import de.codemakers.bot.supreme.listeners.GuildMemberLogger;
 import de.codemakers.bot.supreme.listeners.ReadyListener;
 import de.codemakers.bot.supreme.listeners.GuildVoiceLogger;
 import de.codemakers.bot.supreme.listeners.MessageHandler;
-import de.codemakers.bot.supreme.permission.BotRole;
 import de.codemakers.bot.supreme.util.NetworkUtil;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.SystemOutputStream;

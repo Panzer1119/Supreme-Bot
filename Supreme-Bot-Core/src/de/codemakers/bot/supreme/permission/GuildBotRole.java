@@ -31,13 +31,11 @@ public enum GuildBotRole {
     public static final GuildBotRole STANDARD = NOBODY;
 
     static {
-        System.err.println("t6b9t8b6t8b6t87");
         OWNER.addInherits(ADMIN, BOT_COMMANDER, MODERATOR, VIP, USER);
         ADMIN.addInherits(MODERATOR, VIP, USER);
         BOT_COMMANDER.addInherits(VIP, USER);
         MODERATOR.addInherits(VIP, USER);
         VIP.addInherits(USER);
-        System.err.println("t6b9t8b6t8b6t87");
     }
 
     private final String name;
@@ -114,7 +112,7 @@ public enum GuildBotRole {
         GuildBotRoleData.reloadData();
         return detect.test(guild, user);
     }
-    
+
     public static final List<GuildBotRole> getGuildBotRolesByMember(Member member) {
         if (member == null) {
             return new ArrayList<>();
@@ -127,14 +125,26 @@ public enum GuildBotRole {
             return new ArrayList<>();
         }
         GuildBotRoleData.reloadData();
-        return Arrays.asList(values()).stream().filter((guildBotRole) -> guildBotRole.detect.test(guild, user)).collect(Collectors.toList());
+        return Arrays.asList(values()).stream().filter((guildBotRole) -> guildBotRole.detect.test(guild, user)).map((guildBotRole) -> {
+            final List<GuildBotRole> inherits = new ArrayList<>();
+            inherits.add(guildBotRole);
+            inherits.addAll(guildBotRole.getInherits());
+            return inherits;
+        }).flatMap(List::stream).distinct().collect(Collectors.toList());
+    }
+
+    public static final boolean isMemberAllowed(Member member, GuildBotRole guildBotRole) {
+        if (member == null) {
+            return false;
+        }
+        return isUserFromGuildAllowed(member.getGuild(), member.getUser(), guildBotRole);
     }
 
     public static final boolean isUserFromGuildAllowed(Guild guild, User user, GuildBotRole guildBotRole) {
         if (guild == null || user == null || guildBotRole == null) {
             return false;
         }
-        return guildBotRole.hasGuildBotRoles(getGuildBotRolesByGuildAndUser(guild, user));
+        return getGuildBotRolesByGuildAndUser(guild, user).contains(guildBotRole);
     }
 
 }
