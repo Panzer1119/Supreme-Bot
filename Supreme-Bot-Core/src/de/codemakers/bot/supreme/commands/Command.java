@@ -6,7 +6,7 @@ import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.AdvancedMember;
 import de.codemakers.bot.supreme.entities.MemberObject;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,12 +71,7 @@ public abstract class Command implements Invokeable {
 
     public abstract EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder);
 
-    /**
-     * e.g. PermissionRole.getPermissionRoleByName("Admin");
-     *
-     * @return <tt>true</tt> or <tt>false</tt>
-     */
-    public abstract PermissionRoleFilter getPermissionRoleFilter();
+    public abstract PermissionFilter getPermissionFilter();
 
     public abstract String getCommandID();
 

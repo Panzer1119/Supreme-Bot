@@ -5,12 +5,12 @@ import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
 import java.io.File;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * GetFileCommand
@@ -56,8 +56,8 @@ public class GetFileCommand extends Command {
     }
 
     @Override
-    public final PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER;
+    public final PermissionFilter getPermissionFilter() {
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER;
     }
 
     @Override

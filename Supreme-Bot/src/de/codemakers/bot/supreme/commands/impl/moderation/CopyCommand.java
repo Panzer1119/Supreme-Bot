@@ -6,7 +6,6 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.awt.Color;
@@ -16,6 +15,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.requests.RestAction;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * Copy Command
@@ -108,8 +108,8 @@ public class CopyCommand extends Command {
     }
 
     @Override
-    public PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER;
+    public PermissionFilter getPermissionFilter() {
+        return Standard.STANDARD_PERMISSIONFILTER_MODERATOR_BOT_COMMANDER;
     }
 
     @Override

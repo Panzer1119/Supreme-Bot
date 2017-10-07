@@ -10,12 +10,12 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * AudioRecorderCommand
@@ -124,8 +124,8 @@ public class AudioRecorderCommand extends Command { //FIXME Was ist wenn Music a
     }
 
     @Override
-    public PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER;
+    public PermissionFilter getPermissionFilter() {
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER;
     }
 
     @Override

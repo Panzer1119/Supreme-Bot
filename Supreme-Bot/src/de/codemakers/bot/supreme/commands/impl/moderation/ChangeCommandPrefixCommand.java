@@ -7,9 +7,9 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.EmbedBuilder;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * ChangeCommandPrefixCommand
@@ -73,8 +73,8 @@ public class ChangeCommandPrefixCommand extends Command {
     }
 
     @Override
-    public final PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER;
+    public final PermissionFilter getPermissionFilter() {
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER;
     }
 
     @Override

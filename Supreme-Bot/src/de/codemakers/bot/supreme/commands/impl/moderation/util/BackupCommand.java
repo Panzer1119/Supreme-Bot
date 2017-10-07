@@ -5,7 +5,6 @@ import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.XMLUtil;
 import java.io.ByteArrayInputStream;
@@ -15,6 +14,7 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * BackupCommand
@@ -235,8 +235,8 @@ public class BackupCommand extends Command {
     }
 
     @Override
-    public PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_OWNER_BOT_COMMANDER;
+    public PermissionFilter getPermissionFilter() {
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER;
     }
 
     @Override

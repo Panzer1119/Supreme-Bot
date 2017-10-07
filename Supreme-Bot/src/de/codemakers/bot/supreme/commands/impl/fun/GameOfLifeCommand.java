@@ -9,11 +9,11 @@ import de.codemakers.bot.supreme.entities.AdvancedMember;
 import de.codemakers.bot.supreme.entities.MemberObject;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.game.GameOfLife;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.util.ArrayList;
 import net.dv8tion.jda.core.EmbedBuilder;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * GameOfLifeCommand
@@ -140,7 +140,7 @@ public class GameOfLifeCommand extends Command {
     }
 
     @Override
-    public PermissionRoleFilter getPermissionRoleFilter() {
+    public PermissionFilter getPermissionFilter() {
         return null;
     }
 

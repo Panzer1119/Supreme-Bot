@@ -9,7 +9,6 @@ import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.sql.SQLUtil;
 import de.codemakers.bot.supreme.util.Standard;
@@ -27,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
+import net.dv8tion.jda.core.entities.Member;
 
 /**
  * TempBanCommand
@@ -113,7 +114,7 @@ public class TempBanCommand extends Command {
                 final int temp_ban_count = (int) tempBans.stream().filter((tempBan) -> tempBan.isBan_type()).count();
                 final int temp_kick_count = tempBans.size() - temp_ban_count;
                 if (unban) {
-                    if (temp_ban_count != 0 && !PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN, event.getMember())) {
+                    if (temp_ban_count != 0 && !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_ADMIN, event.getMember())) {
                         PermissionHandler.sendNoPermissionMessage(event);
                         return;
                     }
@@ -154,7 +155,8 @@ public class TempBanCommand extends Command {
                     event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "the owner of this server can't be banned!").build());
                     return;
                 }
-                if (PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_OWNER, user_id, event.getGuild()) || (PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER, user_id, event.getGuild()) && !PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_OWNER, event.getMember())) || (ban_type && !PermissionHandler.check(Standard.STANDARD_PERMISSIONROLEFILTER_ADMIN, event.getMember()))) { //FIXME Sollen Mods auch tempbannen duerfen?
+                final Member member = event.getGuild().getMemberById(user_id);
+                if (PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_OWNER, member) || (PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER, member) && !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_OWNER, event.getMember())) || (ban_type && !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_ADMIN, event.getMember()))) { //FIXME Sollen Mods auch tempbannen duerfen?
                     PermissionHandler.sendNoPermissionMessage(event);
                     return;
                 }
@@ -226,8 +228,8 @@ public class TempBanCommand extends Command {
     }
 
     @Override
-    public final PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_MODERATOR;
+    public final PermissionFilter getPermissionFilter() {
+        return Standard.STANDARD_PERMISSIONFILTER_MODERATOR;
     }
 
     @Override

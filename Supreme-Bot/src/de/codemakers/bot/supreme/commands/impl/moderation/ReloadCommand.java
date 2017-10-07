@@ -7,10 +7,10 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
 import java.awt.Color;
 import net.dv8tion.jda.core.EmbedBuilder;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * ReloadCommand
@@ -78,8 +78,8 @@ public class ReloadCommand extends Command {
     }
 
     @Override
-    public final PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_OWNER_BOT_COMMANDER;
+    public final PermissionFilter getPermissionFilter() {
+        return Standard.STANDARD_PERMISSIONFILTER_BOT_COMMANDER;
     }
 
     @Override

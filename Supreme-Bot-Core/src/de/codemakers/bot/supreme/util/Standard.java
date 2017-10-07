@@ -3,9 +3,10 @@ package de.codemakers.bot.supreme.util;
 import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.Argument;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
+import de.codemakers.bot.supreme.permission.GlobalBotRole;
+import de.codemakers.bot.supreme.permission.GuildBotRole;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.permission.PermissionRole;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.plugin.Plugin;
 import de.codemakers.bot.supreme.plugin.PluginManager;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
@@ -36,6 +37,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.managers.AccountManager;
 import org.apache.commons.io.FileUtils;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * Standard
@@ -953,83 +955,148 @@ public class Standard {
         return System.currentTimeMillis();
     }
 
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER = (permissionRole, member) -> {
-        return Standard.isSuperOwner(member);
+    public static final PermissionFilter STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return false;
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.OWNER);
+        }
     };
 
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_OWNER = (permissionRole, member) -> {
-        final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
-        if (permissionRole.isPermissionGranted(owner)) {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_OWNER = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return guildBotRole.hasGuildBotRoles(GuildBotRole.OWNER);
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.ADMIN);
+        }
+    };
+
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return guildBotRole.hasGuildBotRoles(GuildBotRole.OWNER, GuildBotRole.BOT_COMMANDER);
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.ADMIN);
+        }
+    };
+
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_OWNER_ADMIN = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return guildBotRole.hasGuildBotRoles(GuildBotRole.OWNER);
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.ADMIN);
+        }
+    };
+
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_ADMIN = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return guildBotRole.hasGuildBotRoles(GuildBotRole.ADMIN);
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.ADMIN);
+        }
+    };
+
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return guildBotRole.hasGuildBotRoles(GuildBotRole.ADMIN, GuildBotRole.BOT_COMMANDER);
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.ADMIN);
+        }
+    };
+
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_BOT_COMMANDER = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return guildBotRole.hasGuildBotRoles(GuildBotRole.BOT_COMMANDER);
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.ADMIN);
+        }
+    };
+
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_MODERATOR_BOT_COMMANDER = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return guildBotRole.hasGuildBotRoles(GuildBotRole.MODERATOR, GuildBotRole.BOT_COMMANDER);
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.ADMIN);
+        }
+    };
+
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_MODERATOR = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return guildBotRole.hasGuildBotRoles(GuildBotRole.MODERATOR);
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.ADMIN);
+        }
+    };
+
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_VIP = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return guildBotRole.hasGuildBotRoles(GuildBotRole.VIP);
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.VIP);
+        }
+    };
+
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_NOBODY = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return false;
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return false;
+        }
+    };
+
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_EVERYONE = new PermissionFilter() {
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return true;
         }
-        return Standard.isSuperOwner(member);
-    };
 
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_OWNER_BOT_COMMANDER = (permissionRole, member) -> {
-        final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
-        final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
-        if (permissionRole.isPermissionGranted(owner) || permissionRole.isPermissionGranted(bot_commander)) {
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
             return true;
         }
-        return Standard.isSuperOwner(member);
-    };
-
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_OWNER_ADMIN = (permissionRole, member) -> {
-        final PermissionRole owner = PermissionRole.getPermissionRoleByName("Owner");
-        final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
-        if (permissionRole.isPermissionGranted(owner) || permissionRole.isPermissionGranted(admin)) {
-            return true;
-        }
-        return Standard.isSuperOwner(member);
-    };
-
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_ADMIN = (permissionRole, member) -> {
-        final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
-        if (permissionRole.isPermissionGranted(admin)) {
-            return true;
-        }
-        return Standard.isSuperOwner(member);
-    };
-
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_ADMIN_BOT_COMMANDER = (permissionRole, member) -> {
-        final PermissionRole admin = PermissionRole.getPermissionRoleByName("Admin");
-        final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
-        if (permissionRole.isPermissionGranted(admin) || permissionRole.isPermissionGranted(bot_commander)) {
-            return true;
-        }
-        return Standard.isSuperOwner(member);
-    };
-
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_BOT_COMMANDER = (permissionRole, member) -> {
-        final PermissionRole bot_commander = PermissionRole.getPermissionRoleByName("Bot_Commander");
-        if (permissionRole.isPermissionGranted(bot_commander)) {
-            return true;
-        }
-        return Standard.isSuperOwner(member);
-    };
-
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_MODERATOR = (permissionRole, member) -> {
-        final PermissionRole admin = PermissionRole.getPermissionRoleByName("Moderator");
-        if (permissionRole.isPermissionGranted(admin)) {
-            return true;
-        }
-        return Standard.isSuperOwner(member);
-    };
-
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_VIP = (permissionRole, member) -> {
-        final PermissionRole admin = PermissionRole.getPermissionRoleByName("VIP");
-        if (permissionRole.isPermissionGranted(admin)) {
-            return true;
-        }
-        return Standard.isSuperOwner(member);
-    };
-
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_NOBODY = (permissionRole, member) -> {
-        return false;
-    };
-
-    public static final PermissionRoleFilter STANDARD_PERMISSIONROLEFILTER_EVERYONE = (permissionRole, member) -> {
-        return true;
     };
 
     public static final CommandCategory COMMANDCATEGORY_NONE = new CommandCategory(null, "None", ":children_crossing:");

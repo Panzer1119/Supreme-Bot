@@ -4,7 +4,6 @@ import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Timer;
 import de.codemakers.bot.supreme.util.Util;
@@ -12,6 +11,7 @@ import java.awt.Color;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * RestartCommand
@@ -91,7 +91,7 @@ public class RestartCommand extends AdministrativeCommand {
     }
 
     @Override
-    public final PermissionRoleFilter getPermissionRoleFilter() {
+    public final PermissionFilter getPermissionFilter() {
         return Standard.STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER;
     }
 

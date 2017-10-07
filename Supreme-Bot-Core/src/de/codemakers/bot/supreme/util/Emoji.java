@@ -30,6 +30,8 @@ public class Emoji {
     public static final String INVITE = EmojiParser.parseToUnicode(":postbox:");
     public static final String INFORMATION = EmojiParser.parseToUnicode(":information_source:");
     public static final String BAN = EmojiParser.parseToUnicode(":hammer:");
+    public static final String QUESTION_MARK_GRAY = EmojiParser.parseToUnicode(":grey_question:");
+    public static final String QUESTION_MARK = EmojiParser.parseToUnicode(":question:");
 
     /* Faces */
     public static final String FACE_TONGUE = EmojiParser.parseToUnicode(":stuck_out_tongue:");
@@ -160,7 +162,7 @@ public class Emoji {
     /* Fun */
     public static final String SQUARE_LARGE_BLACK = EmojiParser.parseToUnicode(":black_large_square:");
     public static final String SQUARE_LARGE_WHITE = EmojiParser.parseToUnicode(":white_large_square:");
- /* Game */
+    /* Game */
     public static final String GAME = EmojiParser.parseToUnicode(":video_game:");
     public static final String HANGED_FACE = EmojiParser.parseToUnicode(":confounded:");
     public static final String EIGHT_BALL = EmojiParser.parseToUnicode(":8ball:");

@@ -5,7 +5,6 @@ import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -19,6 +18,7 @@ import net.dv8tion.jda.core.managers.GuildController;
 import net.dv8tion.jda.core.managers.RoleManagerUpdatable;
 import net.dv8tion.jda.core.requests.restaction.ChannelAction;
 import net.dv8tion.jda.core.requests.restaction.RoleAction;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * PasteServerCommand
@@ -158,7 +158,7 @@ public class PasteServerCommand extends Command {
     }
 
     @Override
-    public PermissionRoleFilter getPermissionRoleFilter() {
+    public PermissionFilter getPermissionFilter() {
         return Standard.STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER;
     }
 

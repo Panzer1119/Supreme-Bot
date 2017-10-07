@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.permission;
 
+import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +16,7 @@ import net.dv8tion.jda.core.entities.User;
  * @author Panzer1119
  */
 public enum GlobalBotRole {
-    OWNER("Owner", 3, (user) -> GlobalBotRoleData.isGranted(user.getIdLong(), 3)),
+    OWNER("Owner", 3, (user) -> Standard.isSuperOwner(user)),
     ADMIN("Admin", 2, (user) -> GlobalBotRoleData.isGranted(user.getIdLong(), 2)),
     VIP("VIP", 1, (user) -> GlobalBotRoleData.isGranted(user.getIdLong(), 1)),
     USER("User", 0, (user) -> GlobalBotRoleData.isGranted(user.getIdLong(), 0)),

@@ -7,8 +7,8 @@ import de.codemakers.bot.supreme.listeners.CommandType;
 import de.codemakers.bot.supreme.listeners.Listener;
 import de.codemakers.bot.supreme.listeners.ListenerManager;
 import de.codemakers.bot.supreme.listeners.MessageListener;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
@@ -20,6 +20,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * CommandHandler
@@ -55,7 +56,8 @@ public class CommandHandler {
                     commandContainer.event.getMessage().delete().queue();
                 }
                 if (command != null) {
-                    if (!PermissionHandler.check(command.getPermissionRoleFilter(), commandContainer.event, true)) {
+                    if (!PermissionHandler.isPermissionGranted(command.getPermissionFilter(), commandContainer.event)) {
+                        PermissionHandler.sendNoPermissionMessage(commandContainer.event);
                         return false;
                     }
                     final Object[] output_called = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, commandContainer.arguments, CommandType.CALLED});
@@ -71,7 +73,9 @@ public class CommandHandler {
                     return safe;
                 }
             }
+            //FIXME Deprecated??? This line below!
             commandContainer.event.sendMessageFormat(Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild()), "%s Sorry %s, the command \"%s\" wasn't found!", Emoji.WARNING, commandContainer.event.getAuthor().getAsMention(), commandContainer.invoker);
+            commandContainer.event.getMessage().addReaction(Emoji.QUESTION_MARK_GRAY).queue();
             return false;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -117,8 +121,9 @@ public class CommandHandler {
         if (event == null || command == null) {
             return false;
         }
-        final PermissionRoleFilter filter = command.getPermissionRoleFilter();
-        if (filter != null && !PermissionHandler.check(filter, event, true)) {
+        final PermissionFilter filter = command.getPermissionFilter();
+        if (filter != null && !PermissionHandler.isPermissionGranted(filter, event)) {
+            PermissionHandler.sendNoPermissionMessage(event);
             return false;
         }
         if (!sendPrivate && event.isPrivate()) {
@@ -127,8 +132,7 @@ public class CommandHandler {
         if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty(SEND_HELP_ALWAYS_PRIVATE, false)) {
             Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
         } else {
-            final Guild guild = event.getGuild();
-            if (!PermissionHandler.check(filter, guild, event.getTextChannel())) {
+            if (!PermissionHandler.isPermissionGranted(filter, event.getTextChannel())) {
                 Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
                 return true;
             }
@@ -147,10 +151,10 @@ public class CommandHandler {
         try {
             final boolean sendPrivate_ = sendPrivate;
             final List<Command> commands = CommandHandler.COMMANDS.stream().filter((command) -> {
-                if (!sendPrivate_ && forceSendInChannel && !PermissionHandler.check(command.getPermissionRoleFilter(), event.getGuild(), event.getTextChannel())) {
+                if (!sendPrivate_ && forceSendInChannel && !PermissionHandler.isPermissionGranted(command.getPermissionFilter(), event.getTextChannel())) {
                     return false;
                 }
-                return PermissionHandler.check(command.getPermissionRoleFilter(), event, false); //TODO Should a user only can see the Commands he is allowed to use?
+                return PermissionHandler.isPermissionGranted(command.getPermissionFilter(), event);
             }).sorted(Command.COMPARATOR).collect(Collectors.toList());
             final StringBuilder sb = new StringBuilder();
             final String command_prefix = sendPrivate ? Standard.getStandardCommandPrefix() : Standard.getCommandPrefixByGuild(event.getGuild());
@@ -191,8 +195,7 @@ public class CommandHandler {
             if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty(SEND_HELP_ALWAYS_PRIVATE, false)) {
                 Util.sendPrivateMessage(event.getAuthor(), output);
             } else {
-                final Guild guild = event.getGuild();
-                if (!PermissionHandler.check(commands, guild, event.getTextChannel(), false)) {
+                if (!PermissionHandler.isPermissionGranted(commands, event.getTextChannel())) {
                     Util.sendPrivateMessage(event.getAuthor(), output);
                     return true;
                 }

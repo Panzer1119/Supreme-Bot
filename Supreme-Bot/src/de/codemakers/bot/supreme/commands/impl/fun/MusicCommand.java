@@ -21,7 +21,6 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
@@ -38,6 +37,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * MusicCommand
@@ -659,8 +659,8 @@ public class MusicCommand extends Command {
     }
 
     @Override
-    public final PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_VIP;
+    public final PermissionFilter getPermissionFilter() {
+        return Standard.STANDARD_PERMISSIONFILTER_VIP;
     }
 
     @Override

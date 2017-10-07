@@ -6,9 +6,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 
 /**
@@ -17,16 +19,16 @@ import net.dv8tion.jda.core.entities.User;
  * @author Panzer1119
  */
 public enum GuildBotRole {
-    BOT("Bot", 6, (guild, user) -> user.isBot()),
-    OWNER("Owner", 5, (guild, user) -> (guild.isMember(user) && guild.getMember(user).isOwner())),
-    ADMIN("Admin", 4, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 4)))),
-    BOT_COMMANDER("Bot Commander", 3, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 3)))),
-    MODERATOR("Moderator", 2, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 2)))),
-    VIP("VIP", 1, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 1)))),
-    USER("User", 0, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 0)))),
-    EVERYONE("Everyone", -1, (guild, user) -> guild.isMember(user)),
-    NOBODY("Nobody", -2, (guild, user) -> !guild.isMember(user)),
-    FAKE("Fake", -3, (guild, user) -> user.isFake());
+    BOT("Bot", 6, (guild, user) -> user.isBot(), (role) -> role.isManaged()),
+    OWNER("Owner", 5, (guild, user) -> (guild.isMember(user) && guild.getMember(user).isOwner()), (role) -> GuildBotRoleData.isGranted(role.getGuild().getIdLong(), role.getIdLong(), 5)),
+    ADMIN("Admin", 4, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 4))), (role) -> GuildBotRoleData.isGranted(role.getGuild().getIdLong(), role.getIdLong(), 4)),
+    BOT_COMMANDER("Bot Commander", 3, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 3))), (role) -> GuildBotRoleData.isGranted(role.getGuild().getIdLong(), role.getIdLong(), 3)),
+    MODERATOR("Moderator", 2, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 2))), (role) -> GuildBotRoleData.isGranted(role.getGuild().getIdLong(), role.getIdLong(), 2)),
+    VIP("VIP", 1, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 1))), (role) -> GuildBotRoleData.isGranted(role.getGuild().getIdLong(), role.getIdLong(), 1)),
+    USER("User", 0, (guild, user) -> (guild.isMember(user) && guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 0))), (role) -> GuildBotRoleData.isGranted(role.getGuild().getIdLong(), role.getIdLong(), 0)),
+    EVERYONE("Everyone", -1, (guild, user) -> guild.isMember(user), (role) -> role.isPublicRole()),
+    NOBODY("Nobody", -2, (guild, user) -> !guild.isMember(user), (role) -> false),
+    FAKE("Fake", -3, (guild, user) -> user.isFake(), (role) -> false);
 
     static {
         OWNER.addInherits(ADMIN, BOT_COMMANDER, MODERATOR, VIP, USER);
@@ -38,7 +40,8 @@ public enum GuildBotRole {
 
     private final String name;
     private final long id;
-    private final BiPredicate<Guild, User> detect;
+    private final BiPredicate<Guild, User> detect_user;
+    private final Predicate<Role> detect_role;
     private final ArrayList<GuildBotRole> inherits = new ArrayList<GuildBotRole>() {
         @Override
         public boolean addAll(Collection<? extends GuildBotRole> c) {
@@ -49,10 +52,11 @@ public enum GuildBotRole {
         }
     };
 
-    private GuildBotRole(String name, long id, BiPredicate<Guild, User> detect) {
+    private GuildBotRole(String name, long id, BiPredicate<Guild, User> detect_user, Predicate<Role> detect_role) {
         this.name = name;
         this.id = id;
-        this.detect = detect;
+        this.detect_user = detect_user;
+        this.detect_role = detect_role;
     }
 
     public final String getName() {
@@ -108,7 +112,15 @@ public enum GuildBotRole {
             return false;
         }
         GuildBotRoleData.reloadData();
-        return detect.test(guild, user);
+        return detect_user.test(guild, user);
+    }
+
+    public final boolean test(Role role) {
+        if (role == null) {
+            return false;
+        }
+        GuildBotRoleData.reloadData();
+        return detect_role.test(role);
     }
 
     public static final List<GuildBotRole> getGuildBotRolesByMember(Member member) {
@@ -123,7 +135,20 @@ public enum GuildBotRole {
             return new ArrayList<>();
         }
         GuildBotRoleData.reloadData();
-        return Arrays.asList(values()).stream().filter((guildBotRole) -> guildBotRole.detect.test(guild, user)).map((guildBotRole) -> {
+        return Arrays.asList(values()).stream().filter((guildBotRole) -> guildBotRole.detect_user.test(guild, user)).map((guildBotRole) -> {
+            final List<GuildBotRole> inherits = new ArrayList<>();
+            inherits.add(guildBotRole);
+            inherits.addAll(guildBotRole.getInherits());
+            return inherits;
+        }).flatMap(List::stream).distinct().collect(Collectors.toList());
+    }
+
+    public static final List<GuildBotRole> getGuildBotRolesByRole(Role role) {
+        if (role == null) {
+            return new ArrayList<>();
+        }
+        GuildBotRoleData.reloadData();
+        return Arrays.asList(values()).stream().filter((guildBotRole) -> guildBotRole.detect_role.test(role)).map((guildBotRole) -> {
             final List<GuildBotRole> inherits = new ArrayList<>();
             inherits.add(guildBotRole);
             inherits.addAll(guildBotRole.getInherits());
@@ -143,6 +168,13 @@ public enum GuildBotRole {
             return false;
         }
         return getGuildBotRolesByGuildAndUser(guild, user).contains(guildBotRole);
+    }
+
+    public static final boolean isRoleAllowed(Role role, GuildBotRole guildBotRole) {
+        if (role == null) {
+            return false;
+        }
+        return getGuildBotRolesByRole(role).contains(guildBotRole);
     }
 
 }

@@ -9,11 +9,10 @@ import de.codemakers.bot.supreme.util.Util;
 import de.codemakers.bot.supreme.util.XMLUtil;
 import java.io.InputStream;
 import java.util.List;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.PermissionOverride;
-import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.jdom2.Attribute;
@@ -27,160 +26,64 @@ import org.jdom2.Element;
  */
 public class PermissionHandler {
 
-    public static final boolean check(PermissionRoleFilter filter, MessageEvent event, boolean withMessage) {
+    public static final boolean isPermissionGranted(PermissionFilter filter, MessageEvent event) {
         if (filter == null) {
             return true;
         }
         if (event == null) {
             return false;
         }
-        if (!event.isPrivate()) {
-            final List<PermissionRole> temp = PermissionRole.getPermissionRolesByGuildAndUser(event.getGuild(), event.getAuthor());
-            if (temp.stream().anyMatch((permissionRole) -> filter.isPermissionGranted(permissionRole, event.getMember()))) {
-                return true;
-            }
-            if (event.getMember().getRoles().stream().map((role) -> PermissionRole.getPermissionRolesByGuildAndRole(event.getGuild().getIdLong(), role.getIdLong())).filter((permissionRoles) -> permissionRoles != null).anyMatch((permissionRoles) -> permissionRoles.stream().anyMatch((permissionRole) -> filter.isPermissionGranted(permissionRole, event.getMember())))) {
-                return true;
-            }
-            /*
-            for (Role role : event.getMember().getRoles()) {
-                final List<PermissionRole> temp_ = PermissionRole.getPermissionRolesByGuildAndRole(event.getGuild().getIdLong(), role.getIdLong());
-                for (PermissionRole role_ : temp_) {
-                    if (temp_ != null && filter.isPermissionGranted(role_, event.getMember())) {
-                        return true;
-                    }
-                }
-            }
-            */
-            /*
-            if (event.getGuild().getMember(event.getAuthor()).getRoles().stream().map((role) -> PermissionRole.getPermissionRolesByGuildAndRole(event.getGuild().getIdLong(), role.getIdLong())).filter((temp) -> temp != null).anyMatch((temp) -> (temp.stream().anyMatch((premissionRole) -> filter.isPermissionGranted(premissionRole, event.getMember()))))) {
-                return true;
-            }
-            */
-        }
-        if (Standard.isSuperOwner(event.getAuthor())) {
-            return true;
-        }
-        if (withMessage) {
-            sendNoPermissionMessage(event);
-        }
-        return false;
+        return isPermissionGranted(filter, event.getGuild(), event.getAuthor());
     }
 
-    public static final boolean check(PermissionRoleFilter filter, Member member) {
+    public static final boolean isPermissionGranted(PermissionFilter filter, Member member) {
+        return isPermissionGranted(filter, member.getGuild(), member.getUser());
+    }
+
+    public static final boolean isPermissionGranted(PermissionFilter filter, Guild guild, User user) {
         if (filter == null) {
             return true;
         }
-        if (member == null) {
+        if (Standard.isSuperOwner(user)) {
+            return true;
+        }
+        if (user == null) {
             return false;
         }
-        final List<PermissionRole> temp = PermissionRole.getPermissionRolesByGuildAndUser(member.getGuild(), member.getUser());
-        if (temp.stream().anyMatch((permissionRole) -> filter.isPermissionGranted(permissionRole, member))) {
+        if (!filter.isPermissionGranted(guild, user)) {
+            return false;
+        }
+        if (filter.isGlobalPermissionGranted(GlobalBotRole.getGlobalBotRolesByUser(user))) {
             return true;
         }
-        if (member.getRoles().stream().map((role) -> PermissionRole.getPermissionRolesByGuildAndRole(member.getGuild().getIdLong(), role.getIdLong())).filter((permissionRoles) -> permissionRoles != null).anyMatch((permissionRoles) -> permissionRoles.stream().anyMatch((permissionRole) -> filter.isPermissionGranted(permissionRole, member)))) {
-            return true;
-        }
-        /*
-        for (Role role : member.getRoles()) {
-            final List<PermissionRole> temp_ = PermissionRole.getPermissionRolesByGuildAndRole(member.getGuild().getIdLong(), role.getIdLong());
-            if (temp_ == null) {
-                continue;
-            }
-            for (PermissionRole role_ : temp_) {
-                if (filter.isPermissionGranted(role_, member)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-        return member.getRoles().stream().map((role) -> PermissionRole.getPermissionRolesByGuildAndRole(member.getGuild().getIdLong(), role.getIdLong())).filter((temp) -> !(temp == null)).anyMatch((temp) -> (temp.stream().anyMatch((role_) -> filter.isPermissionGranted(role_, member))));
-        */
-        return false;
+        return guild != null && filter.isGuildPermissionGranted(GuildBotRole.getGuildBotRolesByGuildAndUser(guild, user));
     }
 
-    public static final boolean check(PermissionRoleFilter filter, User user, Guild guild) {
+    public static final boolean isPermissionGranted(PermissionFilter filter, Channel channel) {
         if (filter == null) {
             return true;
         }
-        if (user == null || guild == null) {
+        if (channel == null || channel.getRolePermissionOverrides().isEmpty()) {
             return false;
         }
-        return check(filter, guild.getMember(user));
+        return channel.getRolePermissionOverrides().stream().filter((po) -> !po.getDenied().contains(Permission.MESSAGE_READ)).noneMatch((po) -> !filter.isGuildPermissionGranted(GuildBotRole.getGuildBotRolesByRole(po.getRole())));
     }
 
-    public static final boolean check(PermissionRoleFilter filter, String user_id, Guild guild) {
-        if (filter == null) {
-            return true;
-        }
-        if (user_id == null || user_id.isEmpty() || guild == null) {
-            return false;
-        }
-        return check(filter, guild.getMemberById(user_id));
-    }
-
-    public static final boolean check(PermissionRoleFilter filter, long user_id, Guild guild) {
-        if (filter == null) {
-            return true;
-        }
-        if (guild == null) {
-            return false;
-        }
-        return check(filter, guild.getMemberById(user_id));
-    }
-
-    public static final boolean check(PermissionRoleFilter filter, Guild guild, Channel channel) {
-        if (guild == null || channel == null) {
-            return false;
-        }
-        if (filter == null) {
-            return true;
-        }
-        if (channel.getRolePermissionOverrides().isEmpty()) {
-            return false;
-        }
-        for (PermissionOverride po : channel.getRolePermissionOverrides()) {
-            final List<PermissionRole> permissionRoles = PermissionRole.getPermissionRolesByGuildAndRole(guild.getIdLong(), po.getRole().getIdLong());
-            if (permissionRoles.isEmpty()) { //TODO Ist das richtig?!!
-                return false;
-            }
-            if (!permissionRoles.stream().filter((permissionRole) -> (Standard.STANDARD_PERMISSION_ROLE == null || !Standard.STANDARD_PERMISSION_ROLE.equals(permissionRole))).noneMatch((permissionRole) -> (permissionRole == null || !filter.isPermissionGranted(permissionRole, null)))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static final boolean check(List<Command> commands, Guild guild, Channel channel, boolean withMessage) {
-        if (guild == null || channel == null) {
+    public static final boolean isPermissionGranted(List<Command> commands, Channel channel) {
+        if (channel == null) {
             return false;
         }
         if (commands == null || commands.isEmpty()) {
             return true;
         }
-        if (channel.getRolePermissionOverrides().isEmpty()) {
-            return false;
-        }
-        boolean ok = true;
-        for (Command command : commands) {
-            if (!check(command.getPermissionRoleFilter(), guild, channel)) {
-                if (!withMessage) {
-                    return false;
-                }
-                if (channel instanceof TextChannel) {
-                    Util.deleteMessage(((TextChannel) channel).sendMessageFormat("%s Sorry, someone in this TextChannel doesn't have the permissions to use \"%s\"!", Emoji.WARNING, command.getInvokers().get(0)).complete(), Standard.STANDARD_MESSAGE_DELETING_DELAY);
-                }
-                ok = false;
-            }
-        }
-        return ok;
-        //return commands.stream().noneMatch((command) -> (!check(command.getPermissionRoleFilter(), guild, channel)));
+        return commands.stream().allMatch((command) -> isPermissionGranted(command.getPermissionFilter(), channel));
     }
 
     public static final boolean sendNoPermissionMessage(MessageEvent event) {
         return event.sendMessage(Standard.getNoPermissionMessage(event.getAuthor(), "command"));
     }
 
+    @Deprecated
     public static final boolean loadPermissionRoles(AdvancedFile file) {
         if (file == null) {
             return false;
@@ -193,6 +96,7 @@ public class PermissionHandler {
         }
     }
 
+    @Deprecated
     public static final boolean loadPermissionRoles(String jar_path) {
         if (jar_path == null) {
             return false;
@@ -208,6 +112,7 @@ public class PermissionHandler {
         }
     }
 
+    @Deprecated
     public static final boolean loadPermissionRoles(InputStream inputStream) {
         if (inputStream == null) {
             return false;
@@ -291,6 +196,7 @@ public class PermissionHandler {
         }
     }
 
+    @Deprecated
     public static final boolean loadPermissionsForGuild(AdvancedFile file, long guild_id) {
         if (file == null) {
             return false;
@@ -303,6 +209,7 @@ public class PermissionHandler {
         }
     }
 
+    @Deprecated
     public static final boolean loadPermissionsForGuild(String jar_path, long guild_id) {
         if (jar_path == null) {
             return false;
@@ -318,6 +225,7 @@ public class PermissionHandler {
         }
     }
 
+    @Deprecated
     public static final boolean loadPermissionsForGuild(InputStream inputStream, long guild_id) {
         if (inputStream == null) {
             return false;

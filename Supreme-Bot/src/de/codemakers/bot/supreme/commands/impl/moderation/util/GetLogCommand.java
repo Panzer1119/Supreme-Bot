@@ -7,7 +7,6 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.DeleteMessageManager;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * GetLogCommand
@@ -132,7 +132,7 @@ public class GetLogCommand extends Command {
     }
 
     @Override
-    public PermissionRoleFilter getPermissionRoleFilter() {
+    public PermissionFilter getPermissionFilter() {
         return Standard.STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER;
     }
 

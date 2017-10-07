@@ -7,12 +7,12 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
-import de.codemakers.bot.supreme.permission.PermissionRoleFilter;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import java.awt.Color;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * SettingsCommand
@@ -171,8 +171,8 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
     }
 
     @Override
-    public PermissionRoleFilter getPermissionRoleFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_OWNER_BOT_COMMANDER;
+    public PermissionFilter getPermissionFilter() {
+        return Standard.STANDARD_PERMISSIONFILTER_BOT_COMMANDER;
     }
 
     @Override
