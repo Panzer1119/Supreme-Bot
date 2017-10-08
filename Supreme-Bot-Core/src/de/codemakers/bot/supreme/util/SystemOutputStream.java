@@ -151,7 +151,7 @@ public class SystemOutputStream extends PrintStream {
 
     private final void print(String g, Instant instant, boolean newLine) {
         final String msg = String.format("[%s]: %s", LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), g);
-        String temp = msg + (newLine ? "\n" : "");
+        String temp = msg + (newLine ? Standard.NEW_LINE : "");
         super.print(temp);
         if (Standard.CURRENT_LOG_FILE != null) {
             Standard.addToFile(Standard.CURRENT_LOG_FILE, temp, true, false);
@@ -159,7 +159,7 @@ public class SystemOutputStream extends PrintStream {
         if (error && false) {
             final Exception ex = new Exception();
             for (StackTraceElement e : ex.getStackTrace()) {
-                temp = e + "\n";
+                temp = e + Standard.NEW_LINE;
                 super.print(temp);
                 if (Standard.CURRENT_LOG_FILE != null) {
                     Standard.addToFile(Standard.CURRENT_LOG_FILE, temp, true, false);

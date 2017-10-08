@@ -6,8 +6,6 @@ import de.codemakers.bot.supreme.listeners.CommandListener;
 import de.codemakers.bot.supreme.listeners.CommandType;
 import de.codemakers.bot.supreme.listeners.Listener;
 import de.codemakers.bot.supreme.listeners.ListenerManager;
-import de.codemakers.bot.supreme.listeners.MessageListener;
-import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
@@ -19,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
@@ -38,7 +35,7 @@ public class CommandHandler {
     };
 
     public static final String COMMANDCATEGORY_HIERARCHY_SPACER = "   ";
-    public static final String COMMANDCATEGORY_HIERARCHY_NEW_LINE = "\n";
+    public static final String COMMANDCATEGORY_HIERARCHY_NEW_LINE = Standard.NEW_LINE_DISCORD;
     public static final String COMMANDCATEGORY_HIERARCHY_LINE_DOWN = " |";
     public static final String COMMANDCATEGORY_HIERARCHY_LINE_CROSS = "├──";
     public static final String COMMANDCATEGORY_HIERARCHY_LINE_END = "└──";
@@ -159,13 +156,13 @@ public class CommandHandler {
             final StringBuilder sb = new StringBuilder();
             final String command_prefix = sendPrivate ? Standard.getStandardCommandPrefix() : Standard.getCommandPrefixByGuild(event.getGuild());
             sb.append(Standard.toBold("Help Overview | Command Prefix: " + command_prefix));
-            sb.append("\n\n\n");
+            sb.append(COMMANDCATEGORY_HIERARCHY_NEW_LINE).append(COMMANDCATEGORY_HIERARCHY_NEW_LINE).append(COMMANDCATEGORY_HIERARCHY_NEW_LINE);
             sb.append(Standard.toUnderlineBold("Command Hierarchy:"));
-            sb.append("\n\n");
+            sb.append(COMMANDCATEGORY_HIERARCHY_NEW_LINE).append(COMMANDCATEGORY_HIERARCHY_NEW_LINE);
             sb.append(generateCommandCategoriesHierarchy(commands));
-            sb.append("\n\n");
+            sb.append(COMMANDCATEGORY_HIERARCHY_NEW_LINE).append(COMMANDCATEGORY_HIERARCHY_NEW_LINE);
             sb.append(Standard.toUnderlineBold("Commands:"));
-            sb.append("\n\n\n");
+            sb.append(COMMANDCATEGORY_HIERARCHY_NEW_LINE).append(COMMANDCATEGORY_HIERARCHY_NEW_LINE).append(COMMANDCATEGORY_HIERARCHY_NEW_LINE);
             final HashMap<CommandCategory, List<Command>> commands_categorized = new HashMap<>();
             commands.stream().forEach((command) -> {
                 final CommandCategory commandCategory = Standard.getCommandCategory(command.getCommandCategory());
@@ -181,14 +178,14 @@ public class CommandHandler {
                 sb.append(commandCategory.getEmoji());
                 sb.append(" - ");
                 sb.append(Standard.toUnderlineBold(commandCategory.getName()));
-                sb.append("\n");
+                sb.append(COMMANDCATEGORY_HIERARCHY_NEW_LINE);
                 length_max.set(0);
                 final List<Command> commands_ = commands_categorized.get(commandCategory);
                 commands_.stream().forEach((command) -> {
                     length_max.set(Math.max(length_max.get(), command.getInvokers().get(0).toString().length()));
                 });
                 sb.append(Util.makeTable(commands_, (command) -> command.getInvokers().get(0).toString(), length_max.get() + 2, Util.getGoodSquareNumber(commands_.size())));
-                sb.append("\n");
+                sb.append(COMMANDCATEGORY_HIERARCHY_NEW_LINE);
             });
             final String output = sb.toString();
             sb.delete(0, sb.length());

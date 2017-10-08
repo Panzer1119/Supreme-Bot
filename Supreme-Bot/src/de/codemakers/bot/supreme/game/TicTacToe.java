@@ -322,7 +322,7 @@ public class TicTacToe extends Game {
                 for (int z = 0; z < cols; z++) {
                     out += getEmojiPos(i, z);
                 }
-                out += "\n";
+                out += Standard.NEW_LINE_DISCORD;
             }
             return out;
         }

@@ -60,7 +60,7 @@ public class GetLogCommand extends Command {
         final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         //final boolean download = arguments.isConsumed(Standard.ARGUMENT_DOWNLOAD, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         if (list) { //-list
-            //final String list_logs = Standard.STANDARD_LOG_FOLDER.listAdvancedFiles((parent, name) -> (name != null && name.startsWith(LOG_PREFIX) && name.endsWith(LOG_SUFFIX))).stream().map((advancedFile) -> advancedFile.toFile()).map((advancedFile) -> (/*download ? Standard.embedLink(advancedFile.getName(), event.getTextChannel().sendFile(advancedFile.toByteArray(), advancedFile.getName(), null).complete().getAttachments().get(0).getUrl()) : */advancedFile.getName())).collect(Collectors.joining("\n"));
+            //final String list_logs = Standard.STANDARD_LOG_FOLDER.listAdvancedFiles((parent, name) -> (name != null && name.startsWith(LOG_PREFIX) && name.endsWith(LOG_SUFFIX))).stream().map((advancedFile) -> advancedFile.toFile()).map((advancedFile) -> (/*download ? Standard.embedLink(advancedFile.getName(), event.getTextChannel().sendFile(advancedFile.toByteArray(), advancedFile.getName(), null).complete().getAttachments().get(0).getUrl()) : */advancedFile.getName())).collect(Collectors.joining(Standard.NEW_LINE_DISCORD));
             final int log_file_show_count = Standard.STANDARD_SETTINGS.asAutoAdd().getProperty("log_file_show_count", 25);
             List<AdvancedFile> files = Standard.STANDARD_LOG_FOLDER.listAdvancedFiles((parent, name) -> (name != null && name.startsWith(LOG_PREFIX) && name.endsWith(".txt")));
             files = files.stream().skip(files.size() - log_file_show_count).collect(Collectors.toList());
@@ -76,19 +76,19 @@ public class GetLogCommand extends Command {
                 years.get(year).get(month).get(day).add(advancedFile);
             });
             final StringBuilder out = new StringBuilder();
-            out.append(Standard.toUnderlineBold(String.format("Logs (last %d):", log_file_show_count))).append("\n").append("\n");
+            out.append(Standard.toUnderlineBold(String.format("Logs (last %d):", log_file_show_count))).append(Standard.NEW_LINE_DISCORD).append(Standard.NEW_LINE_DISCORD);
             years.keySet().stream().map((year) -> {
-                out.append(Standard.toBold(Standard.toUnderline("YEAR:") + " " + year)).append("\n");
+                out.append(Standard.toBold(Standard.toUnderline("YEAR:") + " " + year)).append(Standard.NEW_LINE_DISCORD);
                 return year;
             }).map((year) -> years.get(year)).forEach((months) -> {
                 months.keySet().stream().map((month) -> {
-                    out.append(Standard.TAB).append(Standard.TAB).append(Standard.toBold(Standard.toUnderline("MONTH:") + " " + month)).append("\n");
+                    out.append(Standard.TAB).append(Standard.TAB).append(Standard.toBold(Standard.toUnderline("MONTH:") + " " + month)).append(Standard.NEW_LINE_DISCORD);
                     return month;
                 }).map((month) -> months.get(month)).forEach((days) -> {
                     days.keySet().stream().map((day) -> {
-                        out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.toBold(Standard.toUnderline("DAY:") + " " + day)).append("\n");
+                        out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.toBold(Standard.toUnderline("DAY:") + " " + day)).append(Standard.NEW_LINE_DISCORD);
                         return day;
-                    }).map((day) -> days.get(day)).forEach((logs) -> logs.stream().forEach((advancedFile) -> out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(advancedFile.getName()).append("\n")));
+                    }).map((day) -> days.get(day)).forEach((logs) -> logs.stream().forEach((advancedFile) -> out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(advancedFile.getName()).append(Standard.NEW_LINE_DISCORD)));
                 });
             });
             DeleteMessageManager.monitor(event.sendAndWaitMessage(out.toString()));

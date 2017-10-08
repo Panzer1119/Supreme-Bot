@@ -54,7 +54,7 @@ public class MessageHandler extends ListenerAdapter {
                 } else {
                     String text = "";
                     for (Attachment attachment : attachments) {
-                        text += "\n";
+                        text += Standard.NEW_LINE_DISCORD;
                         if (attachment.isImage()) {
                             text += String.format("+IMAGE: \"%s\" (ID: %s) (PROXYURL: %s) (W: %d, H: %d)", attachment.getFileName(), attachment.getId(), attachment.getProxyUrl(), attachment.getWidth(), attachment.getHeight());
                         } else {

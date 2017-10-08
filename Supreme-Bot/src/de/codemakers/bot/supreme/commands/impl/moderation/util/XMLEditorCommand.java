@@ -278,9 +278,9 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                         children.clear();
                         String children_string = "";
                         for (ElementInfo elementInfo : children_info) {
-                            children_string += String.format("\n%s (%s time(s))", elementInfo.getName(), elementInfo.times);
+                            children_string += String.format("%s%s (%s time(s))", Standard.NEW_LINE_DISCORD, elementInfo.getName(), elementInfo.times);
                         }
-                        children_string = children_string.substring("\n".length());
+                        children_string = children_string.substring(Standard.NEW_LINE_DISCORD.length());
                         children_info.clear();
                         builder.addField("Children", children_string, false);
                     } else {

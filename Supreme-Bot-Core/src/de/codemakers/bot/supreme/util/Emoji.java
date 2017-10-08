@@ -261,7 +261,7 @@ public class Emoji {
                 continue;
             }
             if (input.length() >= i + 2 && ".n".equalsIgnoreCase(input.substring(i, i + 2))) {
-                output += "\n";
+                output += Standard.NEW_LINE_DISCORD;
                 i += 1;
                 continue;
             }

@@ -10,6 +10,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 
 /**
@@ -313,11 +314,7 @@ public class DefaultSettings extends Settings implements Copyable {
         final ArrayList<Map.Entry<String, String>> arrayList = new ArrayList<Map.Entry<String, String>>() {
             @Override
             public String toString() {
-                String out = "";
-                for (Map.Entry<String, String> property : this) {
-                    out += String.format("\n%s=%s", property.getKey(), property.getValue());
-                }
-                return out;
+                return stream().map((property) -> String.format("%s%s=%s", Standard.NEW_LINE, property.getKey(), property.getValue())).collect(Collectors.joining());
             }
         };
         settings.stringPropertyNames().stream().forEach((key) -> {

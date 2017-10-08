@@ -21,15 +21,15 @@ public class ReadyListener extends ListenerAdapter {
         final JDA jda = event.getJDA();
         MySQL.init();
         final StringBuilder out = new StringBuilder();
-        out.append("This Bot is running on this Guilds:").append("\n");
+        out.append("This Bot is running on this Guilds:").append(Standard.NEW_LINE_DISCORD);
         jda.getGuilds().stream().forEach((guild) -> {
             final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild);
-            out.append(String.format("%s (ID: %s)", guild.getName(), guild.getId())).append("\n");
+            out.append(String.format("%s (ID: %s)", guild.getName(), guild.getId())).append(Standard.NEW_LINE_DISCORD);
             /*
             guild.getRoles().stream().forEach((role) -> {
-                out.append(Standard.TAB).append(String.format("%s (ID: %s) (%s)", role.getName(), role.getId(), role.getAsMention())).append("\n");
+                out.append(Standard.TAB).append(String.format("%s (ID: %s) (%s)", role.getName(), role.getId(), role.getAsMention())).append(Standard.NEW_LINE_DISCORD);
             });
-            out.append("\n");
+            out.append(Standard.NEW_LINE_DISCORD);
              */
         });
         System.out.print(out.toString());

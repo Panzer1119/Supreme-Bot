@@ -51,6 +51,7 @@ public class Standard {
     public static final String STANDARD_ARRAY_SEPARATOR = ";";
     public static final String TAB = "  ";
     public static final String NEW_LINE = System.getProperty("line.separator");
+    public static final String NEW_LINE_DISCORD = "\n";
     public static final String BASE_PACKAGE = "de.codemakers.bot.supreme";
     public static final String STANDARD_DATE_TIME_FORMAT = "dd.MM.yyyy HH:mm:ss";
     public static final DateTimeFormatter STANDARD_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(STANDARD_DATE_TIME_FORMAT);

@@ -451,7 +451,7 @@ public class MusicCommand extends Command {
                     length_all.addAndGet(audioInfo.getTrack().getDuration());
                     tracks.add(buildQueueMessage(audioInfo));
                 });
-                final String out = tracks.stream().collect(Collectors.joining("\n"));
+                final String out = tracks.stream().collect(Collectors.joining(Standard.NEW_LINE_DISCORD));
                 tracks.clear();
                 infos.clear();
                 event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE: \"%s\"**%n%n*[%s Tracks | Complete Duration `[ %s ]` | Page %d / %d]*%n%n**Currently Playing ->** %s", queue_name, track_size, getTimestamp(length_all.get()), pageNumber, pageNumberAll, out).build());

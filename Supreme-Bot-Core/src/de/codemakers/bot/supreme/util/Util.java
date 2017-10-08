@@ -471,19 +471,19 @@ public class Util {
      */
     public static <T> String makeTable(List<T> items, Converter<T, String> converter, int columnLength, int columns) {
         final StringBuilder sb = new StringBuilder();
-        sb.append("```\n");
+        sb.append("```").append(Standard.NEW_LINE_DISCORD);
         int counter = 0;
         for (T item : items) {
             counter++;
             sb.append(String.format("%-" + columnLength + "s", converter.convert(item)));
             if (counter % columns == 0) {
-                sb.append("\n");
+                sb.append(Standard.NEW_LINE_DISCORD);
             }
         }
         if (counter % columns != 0) {
-            sb.append("\n");
+            sb.append(Standard.NEW_LINE_DISCORD);
         }
-        sb.append("```\n");
+        sb.append("```").append(Standard.NEW_LINE_DISCORD);
         return sb.toString();
     }
 
@@ -503,11 +503,11 @@ public class Util {
     /**
      * Example:
      *
-     * text = "123\n456\n789";
+     * text = "123Standard.NEW_LINE_DISCORD456Standard.NEW_LINE_DISCORD789";
      *
      * text_new = modifyColumnwiseToString(text, "|", ":");
      *
-     * text_new == "|123:\n|456:\n|789:";
+     * text_new == "|123:Standard.NEW_LINE_DISCORD|456:Standard.NEW_LINE_DISCORD|789:";
      *
      * @param text Text to modify
      * @param delimiter Delimiter
@@ -525,7 +525,7 @@ public class Util {
             return prefix + suffix;
         }
         if (delimiter == null) {
-            delimiter = "\n";
+            delimiter = Standard.NEW_LINE_DISCORD;
         }
         final String[] split = text.split(delimiter);
         String out = "";

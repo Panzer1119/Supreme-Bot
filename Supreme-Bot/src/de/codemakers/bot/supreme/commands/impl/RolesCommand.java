@@ -65,17 +65,17 @@ public class RolesCommand extends Command {
             String temp = asMention ? role.getAsMention() : role.getName();
             temp += id ? String.format(" (ID: %s)", role.getId()) : "";
             return roles_member.contains(role) ? Standard.toBold(temp) : temp;
-        }).collect(Collectors.joining("\n"));
+        }).collect(Collectors.joining(Standard.NEW_LINE_DISCORD));
         final String s_2 = event.isPrivate() ? "" : GuildBotRole.stream().map((guildBotRole) -> {
             String temp = guildBotRole.getName();
             temp += id ? String.format(" (ID: %d)", guildBotRole.getId()) : "";
             return GuildBotRole.getGuildBotRolesByMember(member).contains(guildBotRole) ? Standard.toBold(temp) : temp;
-        }).collect(Collectors.joining("\n"));
+        }).collect(Collectors.joining(Standard.NEW_LINE_DISCORD));
         final String s_3 = GlobalBotRole.stream().map((globalBotRole) -> {
             String temp = globalBotRole.getName();
             temp += id ? String.format(" (ID: %d)", globalBotRole.getId()) : "";
             return GlobalBotRole.getGlobalBotRolesByUser(user).contains(globalBotRole) ? Standard.toBold(temp) : temp;
-        }).collect(Collectors.joining("\n"));
+        }).collect(Collectors.joining(Standard.NEW_LINE_DISCORD));
         final EmbedBuilder builder = Standard.getMessageEmbed(Color.YELLOW, "%s your Roles are bold%s", event.getAuthor().getAsMention(), (id ? String.format(" (Your ID: %s)", event.getAuthor().getId()) : ""));
         if (!event.isPrivate()) {
             builder.addField("Guild Roles", s_1, true);

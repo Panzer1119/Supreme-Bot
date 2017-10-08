@@ -274,7 +274,7 @@ public class GameOfLife extends Game {
                 for (int y = 0; y < max_y; y++) {
                     out += getCell(generation, x, y) + (withCoords ? String.format("X:%d,Y:%d", x, y) : "");
                 }
-                out += "\n";
+                out += Standard.NEW_LINE_DISCORD;
             }
         } else if (is3D()) {
             for (int x = 0; x < max_x; x++) {
@@ -282,9 +282,9 @@ public class GameOfLife extends Game {
                     for (int z = 0; z < max_z; z++) {
                         out += getCell(generation, x, y, z) + (withCoords ? String.format("X:%d,Y:%d,Z:%d", x, y, z) : "");
                     }
-                    out += "\n";
+                    out += Standard.NEW_LINE_DISCORD;
                 }
-                out += "\n";
+                out += Standard.NEW_LINE_DISCORD;
             }
         } else if (is4D()) {
             for (int x = 0; x < max_x; x++) {
@@ -293,11 +293,11 @@ public class GameOfLife extends Game {
                         for (int w = 0; w < max_w; w++) {
                             out += getCell(generation, x, y, z, w) + (withCoords ? String.format("X:%d,Y:%d,Z:%d,W:%d", x, y, z, w) : "");
                         }
-                        out += "\n";
+                        out += Standard.NEW_LINE_DISCORD;
                     }
-                    out += "\n";
+                    out += Standard.NEW_LINE_DISCORD;
                 }
-                out += "\n";
+                out += Standard.NEW_LINE_DISCORD;
             }
         } else {
             return "";
