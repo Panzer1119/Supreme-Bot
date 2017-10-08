@@ -1,10 +1,12 @@
 package de.codemakers.bot.supreme.sql;
 
+import de.codemakers.bot.supreme.sql.annotations.SQLTable;
 import de.codemakers.bot.supreme.util.Standard;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import org.reflections.Reflections;
 
 /**
  * MySQL
@@ -45,7 +47,13 @@ public class MySQL {
             STANDARD_DATABASE.setPassword(Standard.STANDARD_SETTINGS.asAutoAdd().getProperty("sql_password", null));
             STANDARD_DATABASE.connect();
         } catch (Exception ex) {
-            System.err.println("MySQL: Init error");
+            System.err.println("MySQL: Init 1 error");
+            ex.printStackTrace();
+        }
+        try {
+            new Reflections(Standard.BASE_PACKAGE).getTypesAnnotatedWith(SQLTable.class).stream().filter((clazz) -> clazz.getAnnotation(SQLTable.class).createIfNotExists()).forEach((clazz) -> SQLUtil.createTableIfNotExists(clazz, STANDARD_DATABASE));
+        } catch (Exception ex) {
+            System.err.println("MySQL: Init 2 error");
             ex.printStackTrace();
         }
     }

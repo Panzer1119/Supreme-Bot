@@ -17,6 +17,8 @@ public @interface SQLTable {
 
     String name();
 
+    boolean createIfNotExists() default true;
+
     String[] extras() default {};
 
     JDBCType[] types();

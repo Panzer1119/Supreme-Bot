@@ -222,15 +222,10 @@ public class SQLUtil {
             return false;
         }
         try {
-            final List<Map.Entry<Field, SQLField>> fields_all = getFields(clazz, FieldType.ALL);
             final List<Map.Entry<Field, SQLField>> fields_needed = getFields(clazz, FieldType.of(true, false, forceAll));
             final String sql_format = String.format("INSERT INTO %s (%s) VALUES (%%s);", table, fields_needed.stream().map((field) -> field.getValue().column()).collect(Collectors.joining(", ")));
             final ArrayList<String> sqls = new ArrayList<>();
-            final String sql_create = String.format("CREATE TABLE IF NOT EXISTS %s (%s, PRIMARY KEY (%s));", table, fields_all.stream().map((field) -> field.getValue()).map((field) -> (String.format("%s %s%s%s%s", field.column(), fromJDBCType(field.type()), field.nullBehavior() == NullBehavior.NOT_NULL ? " NOT NULL" : (field.nullBehavior() == NullBehavior.NULL ? " NULL" : ""), (field.defaultValue().isEmpty() ? "" : " DEFAULT " + field.defaultValue()), field.extra()))).collect(Collectors.joining(", ")), fields_all.stream().map((field) -> field.getValue()).filter((field) -> field.primaryKey()).map((field) -> field.column()).collect(Collectors.joining(", ")));
-            if (Database.DEBUG_SQL) {
-                System.err.println("SQL TABLE CREATION: " + sql_create);
-            }
-            sqls.add(sql_create);
+            createTableIfNotExists(clazz, database, table);
             objects.stream().forEach((object) -> {
                 try {
                     final String sql = String.format(sql_format, fields_needed.stream().map((field) -> {
@@ -263,6 +258,38 @@ public class SQLUtil {
             return true;
         } catch (Exception ex) {
             System.err.println("SQLUtil: serializeObjects error");
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public static final <T> boolean createTableIfNotExists(Class<? extends T> clazz, Database database) {
+        if (clazz == null || !clazz.isAnnotationPresent(SQLTable.class)) {
+            return false;
+        }
+        try {
+            final SQLTable table = clazz.getAnnotation(SQLTable.class);
+            if (!table.createIfNotExists()) {
+                return false;
+            }
+            return createTableIfNotExists(clazz, database, table.name());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
+    public static final <T> boolean createTableIfNotExists(Class<? extends T> clazz, Database database, String table) {
+        try {
+            final List<Map.Entry<Field, SQLField>> fields_all = getFields(clazz, FieldType.ALL);
+            final String sql_create = String.format("CREATE TABLE IF NOT EXISTS %s (%s, PRIMARY KEY (%s));", table, fields_all.stream().map((field) -> field.getValue()).map((field) -> (String.format("%s %s%s%s%s", field.column(), fromJDBCType(field.type()), field.nullBehavior() == NullBehavior.NOT_NULL ? " NOT NULL" : (field.nullBehavior() == NullBehavior.NULL ? " NULL" : ""), (field.defaultValue().isEmpty() ? "" : " DEFAULT " + field.defaultValue()), field.extra()))).collect(Collectors.joining(", ")), fields_all.stream().map((field) -> field.getValue()).filter((field) -> field.primaryKey()).map((field) -> field.column()).collect(Collectors.joining(", ")));
+            if (Database.DEBUG_SQL) {
+                System.err.println("SQL TABLE CREATION: " + sql_create);
+            }
+            database.executeUpdate(sql_create);
+            return true;
+        } catch (Exception ex) {
+            System.err.println("SQLUtil: createTableIfNotExists error");
             ex.printStackTrace();
             return false;
         }
