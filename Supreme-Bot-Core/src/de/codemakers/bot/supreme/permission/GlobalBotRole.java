@@ -21,7 +21,7 @@ public enum GlobalBotRole {
     ADMIN("Admin", 2, (user) -> GlobalBotRoleData.isGranted(user.getIdLong(), 2)),
     VIP("VIP", 1, (user) -> GlobalBotRoleData.isGranted(user.getIdLong(), 1)),
     USER("User", 0, (user) -> GlobalBotRoleData.isGranted(user.getIdLong(), 0)),
-    NOBODY("Nobody", -1, (user) -> GlobalBotRoleData.BOT_ROLE_DATA.stream().noneMatch((globalBotRoleData) -> globalBotRoleData.user_id == user.getIdLong()));
+    NOBODY("Nobody", -1, (user) -> (GlobalBotRoleData.BOT_ROLE_DATA.stream().noneMatch((globalBotRoleData) -> globalBotRoleData.user_id == user.getIdLong()) && !Standard.isSuperOwner(user)));
 
     public static final GlobalBotRole STANDARD = NOBODY;
 
