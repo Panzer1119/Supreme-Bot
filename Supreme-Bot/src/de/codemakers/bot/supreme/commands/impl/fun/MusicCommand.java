@@ -121,10 +121,16 @@ public class MusicCommand extends Command {
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
+                if (playlist == null || max_tracks == 0) {
+                    return;
+                }
                 final List<AudioTrack> tracks = playlist.getTracks();
+                if (tracks == null || tracks.isEmpty()) {
+                    return;
+                }
                 final int max = Math.min(tracks.size(), Standard.PLAYLIST_LIMIT);
                 for (int i = 0; i < max; i++) {
-                    if (max_tracks >= 0) {
+                    if (max_tracks != -1) {
                         if (i >= max_tracks) {
                             return;
                         }
@@ -326,7 +332,7 @@ public class MusicCommand extends Command {
                     if (live) {
                         Util.sheduleTimerAndRemove(() -> {
                             showLiveInfo(event, guild, channel);
-                        }, 2500); //TODO Make this variable (ms) ???
+                        }, 3000); //TODO Make this variable (ms) ???
                     }
                     setPause(guild, false);
                 }
