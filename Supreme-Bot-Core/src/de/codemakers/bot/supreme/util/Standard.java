@@ -5,8 +5,7 @@ import de.codemakers.bot.supreme.commands.arguments.Argument;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.permission.GlobalBotRole;
 import de.codemakers.bot.supreme.permission.GuildBotRole;
-import de.codemakers.bot.supreme.permission.PermissionHandler;
-import de.codemakers.bot.supreme.permission.PermissionRole;
+import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.plugin.Plugin;
 import de.codemakers.bot.supreme.plugin.PluginManager;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
@@ -36,8 +35,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.managers.AccountManager;
-import org.apache.commons.io.FileUtils;
-import de.codemakers.bot.supreme.permission.PermissionFilter;
 
 /**
  * Standard
@@ -90,10 +87,6 @@ public class Standard {
     public static final String STANDARD_GUILD_SETTINGS_FILE_NAME = "settings.txt";
     private static final ArrayList<AdvancedGuild> GUILDS = new ArrayList<>();
 
-    public static final String STANDARD_PERMISSIONS_FILE_NAME = "permissions.xml";
-    public static final AdvancedFile STANDARD_PERMISSIONS_FILE = getFile(STANDARD_PERMISSIONS_FILE_NAME);
-    public static final String STANDARD_PERMISSIONS_PATH = '/' + PermissionRole.class.getName().substring(0, PermissionRole.class.getName().length() - PermissionRole.class.getSimpleName().length()).replace('.', '/') + STANDARD_PERMISSIONS_FILE_NAME;
-
     public static final String STANDARD_PLUGINS_FOLDER_NAME = "plugins";
     public static final AdvancedFile STANDARD_PLUGINS_FOLDER = getFile(STANDARD_PLUGINS_FOLDER_NAME);
     public static final PluginManager STANDARD_PLUGIN_MANAGER = new PluginManager();
@@ -111,8 +104,6 @@ public class Standard {
 
     public static final String STANDARD_RECORDINGS_FOLDER_NAME = "recordings";
     public static final AdvancedFile STANDARD_RECORDINGS_FOLE = getFile(STANDARD_RECORDINGS_FOLDER_NAME);
-
-    public static PermissionRole STANDARD_PERMISSION_ROLE = null;
 
     public static final String XML_PERMISSIONROLES = "permissionroles";
     public static final String XML_PERMISSIONROLE = "permissionrole";
@@ -137,7 +128,7 @@ public class Standard {
     static {
         SHUTDOWNHOOKS.add(() -> {
             Util.killAndFireAllTimerTask();
-            Updater.kill(10, TimeUnit.SECONDS);
+            Updater.kill(500, TimeUnit.MILLISECONDS);
         });
     }
 
@@ -168,32 +159,6 @@ public class Standard {
 
     public static final JDA getJDA() {
         return getter.get();
-    }
-
-    public static final boolean reloadPermissionRoles() {
-        try {
-            if (STANDARD_PERMISSIONS_FILE.exists() && STANDARD_PERMISSIONS_FILE.isFile()) {
-                PermissionHandler.loadPermissionRoles(STANDARD_PERMISSIONS_FILE);
-            } else if (!STANDARD_PERMISSIONS_FILE.exists()) {
-                try {
-                    FileUtils.copyInputStreamToFile(Standard.class.getResourceAsStream(STANDARD_PERMISSIONS_PATH), STANDARD_PERMISSIONS_FILE.toFile());
-                    PermissionHandler.loadPermissionRoles(STANDARD_PERMISSIONS_FILE);
-                } catch (Exception ex) {
-                    System.err.println(ex);
-                    PermissionHandler.loadPermissionRoles(STANDARD_PERMISSIONS_PATH);
-                }
-            } else if (!STANDARD_PERMISSIONS_FILE.isFile()) {
-                PermissionHandler.loadPermissionRoles(STANDARD_PERMISSIONS_PATH);
-            } else {
-                return false;
-            }
-            System.out.println("Reloaded PermissionRoles!");
-            return true;
-        } catch (Exception ex) {
-            System.err.println("Not Reloaded PermissionRoles: " + ex);
-            ex.printStackTrace();
-            return false;
-        }
     }
 
     public static final boolean reloadPluginPermissionAdminString() {
@@ -314,11 +279,7 @@ public class Standard {
     public static final boolean loadAllGuilds() {
         try {
             GUILDS.clear();
-            for (AdvancedFile file : STANDARD_GUILDS_FOLDER.listAdvancedFiles()) {
-                if (file.isDirectory()) {
-                    GUILDS.add(new AdvancedGuild(file.getName(), file));
-                }
-            }
+            STANDARD_GUILDS_FOLDER.listAdvancedFiles().stream().filter((advancedFile) -> advancedFile.isDirectory()).forEach((advancedFile) -> GUILDS.add(new AdvancedGuild(advancedFile.getName(), advancedFile)));
             reloadAllGuilds();
             System.out.println("Reloaded Guilds Folder!");
             return true;
@@ -332,7 +293,6 @@ public class Standard {
     public static final boolean reloadAllGuilds() {
         try {
             reloadAllGuildSettings();
-            reloadAllGuildPermissions();
             System.out.println("Reloaded All Guilds!");
             return true;
         } catch (Exception ex) {
@@ -353,22 +313,6 @@ public class Standard {
         } catch (Exception ex) {
             System.err.println("Not Reloaded All Guild Settings: " + ex);
             ex.printStackTrace();
-            return false;
-        }
-    }
-
-    private static final boolean reloadAllGuildPermissions() {
-        try {
-            GUILDS.stream().forEach((advancedGuild) -> {
-                final AdvancedFile file = advancedGuild.getPermissionsFile();
-                if (file != null) {
-                    PermissionHandler.loadPermissionsForGuild(file, advancedGuild.getGuildIdLong());
-                }
-            });
-            System.out.println("Reloaded All Guild Permissions!");
-            return true;
-        } catch (Exception ex) {
-            System.out.println("Not Reloaded All Guild Permissions!");
             return false;
         }
     }
@@ -423,12 +367,6 @@ public class Standard {
         if (advancedGuild == null) {
             advancedGuild = new AdvancedGuild(guild_id);
             advancedGuild.getSettings().loadSettings();
-            try {
-                final AdvancedFile permissions = advancedGuild.getFile(Standard.STANDARD_PERMISSIONS_FILE_NAME);
-                permissions.createAdvancedFile();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
             GUILDS.add(advancedGuild);
         }
         return advancedGuild;
@@ -1130,7 +1068,6 @@ public class Standard {
     public static final Argument ARGUMENT_LIST = new Argument("list", STANDARD_ARGUMENT_PREFIXES, "l");
     public static final Argument ARGUMENT_DOWNLOAD = new Argument("download", STANDARD_ARGUMENT_PREFIXES, "dl");
     public static final Argument ARGUMENT_DEFAULT = new Argument("default", STANDARD_ARGUMENT_PREFIXES, "df");
-    public static final Argument ARGUMENT_PERMISSIONS = new Argument("permissions", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_OVERRIDE = new Argument("override", STANDARD_ARGUMENT_PREFIXES, "o");
     public static final Argument ARGUMENT_START = new Argument("start", STANDARD_ARGUMENT_PREFIXES);
     public static final Argument ARGUMENT_SAVE = new Argument("save", STANDARD_ARGUMENT_PREFIXES);

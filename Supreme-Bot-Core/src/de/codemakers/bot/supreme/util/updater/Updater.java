@@ -70,7 +70,7 @@ public class Updater {
             try {
                 final UpdateTime updateTime = UPDATEABLES.get(updateable);
                 updateTime.setIsUpdating(true);
-                EXECUTOR.submit(() -> {
+                submit(() -> {
                     try {
                         final long deltaTime = updateable.update(timestamp);
                         updateTime.update(timestamp, deltaTime);
@@ -122,7 +122,8 @@ public class Updater {
     public static final boolean kill(long timeout, TimeUnit unit) {
         try {
             TIMER.cancel();
-            EXECUTOR.submit(() -> {
+            TIMER.purge();
+            submit(() -> {
                 try {
                     UPDATEABLES.keySet().stream().forEach((updateable) -> {
                         updateable.delete();
@@ -141,7 +142,7 @@ public class Updater {
         }
     }
 
-    public static final Future<?> execute(Runnable run) {
+    public static final Future<?> submit(Runnable run) {
         if (run == null) {
             return null;
         }

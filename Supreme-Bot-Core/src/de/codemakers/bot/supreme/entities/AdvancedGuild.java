@@ -129,10 +129,6 @@ public class AdvancedGuild {
         return guild_id_long;
     }
 
-    public final AdvancedFile getPermissionsFile() {
-        return getFile(Standard.STANDARD_PERMISSIONS_FILE_NAME);
-    }
-
     public final AdvancedFile getLogFile() {
         return getFile(Standard.STANDARD_LOG_FILE_NAME);
     }

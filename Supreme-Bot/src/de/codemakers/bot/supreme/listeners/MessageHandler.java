@@ -34,7 +34,7 @@ public class MessageHandler extends ListenerAdapter {
         if (event_received == null || event_received.getAuthor().getIdLong() == Standard.getSelfUser().getIdLong()) {
             return;
         }
-        Updater.execute(() -> {
+        Updater.submit(() -> {
             try {
                 final MessageEvent event = new DefaultMessageEvent(event_received.getJDA(), event_received.getResponseNumber(), event_received.getMessage());
                 final String content_raw = event.getMessage().getRawContent().trim();

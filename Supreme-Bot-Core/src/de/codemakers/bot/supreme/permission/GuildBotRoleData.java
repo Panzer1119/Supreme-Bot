@@ -21,18 +21,21 @@ public class GuildBotRoleData {
 
     @SQLField(index = 1, column = "guild_ID", nullBehavior = NullBehavior.NOT_NULL, primaryKey = true, type = JDBCType.BIGINT)
     public final long guild_id;
-    @SQLField(index = 2, column = "role_ID", nullBehavior = NullBehavior.NOT_NULL, primaryKey = true, type = JDBCType.BIGINT)
-    public final long role_id;
+    @SQLField(index = 2, column = "ID", nullBehavior = NullBehavior.NOT_NULL, primaryKey = true, type = JDBCType.BIGINT)
+    public final long id;
     @SQLField(index = 3, column = "botRole_ID", nullBehavior = NullBehavior.NOT_NULL, primaryKey = true, type = JDBCType.BIGINT)
     public final long botRole_id;
     @SQLField(index = 4, column = "granter_ID", nullBehavior = NullBehavior.NULL, defaultValue = "NULL", type = JDBCType.BIGINT)
     public final long granter_id;
+    @SQLField(index = 5, column = "isRole", nullBehavior = NullBehavior.NOT_NULL, defaultValue = "1", type = JDBCType.TINYINT)
+    public final boolean isRole;
 
-    public GuildBotRoleData(long guild_id, long role_id, long botRole_id, long granter_id) {
+    public GuildBotRoleData(long guild_id, long id, long botRole_id, long granter_id, boolean isRole) {
         this.guild_id = guild_id;
-        this.role_id = role_id;
+        this.id = id;
         this.botRole_id = botRole_id;
         this.granter_id = granter_id;
+        this.isRole = isRole;
     }
 
     protected static final Queue<GuildBotRoleData> reloadData() {
@@ -44,8 +47,8 @@ public class GuildBotRoleData {
         return BOT_ROLE_DATA;
     }
 
-    public static final boolean isGranted(long guild_id, long role_id, long botRole_id) {
-        return BOT_ROLE_DATA.stream().anyMatch((guildBotRoleData) -> (guildBotRoleData.guild_id == guild_id && guildBotRoleData.role_id == role_id && guildBotRoleData.botRole_id == botRole_id));
+    public static final boolean isGranted(long guild_id, long id, long botRole_id, boolean isRole) {
+        return BOT_ROLE_DATA.stream().anyMatch((guildBotRoleData) -> (guildBotRoleData.guild_id == guild_id && guildBotRoleData.id == id && guildBotRoleData.botRole_id == botRole_id && guildBotRoleData.isRole == isRole));
     }
 
 }

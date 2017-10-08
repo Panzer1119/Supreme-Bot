@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.dv8tion.jda.core.entities.User;
 
 /**
@@ -103,7 +104,7 @@ public enum GlobalBotRole {
             return new ArrayList<>();
         }
         GlobalBotRoleData.reloadData();
-        return Arrays.asList(values()).stream().filter((globalBotRole) -> globalBotRole.detect.test(user)).map((globalBotRole) -> {
+        return stream().filter((globalBotRole) -> globalBotRole.detect.test(user)).map((globalBotRole) -> {
             final List<GlobalBotRole> inherits = new ArrayList<>();
             inherits.add(globalBotRole);
             inherits.addAll(globalBotRole.getInherits());
@@ -116,6 +117,10 @@ public enum GlobalBotRole {
             return false;
         }
         return getGlobalBotRolesByUser(user).contains(globalBotRole);
+    }
+
+    public static final Stream<GlobalBotRole> stream() {
+        return Arrays.asList(values()).stream();
     }
 
 }

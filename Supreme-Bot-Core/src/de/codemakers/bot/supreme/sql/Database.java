@@ -108,7 +108,7 @@ public class Database implements Copyable {
     }
 
     public final Future<?> connect() {
-        return Updater.execute(() -> {
+        return Updater.submit(() -> {
             try {
                 final int id = (int) (Math.random() * 1_000_000);
                 if (DEBUG) {

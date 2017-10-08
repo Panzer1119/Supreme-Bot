@@ -6,7 +6,8 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.permission.PermissionRole;
+import de.codemakers.bot.supreme.permission.GlobalBotRole;
+import de.codemakers.bot.supreme.permission.GuildBotRole;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.awt.Color;
@@ -16,6 +17,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
+import java.util.stream.Collectors;
+import net.dv8tion.jda.core.entities.User;
 
 /**
  * RolesCommand
@@ -54,64 +57,30 @@ public class RolesCommand extends Command {
             return;
         }
         final Guild guild = event.getGuild();
+        final User user = event.getAuthor();
         final Member member = event.getMember();
-        final StringBuilder sb_1 = new StringBuilder();
-        final StringBuilder sb_2 = new StringBuilder();
-        int count = 0;
-        final List<Role> roles = guild.getRoles();
-        for (Role role : roles) {
-            final boolean isMe = member.getRoles().contains(role);
-            final StringBuilder temp = new StringBuilder();
-            temp.append("[");
-            temp.append(count);
-            temp.append("] ");
-            if (asMention) {
-                temp.append(role.getAsMention());
-            } else {
-                temp.append(role.getName());
-            }
-            if (id) {
-                temp.append(String.format(" (ID: %s)", role.getId()));
-            }
-            if (isMe) {
-                sb_1.append(Standard.toBold(temp.toString()));
-            } else {
-                sb_1.append(temp.toString());
-            }
-            sb_1.append("\n");
-            temp.delete(0, temp.length());
-            final List<PermissionRole> permissionRoles_ = PermissionRole.getPermissionRolesByGuildAndRole(guild.getIdLong(), role.getIdLong());
-            temp.append("[");
-            temp.append(count);
-            temp.append("] ");
-            if (!permissionRoles_.isEmpty()) {
-                for (PermissionRole permissionRole : permissionRoles_) {
-                    temp.append(permissionRole.getPermissionRoleName());
-                    if (id) {
-                        temp.append(String.format(" (ID: %s)", permissionRole.getPermissionRoleID()));
-                    }
-                    temp.append(", ");
-                }
-                temp.delete(temp.length() - ", ".length(), temp.length());
-                permissionRoles_.clear();
-            } else {
-                temp.append(Standard.toItalics("none"));
-            }
-            if (isMe) {
-                sb_2.append(Standard.toBold(temp.toString()));
-            } else {
-                sb_2.append(temp.toString());
-            }
-            sb_2.append("\n");
-            temp.delete(0, temp.length());
-            count++;
-        }
-        final EmbedBuilder builder = Standard.getMessageEmbed(Color.YELLOW, "%s here are the Discord/Bot Roles\nYour Roles are bold%s", event.getAuthor().getAsMention(), (id ? String.format(" (Your ID: %s)", event.getAuthor().getId()) : ""));
-        builder.addField("Discord Roles", sb_1.toString(), true);
-        builder.addField("Bot Roles", sb_2.toString(), true);
+        final List<Role> roles_guild = guild.getRoles();
+        final List<Role> roles_member = member.getRoles();
+        final String s_1 = roles_guild.stream().map((role) -> {
+            String temp = asMention ? role.getAsMention() : role.getName();
+            temp += id ? String.format(" (ID: %s)", role.getId()) : "";
+            return roles_member.contains(role) ? Standard.toBold(temp) : temp;
+        }).collect(Collectors.joining("\n"));
+        final String s_2 = GuildBotRole.stream().map((guildBotRole) -> {
+            String temp = guildBotRole.getName();
+            temp += id ? String.format(" (ID: %d)", guildBotRole.getId()) : "";
+            return GuildBotRole.getGuildBotRolesByMember(member).contains(guildBotRole) ? Standard.toBold(temp) : temp;
+        }).collect(Collectors.joining("\n"));
+        final String s_3 = GlobalBotRole.stream().map((globalBotRole) -> {
+            String temp = globalBotRole.getName();
+            temp += id ? String.format(" (ID: %d)", globalBotRole.getId()) : "";
+            return GlobalBotRole.getGlobalBotRolesByUser(user).contains(globalBotRole) ? Standard.toBold(temp) : temp;
+        }).collect(Collectors.joining("\n"));
+        final EmbedBuilder builder = Standard.getMessageEmbed(Color.YELLOW, "%s your Roles are bold%s", event.getAuthor().getAsMention(), (id ? String.format(" (Your ID: %s)", event.getAuthor().getId()) : ""));
+        builder.addField("Guild Roles", s_1, true);
+        builder.addField("Guild Bot Roles", s_2, true);
+        builder.addField("Global Bot Roles", s_3, true);
         event.sendMessage(builder.build());
-        sb_1.delete(0, sb_1.length());
-        sb_2.delete(0, sb_2.length());
     }
 
     @Override

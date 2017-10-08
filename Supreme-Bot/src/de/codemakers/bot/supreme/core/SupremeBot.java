@@ -207,7 +207,6 @@ public class SupremeBot {
     public static final boolean reload() {
         try {
             reloadSettings();
-            reloadPermissionRoles();
             reloadAllGuilds();
             return true;
         } catch (Exception ex) {
@@ -218,15 +217,6 @@ public class SupremeBot {
     public static final boolean reloadSettings() {
         try {
             Standard.reloadSettings();
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
-    public static final boolean reloadPermissionRoles() {
-        try {
-            Standard.reloadPermissionRoles();
             return true;
         } catch (Exception ex) {
             return false;
