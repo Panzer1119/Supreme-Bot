@@ -665,6 +665,13 @@ public class Standard {
         return isSuperOwner(member.getUser());
     }
 
+    public static final String getCompleteName(User user) {
+        if (user == null) {
+            return null;
+        }
+        return user.getName() + "#" + user.getDiscriminator();
+    }
+
     public static final User getUserById(long user_id) {
         if (getJDA() == null) {
             System.err.println("Failed to get User by id: JDA is null!");

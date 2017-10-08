@@ -18,4 +18,13 @@ public class Result {
         this.resultSet = resultSet;
     }
 
+    public final boolean close() {
+        try {
+            statement.close();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
 }

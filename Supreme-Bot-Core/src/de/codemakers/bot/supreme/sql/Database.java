@@ -282,6 +282,21 @@ public class Database implements Copyable {
         }
     }
 
+    public final boolean update(Object object) {
+        if (object == null || !isConnected()) {
+            return false;
+        }
+        try {
+            final Class<?> clazz = object.getClass();
+            SQLUtil.removeObjects(clazz, this, object);
+            return SQLUtil.serializeObjects(clazz, this, true, object);
+        } catch (Exception ex) {
+            System.err.println("Database: Updating error");
+            ex.printStackTrace();
+            return false;
+        }
+    }
+
     @Override
     public final Database copy() {
         return new Database(hostname, database, username, password);

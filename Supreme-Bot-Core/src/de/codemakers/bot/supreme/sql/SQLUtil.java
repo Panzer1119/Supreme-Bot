@@ -37,8 +37,10 @@ public class SQLUtil {
 
     public static final <T> ArrayList<T> deserializeObjectsOfResultSet(Class<? extends T> clazz, ResultSet resultSet, boolean forceAll, SQLDeserializer deserializer) {
         try {
-            if (clazz == null || !clazz.isAnnotationPresent(SQLTable.class) || resultSet == null || resultSet.isClosed() || resultSet.isAfterLast() || (!resultSet.isBeforeFirst() && !resultSet.next())) {
+            if (clazz == null || !clazz.isAnnotationPresent(SQLTable.class)) {
                 return null;
+            } else if (resultSet == null || resultSet.isClosed() || resultSet.isAfterLast() || (!resultSet.isBeforeFirst() && !resultSet.next())) {
+                return new ArrayList<>();
             }
             final List<Map.Entry<Field, SQLField>> fields = getFields(clazz, FieldType.of(false, false, forceAll));
             final Constructor constructor = clazz.getConstructor(fields.stream().map((field) -> field.getKey().getType()).collect(Collectors.toList()).toArray(new Class<?>[0]));
