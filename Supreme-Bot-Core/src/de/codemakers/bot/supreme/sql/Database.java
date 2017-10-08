@@ -107,7 +107,7 @@ public class Database implements Copyable {
         return connection != null;
     }
 
-    public final Future<?> connect() {
+    public final Future<?> connect(Runnable... runs) {
         return Updater.submit(() -> {
             try {
                 final int id = (int) (Math.random() * 1_000_000);
@@ -117,6 +117,9 @@ public class Database implements Copyable {
                 setConnection(MySQL.connect(hostname, database, username, password));
                 if (DEBUG) {
                     System.out.println(String.format("MySQL (%d): connection established: %b", id, isConnected()));
+                }
+                if (runs != null && runs.length != 0) {
+                    Arrays.asList(runs).forEach((run) -> run.run());
                 }
             } catch (Exception ex) {
                 System.err.println("Database: Connection error");

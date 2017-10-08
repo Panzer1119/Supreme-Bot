@@ -45,15 +45,16 @@ public class MySQL {
             STANDARD_DATABASE.setDatabase(Standard.STANDARD_SETTINGS.asAutoAdd().getProperty("sql_database", null));
             STANDARD_DATABASE.setUsername(Standard.STANDARD_SETTINGS.asAutoAdd().getProperty("sql_username", null));
             STANDARD_DATABASE.setPassword(Standard.STANDARD_SETTINGS.asAutoAdd().getProperty("sql_password", null));
-            STANDARD_DATABASE.connect();
+            STANDARD_DATABASE.connect(() -> {
+                try {
+                    new Reflections(Standard.BASE_PACKAGE).getTypesAnnotatedWith(SQLTable.class).stream().filter((clazz) -> clazz.getAnnotation(SQLTable.class).createIfNotExists()).forEach((clazz) -> SQLUtil.createTableIfNotExists(clazz, STANDARD_DATABASE));
+                } catch (Exception ex) {
+                    System.err.println("MySQL: Init 2 error");
+                    ex.printStackTrace();
+                }
+            });
         } catch (Exception ex) {
             System.err.println("MySQL: Init 1 error");
-            ex.printStackTrace();
-        }
-        try {
-            new Reflections(Standard.BASE_PACKAGE).getTypesAnnotatedWith(SQLTable.class).stream().filter((clazz) -> clazz.getAnnotation(SQLTable.class).createIfNotExists()).forEach((clazz) -> SQLUtil.createTableIfNotExists(clazz, STANDARD_DATABASE));
-        } catch (Exception ex) {
-            System.err.println("MySQL: Init 2 error");
             ex.printStackTrace();
         }
     }
