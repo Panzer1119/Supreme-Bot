@@ -56,17 +56,17 @@ public class RolesCommand extends Command {
             event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, String.format("%s Sorry %s, this feature isn't supported yet!", Emoji.WARNING, event.getAuthor().getAsMention()));
             return;
         }
-        final Guild guild = event.getGuild();
+        final Guild guild = (event.isPrivate() ? null : event.getGuild());
         final User user = event.getAuthor();
-        final Member member = event.getMember();
-        final List<Role> roles_guild = guild.getRoles();
-        final List<Role> roles_member = member.getRoles();
-        final String s_1 = roles_guild.stream().map((role) -> {
+        final Member member = (event.isPrivate() ? null : event.getMember());
+        final List<Role> roles_guild = (event.isPrivate() ? null : guild.getRoles());
+        final List<Role> roles_member = (event.isPrivate() ? null : member.getRoles());
+        final String s_1 = event.isPrivate() ? "" : roles_guild.stream().map((role) -> {
             String temp = asMention ? role.getAsMention() : role.getName();
             temp += id ? String.format(" (ID: %s)", role.getId()) : "";
             return roles_member.contains(role) ? Standard.toBold(temp) : temp;
         }).collect(Collectors.joining("\n"));
-        final String s_2 = GuildBotRole.stream().map((guildBotRole) -> {
+        final String s_2 = event.isPrivate() ? "" : GuildBotRole.stream().map((guildBotRole) -> {
             String temp = guildBotRole.getName();
             temp += id ? String.format(" (ID: %d)", guildBotRole.getId()) : "";
             return GuildBotRole.getGuildBotRolesByMember(member).contains(guildBotRole) ? Standard.toBold(temp) : temp;
@@ -77,8 +77,10 @@ public class RolesCommand extends Command {
             return GlobalBotRole.getGlobalBotRolesByUser(user).contains(globalBotRole) ? Standard.toBold(temp) : temp;
         }).collect(Collectors.joining("\n"));
         final EmbedBuilder builder = Standard.getMessageEmbed(Color.YELLOW, "%s your Roles are bold%s", event.getAuthor().getAsMention(), (id ? String.format(" (Your ID: %s)", event.getAuthor().getId()) : ""));
-        builder.addField("Guild Roles", s_1, true);
-        builder.addField("Guild Bot Roles", s_2, true);
+        if (!event.isPrivate()) {
+            builder.addField("Guild Roles", s_1, true);
+            builder.addField("Guild Bot Roles", s_2, true);
+        }
         builder.addField("Global Bot Roles", s_3, true);
         event.sendMessage(builder.build());
     }

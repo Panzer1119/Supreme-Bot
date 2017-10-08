@@ -21,7 +21,7 @@ import net.dv8tion.jda.core.entities.User;
  */
 public enum GuildBotRole {
     BOT("Bot", 6, (guild, user) -> user.isBot(), (role) -> role.isManaged()),
-    OWNER("Owner", 5, (guild, user) -> (guild.isMember(user) && guild.getMember(user).isOwner()), (role) -> GuildBotRoleData.isGranted(role.getGuild().getIdLong(), role.getIdLong(), 5, true)),
+    OWNER("Owner", 5, (guild, user) -> (guild.isMember(user) && (guild.getMember(user).isOwner() || GuildBotRoleData.isGranted(guild.getIdLong(), user.getIdLong(), 5, false))), (role) -> GuildBotRoleData.isGranted(role.getGuild().getIdLong(), role.getIdLong(), 5, true)),
     ADMIN("Admin", 4, (guild, user) -> (guild.isMember(user) && (guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 4, true)) || GuildBotRoleData.isGranted(guild.getIdLong(), user.getIdLong(), 4, false))), (role) -> GuildBotRoleData.isGranted(role.getGuild().getIdLong(), role.getIdLong(), 4, true)),
     BOT_COMMANDER("Bot Commander", 3, (guild, user) -> (guild.isMember(user) && (guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 3, true)) || GuildBotRoleData.isGranted(guild.getIdLong(), user.getIdLong(), 3, false))), (role) -> GuildBotRoleData.isGranted(role.getGuild().getIdLong(), role.getIdLong(), 3, true)),
     MODERATOR("Moderator", 2, (guild, user) -> (guild.isMember(user) && (guild.getMember(user).getRoles().stream().anyMatch((role) -> GuildBotRoleData.isGranted(guild.getIdLong(), role.getIdLong(), 2, true)) || GuildBotRoleData.isGranted(guild.getIdLong(), user.getIdLong(), 2, false))), (role) -> GuildBotRoleData.isGranted(role.getGuild().getIdLong(), role.getIdLong(), 2, true)),
