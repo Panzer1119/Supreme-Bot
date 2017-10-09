@@ -375,6 +375,10 @@ public class Standard {
         return advancedGuild;
     }
 
+    public static final void clearGuilds() {
+        GUILDS.clear();
+    }
+
     public static final Settings getGuildSettings(Guild guild) {
         if (guild == null) {
             return STANDARD_NULL_SETTINGS;
