@@ -187,9 +187,9 @@ public class TempBanCommand extends Command {
                     ban_time_string_ = "forever";
                 } else {
                     try {
-                        date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(log_date_time_format));
+                        date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), Standard.getZoneId()).format(DateTimeFormatter.ofPattern(log_date_time_format));
                     } catch (Exception ex) {
-                        date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
+                        date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), Standard.getZoneId()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                     }
                     try {
                         ban_time_string_ = Util.getTimeAsString(ban_time_ms, true, true);

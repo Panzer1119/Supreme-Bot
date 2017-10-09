@@ -17,9 +17,11 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -76,6 +78,8 @@ public class Standard {
      * (\d*[.,]*\d+)((?:y(?:ear(?:s)?)?)|(?:w(?:eek(?:s)?)?)|(?:d(?:ay(?:s)?)?)|(?:h(?:our(?:s)?)?)|(?:m(?:in(?:(?:ute(?:s)?)|(?:s))?)?)|(?:s(?:ec(?:(?:ond(?:s)?)|(?:s))?)?))
      */
     public static final Pattern PATTERN_TIME = Pattern.compile("(\\d*[.,]*\\d+)((?:y(?:ear(?:s)?)?)|(?:w(?:eek(?:s)?)?)|(?:d(?:ay(?:s)?)?)|(?:h(?:our(?:s)?)?)|(?:m(?:in(?:(?:ute(?:s)?)|(?:s))?)?)|(?:s(?:ec(?:(?:ond(?:s)?)|(?:s))?)?))", Pattern.CASE_INSENSITIVE);
+
+    private static ZoneId ZONE_ID = ZoneId.systemDefault();
 
     public static final Settings STANDARD_NULL_SETTINGS = new DefaultSettings();
 
@@ -150,6 +154,8 @@ public class Standard {
                 STANDARD_SETTINGS.setProperty("nickname", "Supreme-Bot");
             }
             setNickname(STANDARD_SETTINGS.getProperty("nickname", "Supreme-Bot"));
+            ZONE_ID = ZoneId.of(STANDARD_SETTINGS.getProperty("zone_id", ZoneId.systemDefault().getId()));
+            System.out.println("Loaded ZoneId: " + ZONE_ID.getId());
             reloadPluginPermissionAdminString();
             System.out.println("Reloaded Settings!");
             return true;
@@ -332,6 +338,10 @@ public class Standard {
             ex.printStackTrace();
             return false;
         }
+    }
+
+    public static final ZoneId getZoneId() {
+        return ZONE_ID == null ? ZoneId.systemDefault() : ZONE_ID;
     }
 
     public static final AdvancedFile createGuildFolder(Guild guild) {
@@ -583,9 +593,9 @@ public class Standard {
                     final String log_date_time_format = advancedGuild.getSettings().getProperty(settings_log_date_time_format, Standard.STANDARD_DATE_TIME_FORMAT);
                     String date_time_formatted = null;
                     try {
-                        date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(log_date_time_format));
+                        date_time_formatted = LocalDateTime.ofInstant(timestamp, getZoneId()).format(DateTimeFormatter.ofPattern(log_date_time_format));
                     } catch (Exception ex) {
-                        date_time_formatted = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
+                        date_time_formatted = LocalDateTime.ofInstant(timestamp, getZoneId()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                     }
                     final ArrayList<Object> args_ = new ArrayList<>();
                     args_.add(date_time_formatted);

@@ -184,9 +184,9 @@ public class TempBan {
                 ban_time_string = "forever";
             } else {
                 try {
-                    date_time_formatted_unban_date = LocalDateTime.ofInstant(unban_date, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(log_date_time_format));
+                    date_time_formatted_unban_date = LocalDateTime.ofInstant(unban_date, Standard.getZoneId()).format(DateTimeFormatter.ofPattern(log_date_time_format));
                 } catch (Exception ex) {
-                    date_time_formatted_unban_date = LocalDateTime.ofInstant(unban_date, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
+                    date_time_formatted_unban_date = LocalDateTime.ofInstant(unban_date, Standard.getZoneId()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
                 try {
                     ban_time_string = Util.getTimeAsString(Duration.between(Instant.now(), unban_date).toMillis(), true, true);

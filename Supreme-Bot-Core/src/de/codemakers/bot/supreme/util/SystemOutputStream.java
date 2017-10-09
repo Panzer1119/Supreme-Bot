@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.util;
 
+import static de.codemakers.bot.supreme.util.Standard.getZoneId;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.time.Instant;
@@ -150,7 +151,7 @@ public class SystemOutputStream extends PrintStream {
     }
 
     private final void print(String g, Instant instant, boolean newLine) {
-        final String msg = String.format("[%s]: %s", LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), g);
+        final String msg = String.format("[%s]: %s", LocalDateTime.ofInstant(instant, Standard.getZoneId()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), g);
         String temp = msg + (newLine ? Standard.NEW_LINE : "");
         super.print(temp);
         if (Standard.CURRENT_LOG_FILE != null) {
