@@ -5,6 +5,7 @@ import de.codemakers.bot.supreme.commands.CommandParser;
 import de.codemakers.bot.supreme.commands.CommandType;
 import de.codemakers.bot.supreme.entities.DefaultMessageEvent;
 import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.settings.LocalConfig;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.util.List;
@@ -43,6 +44,11 @@ public class MessageHandler extends ListenerAdapter {
                 final CommandType commandType = CommandType.getCommandType(content, content_raw, event);
                 if (commandType.isCommand()) {
                     CommandHandler.handleCommand(CommandParser.parser(commandType, content, content_raw, event));
+                } else if (content_raw.contains(Standard.getSelfUser().getAsMention()) || content_raw.contains(Standard.getSelfMemberByGuild(guild).getAsMention())) {
+                    final String reaction = LocalConfig.LOCAL_CONFIG.getReactionOnMention(guild.getIdLong());
+                    if (reaction != null) {
+                        event.getMessage().addReaction(reaction).queue();
+                    }
                 }
                 final Object[] output = ListenerManager.fireListeners(MessageListener.class, CommandHandler.ADMIN_PREDICATE, new Object[]{event, MessageType.RECEIVED});
                 if (output.length > 0) {

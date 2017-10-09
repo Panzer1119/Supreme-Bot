@@ -2,7 +2,7 @@ package de.codemakers.bot.supreme.listeners;
 
 import de.codemakers.bot.supreme.sql.entities.TempBan;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
-import de.codemakers.bot.supreme.settings.UserConfig;
+import de.codemakers.bot.supreme.settings.LocalConfig;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import java.time.Instant;
@@ -39,35 +39,35 @@ public class GuildMemberLogger extends ListenerAdapter {
             onGuildMemberJoinKicked(timestamp, event);
             return;
         }
-        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_JOIN, "[%1$s] [%2$s] %3$s joined this Guild", LOG_DATE_TIME_FORMAT, UserConfig.USER_CONFIG.getNameForUser(event.getUser()));
+        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_JOIN, "[%1$s] [%2$s] %3$s joined this Guild", LOG_DATE_TIME_FORMAT, LocalConfig.LOCAL_CONFIG.getNameForUser(event.getUser()));
     }
 
     private final void onGuildMemberJoinKicked(Instant timestamp, GuildMemberJoinEvent event) {
-        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_JOIN_KICKED, "[%1$s] [%2$s] %3$s joined this Guild, but was directly kicked", LOG_DATE_TIME_FORMAT, UserConfig.USER_CONFIG.getNameForUser(event.getUser()));
+        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_JOIN_KICKED, "[%1$s] [%2$s] %3$s joined this Guild, but was directly kicked", LOG_DATE_TIME_FORMAT, LocalConfig.LOCAL_CONFIG.getNameForUser(event.getUser()));
     }
 
     @Override
     public final void onGuildMemberLeave(GuildMemberLeaveEvent event) {
-        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_LEAVE, "[%1$s] [%2$s] %3$s left this Guild", LOG_DATE_TIME_FORMAT, UserConfig.USER_CONFIG.getNameForUser(event.getUser()));
+        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_LEAVE, "[%1$s] [%2$s] %3$s left this Guild", LOG_DATE_TIME_FORMAT, LocalConfig.LOCAL_CONFIG.getNameForUser(event.getUser()));
     }
 
     @Override
     public final void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
         final Instant timestamp = Instant.now();
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
-        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_ROLE_ADD, "[%1$s] [%2$s] %3$s got added %4$s", LOG_DATE_TIME_FORMAT, UserConfig.USER_CONFIG.getNameForUser(event.getUser()), Util.rolesToString(event.getRoles(), advancedGuild.getSettings().getProperty(LOG_MEMBER_ROLES_ASMENTION, false)));
+        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_ROLE_ADD, "[%1$s] [%2$s] %3$s got added %4$s", LOG_DATE_TIME_FORMAT, LocalConfig.LOCAL_CONFIG.getNameForUser(event.getUser()), Util.rolesToString(event.getRoles(), advancedGuild.getSettings().getProperty(LOG_MEMBER_ROLES_ASMENTION, false)));
     }
 
     @Override
     public final void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
         final Instant timestamp = Instant.now();
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
-        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_ROLE_REMOVE, "[%1$s] [%2$s] %3$s got removed %4$s", LOG_DATE_TIME_FORMAT, UserConfig.USER_CONFIG.getNameForUser(event.getUser()), Util.rolesToString(event.getRoles(), advancedGuild.getSettings().getProperty(LOG_MEMBER_ROLES_ASMENTION, false)));
+        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_ROLE_REMOVE, "[%1$s] [%2$s] %3$s got removed %4$s", LOG_DATE_TIME_FORMAT, LocalConfig.LOCAL_CONFIG.getNameForUser(event.getUser()), Util.rolesToString(event.getRoles(), advancedGuild.getSettings().getProperty(LOG_MEMBER_ROLES_ASMENTION, false)));
     }
 
     @Override
     public final void onGuildMemberNickChange(GuildMemberNickChangeEvent event) {
-        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_NICK_CHANGE, "[%1$s] [%2$s] %3$s changed his Nickname from \"%4$s\" to \"%5$s\"", LOG_DATE_TIME_FORMAT, UserConfig.USER_CONFIG.getNameForUser(event.getUser()), event.getPrevNick(), event.getNewNick());
+        Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_NICK_CHANGE, "[%1$s] [%2$s] %3$s changed his Nickname from \"%4$s\" to \"%5$s\"", LOG_DATE_TIME_FORMAT, LocalConfig.LOCAL_CONFIG.getNameForUser(event.getUser()), event.getPrevNick(), event.getNewNick());
     }
 
 }

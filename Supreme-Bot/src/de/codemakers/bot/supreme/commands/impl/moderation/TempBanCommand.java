@@ -27,7 +27,7 @@ import java.util.List;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
-import de.codemakers.bot.supreme.settings.UserConfig;
+import de.codemakers.bot.supreme.settings.LocalConfig;
 import net.dv8tion.jda.core.entities.Member;
 
 /**
@@ -197,7 +197,7 @@ public class TempBanCommand extends Command {
                         ban_time_string_ = "error";
                     }
                 }
-                Standard.log(ban_date, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_TEMP_BANS, (ban_type ? LOG_TEXT_TEMP_BANS_BANNED : LOG_TEXT_TEMP_BANS_KICKED), (ban_type ? STANDARD_LOG_TEXT_TEMP_BANS_BANNED : STANDARD_LOG_TEXT_TEMP_BANS_KICKED), LOG_DATE_TIME_FORMAT, (user == null ? user_id : UserConfig.USER_CONFIG.getNameForUser(user)), UserConfig.USER_CONFIG.getNameForUser(event.getAuthor()), ban_time_string_, date_time_formatted_unban_date);
+                Standard.log(ban_date, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_TEMP_BANS, (ban_type ? LOG_TEXT_TEMP_BANS_BANNED : LOG_TEXT_TEMP_BANS_KICKED), (ban_type ? STANDARD_LOG_TEXT_TEMP_BANS_BANNED : STANDARD_LOG_TEXT_TEMP_BANS_KICKED), LOG_DATE_TIME_FORMAT, (user == null ? user_id : LocalConfig.LOCAL_CONFIG.getNameForUser(user)), LocalConfig.LOCAL_CONFIG.getNameForUser(event.getAuthor()), ban_time_string_, date_time_formatted_unban_date);
                 final PreparedStatement preparedStatement = MySQL.STANDARD_DATABASE.prepareStatement("INSERT INTO %s (guild_ID, user_ID, unban_date, reason, banner_ID, ban_date, ban_type) VALUES (?, ?, ?, ?, ?, ?, ?)", MySQL.SQL_TABLE_TEMP_BANS);
                 preparedStatement.setLong(1, event.getGuild().getIdLong());
                 preparedStatement.setLong(2, Long.parseLong(user_id));
