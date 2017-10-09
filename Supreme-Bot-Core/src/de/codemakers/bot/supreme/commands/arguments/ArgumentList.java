@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -18,6 +21,13 @@ import net.dv8tion.jda.core.entities.User;
  * @author Panzer1119
  */
 public class ArgumentList {
+
+    public static final Pattern PATTERN_MARKDOWN_ALL = Pattern.compile("(?:(?:<@(\\d+)>)|(?:<@!(\\d+)>)|(?:<#(\\d+)>)|(?:<@&(\\d+)>)|(?:<:(\\w+):(\\d+)>))");
+    public static final Pattern PATTERN_MARKDOWN_USER = Pattern.compile("(?:<@(\\d+)>)");
+    public static final Pattern PATTERN_MARKDOWN_USER_RENAMED = Pattern.compile("(?:<@!(\\d+)>)");
+    public static final Pattern PATTERN_MARKDOWN_CHANNEL = Pattern.compile("(?:<#(\\d+)>)");
+    public static final Pattern PATTERN_MARKDOWN_ROLE = Pattern.compile("(?:<@&(\\d+)>)");
+    public static final Pattern PATTERN_MARKDOWN_CUSTOM_EMOJI = Pattern.compile("(?:<:(\\w+):(\\d+)>)");
 
     private final ArrayList<String> arguments_content_raw = new ArrayList<>();
     private final ArrayList<String> arguments_content = new ArrayList<>();
@@ -186,6 +196,23 @@ public class ArgumentList {
         return output.toArray(new String[output.size()]);
     }
 
+    public final boolean isMarkdownFirst() {
+        return isMarkdown(0);
+    }
+
+    public final boolean isMarkdownLast() {
+        return isMarkdown(size() - 1);
+    }
+
+    public final boolean isMarkdown(int index) {
+        final String temp = getRaw(index);
+        if (temp == null) {
+            return false;
+        }
+        Matcher matcher = PATTERN_MARKDOWN_ALL.matcher(temp);
+        return matcher.matches();
+    }
+
     public final String consumeFirst() {
         return consume(0);
     }
@@ -231,15 +258,37 @@ public class ArgumentList {
     }
 
     public final User consumeUser(int index) {
+        return getUser(index, true);
+    }
+
+    public final User getUserFirst() {
+        return getUser(0);
+    }
+
+    public final User getUserLast() {
+        return getUser(size() - 1);
+    }
+
+    public final User getUser(int index) {
+        return getUser(index, false);
+    }
+
+    public final User getUser(int index, boolean consume) {
         final String temp = getRaw(index);
         if (temp == null) {
             return null;
         }
-        if ((temp.startsWith("<@!") || temp.startsWith("<@")) && temp.endsWith(">")) {
-            consumeRaw(index);
-            return Standard.getUserById(temp.substring("<@".length() + (temp.startsWith("<@!") ? 1 : 0), temp.length() - ">".length()));
+        Matcher matcher = PATTERN_MARKDOWN_USER.matcher(temp);
+        if (!matcher.matches()) {
+            matcher = PATTERN_MARKDOWN_USER_RENAMED.matcher(temp);
+            if (!matcher.matches()) {
+                return null;
+            }
         }
-        return null;
+        if (consume) {
+            consumeRaw(index);
+        }
+        return Standard.getUserById(matcher.group(1));
     }
 
     public final Member consumeMemberFirst() {
@@ -251,6 +300,22 @@ public class ArgumentList {
     }
 
     public final Member consumeMember(int index) {
+        return getMember(index, true);
+    }
+
+    public final Member getMemberFirst() {
+        return getMember(0);
+    }
+
+    public final Member getMemberLast() {
+        return getMember(size() - 1);
+    }
+
+    public final Member getMember(int index) {
+        return getMember(index, false);
+    }
+
+    public final Member getMember(int index, boolean consume) {
         if (guild == null) {
             return null;
         }
@@ -258,11 +323,11 @@ public class ArgumentList {
         if (temp == null) {
             return null;
         }
-        if ((temp.startsWith("<@!") || temp.startsWith("<@")) && temp.endsWith(">")) {
-            consumeRaw(index);
-            return guild.getMemberById(temp.substring("<@".length() + (temp.startsWith("<@!") ? 1 : 0), temp.length() - ">".length()));
+        final User user = getUser(index, consume);
+        if (user == null) {
+            return null;
         }
-        return null;
+        return guild.getMember(user);
     }
 
     public final TextChannel consumeTextChannelFirst() {
@@ -274,6 +339,22 @@ public class ArgumentList {
     }
 
     public final TextChannel consumeTextChannel(int index) {
+        return getTextChannel(index, true);
+    }
+
+    public final TextChannel getTextChannelFirst() {
+        return getTextChannel(0);
+    }
+
+    public final TextChannel getTextChannelLast() {
+        return getTextChannel(size() - 1);
+    }
+
+    public final TextChannel getTextChannel(int index) {
+        return getTextChannel(index, false);
+    }
+
+    public final TextChannel getTextChannel(int index, boolean consume) {
         if (guild == null) {
             return null;
         }
@@ -281,11 +362,14 @@ public class ArgumentList {
         if (temp == null) {
             return null;
         }
-        if ((temp.startsWith("<@!") || temp.startsWith("<@")) && temp.endsWith(">")) {
-            consumeRaw(index);
-            return guild.getTextChannelById(temp.substring("<@".length() + (temp.startsWith("<@!") ? 1 : 0), temp.length() - ">".length()));
+        final Matcher matcher = PATTERN_MARKDOWN_CHANNEL.matcher(temp);
+        if (!matcher.matches()) {
+            return null;
         }
-        return null;
+        if (consume) {
+            consumeRaw(index);
+        }
+        return guild.getTextChannelById(matcher.group(1));
     }
 
     public final Role consumeRoleFirst() {
@@ -297,6 +381,22 @@ public class ArgumentList {
     }
 
     public final Role consumeRole(int index) {
+        return getRole(index, true);
+    }
+
+    public final Role getRoleFirst() {
+        return getRole(0);
+    }
+
+    public final Role getRoleLast() {
+        return getRole(size() - 1);
+    }
+
+    public final Role getRole(int index) {
+        return getRole(index, false);
+    }
+
+    public final Role getRole(int index, boolean consume) {
         if (guild == null) {
             return null;
         }
@@ -304,11 +404,56 @@ public class ArgumentList {
         if (temp == null) {
             return null;
         }
-        if ((temp.startsWith("<@!") || temp.startsWith("<@")) && temp.endsWith(">")) {
-            consumeRaw(index);
-            return guild.getRoleById(temp.substring("<@".length() + (temp.startsWith("<@!") ? 1 : 0), temp.length() - ">".length()));
+        final Matcher matcher = PATTERN_MARKDOWN_ROLE.matcher(temp);
+        if (!matcher.matches()) {
+            return null;
         }
-        return null;
+        if (consume) {
+            consumeRaw(index);
+        }
+        return guild.getRoleById(matcher.group(1));
+    }
+
+    public final Emote consumeEmoteFirst() {
+        return consumeEmote(0);
+    }
+
+    public final Emote consumeEmoteLast() {
+        return consumeEmote(size() - 1);
+    }
+
+    public final Emote consumeEmote(int index) {
+        return getEmote(index, true);
+    }
+
+    public final Emote getEmoteFirst() {
+        return getEmote(0);
+    }
+
+    public final Emote getEmoteLast() {
+        return getEmote(size() - 1);
+    }
+
+    public final Emote getEmote(int index) {
+        return getEmote(index, false);
+    }
+
+    public final Emote getEmote(int index, boolean consume) {
+        if (guild == null) {
+            return null;
+        }
+        final String temp = getRaw(index);
+        if (temp == null) {
+            return null;
+        }
+        final Matcher matcher = PATTERN_MARKDOWN_CUSTOM_EMOJI.matcher(temp);
+        if (!matcher.matches()) {
+            return null;
+        }
+        if (consume) {
+            consumeRaw(index);
+        }
+        return guild.getEmoteById(matcher.group(1));
     }
 
     public final boolean consumeFirst(Argument argument, ArgumentConsumeType type) {

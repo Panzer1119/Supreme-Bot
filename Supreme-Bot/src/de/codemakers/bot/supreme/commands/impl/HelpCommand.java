@@ -6,6 +6,7 @@ import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
+import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -17,19 +18,19 @@ import de.codemakers.bot.supreme.permission.PermissionFilter;
  * @author Panzer1119
  */
 public class HelpCommand extends Command {
-    
+
     @Override
     public final void initInvokers() {
         addInvokers(Invoker.createInvoker("help", this), Invoker.createInvoker("h", this));
     }
 
     @Override
-    public final boolean called(Invoker invoker, ArgumentList arguments, de.codemakers.bot.supreme.entities.MessageEvent event) {
+    public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         return true;
     }
 
     @Override
-    public final void action(Invoker invoker, ArgumentList arguments, de.codemakers.bot.supreme.entities.MessageEvent event) {
+    public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         if (arguments == null || arguments.isEmpty()) {
             CommandHandler.sendHelpList(event, false, false);
         } else if (arguments.isSize(1) && arguments.isConsumed(Standard.ARGUMENT_PRIVATE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
@@ -52,7 +53,7 @@ public class HelpCommand extends Command {
     }
 
     @Override
-    public final void executed(boolean success, de.codemakers.bot.supreme.entities.MessageEvent event) {
+    public final void executed(boolean success, MessageEvent event) {
         System.out.println("[INFO] Command '" + getCommandID() + "' was executed!");
     }
 
