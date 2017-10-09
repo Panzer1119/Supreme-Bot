@@ -1,13 +1,13 @@
 package de.codemakers.bot.supreme.util;
 
-import static de.codemakers.bot.supreme.util.Standard.getZoneId;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * SystemOutputStream
@@ -16,6 +16,7 @@ import java.util.Locale;
  */
 public class SystemOutputStream extends PrintStream {
 
+    private final Queue<String> buffer = new ConcurrentLinkedQueue<>();
     private final boolean error;
 
     public SystemOutputStream(OutputStream out, boolean error) {
@@ -154,16 +155,24 @@ public class SystemOutputStream extends PrintStream {
         final String msg = String.format("[%s]: %s", LocalDateTime.ofInstant(instant, Standard.getZoneId()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), g);
         String temp = msg + (newLine ? Standard.NEW_LINE : "");
         super.print(temp);
-        if (Standard.CURRENT_LOG_FILE != null) {
-            Standard.addToFile(Standard.CURRENT_LOG_FILE, temp, true, false);
+        final AdvancedFile log_file = Standard.getCurrentLogFile();
+        if (log_file != null) {
+            while (!buffer.isEmpty()) {
+                Standard.addToFile(log_file, buffer.poll(), true, false);
+            }
+            Standard.addToFile(log_file, temp, true, false);
+        } else {
+            buffer.add(temp);
         }
         if (error && false) {
             final Exception ex = new Exception();
             for (StackTraceElement e : ex.getStackTrace()) {
                 temp = e + Standard.NEW_LINE;
                 super.print(temp);
-                if (Standard.CURRENT_LOG_FILE != null) {
-                    Standard.addToFile(Standard.CURRENT_LOG_FILE, temp, true, false);
+                if (log_file != null) {
+                    Standard.addToFile(log_file, temp, true, false);
+                } else {
+                    buffer.add(temp);
                 }
             }
         }

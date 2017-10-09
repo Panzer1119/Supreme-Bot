@@ -107,7 +107,7 @@ public class Standard {
     public static final String STANDARD_LOG_FILE_FORMAT = "log_%s.txt";
     public static final String STANDARD_LOG_FILE_NAME = "log.txt";
     public static final AdvancedFile STANDARD_LOG_FOLDER = getFile(STANDARD_LOGS_FOLDER_NAME);
-    public static final AdvancedFile CURRENT_LOG_FILE = Standard.createCurrentLogFile();
+    private static AdvancedFile CURRENT_LOG_FILE = null;
 
     public static final String STANDARD_RECORDINGS_FOLDER_NAME = "recordings";
     public static final AdvancedFile STANDARD_RECORDINGS_FOLE = getFile(STANDARD_RECORDINGS_FOLDER_NAME);
@@ -156,6 +156,7 @@ public class Standard {
             setNickname(STANDARD_SETTINGS.getProperty("nickname", "Supreme-Bot"));
             ZONE_ID = ZoneId.of(STANDARD_SETTINGS.getProperty("zone_id", ZoneId.systemDefault().getId()));
             System.out.println("Loaded ZoneId: " + ZONE_ID.getId());
+            CURRENT_LOG_FILE = Standard.createCurrentLogFile();
             reloadPluginPermissionAdminString();
             System.out.println("Reloaded Settings!");
             return true;
@@ -259,8 +260,12 @@ public class Standard {
         return new AdvancedFile(STANDARD_DATA_FOLDER, fileName);
     }
 
-    public static final AdvancedFile createCurrentLogFile() {
-        return getLogFile(String.format(STANDARD_LOG_FILE_FORMAT, LocalDateTime.now().format(STANDARD_DATE_TIME_FILE_FORMATTER)));
+    private static final AdvancedFile createCurrentLogFile() {
+        return getLogFile(String.format(STANDARD_LOG_FILE_FORMAT, STANDARD_DATE_TIME_FILE_FORMATTER.format(LocalDateTime.ofInstant(Instant.now(), getZoneId()))));
+    }
+
+    public static final AdvancedFile getCurrentLogFile() {
+        return CURRENT_LOG_FILE;
     }
 
     public static final AdvancedFile getLogFile(String name) {

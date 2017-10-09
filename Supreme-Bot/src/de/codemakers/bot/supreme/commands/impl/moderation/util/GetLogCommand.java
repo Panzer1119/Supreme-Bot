@@ -95,11 +95,12 @@ public class GetLogCommand extends Command {
         } else {
             String log = "";
             if (arguments.isEmpty()) {
-                if (Standard.CURRENT_LOG_FILE == null) {
+                final AdvancedFile log_file = Standard.getCurrentLogFile();
+                if (log_file == null) {
                     event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "there is no current log file!").build());
                     return;
                 }
-                log = Standard.CURRENT_LOG_FILE.getName();
+                log = log_file.getName();
             } else { //Log
                 log = arguments.consumeFirst();
             }
