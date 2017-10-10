@@ -38,6 +38,8 @@ public class SystemMessageManager extends MessageManager {
     @Override
     public final void update() {
         message.editMessage(Standard.getMessageEmbed(Color.YELLOW, Standard.toBold("Live System Information"))
+                .addField(String.format("%s Version", Standard.STANDARD_NAME), Standard.VERSION, false)
+                .addField("Java Version", System.getProperty("java.version"), false)
                 .addField("IP Address", NetworkUtil.getIPAddress(), false)
                 .addField("CPU Cores available", "" + Runtime.getRuntime().availableProcessors(), false)
                 .addField("Max Memory", getMemory(Runtime.getRuntime().maxMemory()), false)

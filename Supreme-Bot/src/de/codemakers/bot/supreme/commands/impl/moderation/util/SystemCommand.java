@@ -45,6 +45,7 @@ public class SystemCommand extends Command {
         } else {
             DeleteMessageManager.monitor(event.sendAndWaitMessage(Standard.getMessageEmbed(Color.YELLOW, Standard.toBold("System Information"))
                     .addField(String.format("%s Version", Standard.STANDARD_NAME), Standard.VERSION, false)
+                    .addField("Java Version", System.getProperty("java.version"), false)
                     .addField("IP Address", NetworkUtil.getIPAddress(), false)
                     .addField("CPU Cores available", "" + Runtime.getRuntime().availableProcessors(), false)
                     .addField("Max Memory", SystemMessageManager.getMemory(Runtime.getRuntime().maxMemory()), false)
