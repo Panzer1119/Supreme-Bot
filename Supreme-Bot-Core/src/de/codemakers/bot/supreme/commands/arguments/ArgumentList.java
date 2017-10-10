@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
@@ -534,9 +535,7 @@ public class ArgumentList {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        arguments_content.stream().forEach((argument_raw) -> sb.append(argument_raw));
-        return sb.toString();
+        return arguments_content.stream().collect(Collectors.joining(" "));
     }
 
 }

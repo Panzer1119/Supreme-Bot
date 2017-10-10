@@ -58,7 +58,7 @@ public class SupremeBot {
             System.setOut(new SystemOutputStream(System.out, false));
             System.setErr(new SystemOutputStream(System.err, true));
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                Standard.STANDARD_SETTINGS.saveSettings();
+                //Standard.STANDARD_SETTINGS.saveSettings(); //FIXME WTF This is deleting the settings file all the time?!
                 Standard.saveAllGuildSettings();
             }));
             Standard.getter = () -> jda;
