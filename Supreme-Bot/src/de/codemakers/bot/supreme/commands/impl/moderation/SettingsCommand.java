@@ -40,37 +40,16 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
         final boolean get_default = arguments.consume(Standard.ARGUMENT_DEFAULT, ArgumentConsumeType.FIRST_IGNORE_CASE, 3);
         final boolean remove = arguments.isConsumed(Standard.ARGUMENT_REMOVE, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.FIRST_IGNORE_CASE);
-        final boolean user = arguments.isConsumed(Standard.ARGUMENT_USER, ArgumentConsumeType.FIRST_IGNORE_CASE);
         if (set) {
-            if (user) {
-                return arguments.isSize(4, 5);
-            } else {
-                return arguments.isSize(3, 4);
-            }
+            return arguments.isSize(3, 4);
         } else if (get && !get_default) {
-            if (user) {
-                return arguments.isSize(3, 4);
-            } else {
-                return arguments.isSize(2, 3);
-            }
+            return arguments.isSize(2, 3);
         } else if (get && get_default) {
-            if (user) {
-                return arguments.isSize(5, 6);
-            } else {
-                return arguments.isSize(4, 5);
-            }
+            return arguments.isSize(4, 5);
         } else if (remove) {
-            if (user) {
-                return arguments.isSize(3, 4);
-            } else {
-                return arguments.isSize(2, 3);
-            }
+            return arguments.isSize(2, 3);
         } else if (list) {
-            if (user) {
-                return arguments.isSize(2, 3);
-            } else {
-                return arguments.isSize(1, 2);
-            }
+            return arguments.isSize(1, 2);
         } else {
             return false;
         }
@@ -82,7 +61,6 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
         final boolean get = arguments.isConsumed(Standard.ARGUMENT_GET, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
         final boolean remove = arguments.isConsumed(Standard.ARGUMENT_REMOVE, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
         final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
-        final boolean user = arguments.isConsumed(Standard.ARGUMENT_USER, ArgumentConsumeType.CONSUME_ALL_IGNORE_CASE);
         long id = 0;
         String key = "";
         String value = null;
@@ -96,8 +74,6 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
             if (Util.contains(Standard.ULTRA_FORBIDDEN_GLOBAL, key) && !Standard.isSuperOwner(event.getAuthor())) {
                 PermissionHandler.sendNoPermissionMessage(event);
                 return;
-            } else if (Standard.isSuperOwner(event.getAuthor())) {
-                sendPrivate = true;
             }
             value = arguments.consumeFirst();
             if (id == 0) {
@@ -105,7 +81,7 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
                 value_temp = GlobalConfig.GLOBAL_CONFIG.getValue(key);
                 //Standard.STANDARD_SETTINGS.setProperty(key, value);
                 GlobalConfig.GLOBAL_CONFIG.setValue(key, value);
-                Standard.reloadSettings();
+                //Standard.reloadSettings();
                 final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, "%s setted", event.getAuthor().getAsMention()).addField(key + " old:", "" + value_temp, false).addField(key + " new:", "" + value, false).build();
                 if (!sendPrivate) {
                     event.sendMessage(message);
@@ -113,6 +89,10 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
                     Util.sendPrivateMessage(event.getAuthor(), message);
                 }
             } else {
+                final boolean user = id == -1;
+                if (user) {
+                    id = event.getAuthor().getIdLong();
+                }
                 //value_temp = Standard.getGuildSettings(guild_id).getProperty(key, null);
                 value_temp = LocalConfig.LOCAL_CONFIG.getValue(id, key, user);
                 //Standard.getGuildSettings(guild_id).setProperty(key, value);
@@ -141,8 +121,6 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
             if (Util.contains(Standard.ULTRA_FORBIDDEN_GLOBAL, key) && !Standard.isSuperOwner(event.getAuthor())) {
                 PermissionHandler.sendNoPermissionMessage(event);
                 return;
-            } else if (Standard.isSuperOwner(event.getAuthor())) {
-                sendPrivate = true;
             }
             if (id == 0) {
                 //value = Standard.STANDARD_SETTINGS.getProperty(key, value_temp);
@@ -155,6 +133,10 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
                     Util.sendPrivateMessage(event.getAuthor(), message);
                 }
             } else {
+                final boolean user = id == -1;
+                if (user) {
+                    id = event.getAuthor().getIdLong();
+                }
                 //value = Standard.getGuildSettings(id).getProperty(key, value_temp);
                 final String value_temp_ = value_temp;
                 value = LocalConfig.LOCAL_CONFIG.getValue(id, key, () -> value_temp_, user);
@@ -194,6 +176,10 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
                     Util.sendPrivateMessage(event.getAuthor(), message);
                 }
             } else {
+                final boolean user = id == -1;
+                if (user) {
+                    id = event.getAuthor().getIdLong();
+                }
                 //value = Standard.getGuildSettings(id).getProperty(key, null);
                 value = LocalConfig.LOCAL_CONFIG.getValue(id, key, user);
                 //Standard.getGuildSettings(id).removeProperty(key);
@@ -220,11 +206,11 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
             if (id == 0) {
                 //event.sendMessage(Standard.STANDARD_SETTINGS.toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention() + " list")).build());
                 event.sendMessage(GlobalConfig.GLOBAL_CONFIG.toEmbedBuilder().setDescription(String.format("%s listed", event.getAuthor().getAsMention())).build());
-            } else if (user) {
-                event.sendMessage(LocalConfig.LOCAL_CONFIG.toEmbedBuilder(id, user).setDescription(String.format("%s listed for himself", event.getAuthor().getAsMention())).build());
+            } else if (id == -1) {
+                event.sendMessage(LocalConfig.LOCAL_CONFIG.toEmbedBuilder(event.getAuthor().getIdLong(), true).setDescription(String.format("%s listed for himself", event.getAuthor().getAsMention())).build());
             } else {
                 //event.sendMessage(Standard.getGuildSettings(id).toEmbed(new EmbedBuilder().setDescription(event.getAuthor().getAsMention() + " list")).build());
-                event.sendMessage(LocalConfig.LOCAL_CONFIG.toEmbedBuilder(id, user).setDescription(String.format("%s listed for \"%s\" (ID: %s)", event.getAuthor().getAsMention(), Standard.getGuildById(id).getName(), id)).build());
+                event.sendMessage(LocalConfig.LOCAL_CONFIG.toEmbedBuilder(id, false).setDescription(String.format("%s listed for \"%s\" (ID: %s)", event.getAuthor().getAsMention(), Standard.getGuildById(id).getName(), id)).build());
             }
         }
     }
@@ -236,10 +222,10 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
 
     @Override
     public EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s %s [Guild ID] <Key> <Value>", invoker, Standard.ARGUMENT_SET.getCompleteArgument(0, -1)), "Sets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
-        builder.addField(String.format("%s %s [Guild ID] <Key> [%s Default Value]", invoker, Standard.ARGUMENT_GET.getCompleteArgument(0, -1), Standard.ARGUMENT_DEFAULT.getCompleteArgument(0, -1)), "Gets the value for the key. If a valid guild id is given, then the guild settings will be edited.", false);
-        builder.addField(String.format("%s %s [Guild ID] <Key>", invoker, Standard.ARGUMENT_REMOVE.getCompleteArgument(0, -1)), "Removes the key and value. If a valid guild id is given, then the guild settings will be edited.", false);
-        builder.addField(String.format("%s %s [Guild ID]", invoker, Standard.ARGUMENT_LIST.getCompleteArgument(0, -1)), "Lists all keys and values. If a valid guild id is given, then the guild settings will be edited.", false);
+        builder.addField(String.format("%s %s [Guild ID] <Key> <Value>", invoker, Standard.ARGUMENT_SET.getCompleteArgument(0, -1)), "Sets the value for the key. Use \"this\" as the guild id for referencing the current guild, or \"me\" to reference your personal settings.", false);
+        builder.addField(String.format("%s %s [Guild ID] <Key> [%s Default Value]", invoker, Standard.ARGUMENT_GET.getCompleteArgument(0, -1), Standard.ARGUMENT_DEFAULT.getCompleteArgument(0, -1)), "Gets the value for the key. You can set a default value that gets returned, if the normal value is null. Use \"this\" as the guild id for referencing the current guild, or \"me\" to reference your personal settings.", false);
+        builder.addField(String.format("%s %s [Guild ID] <Key>", invoker, Standard.ARGUMENT_REMOVE.getCompleteArgument(0, -1)), "Removes the key and value. Use \"this\" as the guild id for referencing the current guild, or \"me\" to reference your personal settings.", false);
+        builder.addField(String.format("%s %s [Guild ID]", invoker, Standard.ARGUMENT_LIST.getCompleteArgument(0, -1)), "Lists all keys and values. Use \"this\" as the guild id for referencing the current guild, or \"me\" to reference your personal settings.", false);
         return builder;
     }
 

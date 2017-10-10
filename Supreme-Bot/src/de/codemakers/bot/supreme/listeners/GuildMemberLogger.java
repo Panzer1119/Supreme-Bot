@@ -6,6 +6,9 @@ import de.codemakers.bot.supreme.settings.LocalConfig;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import java.time.Instant;
+import java.util.List;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent;
@@ -55,19 +58,26 @@ public class GuildMemberLogger extends ListenerAdapter {
     public final void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
         final Instant timestamp = Instant.now();
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
-        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_ROLE_ADD, "[%1$s] [%2$s] %3$s got added %4$s", LOG_DATE_TIME_FORMAT, LocalConfig.LOCAL_CONFIG.getNameForUser(event.getUser()), Util.rolesToString(event.getRoles(), advancedGuild.getSettings().getProperty(LOG_MEMBER_ROLES_ASMENTION, false)));
+        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_ROLE_ADD, "[%1$s] [%2$s] %3$s got added %4$s", LOG_DATE_TIME_FORMAT, LocalConfig.LOCAL_CONFIG.getNameForUser(event.getUser()), Util.rolesToString(event.getRoles(), !haveMembersRole(LocalConfig.LOCAL_CONFIG.getMembersThatAreNotMentionedInLogs(event.getGuild()), event.getRoles()) && advancedGuild.getSettings().getProperty(LOG_MEMBER_ROLES_ASMENTION, false)));
     }
 
     @Override
     public final void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
         final Instant timestamp = Instant.now();
         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
-        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_ROLE_REMOVE, "[%1$s] [%2$s] %3$s got removed %4$s", LOG_DATE_TIME_FORMAT, LocalConfig.LOCAL_CONFIG.getNameForUser(event.getUser()), Util.rolesToString(event.getRoles(), advancedGuild.getSettings().getProperty(LOG_MEMBER_ROLES_ASMENTION, false)));
+        Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_ROLE_REMOVE, "[%1$s] [%2$s] %3$s got removed %4$s", LOG_DATE_TIME_FORMAT, LocalConfig.LOCAL_CONFIG.getNameForUser(event.getUser()), Util.rolesToString(event.getRoles(), !haveMembersRole(LocalConfig.LOCAL_CONFIG.getMembersThatAreNotMentionedInLogs(event.getGuild()), event.getRoles()) && advancedGuild.getSettings().getProperty(LOG_MEMBER_ROLES_ASMENTION, false)));
     }
 
     @Override
     public final void onGuildMemberNickChange(GuildMemberNickChangeEvent event) {
         Standard.log(Instant.now(), event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_MEMBER, LOG_TEXT_MEMBER_NICK_CHANGE, "[%1$s] [%2$s] %3$s changed his Nickname from \"%4$s\" to \"%5$s\"", LOG_DATE_TIME_FORMAT, LocalConfig.LOCAL_CONFIG.getNameForUser(event.getUser()), event.getPrevNick(), event.getNewNick());
+    }
+
+    public static final boolean haveMembersRole(List<Member> members, List<Role> roles) {
+        if (members == null || members.isEmpty() || roles == null || roles.isEmpty()) {
+            return false;
+        }
+        return members.stream().map((member) -> member.getRoles()).flatMap(List::stream).anyMatch((role_) -> roles.contains(role_));
     }
 
 }

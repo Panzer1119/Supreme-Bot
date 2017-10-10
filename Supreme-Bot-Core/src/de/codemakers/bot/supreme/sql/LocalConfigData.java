@@ -71,6 +71,9 @@ public class LocalConfigData {
 
     public static final List<LocalConfigData> getLocalConfigDatas() {
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM local_configs");
+        if (result == null) {
+            return null;
+        }
         final List<LocalConfigData> localConfigDatas = SQLUtil.deserializeObjectsOfResultSet(LocalConfigData.class, result.resultSet);
         result.close();
         return localConfigDatas;
@@ -78,6 +81,9 @@ public class LocalConfigData {
 
     public static final List<LocalConfigData> getLocalConfigDatasById(long id, boolean isUserConfig) {
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM local_configs WHERE ID = %d AND isUserConfig = %d;", id, isUserConfig ? 1 : 0);
+        if (result == null) {
+            return null;
+        }
         final List<LocalConfigData> localConfigDatas = SQLUtil.deserializeObjectsOfResultSet(LocalConfigData.class, result.resultSet);
         result.close();
         return localConfigDatas;
@@ -85,6 +91,9 @@ public class LocalConfigData {
 
     public static final List<LocalConfigData> getLocalConfigDatasByConfigId(long config_id) {
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM local_configs WHERE config_ID = %d;", config_id);
+        if (result == null) {
+            return null;
+        }
         final List<LocalConfigData> localConfigDatas = SQLUtil.deserializeObjectsOfResultSet(LocalConfigData.class, result.resultSet);
         result.close();
         return localConfigDatas;
@@ -95,6 +104,9 @@ public class LocalConfigData {
             return new ArrayList<>();
         }
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM local_configs WHERE config_ID = %d AND config_key = %s;", config_id, SQLUtil.quote(key));
+        if (result == null) {
+            return null;
+        }
         final List<LocalConfigData> localConfigDatas = SQLUtil.deserializeObjectsOfResultSet(LocalConfigData.class, result.resultSet);
         result.close();
         return localConfigDatas;
@@ -102,6 +114,9 @@ public class LocalConfigData {
 
     public static final List<LocalConfigData> getLocalConfigDatasByIdAndConfigId(long id, long config_id, boolean isUserConfig) {
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM local_configs WHERE ID = %d AND config_ID = %d AND isUserConfig = %d;", id, config_id, isUserConfig ? 1 : 0);
+        if (result == null) {
+            return null;
+        }
         final List<LocalConfigData> localConfigDatas = SQLUtil.deserializeObjectsOfResultSet(LocalConfigData.class, result.resultSet);
         result.close();
         return localConfigDatas;
@@ -112,6 +127,9 @@ public class LocalConfigData {
             return null;
         }
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM local_configs WHERE ID = %d AND config_ID = %d AND config_key = %s AND isUserConfig = %d;", id, config_id, SQLUtil.quote(key), isUserConfig ? 1 : 0);
+        if (result == null) {
+            return null;
+        }
         final List<LocalConfigData> localConfigDatas = SQLUtil.deserializeObjectsOfResultSet(LocalConfigData.class, result.resultSet);
         result.close();
         if (localConfigDatas == null) {
@@ -125,12 +143,16 @@ public class LocalConfigData {
             return null;
         }
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM local_configs WHERE ID = %d AND config_ID = %d AND config_key = %s AND isUserConfig = %d;", id, config_id, SQLUtil.quote(key), isUserConfig ? 1 : 0);
+        if (result == null) {
+            return null;
+        }
         final List<LocalConfigData> localConfigDatas = SQLUtil.deserializeObjectsOfResultSet(LocalConfigData.class, result.resultSet);
         result.close();
         if (localConfigDatas == null) {
             return new LocalConfigData(id, config_id, key, value, isUserConfig);
         }
-        return localConfigDatas.stream().findFirst().orElse(null);
+        final LocalConfigData localConfigData = localConfigDatas.stream().findFirst().orElse(null);
+        return localConfigData == null ? new LocalConfigData(id, config_id, key, value, isUserConfig) : localConfigData;
     }
 
     public static final String getValue(long id, long config_id, String key, boolean isUserConfig) {

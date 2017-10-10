@@ -742,8 +742,10 @@ public class Standard {
     }
 
     public static final long resolveGuildId(Guild guild, String guild_id) {
-        if (guild != null && guild_id != null && guild_id.equalsIgnoreCase("this")) {
+        if (guild != null && guild_id != null && (guild_id.equalsIgnoreCase("this") || guild_id.equalsIgnoreCase("current"))) {
             guild_id = guild.getId();
+        } else if (guild_id != null && (guild_id.equalsIgnoreCase("user") || guild_id.equalsIgnoreCase("me"))) {
+            return -1;
         }
         if (guild_id == null) {
             return 0;

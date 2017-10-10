@@ -57,6 +57,9 @@ public class GlobalConfigData {
 
     public static final List<GlobalConfigData> getGlobalConfigDatas() {
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM global_configs;");
+        if (result == null) {
+            return null;
+        }
         final List<GlobalConfigData> globalConfigDatas = SQLUtil.deserializeObjectsOfResultSet(GlobalConfigData.class, result.resultSet);
         result.close();
         return globalConfigDatas;
@@ -64,6 +67,9 @@ public class GlobalConfigData {
 
     public static final List<GlobalConfigData> getGlobalConfigDatasByConfigId(long config_id) {
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM global_configs WHERE config_ID = %d;", config_id);
+        if (result == null) {
+            return null;
+        }
         final List<GlobalConfigData> globalConfigDatas = SQLUtil.deserializeObjectsOfResultSet(GlobalConfigData.class, result.resultSet);
         result.close();
         return globalConfigDatas;
@@ -74,6 +80,9 @@ public class GlobalConfigData {
             return null;
         }
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM global_configs WHERE config_ID = %d AND config_key = %s;", config_id, SQLUtil.quote(key));
+        if (result == null) {
+            return null;
+        }
         final List<GlobalConfigData> globalConfigDatas = SQLUtil.deserializeObjectsOfResultSet(GlobalConfigData.class, result.resultSet);
         result.close();
         if (globalConfigDatas == null) {
@@ -87,12 +96,16 @@ public class GlobalConfigData {
             return null;
         }
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM global_configs WHERE config_ID = %d AND config_key = %s;", config_id, SQLUtil.quote(key));
+        if (result == null) {
+            return null;
+        }
         final List<GlobalConfigData> globalConfigDatas = SQLUtil.deserializeObjectsOfResultSet(GlobalConfigData.class, result.resultSet);
         result.close();
         if (globalConfigDatas == null) {
             return new GlobalConfigData(config_id, key, value);
         }
-        return globalConfigDatas.stream().findFirst().orElse(null);
+        final GlobalConfigData globalConfigData = globalConfigDatas.stream().findFirst().orElse(null);
+        return globalConfigData == null ? new GlobalConfigData(config_id, key, value) : globalConfigData;
     }
 
     public static final String getValue(long config_id, String key) {

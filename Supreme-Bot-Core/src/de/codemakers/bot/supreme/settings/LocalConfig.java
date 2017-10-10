@@ -1,7 +1,13 @@
 package de.codemakers.bot.supreme.settings;
 
 import com.vdurmont.emoji.EmojiParser;
+import de.codemakers.bot.supreme.sql.LocalConfigData;
 import de.codemakers.bot.supreme.util.Standard;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 
 /**
@@ -108,6 +114,18 @@ public class LocalConfig extends AbstractLocalConfig {
             return null;
         }
         return isNotMentionedInLogs(user.getIdLong()) ? Standard.getCompleteName(user) : user.getAsMention();
+    }
+
+    public final List<Long> getUsersThatAreNotMentionedInLogs() {
+        final List<LocalConfigData> localConfigDatas = getLocalConfigDatasByKey(KEY_USER_NOT_MENTIONED_IN_LOGS);
+        return localConfigDatas == null ? new ArrayList<>() : localConfigDatas.stream().filter((localConfigData) -> (localConfigData.isUserConfig && localConfigData.value != null && localConfigData.value.equalsIgnoreCase("true"))).map((localConfigData) -> localConfigData.id).collect(Collectors.toList());
+    }
+
+    public final List<Member> getMembersThatAreNotMentionedInLogs(Guild guild) {
+        if (guild == null) {
+            return new ArrayList<>();
+        }
+        return getUsersThatAreNotMentionedInLogs().stream().map((id) -> guild.getMemberById(id)).collect(Collectors.toList());
     }
 
 }
