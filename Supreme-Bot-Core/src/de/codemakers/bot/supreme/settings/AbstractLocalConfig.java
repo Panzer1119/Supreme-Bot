@@ -3,6 +3,7 @@ package de.codemakers.bot.supreme.settings;
 import de.codemakers.bot.supreme.sql.LocalConfigData;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * AbstractLocalConfig
@@ -40,9 +41,9 @@ public abstract class AbstractLocalConfig {
         return LocalConfigData.getValue(id, config_id, key, isUserConfig);
     }
 
-    public final String getValue(long id, String key, String defaultValue, boolean isUserConfig) {
+    public final String getValue(long id, String key, Supplier<String> defaultValue, boolean isUserConfig) {
         final String value = LocalConfigData.getValue(id, config_id, key, isUserConfig);
-        return value == null ? defaultValue : value;
+        return (value == null && defaultValue != null) ? defaultValue.get() : value;
     }
 
     public final boolean getValue(long id, String key, boolean defaultValue, boolean isUserConfig) {
@@ -132,7 +133,7 @@ public abstract class AbstractLocalConfig {
 
     public final AbstractLocalConfig register() {
         if (getLocalConfig(config_id) != null) {
-            throw new IllegalAccessError("The config " + config_id + " already exists!");
+            throw new IllegalAccessError("The local config " + config_id + " already exists!");
         }
         LOCAL_CONFIGS.add(this);
         return this;

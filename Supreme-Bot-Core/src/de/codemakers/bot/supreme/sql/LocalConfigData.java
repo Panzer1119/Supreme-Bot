@@ -64,6 +64,13 @@ public class LocalConfigData {
         return this;
     }
 
+    public static final List<LocalConfigData> getLocalConfigDatas() {
+        final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM local_configs");
+        final List<LocalConfigData> localConfigDatas = SQLUtil.deserializeObjectsOfResultSet(LocalConfigData.class, result.resultSet);
+        result.close();
+        return localConfigDatas;
+    }
+
     public static final List<LocalConfigData> getLocalConfigDatasById(long id, boolean isUserConfig) {
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM local_configs WHERE ID = %d AND isUserConfig = %d;", id, isUserConfig ? 1 : 0);
         final List<LocalConfigData> localConfigDatas = SQLUtil.deserializeObjectsOfResultSet(LocalConfigData.class, result.resultSet);
@@ -102,6 +109,9 @@ public class LocalConfigData {
         final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM local_configs WHERE ID = %d AND config_ID = %d AND config_key = %s AND isUserConfig = %d;", id, config_id, SQLUtil.quote(key), isUserConfig ? 1 : 0);
         final List<LocalConfigData> localConfigDatas = SQLUtil.deserializeObjectsOfResultSet(LocalConfigData.class, result.resultSet);
         result.close();
+        if (localConfigDatas == null) {
+            return null;
+        }
         return localConfigDatas.stream().findFirst().orElse(null);
     }
 
