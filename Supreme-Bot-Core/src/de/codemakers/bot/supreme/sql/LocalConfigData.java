@@ -46,9 +46,14 @@ public class LocalConfigData {
     }
 
     public final LocalConfigData setValue(String value) {
-        SQLUtil.removeObjects(LocalConfigData.class, MySQL.STANDARD_DATABASE, this);
+        delete();
         this.value = value;
         SQLUtil.serializeObjects(LocalConfigData.class, MySQL.STANDARD_DATABASE, true, this);
+        return this;
+    }
+
+    public final LocalConfigData delete() {
+        SQLUtil.removeObjects(LocalConfigData.class, MySQL.STANDARD_DATABASE, this);
         return this;
     }
 
@@ -111,6 +116,19 @@ public class LocalConfigData {
         result.close();
         if (localConfigDatas == null) {
             return null;
+        }
+        return localConfigDatas.stream().findFirst().orElse(null);
+    }
+
+    public static final LocalConfigData getLocalConfigDataByIdAndConfigIdAndKeyForAdding(long id, long config_id, String key, String value, boolean isUserConfig) {
+        if (key == null) {
+            return null;
+        }
+        final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM local_configs WHERE ID = %d AND config_ID = %d AND config_key = %s AND isUserConfig = %d;", id, config_id, SQLUtil.quote(key), isUserConfig ? 1 : 0);
+        final List<LocalConfigData> localConfigDatas = SQLUtil.deserializeObjectsOfResultSet(LocalConfigData.class, result.resultSet);
+        result.close();
+        if (localConfigDatas == null) {
+            return new LocalConfigData(id, config_id, key, value, isUserConfig);
         }
         return localConfigDatas.stream().findFirst().orElse(null);
     }

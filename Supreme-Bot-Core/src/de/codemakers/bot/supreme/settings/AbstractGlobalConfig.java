@@ -1,9 +1,13 @@
 package de.codemakers.bot.supreme.settings;
 
 import de.codemakers.bot.supreme.sql.GlobalConfigData;
+import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Util;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import net.dv8tion.jda.core.EmbedBuilder;
 
 /**
  * AbstractGlobalConfig
@@ -83,47 +87,47 @@ public abstract class AbstractGlobalConfig {
     }
 
     public final GlobalConfigData setValue(String key, String value) {
-        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKey(config_id, key);
+        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKeyForAdding(config_id, key, value);
         return globalConfigData == null ? null : globalConfigData.setValue(value);
     }
 
     public final GlobalConfigData setValue(String key, boolean value) {
-        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKey(config_id, key);
+        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKeyForAdding(config_id, key, "" + value);
         return globalConfigData == null ? null : globalConfigData.setValue("" + value);
     }
 
     public final GlobalConfigData setValue(String key, char value) {
-        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKey(config_id, key);
+        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKeyForAdding(config_id, key, "" + value);
         return globalConfigData == null ? null : globalConfigData.setValue("" + value);
     }
 
     public final GlobalConfigData setValue(String key, byte value) {
-        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKey(config_id, key);
+        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKeyForAdding(config_id, key, "" + value);
         return globalConfigData == null ? null : globalConfigData.setValue("" + value);
     }
 
     public final GlobalConfigData setValue(String key, short value) {
-        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKey(config_id, key);
+        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKeyForAdding(config_id, key, "" + value);
         return globalConfigData == null ? null : globalConfigData.setValue("" + value);
     }
 
     public final GlobalConfigData setValue(String key, int value) {
-        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKey(config_id, key);
+        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKeyForAdding(config_id, key, "" + value);
         return globalConfigData == null ? null : globalConfigData.setValue("" + value);
     }
 
     public final GlobalConfigData setValue(String key, long value) {
-        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKey(config_id, key);
+        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKeyForAdding(config_id, key, "" + value);
         return globalConfigData == null ? null : globalConfigData.setValue("" + value);
     }
 
     public final GlobalConfigData setValue(String key, float value) {
-        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKey(config_id, key);
+        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKeyForAdding(config_id, key, "" + value);
         return globalConfigData == null ? null : globalConfigData.setValue("" + value);
     }
 
     public final GlobalConfigData setValue(String key, double value) {
-        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKey(config_id, key);
+        final GlobalConfigData globalConfigData = GlobalConfigData.getGlobalConfigDatasByConfigIdAndKeyForAdding(config_id, key, "" + value);
         return globalConfigData == null ? null : globalConfigData.setValue("" + value);
     }
 
@@ -138,6 +142,14 @@ public abstract class AbstractGlobalConfig {
     public final AbstractGlobalConfig unregister() {
         GLOBAL_CONFIGS.remove(this);
         return this;
+    }
+
+    public final EmbedBuilder toEmbedBuilder() {
+        final EmbedBuilder builder = Standard.getMessageEmbed(Color.YELLOW, null);
+        getGlobalConfigDatas().stream().filter((globalConfigData) -> !Util.contains(Standard.ULTRA_FORBIDDEN_GLOBAL, globalConfigData.key)).forEach((globalConfigData) -> {
+            builder.addField(globalConfigData.key, globalConfigData.value, false);
+        });
+        return builder;
     }
 
     public static final AbstractGlobalConfig getGlobalConfig(long config_id) {

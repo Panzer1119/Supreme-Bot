@@ -271,15 +271,6 @@ public class SupremeBot {
         }
     }
 
-    public static final boolean reloadGuildSettings(String guild_id) {
-        try {
-            Standard.getGuildSettings(guild_id).loadSettings();
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
     public static final boolean stopCompletely(int status) {
         Standard.runShutdownHooks();
         stopJDA(true);

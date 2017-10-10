@@ -1,9 +1,13 @@
 package de.codemakers.bot.supreme.settings;
 
 import de.codemakers.bot.supreme.sql.LocalConfigData;
+import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Util;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import net.dv8tion.jda.core.EmbedBuilder;
 
 /**
  * AbstractLocalConfig
@@ -87,47 +91,47 @@ public abstract class AbstractLocalConfig {
     }
 
     public final LocalConfigData setValue(long id, String key, String value, boolean isUserConfig) {
-        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKey(id, config_id, key, isUserConfig);
+        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKeyForAdding(id, config_id, key, value, isUserConfig);
         return localConfigData == null ? null : localConfigData.setValue(value);
     }
 
     public final LocalConfigData setValue(long id, String key, boolean value, boolean isUserConfig) {
-        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKey(id, config_id, key, isUserConfig);
+        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKeyForAdding(id, config_id, key, "" + value, isUserConfig);
         return localConfigData == null ? null : localConfigData.setValue("" + value);
     }
 
     public final LocalConfigData setValue(long id, String key, char value, boolean isUserConfig) {
-        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKey(id, config_id, key, isUserConfig);
+        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKeyForAdding(id, config_id, key, "" + value, isUserConfig);
         return localConfigData == null ? null : localConfigData.setValue("" + value);
     }
 
     public final LocalConfigData setValue(long id, String key, byte value, boolean isUserConfig) {
-        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKey(id, config_id, key, isUserConfig);
+        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKeyForAdding(id, config_id, key, "" + value, isUserConfig);
         return localConfigData == null ? null : localConfigData.setValue("" + value);
     }
 
     public final LocalConfigData setValue(long id, String key, short value, boolean isUserConfig) {
-        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKey(id, config_id, key, isUserConfig);
+        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKeyForAdding(id, config_id, key, "" + value, isUserConfig);
         return localConfigData == null ? null : localConfigData.setValue("" + value);
     }
 
     public final LocalConfigData setValue(long id, String key, int value, boolean isUserConfig) {
-        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKey(id, config_id, key, isUserConfig);
+        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKeyForAdding(id, config_id, key, "" + value, isUserConfig);
         return localConfigData == null ? null : localConfigData.setValue("" + value);
     }
 
     public final LocalConfigData setValue(long id, String key, long value, boolean isUserConfig) {
-        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKey(id, config_id, key, isUserConfig);
+        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKeyForAdding(id, config_id, key, "" + value, isUserConfig);
         return localConfigData == null ? null : localConfigData.setValue("" + value);
     }
 
     public final LocalConfigData setValue(long id, String key, float value, boolean isUserConfig) {
-        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKey(id, config_id, key, isUserConfig);
+        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKeyForAdding(id, config_id, key, "" + value, isUserConfig);
         return localConfigData == null ? null : localConfigData.setValue("" + value);
     }
 
     public final LocalConfigData setValue(long id, String key, double value, boolean isUserConfig) {
-        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKey(id, config_id, key, isUserConfig);
+        final LocalConfigData localConfigData = LocalConfigData.getLocalConfigDataByIdAndConfigIdAndKeyForAdding(id, config_id, key, "" + value, isUserConfig);
         return localConfigData == null ? null : localConfigData.setValue("" + value);
     }
 
@@ -142,6 +146,14 @@ public abstract class AbstractLocalConfig {
     public final AbstractLocalConfig unregister() {
         LOCAL_CONFIGS.remove(this);
         return this;
+    }
+
+    public final EmbedBuilder toEmbedBuilder(long id, boolean isUserConfig) {
+        final EmbedBuilder builder = Standard.getMessageEmbed(Color.YELLOW, null);
+        getLocalConfigDatasById(id, isUserConfig).stream().filter((localConfigData) -> !Util.contains(Standard.ULTRA_FORBIDDEN_LOCAL, localConfigData.key)).forEach((localConfigData) -> {
+            builder.addField(localConfigData.key, localConfigData.value, false);
+        });
+        return builder;
     }
 
     public static final AbstractLocalConfig getLocalConfig(long config_id) {

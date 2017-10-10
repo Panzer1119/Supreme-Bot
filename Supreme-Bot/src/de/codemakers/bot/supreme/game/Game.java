@@ -10,13 +10,13 @@ import de.codemakers.bot.supreme.entities.MessageEvent;
  */
 public abstract class Game {
 
-    private String guild_id;
+    private long guild_id;
 
     public Game() {
-        this(null);
+        this(0);
     }
-    
-    public Game(String guild_id) {
+
+    public Game(long guild_id) {
         this.guild_id = guild_id;
     }
 
@@ -27,10 +27,14 @@ public abstract class Game {
     public abstract boolean sendInput(ArgumentList arguments, MessageEvent event);
 
     public final String getGuildId() {
+        return "" + guild_id;
+    }
+
+    public final long getGuildIdLong() {
         return guild_id;
     }
-    
-    protected final Game setGuildId(String guild_id) {
+
+    protected final Game setGuildId(long guild_id) {
         this.guild_id = guild_id;
         return this;
     }

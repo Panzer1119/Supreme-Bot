@@ -9,6 +9,8 @@ import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.plugin.Plugin;
 import de.codemakers.bot.supreme.plugin.PluginManager;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
+import de.codemakers.bot.supreme.settings.GlobalConfig;
+import de.codemakers.bot.supreme.settings.LocalConfig;
 import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.awt.Color;
@@ -17,11 +19,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,7 +45,8 @@ import net.dv8tion.jda.core.managers.AccountManager;
  */
 public class Standard {
 
-    public static final String NAME = "Supreme-Bot";
+    public static final String STANDARD_NAME = "Supreme-Bot";
+    public static final String STANDARD_COMMAND_PREFIX = "!";
     public static final String VERSION = "0.2";
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
@@ -66,8 +67,6 @@ public class Standard {
     public static final int PLAYLIST_LIMIT = 1000;
     public static final long STANDARD_MESSAGE_DELETING_DELAY = 5000L;
     private static byte[] TOKEN = null;
-    private static String STANDARD_COMMAND_PREFIX = "!";
-    private static String NICKNAME = "Supreme-Bot";
     private static final String PLUGIN_PERMISSION_ADMIN_STRING_NAME = "plugin_permission_admin_string";
     private static String PLUGIN_PERMISSION_ADMIN_STRING = null;
     public static Getter<JDA> getter = () -> null;
@@ -144,10 +143,6 @@ public class Standard {
     public static final boolean reloadSettings() {
         try {
             STANDARD_SETTINGS.loadSettings();
-            if (STANDARD_SETTINGS.getProperty("standard_command_prefix", null) == null) {
-                STANDARD_SETTINGS.setProperty("standard_command_prefix", "!");
-            }
-            STANDARD_COMMAND_PREFIX = STANDARD_SETTINGS.getProperty("standard_command_prefix", "!");
             if (STANDARD_SETTINGS.getProperty("token", null) == null) {
                 STANDARD_SETTINGS.setProperty("token", "Put your token here!");
             }
@@ -202,28 +197,26 @@ public class Standard {
     }
 
     public static final String getStandardCommandPrefix() {
-        return STANDARD_COMMAND_PREFIX;
+        return GlobalConfig.GLOBAL_CONFIG.getStandardCommandPrefix();
     }
 
     public static final boolean setStandardCommandPrefix(String commandPrefix) {
         if (commandPrefix == null || commandPrefix.isEmpty() || commandPrefix.contains("\\")) {
             return false;
         }
-        Standard.STANDARD_COMMAND_PREFIX = commandPrefix;
-        STANDARD_SETTINGS.setProperty("command_prefix", STANDARD_COMMAND_PREFIX);
+        GlobalConfig.GLOBAL_CONFIG.setStandardCommandPrefix(commandPrefix);
         return true;
     }
 
     public static final String getNickname() {
-        return NICKNAME;
+        return GlobalConfig.GLOBAL_CONFIG.getNickname();
     }
 
     public static final boolean setNickname(String nickname) {
         if (nickname == null || nickname.isEmpty()) {
             return false;
         }
-        Standard.NICKNAME = nickname;
-        STANDARD_SETTINGS.setProperty("nickname", NICKNAME);
+        GlobalConfig.GLOBAL_CONFIG.setNickname(nickname);
         try {
             final JDA jda = getJDA();
             if (jda != null) {
@@ -295,7 +288,7 @@ public class Standard {
     public static final boolean loadAllGuilds() {
         try {
             GUILDS.clear();
-            STANDARD_GUILDS_FOLDER.listAdvancedFiles().stream().filter((advancedFile) -> advancedFile.isDirectory()).forEach((advancedFile) -> GUILDS.add(new AdvancedGuild(advancedFile.getName(), advancedFile)));
+            STANDARD_GUILDS_FOLDER.listAdvancedFiles().stream().filter((advancedFile) -> advancedFile.isDirectory()).forEach((advancedFile) -> GUILDS.add(new AdvancedGuild(Long.parseLong(advancedFile.getName()), advancedFile)));
             reloadAllGuilds();
             System.out.println("Reloaded Guilds Folder!");
             return true;
@@ -322,7 +315,7 @@ public class Standard {
         try {
             GUILDS.stream().forEach((advancedGuild) -> {
                 advancedGuild.getSettings().loadSettings();
-                setNicknameForGuild(advancedGuild.getGuildId(), getNicknameByGuild(advancedGuild.getGuildId()));
+                setNicknameForGuild(advancedGuild.getGuildIdLong(), getNicknameByGuild(advancedGuild.getGuildIdLong()));
             });
             System.out.println("Reloaded All Guild Settings!");
             return true;
@@ -355,15 +348,15 @@ public class Standard {
         if (guild == null) {
             return null;
         }
-        return createGuildFolder(guild.getId());
+        return createGuildFolder(guild.getIdLong());
     }
 
-    public static final AdvancedFile createGuildFolder(String guild_id) {
-        if (guild_id == null) {
+    public static final AdvancedFile createGuildFolder(long guild_id) {
+        if (guild_id == 0) {
             return null;
         }
         try {
-            final AdvancedFile file = new AdvancedFile(false, STANDARD_GUILDS_FOLDER, guild_id);
+            final AdvancedFile file = new AdvancedFile(false, STANDARD_GUILDS_FOLDER, "" + guild_id);
             file.createAdvancedFile();
             return file;
         } catch (Exception ex) {
@@ -376,14 +369,14 @@ public class Standard {
         if (guild == null) {
             return null;
         }
-        return getAdvancedGuild(guild.getId());
+        return getAdvancedGuild(guild.getIdLong());
     }
 
-    public static final AdvancedGuild getAdvancedGuild(String guild_id) {
-        if (guild_id == null) {
+    public static final AdvancedGuild getAdvancedGuild(long guild_id) {
+        if (guild_id == 0) {
             return null;
         }
-        AdvancedGuild advancedGuild = GUILDS.stream().filter((advancedGuild_) -> guild_id.equals(advancedGuild_.getGuildId())).findFirst().orElse(null);
+        AdvancedGuild advancedGuild = GUILDS.stream().filter((advancedGuild_) -> guild_id == advancedGuild_.getGuildIdLong()).findFirst().orElse(null);
         if (advancedGuild == null) {
             advancedGuild = new AdvancedGuild(guild_id);
             advancedGuild.getSettings().loadSettings();
@@ -396,16 +389,16 @@ public class Standard {
         GUILDS.clear();
     }
 
-    public static final Settings getGuildSettings(Guild guild) {
+    public static final Settings _getGuildSettings(Guild guild) {
         if (guild == null) {
             return STANDARD_NULL_SETTINGS;
         }
-        return getGuildSettings(guild.getId());
+        return _getGuildSettings(guild.getIdLong());
     }
 
-    public static final Settings getGuildSettings(String guild_id) {
-        if (guild_id == null) {
-            return STANDARD_NULL_SETTINGS;
+    public static final Settings _getGuildSettings(long guild_id) {
+        if (guild_id == 0) {
+            return null;
         }
         final AdvancedGuild advancedGuild = getAdvancedGuild(guild_id);
         if (advancedGuild == null) {
@@ -418,10 +411,13 @@ public class Standard {
         if (guild == null) {
             return null;
         }
-        return getSelfMemberByGuild(guild.getId());
+        return getSelfMemberByGuild(guild.getIdLong());
     }
 
-    public static final Member getSelfMemberByGuild(String guild_id) {
+    public static final Member getSelfMemberByGuild(long guild_id) {
+        if (guild_id == 0) {
+            return null;
+        }
         final Guild guild = getGuildById(guild_id);
         if (guild != null) {
             try {
@@ -455,28 +451,28 @@ public class Standard {
         if (guild == null) {
             return getStandardCommandPrefix();
         }
-        return getCommandPrefixByGuild(guild.getId());
+        return getCommandPrefixByGuild(guild.getIdLong());
     }
 
-    public static final String getCommandPrefixByGuild(String guild_id) {
-        if (guild_id == null) {
-            return getStandardCommandPrefix();
+    public static final String getCommandPrefixByGuild(long guild_id) {
+        if (guild_id == 0) {
+            return null;
         }
-        return getGuildSettings(guild_id).getProperty("command_prefix", getStandardCommandPrefix());
+        return LocalConfig.LOCAL_CONFIG.getCommandPrefix(guild_id);
     }
 
     public static final boolean setCommandPrefixForGuild(Guild guild, String commandPrefix) {
         if (guild == null) {
             return false;
         }
-        return setCommandPrefixForGuild(guild.getId(), commandPrefix);
+        return setCommandPrefixForGuild(guild.getIdLong(), commandPrefix);
     }
 
-    public static final boolean setCommandPrefixForGuild(String guild_id, String commandPrefix) {
-        if (guild_id == null || commandPrefix == null || commandPrefix.isEmpty() || commandPrefix.contains("\\")) {
+    public static final boolean setCommandPrefixForGuild(long guild_id, String commandPrefix) {
+        if (guild_id == 0 || commandPrefix == null || commandPrefix.isEmpty() || commandPrefix.contains("\\")) {
             return false;
         }
-        getGuildSettings(guild_id).setProperty("command_prefix", commandPrefix);
+        LocalConfig.LOCAL_CONFIG.setCommandPrefix(guild_id, commandPrefix);
         return true;
     }
     //------------------------------------------------------------------------//
@@ -486,28 +482,28 @@ public class Standard {
         if (guild == null) {
             return getNickname();
         }
-        return getNicknameByGuild(guild.getId());
+        return getNicknameByGuild(guild.getIdLong());
     }
 
-    public static final String getNicknameByGuild(String guild_id) {
-        if (guild_id == null) {
-            return getNickname();
+    public static final String getNicknameByGuild(long guild_id) {
+        if (guild_id == 0) {
+            return null;
         }
-        return getGuildSettings(guild_id).getProperty("nickname", getNickname());
+        return LocalConfig.LOCAL_CONFIG.getNickname(guild_id);
     }
 
     public static final boolean setNicknameForGuild(Guild guild, String nickname) {
         if (guild == null) {
             return false;
         }
-        return setNicknameForGuild(guild.getId(), nickname);
+        return setNicknameForGuild(guild.getIdLong(), nickname);
     }
 
-    public static final boolean setNicknameForGuild(String guild_id, String nickname) {
-        if (guild_id == null || nickname == null || nickname.isEmpty()) {
+    public static final boolean setNicknameForGuild(long guild_id, String nickname) {
+        if (guild_id == 0 || nickname == null || nickname.isEmpty()) {
             return false;
         }
-        getGuildSettings(guild_id).setProperty("nickname", nickname);
+        LocalConfig.LOCAL_CONFIG.setNickname(guild_id, nickname);
         final Member member = getSelfMemberByGuild(guild_id);
         if (member != null) {
             if (!nickname.equals(member.getNickname())) {
@@ -535,28 +531,28 @@ public class Standard {
         if (guild == null) {
             return -1;
         }
-        return getAutoDeleteCommandNotFoundMessageDelayByGuild(guild.getId());
+        return getAutoDeleteCommandNotFoundMessageDelayByGuild(guild.getIdLong());
     }
 
-    public static final long getAutoDeleteCommandNotFoundMessageDelayByGuild(String guild_id) {
-        if (guild_id == null) {
+    public static final long getAutoDeleteCommandNotFoundMessageDelayByGuild(long guild_id) {
+        if (guild_id == 0) {
             return -1;
         }
-        return getGuildSettings(guild_id).getProperty("autoDeleteCommandNotFoundMessageDelay", -1);
+        return LocalConfig.LOCAL_CONFIG.getAutoDeleteCommandNotFoundMessageDelay(guild_id);
     }
 
     public static final boolean setAutoDeleteCommandNotFoundMessageDelayForGuild(Guild guild, long autoDeleteCommandNotFoundMessageDelay) {
         if (guild == null) {
             return false;
         }
-        return setAutoDeleteCommandNotFoundMessageDelayForGuild(guild.getId(), autoDeleteCommandNotFoundMessageDelay);
+        return setAutoDeleteCommandNotFoundMessageDelayForGuild(guild.getIdLong(), autoDeleteCommandNotFoundMessageDelay);
     }
 
-    public static final boolean setAutoDeleteCommandNotFoundMessageDelayForGuild(String guild_id, long autoDeleteCommandNotFoundMessageDelay) {
-        if (guild_id == null) {
+    public static final boolean setAutoDeleteCommandNotFoundMessageDelayForGuild(long guild_id, long autoDeleteCommandNotFoundMessageDelay) {
+        if (guild_id == 0) {
             return false;
         }
-        getGuildSettings(guild_id).setProperty("autoDeleteCommandNotFoundMessageDelay", autoDeleteCommandNotFoundMessageDelay);
+        LocalConfig.LOCAL_CONFIG.setAutoDeleteCommandNotFoundMessageDelay(guild_id, autoDeleteCommandNotFoundMessageDelay);
         return true;
     }
 
@@ -564,28 +560,28 @@ public class Standard {
         if (guild == null) {
             return false;
         }
-        return isAutoDeletingCommandByGuild(guild.getId());
+        return isAutoDeletingCommandByGuild(guild.getIdLong());
     }
 
-    public static final boolean isAutoDeletingCommandByGuild(String guild_id) {
-        if (guild_id == null) {
+    public static final boolean isAutoDeletingCommandByGuild(long guild_id) {
+        if (guild_id == 0) {
             return false;
         }
-        return getGuildSettings(guild_id).getProperty("autoDeletingCommand", false);
+        return LocalConfig.LOCAL_CONFIG.isAutoDeletingCommand(guild_id);
     }
 
     public static final boolean setAutoDeletingCommandForGuild(Guild guild, boolean autoDeletingCommand) {
         if (guild == null) {
             return false;
         }
-        return setAutoDeletingCommandForGuild(guild.getId(), autoDeletingCommand);
+        return setAutoDeletingCommandForGuild(guild.getIdLong(), autoDeletingCommand);
     }
 
-    public static final boolean setAutoDeletingCommandForGuild(String guild_id, boolean autoDeletingCommand) {
-        if (guild_id == null) {
+    public static final boolean setAutoDeletingCommandForGuild(long guild_id, boolean autoDeletingCommand) {
+        if (guild_id == 0) {
             return false;
         }
-        getGuildSettings(guild_id).setProperty("autoDeletingCommand", autoDeletingCommand);
+        LocalConfig.LOCAL_CONFIG.setAutoDeletingCommand(guild_id, autoDeletingCommand);
         return true;
     }
 
@@ -719,6 +715,9 @@ public class Standard {
     }
 
     public static final Guild getGuildById(long guild_id) {
+        if (guild_id == 0) {
+            return null;
+        }
         if (getJDA() == null) {
             System.err.println("Failed to get Guild by id: JDA is null!");
             return null;
@@ -742,11 +741,14 @@ public class Standard {
         }
     }
 
-    public static final String resolveGuildId(Guild guild, String guild_id) {
+    public static final long resolveGuildId(Guild guild, String guild_id) {
         if (guild != null && guild_id != null && guild_id.equalsIgnoreCase("this")) {
             guild_id = guild.getId();
         }
-        return guild_id;
+        if (guild_id == null) {
+            return 0;
+        }
+        return Long.parseLong(guild_id);
     }
 
     public static final List<Member> muteAll(VoiceChannel voiceChannel, boolean mute) {
@@ -1082,7 +1084,8 @@ public class Standard {
         return commandCategory == null ? COMMANDCATEGORY_NONE : commandCategory;
     }
 
-    public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner", "nickname", PLUGIN_PERMISSION_ADMIN_STRING_NAME, "sql_hostname", "sql_database", "sql_username", "sql_password"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
+    public static final String[] ULTRA_FORBIDDEN_GLOBAL = new String[]{"token", "super_owner", "nickname", PLUGIN_PERMISSION_ADMIN_STRING_NAME, "sql_hostname", "sql_database", "sql_username", "sql_password"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
+    public static final String[] ULTRA_FORBIDDEN_LOCAL = new String[]{"nickname"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
 
     public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/", "!"};
     public static final Argument ARGUMENT_GLOBAL = new Argument("global", STANDARD_ARGUMENT_PREFIXES, "g");
@@ -1128,5 +1131,6 @@ public class Standard {
     public static final Argument ARGUMENT_BAN = new Argument("ban", STANDARD_ARGUMENT_PREFIXES, "b");
     public static final Argument ARGUMENT_UNBAN = new Argument("unban", STANDARD_ARGUMENT_PREFIXES, "ub");
     public static final Argument ARGUMENT_RESTART = new Argument("restart", STANDARD_ARGUMENT_PREFIXES, "r");
+    public static final Argument ARGUMENT_USER = new Argument("user", STANDARD_ARGUMENT_PREFIXES, "u");
 
 }

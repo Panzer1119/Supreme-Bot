@@ -35,10 +35,11 @@ public class ReloadCommand extends Command {
             if (arguments.consumeFirst(Standard.ARGUMENT_GUILD_SETTINGS, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
                 if (!arguments.consume(Standard.ARGUMENT_ALL, ArgumentConsumeType.FIRST_IGNORE_CASE, 1) && !arguments.consume(Standard.ARGUMENT_SETTINGS, ArgumentConsumeType.FIRST_IGNORE_CASE, 1)) {
                     arguments.consume(Standard.ARGUMENT_GUILD_SETTINGS, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE, false);
-                    final String guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
-                    if (guild_id != null) {
-                        SupremeBot.reloadGuildSettings(guild_id);
-                        event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s for %s (ID: %s)!", event.getAuthor().getAsMention(), Standard.ARGUMENT_GUILD_SETTINGS.getArgument(), Standard.getGuildById(guild_id).getName(), guild_id).build());
+                    final long guild_id = Standard.resolveGuildId(event.getGuild(), arguments.consumeFirst());
+                    if (guild_id != 0) {
+                        //SupremeBot.reloadGuildSettings(guild_id);
+                        //event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.YELLOW, "%s reloaded %s for %s (ID: %s)!", event.getAuthor().getAsMention(), Standard.ARGUMENT_GUILD_SETTINGS.getArgument(), Standard.getGuildById(guild_id).getName(), guild_id).build());
+                        event.sendMessage(Standard.getNoMessage(event.getAuthor(), "the guild settings reload function is no longer supported!").build());
                         return;
                     }
                 }

@@ -183,8 +183,8 @@ public class PluginManager implements PluginProvider {
     }
 
     @Override
-    public AdvancedGuild getAdvancedGuild(Plugin plugin, String guild_id) {
-        if (plugin == null || guild_id == null || guild_id.isEmpty()) {
+    public AdvancedGuild getAdvancedGuild(Plugin plugin, long guild_id) {
+        if (plugin == null || guild_id == 0) {
             return null;
         }
         return Standard.getAdvancedGuild(guild_id);

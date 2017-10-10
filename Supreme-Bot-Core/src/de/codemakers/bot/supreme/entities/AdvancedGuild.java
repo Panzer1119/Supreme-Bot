@@ -15,8 +15,7 @@ import net.dv8tion.jda.core.entities.Guild;
 public class AdvancedGuild {
 
     private Guild guild = null;
-    private String guild_id = null;
-    private long guild_id_long = 0;
+    private long guild_id = 0;
     private AdvancedFile folder = null;
     private DefaultSettings settings = null;
     private final HashMap<Object, Object> data = new HashMap<>();
@@ -30,16 +29,13 @@ public class AdvancedGuild {
         this.guild = guild;
     }
 
-    public AdvancedGuild(String guild_id, AdvancedFile folder) {
+    public AdvancedGuild(long guild_id, AdvancedFile folder) {
         this(guild_id);
         this.folder = folder;
     }
 
-    public AdvancedGuild(String guild_id) {
+    public AdvancedGuild(long guild_id) {
         this.guild_id = guild_id;
-        if (guild_id != null && !guild_id.isEmpty()) {
-            this.guild_id_long = Long.parseLong(guild_id);
-        }
     }
 
     public AdvancedGuild(AdvancedFile folder) {
@@ -89,7 +85,7 @@ public class AdvancedGuild {
             if (guild != null) {
                 folder = Standard.createGuildFolder(getGuild());
             } else {
-                folder = Standard.createGuildFolder(getGuildId());
+                folder = Standard.createGuildFolder(getGuildIdLong());
             }
         }
         folder.createAdvancedFile();
@@ -106,27 +102,25 @@ public class AdvancedGuild {
     public final AdvancedGuild setGuild(Guild guild) {
         this.guild = guild;
         if (guild == null) {
-            this.guild_id = null;
-            this.guild_id_long = 0;
+            this.guild_id = 0;
         } else {
-            this.guild_id = this.guild.getId();
-            this.guild_id_long = this.guild.getIdLong();
+            this.guild_id = this.guild.getIdLong();
         }
         return this;
     }
 
     public final String getGuildId() {
-        if (guild_id == null && guild != null) {
-            guild_id = getGuild().getId();
+        if (guild_id == 0 && guild != null) {
+            guild_id = getGuild().getIdLong();
         }
-        return guild_id;
+        return "" + guild_id;
     }
 
     public final long getGuildIdLong() {
-        if (guild_id_long == 0 && guild != null) {
-            guild_id_long = getGuild().getIdLong();
+        if (guild_id == 0 && guild != null) {
+            guild_id = getGuild().getIdLong();
         }
-        return guild_id_long;
+        return guild_id;
     }
 
     public final AdvancedFile getLogFile() {

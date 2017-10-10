@@ -32,9 +32,14 @@ public class GlobalConfigData {
     }
 
     public final GlobalConfigData setValue(String value) {
-        SQLUtil.removeObjects(GlobalConfigData.class, MySQL.STANDARD_DATABASE, this);
+        delete();
         this.value = value;
         SQLUtil.serializeObjects(GlobalConfigData.class, MySQL.STANDARD_DATABASE, true, this);
+        return this;
+    }
+
+    public final GlobalConfigData delete() {
+        SQLUtil.removeObjects(GlobalConfigData.class, MySQL.STANDARD_DATABASE, this);
         return this;
     }
 
@@ -73,6 +78,19 @@ public class GlobalConfigData {
         result.close();
         if (globalConfigDatas == null) {
             return null;
+        }
+        return globalConfigDatas.stream().findFirst().orElse(null);
+    }
+
+    public static final GlobalConfigData getGlobalConfigDatasByConfigIdAndKeyForAdding(long config_id, String key, String value) {
+        if (key == null) {
+            return null;
+        }
+        final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM global_configs WHERE config_ID = %d AND config_key = %s;", config_id, SQLUtil.quote(key));
+        final List<GlobalConfigData> globalConfigDatas = SQLUtil.deserializeObjectsOfResultSet(GlobalConfigData.class, result.resultSet);
+        result.close();
+        if (globalConfigDatas == null) {
+            return new GlobalConfigData(config_id, key, value);
         }
         return globalConfigDatas.stream().findFirst().orElse(null);
     }

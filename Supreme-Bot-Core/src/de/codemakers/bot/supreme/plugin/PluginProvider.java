@@ -16,6 +16,6 @@ public interface PluginProvider extends Serializable {
 
     public boolean register(Plugin plugin, Object id, Object object, RegisterType type);
 
-    public AdvancedGuild getAdvancedGuild(Plugin plugin, String guild_id);
+    public AdvancedGuild getAdvancedGuild(Plugin plugin, long guild_id);
 
 }

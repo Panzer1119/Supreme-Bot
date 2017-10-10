@@ -18,6 +18,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
+import de.codemakers.bot.supreme.settings.LocalConfig;
 
 /**
  * CommandHandler
@@ -26,7 +27,6 @@ import de.codemakers.bot.supreme.permission.PermissionFilter;
  */
 public class CommandHandler {
 
-    public static final String SEND_HELP_ALWAYS_PRIVATE = "send_help_always_private";
     public static final Predicate<Listener> ADMIN_PREDICATE = (listener) -> {
         if (listener == null) {
             return false;
@@ -126,7 +126,7 @@ public class CommandHandler {
         if (!sendPrivate && event.isPrivate()) {
             sendPrivate = true;
         }
-        if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty(SEND_HELP_ALWAYS_PRIVATE, false)) {
+        if (sendPrivate || LocalConfig.LOCAL_CONFIG.isSendingHelpAlwaysPrivate(event.getGuild().getIdLong())) {
             Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
         } else {
             if (!PermissionHandler.isPermissionGranted(filter, event.getTextChannel())) {
@@ -189,7 +189,7 @@ public class CommandHandler {
             });
             final String output = sb.toString();
             sb.delete(0, sb.length());
-            if (sendPrivate || Standard.getGuildSettings(event.getGuild()).getProperty(SEND_HELP_ALWAYS_PRIVATE, false)) {
+            if (sendPrivate || LocalConfig.LOCAL_CONFIG.isSendingHelpAlwaysPrivate(event.getGuild().getIdLong())) {
                 Util.sendPrivateMessage(event.getAuthor(), output);
             } else {
                 if (!PermissionHandler.isPermissionGranted(commands, event.getTextChannel())) {

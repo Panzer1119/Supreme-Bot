@@ -101,18 +101,18 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
         final boolean info = arguments.isConsumed(Standard.ARGUMENT_INFO, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         if (start) {
-            String guild_id = null;
+            long guild_id = 0;
             if (isThis) {
-                guild_id = event.getGuild().getId();
+                guild_id = event.getGuild().getIdLong();
             } else if (arguments.isSize(2)) {
-                guild_id = arguments.consumeFirst();
+                guild_id = Long.parseLong(arguments.consumeFirst());
             }
             final String fileName = arguments.consumeFirst();
             AdvancedFile file = Standard.getFile(fileName);
             if (file == null) {
                 return;
             }
-            if (guild_id != null) {
+            if (guild_id != 0) {
                 final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild_id);
                 if (advancedGuild != null) {
                     file = advancedGuild.getFile(fileName);
@@ -142,15 +142,15 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
             }
             if (save) {
                 if (isThis || arguments.isSize(2)) {
-                    String guild_id = null;
+                    long guild_id = 0;
                     if (isThis) {
-                        guild_id = event.getGuild().getId();
+                        guild_id = event.getGuild().getIdLong();
                     } else {
-                        guild_id = arguments.consumeFirst();
+                        guild_id = Long.parseLong(arguments.consumeFirst());
                     }
                     final String fileName = arguments.consumeFirst();
                     AdvancedFile file = Standard.getFile(fileName);
-                    if (guild_id != null) {
+                    if (guild_id != 0) {
                         final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild_id);
                         if (advancedGuild != null) {
                             file = advancedGuild.getFile(fileName);

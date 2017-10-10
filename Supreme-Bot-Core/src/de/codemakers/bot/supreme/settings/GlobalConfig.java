@@ -21,7 +21,7 @@ public class GlobalConfig extends AbstractGlobalConfig {
     }
 
     public final String getNickname() {
-        return getValue(KEY_NICKNAME, () -> Standard.NAME);
+        return getValue(KEY_NICKNAME, () -> Standard.STANDARD_NAME);
     }
 
     public final GlobalConfig setNickname(String nickname) {
@@ -30,7 +30,7 @@ public class GlobalConfig extends AbstractGlobalConfig {
     }
 
     public final String getStandardCommandPrefix() {
-        return getValue(KEY_STANDARD_COMMAND_PREFIX, () -> "!");
+        return getValue(KEY_STANDARD_COMMAND_PREFIX, () -> Standard.STANDARD_COMMAND_PREFIX);
     }
 
     public final GlobalConfig setStandardCommandPrefix(String standard_command_prefix) {
