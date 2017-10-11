@@ -507,7 +507,8 @@ public class Util {
      *
      * text_new = modifyColumnwiseToString(text, "|", ":");
      *
-     * text_new == "|123:Standard.NEW_LINE_DISCORD|456:Standard.NEW_LINE_DISCORD|789:";
+     * text_new ==
+     * "|123:Standard.NEW_LINE_DISCORD|456:Standard.NEW_LINE_DISCORD|789:";
      *
      * @param text Text to modify
      * @param delimiter Delimiter
@@ -618,15 +619,15 @@ public class Util {
         return (T[]) Arrays.asList(arrays).toArray();
     }
 
-    public static final String getTimeAsString(long time) {
-        return getTimeAsString(time, false);
+    public static final String getTimeAsString(long time, boolean withMilliseconds) {
+        return getTimeAsString(time, false, withMilliseconds);
     }
 
-    public static final String getTimeAsString(long time, boolean longNames) {
-        return getTimeAsString(time, longNames, false);
+    public static final String getTimeAsString(long time, boolean longNames, boolean withMilliseconds) {
+        return getTimeAsString(time, longNames, false, withMilliseconds);
     }
 
-    public static final String getTimeAsString(long time, boolean longNames, boolean withWhitespaces) {
+    public static final String getTimeAsString(long time, boolean longNames, boolean withWhitespaces, boolean withMilliseconds) {
         if (time < 0) {
             time = -time;
         }
@@ -649,7 +650,7 @@ public class Util {
                         text.append(" ");
                     }
                 }
-            });
+            }, withMilliseconds);
             return text.toString();
         } catch (Exception ex) {
             ex.printStackTrace();

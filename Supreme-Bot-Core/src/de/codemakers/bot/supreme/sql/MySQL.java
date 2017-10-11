@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.sql;
 
+import de.codemakers.bot.supreme.settings.GlobalConfig;
 import de.codemakers.bot.supreme.sql.annotations.SQLTable;
 import de.codemakers.bot.supreme.util.Standard;
 import java.sql.Connection;
@@ -50,6 +51,14 @@ public class MySQL {
                     new Reflections(Standard.BASE_PACKAGE).getTypesAnnotatedWith(SQLTable.class).stream().filter((clazz) -> clazz.getAnnotation(SQLTable.class).createIfNotExists()).forEach((clazz) -> SQLUtil.createTableIfNotExists(clazz, STANDARD_DATABASE));
                 } catch (Exception ex) {
                     System.err.println("MySQL: Init 2 error");
+                    ex.printStackTrace();
+                }
+            }, () -> {
+                try {
+                    Standard.setNickname(Standard.getNickname());
+                    Standard.reloadAllGuildSettings();
+                } catch (Exception ex) {
+                    System.err.println("MySQL: Init 3 error");
                     ex.printStackTrace();
                 }
             });

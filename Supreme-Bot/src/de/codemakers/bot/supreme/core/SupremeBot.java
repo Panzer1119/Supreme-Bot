@@ -5,6 +5,7 @@ import de.codemakers.bot.supreme.commands.impl.HelpCommand;
 import de.codemakers.bot.supreme.commands.impl.RolesCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
 import de.codemakers.bot.supreme.commands.impl.PingCommand;
+import de.codemakers.bot.supreme.commands.impl.UptimeCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.GameOfLifeCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.TicTacToeCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.ChangeCommandPrefixCommand;
@@ -35,6 +36,7 @@ import de.codemakers.bot.supreme.util.NetworkUtil;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.SystemOutputStream;
 import java.security.Permission;
+import java.time.Instant;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -55,13 +57,15 @@ public class SupremeBot {
 
     public static final void main(String[] args) {
         try {
+            final Instant instant_now = Instant.now();
             System.setOut(new SystemOutputStream(System.out, false));
             System.setErr(new SystemOutputStream(System.err, true));
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 //Standard.STANDARD_SETTINGS.saveSettings(); //FIXME WTF This is deleting the settings file all the time?!
                 Standard.saveAllGuildSettings();
             }));
-            Standard.getter = () -> jda;
+            Standard.GETTER = () -> jda;
+            Standard.setStarted(instant_now);
             NetworkUtil.init();
             reload();
             builder = new JDABuilder(AccountType.BOT);
@@ -96,8 +100,9 @@ public class SupremeBot {
             //Normal Commands
             new AudioRecorderCommand();
             new HelpCommand();
-            new RolesCommand();
             new PingCommand();
+            new RolesCommand();
+            new UptimeCommand();
             //Fun Commands
             new GameOfLifeCommand();
             new MusicCommand();
@@ -156,7 +161,7 @@ public class SupremeBot {
         try {
             builder.setToken(new String(Standard.getToken()));
             jda = builder.buildBlocking();
-            Standard.getter = () -> jda;
+            Standard.GETTER = () -> jda;
             try {
                 Thread.sleep(500);
                 initAdvancedGuilds();
@@ -207,7 +212,6 @@ public class SupremeBot {
     public static final boolean reload() {
         try {
             reloadSettings();
-            reloadAllGuilds();
             return true;
         } catch (Exception ex) {
             return false;
@@ -232,39 +236,12 @@ public class SupremeBot {
         }
     }
 
-    public static final boolean reloadAllGuilds() {
-        try {
-            Standard.reloadAllGuilds();
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
     public static final boolean loadAllGuilds() {
         if (Standard.getJDA() == null) {
             return false;
         }
         try {
             Standard.loadAllGuilds();
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
-    public static final boolean reloadGuilds() {
-        try {
-            Standard.reloadAllGuilds();
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
-    public static final boolean reloadGuildSettings() {
-        try {
-            Standard.reloadAllGuildSettings();
             return true;
         } catch (Exception ex) {
             return false;

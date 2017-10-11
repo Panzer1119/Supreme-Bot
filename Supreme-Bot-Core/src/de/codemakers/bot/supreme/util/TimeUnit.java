@@ -66,9 +66,9 @@ public enum TimeUnit {
         return null;
     }
 
-    public static final void forEach(Consumer<TimeUnit> action) {
+    public static final void forEach(Consumer<TimeUnit> action, boolean withMilliseconds) {
         final int length = values().length;
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length - (withMilliseconds ? 0 : 1); i++) {
             action.accept(values()[length - i - 1]);
         }
     }

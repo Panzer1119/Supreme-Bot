@@ -69,7 +69,8 @@ public class Standard {
     private static byte[] TOKEN = null;
     private static final String PLUGIN_PERMISSION_ADMIN_STRING_NAME = "plugin_permission_admin_string";
     private static String PLUGIN_PERMISSION_ADMIN_STRING = null;
-    public static Getter<JDA> getter = () -> null;
+    private static Instant STARTED = null;
+    public static Getter<JDA> GETTER = () -> null;
 
     /**
      * https://regexr.com/
@@ -147,10 +148,6 @@ public class Standard {
                 STANDARD_SETTINGS.setProperty("token", "Put your token here!");
             }
             TOKEN = STANDARD_SETTINGS.getProperty("token", null).getBytes();
-            if (STANDARD_SETTINGS.getProperty("nickname", null) == null) {
-                STANDARD_SETTINGS.setProperty("nickname", "Supreme-Bot");
-            }
-            setNickname(STANDARD_SETTINGS.getProperty("nickname", "Supreme-Bot"));
             ZONE_ID = ZoneId.of(STANDARD_SETTINGS.getProperty("zone_id", ZoneId.systemDefault().getId()));
             System.out.println("Loaded ZoneId: " + ZONE_ID.getId());
             CURRENT_LOG_FILE = Standard.createCurrentLogFile();
@@ -165,7 +162,7 @@ public class Standard {
     }
 
     public static final JDA getJDA() {
-        return getter.get();
+        return GETTER.get();
     }
 
     public static final boolean reloadPluginPermissionAdminString() {
@@ -271,6 +268,17 @@ public class Standard {
         return PATTERN_TIME;
     }
 
+    public static final void setStarted(Instant instant_started) {
+        if (STARTED != null) {
+            throw new IllegalAccessError("The start instant is already set!");
+        }
+        STARTED = instant_started;
+    }
+
+    public static final Instant getStarted() {
+        return STARTED;
+    }
+
     //****************************************************************//
     //*********************GUILD SPECIFIC START***********************//
     //****************************************************************//
@@ -289,23 +297,10 @@ public class Standard {
         try {
             GUILDS.clear();
             STANDARD_GUILDS_FOLDER.listAdvancedFiles().stream().filter((advancedFile) -> advancedFile.isDirectory()).forEach((advancedFile) -> GUILDS.add(new AdvancedGuild(Long.parseLong(advancedFile.getName()), advancedFile)));
-            reloadAllGuilds();
             System.out.println("Reloaded Guilds Folder!");
             return true;
         } catch (Exception ex) {
             System.err.println("Not Reloaded Guilds Folder: " + ex);
-            ex.printStackTrace();
-            return false;
-        }
-    }
-
-    public static final boolean reloadAllGuilds() {
-        try {
-            reloadAllGuildSettings();
-            System.out.println("Reloaded All Guilds!");
-            return true;
-        } catch (Exception ex) {
-            System.err.println("Not Reloaded All Guilds: " + ex);
             ex.printStackTrace();
             return false;
         }
