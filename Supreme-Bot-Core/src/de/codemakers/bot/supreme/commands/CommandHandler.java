@@ -18,7 +18,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
-import de.codemakers.bot.supreme.settings.LocalConfig;
+import de.codemakers.bot.supreme.settings.Config;
 
 /**
  * CommandHandler
@@ -126,7 +126,7 @@ public class CommandHandler {
         if (!sendPrivate && event.isPrivate()) {
             sendPrivate = true;
         }
-        if (sendPrivate || LocalConfig.LOCAL_CONFIG.isSendingHelpAlwaysPrivate(event.getGuild().getIdLong())) {
+        if (sendPrivate || Config.CONFIG.isGuildSendingHelpAlwaysPrivate(event.getGuild().getIdLong())) {
             Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
         } else {
             if (!PermissionHandler.isPermissionGranted(filter, event.getTextChannel())) {
@@ -189,7 +189,7 @@ public class CommandHandler {
             });
             final String output = sb.toString();
             sb.delete(0, sb.length());
-            if (sendPrivate || LocalConfig.LOCAL_CONFIG.isSendingHelpAlwaysPrivate(event.getGuild().getIdLong())) {
+            if (sendPrivate || Config.CONFIG.isGuildSendingHelpAlwaysPrivate(event.getGuild().getIdLong())) {
                 Util.sendPrivateMessage(event.getAuthor(), output);
             } else {
                 if (!PermissionHandler.isPermissionGranted(commands, event.getTextChannel())) {

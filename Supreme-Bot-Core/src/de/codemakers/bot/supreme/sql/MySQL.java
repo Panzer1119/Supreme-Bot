@@ -1,6 +1,5 @@
 package de.codemakers.bot.supreme.sql;
 
-import de.codemakers.bot.supreme.settings.GlobalConfig;
 import de.codemakers.bot.supreme.sql.annotations.SQLTable;
 import de.codemakers.bot.supreme.util.Standard;
 import java.sql.Connection;

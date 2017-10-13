@@ -68,7 +68,7 @@ public class Config extends AbstractConfig {
 
     //GUILD SETTINGS
     public final String getGuildNickname(long guild_id) {
-        return getValue(guild_id, 0, KEY_GUILD_NICKNAME, () -> GlobalConfig.GLOBAL_CONFIG.getNickname());
+        return getValue(guild_id, 0, KEY_GUILD_NICKNAME, () -> getBotNickname());
     }
 
     public final Config setGuildNickname(long guild_id, String nickname) {
@@ -77,7 +77,7 @@ public class Config extends AbstractConfig {
     }
 
     public final String getGuildCommandPrefix(long guild_id) {
-        return getValue(guild_id, 0, KEY_GUILD_COMMAND_PREFIX, () -> GlobalConfig.GLOBAL_CONFIG.getStandardCommandPrefix());
+        return getValue(guild_id, 0, KEY_GUILD_COMMAND_PREFIX, () -> getBotCommandPrefix());
     }
 
     public final Config setGuildCommandPrefix(long guild_id, String command_prefix) {

@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.util;
 
+import de.codemakers.bot.supreme.settings.Config;
 import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -438,18 +439,18 @@ public class Util {
         return (String) list.stream().collect(Collectors.joining(delimiter, prefix, suffix));
     }
 
-    public static final String rolesToString(List<Role> roles, boolean asMention) {
+    public static final String rolesToString(List<Role> roles, boolean asMention, boolean respectMutes) {
         if (roles == null || roles.isEmpty()) {
             return "";
         }
         final StringBuilder sb = new StringBuilder();
         roles.stream().forEach((role) -> {
-            if (asMention) {
+            if (respectMutes && asMention) {
+                sb.append(Config.CONFIG.getRoleNameForRole(role));
+            } else if (asMention) {
                 sb.append(role.getAsMention());
             } else {
-                sb.append("\"");
-                sb.append(role.getName());
-                sb.append("\"");
+                sb.append(Standard.getCompleteName(role));
             }
             sb.append(", ");
         });

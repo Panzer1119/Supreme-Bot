@@ -145,8 +145,9 @@ public abstract class AbstractConfig {
     }
 
     public final EmbedBuilder toEmbedBuilder(long guild_id, long user_id) {
+        final ConfigType configType = ConfigType.of(guild_id, user_id);
         final EmbedBuilder builder = Standard.getMessageEmbed(Color.YELLOW, null);
-        getConfigDatas(guild_id, user_id, null).stream().filter((configData) -> !Util.contains(Standard.ULTRA_FORBIDDEN_LOCAL, configData.key)).forEach((configData) -> {
+        getConfigDatas(guild_id, user_id, null).stream().filter((configData) -> (configType != ConfigType.BOT_CONFIG || !Util.contains(Standard.ULTRA_FORBIDDEN, configData.key))).forEach((configData) -> {
             builder.addField(configData.key, configData.value, false);
         });
         return builder;

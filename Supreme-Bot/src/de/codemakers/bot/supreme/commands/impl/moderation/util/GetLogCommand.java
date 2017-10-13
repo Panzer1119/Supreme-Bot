@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
-import de.codemakers.bot.supreme.settings.GlobalConfig;
+import de.codemakers.bot.supreme.settings.Config;
 
 /**
  * GetLogCommand
@@ -63,7 +63,7 @@ public class GetLogCommand extends Command {
         if (list) { //-list
             //final String list_logs = Standard.STANDARD_LOG_FOLDER.listAdvancedFiles((parent, name) -> (name != null && name.startsWith(LOG_PREFIX) && name.endsWith(LOG_SUFFIX))).stream().map((advancedFile) -> advancedFile.toFile()).map((advancedFile) -> (/*download ? Standard.embedLink(advancedFile.getName(), event.getTextChannel().sendFile(advancedFile.toByteArray(), advancedFile.getName(), null).complete().getAttachments().get(0).getUrl()) : */advancedFile.getName())).collect(Collectors.joining(Standard.NEW_LINE_DISCORD));
             //final int log_file_show_count = Standard.STANDARD_SETTINGS.asAutoAdd().getProperty("log_file_show_count", 25);
-            final int log_file_show_count = GlobalConfig.GLOBAL_CONFIG.getLogFileShowCount();
+            final int log_file_show_count = Config.CONFIG.getBotLogFileShowCount();
             List<AdvancedFile> files = Standard.STANDARD_LOG_FOLDER.listAdvancedFiles((parent, name) -> (name != null && name.startsWith(LOG_PREFIX) && name.endsWith(".txt")));
             files = files.stream().skip(files.size() - log_file_show_count).collect(Collectors.toList());
             final Map<String, Map<String, Map<String, List<AdvancedFile>>>> years = new HashMap<>();

@@ -26,4 +26,17 @@ public enum ConfigType {
     public final boolean hasUser() {
         return hasUser;
     }
+
+    public static final ConfigType of(boolean hasGuild, boolean hasUser) {
+        for (ConfigType configType : values()) {
+            if (configType.hasGuild == hasGuild && configType.hasUser == hasUser) {
+                return configType;
+            }
+        }
+        return null;
+    }
+
+    public static final ConfigType of(long guild_id, long user_id) {
+        return of(guild_id > 0, user_id > 0);
+    }
 }

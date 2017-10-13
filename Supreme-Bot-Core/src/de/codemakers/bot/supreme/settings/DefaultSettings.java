@@ -325,7 +325,7 @@ public class DefaultSettings extends Settings implements Copyable {
 
     @Override
     public final EmbedBuilder toEmbed(EmbedBuilder builder) {
-        settings.stringPropertyNames().stream().filter((key) -> !Util.contains(Standard.ULTRA_FORBIDDEN_GLOBAL, key)).forEach((key) -> {
+        settings.stringPropertyNames().stream().filter((key) -> !Util.contains(Standard.ULTRA_FORBIDDEN, key)).forEach((key) -> {
             builder.addField("" + key, "" + settings.getProperty(key, "" + null), false);
         });
         return builder;

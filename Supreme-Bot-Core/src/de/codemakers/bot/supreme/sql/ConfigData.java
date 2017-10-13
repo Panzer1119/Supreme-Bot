@@ -77,15 +77,15 @@ public class ConfigData {
 
     public static final List<ConfigData> getConfigDatas(long guild_id, long user_id, long config_id, String key) {
         final StringBuilder sql_extra = new StringBuilder(" WHERE");
-        if (guild_id > 0) {
+        if (guild_id >= 0) {
             sql_extra.append(" guild_ID = ").append(SQLUtil.quote(guild_id));
-            if (user_id > 0 || config_id > 0 || key != null) {
+            if (user_id >= 0 || config_id >= 0 || key != null) {
                 sql_extra.append(" AND");
             }
         }
-        if (user_id > 0) {
+        if (user_id >= 0) {
             sql_extra.append(" user_ID = ").append(SQLUtil.quote(user_id));
-            if (config_id > 0 || key != null) {
+            if (config_id >= 0 || key != null) {
                 sql_extra.append(" AND");
             }
         }
@@ -96,13 +96,15 @@ public class ConfigData {
             }
         }
         if (key != null) {
-            sql_extra.append(" key = ").append(SQLUtil.quote(key));
+            sql_extra.append(" config_key = ").append(SQLUtil.quote(key));
         }
         if (sql_extra.length() == " WHERE".length()) {
             sql_extra.delete(0, sql_extra.length());
         }
         final String temp = String.format("SELECT * FROM configs%s;", sql_extra.toString());
-        System.err.println("TEMP: " + temp);
+        if (Database.DEBUG_SQL) {
+            System.err.println("CONFIG SQL: " + temp);
+        }
         final Result result = MySQL.STANDARD_DATABASE.executeQuery(temp);
         if (result == null) {
             return null;

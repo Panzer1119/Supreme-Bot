@@ -8,9 +8,8 @@ import de.codemakers.bot.supreme.permission.GuildBotRole;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.plugin.Plugin;
 import de.codemakers.bot.supreme.plugin.PluginManager;
+import de.codemakers.bot.supreme.settings.Config;
 import de.codemakers.bot.supreme.settings.DefaultSettings;
-import de.codemakers.bot.supreme.settings.GlobalConfig;
-import de.codemakers.bot.supreme.settings.LocalConfig;
 import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.awt.Color;
@@ -195,26 +194,26 @@ public class Standard {
     }
 
     public static final String getStandardCommandPrefix() {
-        return GlobalConfig.GLOBAL_CONFIG.getStandardCommandPrefix();
+        return Config.CONFIG.getBotCommandPrefix();
     }
 
     public static final boolean setStandardCommandPrefix(String commandPrefix) {
         if (commandPrefix == null || commandPrefix.isEmpty() || commandPrefix.contains("\\")) {
             return false;
         }
-        GlobalConfig.GLOBAL_CONFIG.setStandardCommandPrefix(commandPrefix);
+        Config.CONFIG.setBotCommandPrefix(commandPrefix);
         return true;
     }
 
     public static final String getNickname() {
-        return GlobalConfig.GLOBAL_CONFIG.getNickname();
+        return Config.CONFIG.getBotNickname();
     }
 
     public static final boolean setNickname(String nickname) {
         if (nickname == null || nickname.isEmpty()) {
             return false;
         }
-        GlobalConfig.GLOBAL_CONFIG.setNickname(nickname);
+        Config.CONFIG.setBotNickname(nickname);
         try {
             final JDA jda = getJDA();
             if (jda != null) {
@@ -454,7 +453,7 @@ public class Standard {
         if (guild_id == 0) {
             return null;
         }
-        return LocalConfig.LOCAL_CONFIG.getCommandPrefix(guild_id);
+        return Config.CONFIG.getGuildCommandPrefix(guild_id);
     }
 
     public static final boolean setCommandPrefixForGuild(Guild guild, String commandPrefix) {
@@ -468,7 +467,7 @@ public class Standard {
         if (guild_id == 0 || commandPrefix == null || commandPrefix.isEmpty() || commandPrefix.contains("\\")) {
             return false;
         }
-        LocalConfig.LOCAL_CONFIG.setCommandPrefix(guild_id, commandPrefix);
+        Config.CONFIG.setGuildCommandPrefix(guild_id, commandPrefix);
         return true;
     }
     //------------------------------------------------------------------------//
@@ -485,7 +484,7 @@ public class Standard {
         if (guild_id == 0) {
             return null;
         }
-        return LocalConfig.LOCAL_CONFIG.getNickname(guild_id);
+        return Config.CONFIG.getGuildNickname(guild_id);
     }
 
     public static final boolean setNicknameForGuild(Guild guild, String nickname) {
@@ -499,7 +498,7 @@ public class Standard {
         if (guild_id == 0 || nickname == null || nickname.isEmpty()) {
             return false;
         }
-        LocalConfig.LOCAL_CONFIG.setNickname(guild_id, nickname);
+        Config.CONFIG.setGuildNickname(guild_id, nickname);
         final Member member = getSelfMemberByGuild(guild_id);
         if (member != null) {
             if (!nickname.equals(member.getNickname())) {
@@ -534,7 +533,7 @@ public class Standard {
         if (guild_id == 0) {
             return -1;
         }
-        return LocalConfig.LOCAL_CONFIG.getAutoDeleteCommandNotFoundMessageDelay(guild_id);
+        return Config.CONFIG.getGuildAutoDeleteCommandNotFoundMessageDelay(guild_id);
     }
 
     public static final boolean setAutoDeleteCommandNotFoundMessageDelayForGuild(Guild guild, long autoDeleteCommandNotFoundMessageDelay) {
@@ -548,7 +547,7 @@ public class Standard {
         if (guild_id == 0) {
             return false;
         }
-        LocalConfig.LOCAL_CONFIG.setAutoDeleteCommandNotFoundMessageDelay(guild_id, autoDeleteCommandNotFoundMessageDelay);
+        Config.CONFIG.setGuildAutoDeleteCommandNotFoundMessageDelay(guild_id, autoDeleteCommandNotFoundMessageDelay);
         return true;
     }
 
@@ -563,7 +562,7 @@ public class Standard {
         if (guild_id == 0) {
             return false;
         }
-        return LocalConfig.LOCAL_CONFIG.isAutoDeletingCommand(guild_id);
+        return Config.CONFIG.isGuildAutoDeletingCommand(guild_id);
     }
 
     public static final boolean setAutoDeletingCommandForGuild(Guild guild, boolean autoDeletingCommand) {
@@ -577,7 +576,7 @@ public class Standard {
         if (guild_id == 0) {
             return false;
         }
-        LocalConfig.LOCAL_CONFIG.setAutoDeletingCommand(guild_id, autoDeletingCommand);
+        Config.CONFIG.setGuildAutoDeletingCommand(guild_id, autoDeletingCommand);
         return true;
     }
 
@@ -679,6 +678,13 @@ public class Standard {
         return isSuperOwner(member.getUser());
     }
 
+    public static final String getCompleteName(Guild guild) {
+        if (guild == null) {
+            return null;
+        }
+        return guild.getName() + "#" + guild.getId();
+    }
+
     public static final String getCompleteName(User user) {
         if (user == null) {
             return null;
@@ -754,6 +760,18 @@ public class Standard {
             return 0;
         }
         return Long.parseLong(guild_id);
+    }
+
+    public static final long resolveUserId(User user, String user_id) {
+        if (user != null && user_id != null && (user_id.equalsIgnoreCase("user") || user_id.equalsIgnoreCase("me"))) {
+            user_id = user.getId();
+        } else if (user_id != null && (user_id.equalsIgnoreCase("this") || user_id.equalsIgnoreCase("current"))) {
+            return -1;
+        }
+        if (user_id == null) {
+            return 0;
+        }
+        return Long.parseLong(user_id);
     }
 
     public static final List<Member> muteAll(VoiceChannel voiceChannel, boolean mute) {
@@ -1089,8 +1107,7 @@ public class Standard {
         return commandCategory == null ? COMMANDCATEGORY_NONE : commandCategory;
     }
 
-    public static final String[] ULTRA_FORBIDDEN_GLOBAL = new String[]{"token", "super_owner", "nickname", PLUGIN_PERMISSION_ADMIN_STRING_NAME, "sql_hostname", "sql_database", "sql_username", "sql_password"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
-    public static final String[] ULTRA_FORBIDDEN_LOCAL = new String[]{"nickname"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
+    public static final String[] ULTRA_FORBIDDEN = new String[]{"token", "super_owner", "nickname", PLUGIN_PERMISSION_ADMIN_STRING_NAME, "sql_hostname", "sql_database", "sql_username", "sql_password"}; //FIXME Make nickname forbidden or super_forbidden, but not ultra_forbidden!
 
     public static final String[] STANDARD_ARGUMENT_PREFIXES = new String[]{"-", "/", "!"};
     public static final Argument ARGUMENT_GLOBAL = new Argument("global", STANDARD_ARGUMENT_PREFIXES, "g");
