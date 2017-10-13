@@ -32,6 +32,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -683,6 +684,13 @@ public class Standard {
             return null;
         }
         return user.getName() + "#" + user.getDiscriminator();
+    }
+
+    public static final String getCompleteName(Role role) {
+        if (role == null) {
+            return null;
+        }
+        return role.getName() + "#" + role.getId();
     }
 
     public static final User getUserById(long user_id) {

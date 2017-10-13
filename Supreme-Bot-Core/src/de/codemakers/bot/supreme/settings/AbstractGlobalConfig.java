@@ -34,7 +34,7 @@ public abstract class AbstractGlobalConfig {
     }
 
     public final GlobalConfigData getGlobalConfigDataByKey(String key) {
-        return GlobalConfigData.getGlobalConfigDatasByConfigIdAndKey(config_id, key);
+        return GlobalConfigData.getGlobalConfigDataByConfigIdAndKey(config_id, key);
     }
 
     public final String getValue(String key) {

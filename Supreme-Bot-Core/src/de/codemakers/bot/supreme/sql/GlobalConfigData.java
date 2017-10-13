@@ -75,7 +75,7 @@ public class GlobalConfigData {
         return globalConfigDatas;
     }
 
-    public static final GlobalConfigData getGlobalConfigDatasByConfigIdAndKey(long config_id, String key) {
+    public static final GlobalConfigData getGlobalConfigDataByConfigIdAndKey(long config_id, String key) {
         if (key == null) {
             return null;
         }
@@ -112,7 +112,7 @@ public class GlobalConfigData {
         if (key == null) {
             return null;
         }
-        final GlobalConfigData globalConfigData = getGlobalConfigDatasByConfigIdAndKey(config_id, key);
+        final GlobalConfigData globalConfigData = getGlobalConfigDataByConfigIdAndKey(config_id, key);
         return globalConfigData == null ? null : globalConfigData.value;
     }
 
