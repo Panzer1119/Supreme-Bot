@@ -141,7 +141,7 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
                 return;
             }
             sendPrivate = isPrivateNeeded(configType, event);
-            value = arguments.consumeFirst();
+            value = arguments.consumeRawFirst();
             value_temp = Config.CONFIG.getValue(guild_id, user_id, key);
             Config.CONFIG.setValue(guild_id, user_id, key, value);
             final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, getText(guild_id, user_id, guild, user, configType, "setted", event)).addField("\"" + key + "\" old:", "" + value_temp, false).addField("\"" + key + "\" new:", "" + value, false).build();
@@ -158,7 +158,7 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
             }
             sendPrivate = isPrivateNeeded(configType, event);
             if (arguments.isSize(1)) {
-                value_temp = arguments.consumeFirst();
+                value_temp = arguments.consumeRawFirst();
             }
             final String value_temp_ = value_temp;
             value = Config.CONFIG.getValue(guild_id, user_id, key, () -> value_temp_);

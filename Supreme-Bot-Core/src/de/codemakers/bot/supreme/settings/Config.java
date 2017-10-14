@@ -1,7 +1,11 @@
 package de.codemakers.bot.supreme.settings;
 
 import com.vdurmont.emoji.EmojiParser;
+import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
+import de.codemakers.bot.supreme.sql.ConfigData;
 import de.codemakers.bot.supreme.util.Standard;
+import java.util.regex.Matcher;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
@@ -94,15 +98,42 @@ public class Config extends AbstractConfig {
         return this;
     }
 
+    public final boolean isGuildReactionEmote(long guild_id) {
+        final String reaction = getValue(guild_id, 0, KEY_GUILD_REACT_ON_MENTION, null);
+        if (reaction == null) {
+            return false;
+        }
+        return ArgumentList.PATTERN_MARKDOWN_CUSTOM_EMOJI.matcher(reaction).matches();
+    }
+
     public final String getGuildReactionOnMention(long guild_id) {
         String reaction = getValue(guild_id, 0, KEY_GUILD_REACT_ON_MENTION, null);
-        if (reaction != null && reaction.startsWith(":") && reaction.endsWith(":")) {
-            reaction = EmojiParser.parseToUnicode(reaction);
+        if (reaction != null) {
+            reaction = EmojiParser.parseToUnicode((reaction.startsWith(":") ? "" : ":") + reaction + (reaction.endsWith(":") ? "" : ":"));
         }
         return reaction;
     }
 
+    public final Emote getGuildReactionOnMention(Guild guild) {
+        final String reaction = getValue(guild.getIdLong(), 0, KEY_GUILD_REACT_ON_MENTION, null);
+        if (reaction == null) {
+            return null;
+        }
+        final Matcher matcher = ArgumentList.PATTERN_MARKDOWN_CUSTOM_EMOJI.matcher(reaction);
+        if (!matcher.matches()) {
+            return null;
+        }
+        return guild.getEmoteById(matcher.group(2));
+    }
+
     public final Config setGuildReactionOnMention(long guild_id, String reaction) {
+        if (reaction == null) {
+            final ConfigData configData = getConfigData(guild_id, 0, KEY_GUILD_REACT_ON_MENTION);
+            if (configData != null) {
+                configData.delete();
+            }
+        }
+        System.err.println("REACTION " + reaction);
         setValue(guild_id, 0, KEY_GUILD_REACT_ON_MENTION, reaction);
         return this;
     }

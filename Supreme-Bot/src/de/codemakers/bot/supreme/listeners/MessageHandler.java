@@ -11,6 +11,7 @@ import de.codemakers.bot.supreme.util.Util;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.events.message.MessageBulkDeleteEvent;
@@ -47,9 +48,14 @@ public class MessageHandler extends ListenerAdapter {
                 if (commandType.isCommand()) {
                     CommandHandler.handleCommand(CommandParser.parser(commandType, content, content_raw, event));
                 } else if (content_raw.contains(Standard.getSelfUser().getAsMention()) || content_raw.contains(Standard.getSelfMemberByGuild(guild).getAsMention())) {
-                    final String reaction = Config.CONFIG.getGuildReactionOnMention(guild.getIdLong());
-                    if (reaction != null) {
-                        event.getMessage().addReaction(reaction).queue();
+                    final Emote reaction_emote = Config.CONFIG.getGuildReactionOnMention(guild);
+                    if (reaction_emote != null) {
+                        event.getMessage().addReaction(reaction_emote).queue();
+                    } else {
+                        final String reaction = Config.CONFIG.getGuildReactionOnMention(guild.getIdLong());
+                        if (reaction != null) {
+                            event.getMessage().addReaction(reaction).queue();
+                        }
                     }
                 }
                 final Object[] output = ListenerManager.fireListeners(MessageListener.class, CommandHandler.ADMIN_PREDICATE, new Object[]{event, MessageType.RECEIVED});
