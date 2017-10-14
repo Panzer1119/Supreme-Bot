@@ -7,8 +7,10 @@ import de.codemakers.bot.supreme.entities.DefaultMessageEvent;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.settings.Config;
 import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.Util;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.util.List;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.events.message.MessageBulkDeleteEvent;
@@ -51,23 +53,24 @@ public class MessageHandler extends ListenerAdapter {
                     }
                 }
                 final Object[] output = ListenerManager.fireListeners(MessageListener.class, CommandHandler.ADMIN_PREDICATE, new Object[]{event, MessageType.RECEIVED});
-                if (output.length > 0) {
-                    System.out.println(String.format("%d plugin%s used this message:", output.length, (output.length == 1 ? "" : "s")));
+                String embed_messages = event.getMessage().getEmbeds().stream().map((messageEmbed) -> Util.embedMessageToString(messageEmbed)).collect(Collectors.joining(Standard.NEW_LINE_DISCORD));
+                if (!embed_messages.isEmpty()) {
+                    embed_messages = Standard.NEW_LINE_DISCORD + embed_messages;
                 }
                 final List<Attachment> attachments = event.getMessage().getAttachments();
                 if (attachments == null || attachments.isEmpty()) {
-                    System.out.println(String.format("[%s] [%s] %s: %s", (guild != null ? guild.getName() : "PRIVATE"), event.getMessageChannel().getName(), event.getAuthor().getName(), content));
+                    System.out.println(String.format("[Used %d time%s] [%s] [%s] %s: %s%s", output.length, (output.length == 1 ? "" : "s"), (guild != null ? guild.getName() : "PRIVATE"), event.getMessageChannel().getName(), event.getAuthor().getName(), content, embed_messages));
                 } else {
                     String text = "";
                     for (Attachment attachment : attachments) {
                         text += Standard.NEW_LINE_DISCORD;
                         if (attachment.isImage()) {
-                            text += String.format("+IMAGE: \"%s\" (ID: %s) (PROXYURL: %s) (W: %d, H: %d)", attachment.getFileName(), attachment.getId(), attachment.getProxyUrl(), attachment.getWidth(), attachment.getHeight());
+                            text += String.format("IMAGE: \"%s\" (ID: %s) (PROXYURL: %s) (W: %d, H: %d)", attachment.getFileName(), attachment.getId(), attachment.getProxyUrl(), attachment.getWidth(), attachment.getHeight());
                         } else {
-                            text += String.format("+FILE: \"%s\" (ID: %s) (URL: %s)", attachment.getFileName(), attachment.getId(), attachment.getUrl());
+                            text += String.format("FILE: \"%s\" (ID: %s) (URL: %s)", attachment.getFileName(), attachment.getId(), attachment.getUrl());
                         }
                     }
-                    System.out.println(String.format("[%s] [%s] %s: %s%s", event.getGuild().getName(), event.getMessageChannel().getName(), event.getAuthor().getName(), content, text));
+                    System.out.println(String.format("[Used %d time%s] [%s] [%s] %s: %s%s%s", output.length, (output.length == 1 ? "" : "s"), event.getGuild().getName(), event.getMessageChannel().getName(), event.getAuthor().getName(), content, text, embed_messages));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

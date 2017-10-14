@@ -97,18 +97,17 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
         final ConfigType configType = ConfigType.of(guild_id, user_id);
         final Guild guild = Standard.getGuildById(guild_id);
         final User user = Standard.getUserById(user_id);
-        final boolean self = user_id == event.getAuthor().getIdLong();
         String key = "";
         String value = null;
         String value_temp = null;
         boolean sendPrivate = false;
-        if (set) { //TODO das auf Guilds und Global nur bestimmte was einstellen dürfen
+        if (set) {
             key = arguments.consumeFirst();
-            if (!isPermissionGranted(configType, key, event) || (user_id > 0 && !self)) { //(user_id > 0 && !self) zu einer Funktion machen, die auch dann den Super-Owner als Ausnahme aufnimmt, der trotzdem das bearbeiten darf
+            if (!isPermissionGranted(configType, guild_id, user_id, key, event)) {
                 PermissionHandler.sendNoPermissionMessage(event);
                 return;
             }
-            sendPrivate = isPrivateNeeded(configType, key, event);
+            sendPrivate = isPrivateNeeded(configType, event);
             value = arguments.consumeFirst();
             value_temp = Config.CONFIG.getValue(guild_id, user_id, key);
             Config.CONFIG.setValue(guild_id, user_id, key, value);
@@ -120,11 +119,11 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
             }
         } else if (get) {
             key = arguments.consumeFirst();
-            if (!isPermissionGranted(configType, key, event) || (user_id > 0 && !self)) {
+            if (!isPermissionGranted(configType, guild_id, user_id, key, event)) {
                 PermissionHandler.sendNoPermissionMessage(event);
                 return;
             }
-            sendPrivate = isPrivateNeeded(configType, key, event);
+            sendPrivate = isPrivateNeeded(configType, event);
             if (arguments.isSize(1)) {
                 value_temp = arguments.consumeFirst();
             }
@@ -138,11 +137,11 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
             }
         } else if (remove) {
             key = arguments.consumeFirst();
-            if (!isPermissionGranted(configType, key, event) || (user_id > 0 && !self)) {
+            if (!isPermissionGranted(configType, guild_id, user_id, key, event)) {
                 PermissionHandler.sendNoPermissionMessage(event);
                 return;
             }
-            sendPrivate = isPrivateNeeded(configType, key, event);
+            sendPrivate = isPrivateNeeded(configType, event);
             value = Config.CONFIG.getValue(guild_id, user_id, key);
             final ConfigData configData = Config.CONFIG.getConfigData(guild_id, user_id, key);
             if (configData != null) {
@@ -155,11 +154,11 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
                 event.sendMessage(message);
             }
         } else if (list) {
-            if (user_id > 0 && !self) {
+            if (!isPermissionGranted(configType, guild_id, user_id, null, event)) {
                 PermissionHandler.sendNoPermissionMessage(event);
                 return;
             }
-            sendPrivate = isPrivateNeeded(configType, null, event);
+            sendPrivate = isPrivateNeeded(configType, event);
             final MessageEmbed message = Config.CONFIG.toEmbedBuilder(guild_id, user_id).setDescription(getText(guild_id, user_id, guild, user, configType, "listed", event)).build();
             if (sendPrivate) {
                 Util.sendPrivateMessage(event.getAuthor(), message);
@@ -198,40 +197,27 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
         return Standard.COMMANDCATEGORY_MODERATION;
     }
 
-    private static final boolean isPermissionGranted(ConfigType configType, String key, MessageEvent event) {
-        //if (Util.contains(Standard.ULTRA_FORBIDDEN, key) && !Standard.isSuperOwner(event.getAuthor())) {
+    private static final boolean isPermissionGranted(ConfigType configType, long guild_id, long user_id, String key, MessageEvent event) {
+        if (!Util.contains(Standard.ULTRA_FORBIDDEN, key) || configType != ConfigType.BOT_CONFIG) {
             switch (configType) {
                 case BOT_CONFIG:
-                    return false;
+                    break;
                 case GUILD_CONFIG:
-                    return PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER, event.getMember());
+                    if (guild_id == event.getGuild().getIdLong() && PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER, event.getMember())) {
+                        return true;
+                    }
                 case GUILD_USER_CONFIG:
-                    return PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_VIP, event.getMember());
                 case USER_CONFIG:
-                    return true;
+                    if (user_id == event.getAuthor().getIdLong()) {
+                        return true;
+                    }
             }
-        //}//FIXME
-        return true;
+        }
+        return Standard.isSuperOwner(event.getAuthor());
     }
 
-    private static final boolean isPrivateNeeded(ConfigType configType, String key, MessageEvent event) {
-        if (event.isPrivate()) {
-            return true;
-        }
-        if (key == null) {
-            return false;
-        }
-        //if (Util.contains(Standard.ULTRA_FORBIDDEN, key)) {
-            switch (configType) {
-                case GUILD_CONFIG:
-                    return !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_VIP, event.getTextChannel());
-                case BOT_CONFIG:
-                case GUILD_USER_CONFIG:
-                case USER_CONFIG:
-                    return true;
-            }
-        //}
-        return true;
+    private static final boolean isPrivateNeeded(ConfigType configType, MessageEvent event) {
+        return event.isPrivate() || configType != ConfigType.GUILD_CONFIG || !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_VIP, event.getTextChannel());
     }
 
     private static final String getText(long guild_id, long user_id, Guild guild, User user, ConfigType configType, String extra, MessageEvent event) {

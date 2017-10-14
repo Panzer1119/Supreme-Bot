@@ -57,6 +57,9 @@ public class PermissionHandler {
         if (channel == null || channel.getRolePermissionOverrides().isEmpty()) {
             return false;
         }
+        if (channel.getMemberPermissionOverrides().stream().filter((po) -> !po.getDenied().contains(Permission.MESSAGE_READ)).anyMatch((po) -> (!filter.isGuildPermissionGranted(GuildBotRole.getGuildBotRolesByMember(po.getMember())) && !filter.isGlobalPermissionGranted(GlobalBotRole.getGlobalBotRolesByUser(po.getMember().getUser()))))) {
+            return false;
+        }
         return channel.getRolePermissionOverrides().stream().filter((po) -> !po.getDenied().contains(Permission.MESSAGE_READ)).noneMatch((po) -> !filter.isGuildPermissionGranted(GuildBotRole.getGuildBotRolesByRole(po.getRole())));
     }
 

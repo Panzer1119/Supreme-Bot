@@ -820,4 +820,39 @@ public class Util {
         }
     }
 
+    public static final String embedMessageToString(MessageEmbed message) {
+        if (message == null) {
+            return "";
+        }
+        final StringBuilder temp = new StringBuilder();
+        temp.append("[EmbedType: ").append(message.getType()).append("] ");
+        if (message.getColor() != null) {
+            temp.append("[Color: #").append(Integer.toHexString(message.getColor().getRGB()).substring(2)).append(", Alpha: ").append(Integer.toHexString(message.getColor().getRGB()).substring(0, 2)).append("] ");
+        } else {
+            temp.append("[Color: null] ");
+        }
+        temp.append("[Title: ").append(message.getTitle()).append("] ");
+        temp.append("[Description: ").append(message.getDescription()).append("] ");
+        if (message.getThumbnail() != null) {
+            temp.append("[").append(String.format("Thumbnail: %s (W: %d, H: %d)", message.getThumbnail().getProxyUrl(), message.getThumbnail().getWidth(), message.getThumbnail().getHeight())).append("] ");
+        }
+        if (message.getImage() != null) {
+            temp.append("[").append(String.format("Image: %s (W: %d, H: %d)", message.getImage().getProxyUrl(), message.getImage().getWidth(), message.getImage().getHeight())).append("] ");
+        }
+        if (message.getSiteProvider() != null) {
+            temp.append("[SiteProvider: ").append(message.getSiteProvider().getName()).append(" (").append(message.getSiteProvider().getUrl()).append(")] ");
+        }
+        if (message.getUrl() != null) {
+            temp.append("[Url: ").append(message.getUrl()).append(")] ");
+        }
+        if (message.getVideoInfo() != null) {
+            temp.append("[").append(String.format("VideoInfo: %s (W: %d, H: %d)", message.getVideoInfo().getUrl(), message.getVideoInfo().getWidth(), message.getVideoInfo().getHeight())).append("] ");
+        }
+        temp.append("[").append(message.getFields().stream().map((field) -> String.format("[%s; %s; %b]", field.getName(), field.getValue(), field.isInline())).collect(Collectors.joining(", "))).append("] ");
+        if (message.getFooter() != null) {
+            temp.append("[Footer: ").append(message.getFooter().getText()).append(" (").append(message.getFooter().getProxyIconUrl()).append(")] ");
+        }
+        return temp.toString();
+    }
+
 }

@@ -951,6 +951,11 @@ public class Standard {
 
     public static final PermissionFilter STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER = new PermissionFilter() {
         @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER";
+        }
+
+        @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return false;
         }
@@ -962,6 +967,11 @@ public class Standard {
     };
 
     public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_OWNER = new PermissionFilter() {
+        @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_GUILD_OWNER";
+        }
+
         @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return guildBotRole.hasGuildBotRoles(GuildBotRole.OWNER);
@@ -975,6 +985,11 @@ public class Standard {
 
     public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER = new PermissionFilter() {
         @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER";
+        }
+
+        @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return guildBotRole.hasGuildBotRoles(GuildBotRole.OWNER, GuildBotRole.BOT_COMMANDER);
         }
@@ -986,6 +1001,11 @@ public class Standard {
     };
 
     public static final PermissionFilter STANDARD_PERMISSIONFILTER_OWNER_ADMIN = new PermissionFilter() {
+        @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_OWNER_ADMIN";
+        }
+
         @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return guildBotRole.hasGuildBotRoles(GuildBotRole.OWNER);
@@ -999,6 +1019,11 @@ public class Standard {
 
     public static final PermissionFilter STANDARD_PERMISSIONFILTER_ADMIN = new PermissionFilter() {
         @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_ADMIN";
+        }
+
+        @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return guildBotRole.hasGuildBotRoles(GuildBotRole.ADMIN);
         }
@@ -1010,6 +1035,11 @@ public class Standard {
     };
 
     public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER = new PermissionFilter() {
+        @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER";
+        }
+
         @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return guildBotRole.hasGuildBotRoles(GuildBotRole.ADMIN, GuildBotRole.BOT_COMMANDER);
@@ -1023,6 +1053,11 @@ public class Standard {
 
     public static final PermissionFilter STANDARD_PERMISSIONFILTER_BOT_COMMANDER = new PermissionFilter() {
         @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_BOT_COMMANDER";
+        }
+
+        @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return guildBotRole.hasGuildBotRoles(GuildBotRole.BOT_COMMANDER);
         }
@@ -1034,6 +1069,11 @@ public class Standard {
     };
 
     public static final PermissionFilter STANDARD_PERMISSIONFILTER_MODERATOR_BOT_COMMANDER = new PermissionFilter() {
+        @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_MODERATOR_BOT_COMMANDER";
+        }
+
         @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return guildBotRole.hasGuildBotRoles(GuildBotRole.MODERATOR, GuildBotRole.BOT_COMMANDER);
@@ -1047,6 +1087,11 @@ public class Standard {
 
     public static final PermissionFilter STANDARD_PERMISSIONFILTER_MODERATOR = new PermissionFilter() {
         @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_MODERATOR";
+        }
+
+        @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return guildBotRole.hasGuildBotRoles(GuildBotRole.MODERATOR);
         }
@@ -1058,6 +1103,11 @@ public class Standard {
     };
 
     public static final PermissionFilter STANDARD_PERMISSIONFILTER_VIP = new PermissionFilter() {
+        @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_VIP";
+        }
+
         @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return guildBotRole.hasGuildBotRoles(GuildBotRole.VIP);
@@ -1071,6 +1121,11 @@ public class Standard {
 
     public static final PermissionFilter STANDARD_PERMISSIONFILTER_NOBODY = new PermissionFilter() {
         @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_NOBODY";
+        }
+
+        @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return false;
         }
@@ -1082,6 +1137,11 @@ public class Standard {
     };
 
     public static final PermissionFilter STANDARD_PERMISSIONFILTER_EVERYONE = new PermissionFilter() {
+        @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_EVERYONE";
+        }
+
         @Override
         public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
             return true;
