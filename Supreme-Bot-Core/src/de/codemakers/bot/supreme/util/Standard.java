@@ -755,8 +755,7 @@ public class Standard {
             guild_id = guild.getId();
         } else if (guild_id != null && (guild_id.equalsIgnoreCase("user") || guild_id.equalsIgnoreCase("me"))) {
             return -1;
-        }
-        if (guild_id == null) {
+        } else if (guild_id == null || guild_id.equalsIgnoreCase("0")) {
             return 0;
         }
         return Long.parseLong(guild_id);
@@ -767,8 +766,7 @@ public class Standard {
             user_id = user.getId();
         } else if (user_id != null && (user_id.equalsIgnoreCase("this") || user_id.equalsIgnoreCase("current"))) {
             return -1;
-        }
-        if (user_id == null) {
+        } else if (user_id == null || user_id.equalsIgnoreCase("0")) {
             return 0;
         }
         return Long.parseLong(user_id);

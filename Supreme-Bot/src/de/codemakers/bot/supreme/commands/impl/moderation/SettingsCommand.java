@@ -64,31 +64,31 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
         if (set && arguments.isSize(3, -1)) {
             String first = arguments.getFirst();
             guild_id = Standard.resolveGuildId(event.getGuild(), first);
-            if (guild_id > 0) {
+            if (guild_id >= 0) {
                 arguments.consumeFirst();
             }
-            user_id = Standard.resolveUserId(event.getAuthor(), (guild_id > 0 && arguments.isSize(3, -1)) ? arguments.getFirst() : first);
-            if (user_id > 0) {
+            user_id = Standard.resolveUserId(event.getAuthor(), (guild_id >= 0 && arguments.isSize(3, -1)) ? arguments.getFirst() : first);
+            if (user_id >= 0) {
                 arguments.consumeFirst();
             }
         } else if ((remove || get) && arguments.isSize(2, -1)) {
             String first = arguments.getFirst();
             guild_id = Standard.resolveGuildId(event.getGuild(), first);
-            if (guild_id > 0) {
+            if (guild_id >= 0) {
                 arguments.consumeFirst();
             }
-            user_id = Standard.resolveUserId(event.getAuthor(), (guild_id > 0 && arguments.isSize(2, -1)) ? arguments.getFirst() : first);
-            if (user_id > 0) {
+            user_id = Standard.resolveUserId(event.getAuthor(), (guild_id >= 0 && arguments.isSize(2, -1)) ? arguments.getFirst() : first);
+            if (user_id >= 0) {
                 arguments.consumeFirst();
             }
         } else if (list && arguments.isSize(1, -1)) {
             String first = arguments.getFirst();
             guild_id = Standard.resolveGuildId(event.getGuild(), first);
-            if (guild_id > 0) {
+            if (guild_id >= 0) {
                 arguments.consumeFirst();
             }
-            user_id = Standard.resolveUserId(event.getAuthor(), (guild_id > 0 && arguments.isSize(1, -1)) ? arguments.getFirst() : first);
-            if (user_id > 0) {
+            user_id = Standard.resolveUserId(event.getAuthor(), (guild_id >= 0 && arguments.isSize(1, -1)) ? arguments.getFirst() : first);
+            if (user_id >= 0) {
                 arguments.consumeFirst();
             }
         }

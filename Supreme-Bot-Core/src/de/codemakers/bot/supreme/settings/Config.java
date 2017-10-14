@@ -175,7 +175,7 @@ public class Config extends AbstractConfig {
         if (role == null) {
             return null;
         }
-        if (role.getGuild().getMembersWithRoles(role).stream().anyMatch((member) -> isGuildUserNotMentionedInLogs(role.getGuild().getIdLong(), member.getUser().getIdLong()))) {
+        if (role.getGuild().getMembersWithRoles(role).stream().anyMatch((member) -> isGuildUserNotMentionedInLogs(role.getGuild().getIdLong(), member.getUser().getIdLong()) || isUserNotMentionedInLogs(member.getUser().getIdLong()))) {
             return Standard.getCompleteName(role);
         }
         return role.getAsMention();
