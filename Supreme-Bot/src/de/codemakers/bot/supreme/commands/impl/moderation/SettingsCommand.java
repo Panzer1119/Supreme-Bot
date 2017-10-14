@@ -62,34 +62,67 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
         long guild_id = 0;
         long user_id = 0;
         if (set && arguments.isSize(3, -1)) {
+            User user = arguments.consumeUserFirst();
+            if (user != null) {
+                user_id = user.getIdLong();
+            }
             String first = arguments.getFirst();
             guild_id = Standard.resolveGuildId(event.getGuild(), first);
             if (guild_id >= 0) {
                 arguments.consumeFirst();
             }
-            user_id = Standard.resolveUserId(event.getAuthor(), (guild_id >= 0 && arguments.isSize(3, -1)) ? arguments.getFirst() : first);
-            if (user_id >= 0) {
-                arguments.consumeFirst();
+            if (user == null) {
+                user = arguments.consumeUserFirst();
+            }
+            if (user != null) {
+                user_id = user.getIdLong();
+            } else {
+                user_id = Standard.resolveUserId(event.getAuthor(), (guild_id >= 0 && arguments.isSize(3, -1)) ? arguments.getFirst() : first);
+                if (user_id >= 0) {
+                    arguments.consumeFirst();
+                }
             }
         } else if ((remove || get) && arguments.isSize(2, -1)) {
+            User user = arguments.consumeUserFirst();
+            if (user != null) {
+                user_id = user.getIdLong();
+            }
             String first = arguments.getFirst();
             guild_id = Standard.resolveGuildId(event.getGuild(), first);
             if (guild_id >= 0) {
                 arguments.consumeFirst();
             }
-            user_id = Standard.resolveUserId(event.getAuthor(), (guild_id >= 0 && arguments.isSize(2, -1)) ? arguments.getFirst() : first);
-            if (user_id >= 0) {
-                arguments.consumeFirst();
+            if (user == null) {
+                user = arguments.consumeUserFirst();
+            }
+            if (user != null) {
+                user_id = user.getIdLong();
+            } else {
+                user_id = Standard.resolveUserId(event.getAuthor(), (guild_id >= 0 && arguments.isSize(2, -1)) ? arguments.getFirst() : first);
+                if (user_id >= 0) {
+                    arguments.consumeFirst();
+                }
             }
         } else if (list && arguments.isSize(1, -1)) {
+            User user = arguments.consumeUserFirst();
+            if (user != null) {
+                user_id = user.getIdLong();
+            }
             String first = arguments.getFirst();
             guild_id = Standard.resolveGuildId(event.getGuild(), first);
             if (guild_id >= 0) {
                 arguments.consumeFirst();
             }
-            user_id = Standard.resolveUserId(event.getAuthor(), (guild_id >= 0 && arguments.isSize(1, -1)) ? arguments.getFirst() : first);
-            if (user_id >= 0) {
-                arguments.consumeFirst();
+            if (user == null) {
+                user = arguments.consumeUserFirst();
+            }
+            if (user != null) {
+                user_id = user.getIdLong();
+            } else {
+                user_id = Standard.resolveUserId(event.getAuthor(), (guild_id >= 0 && arguments.isSize(1, -1)) ? arguments.getFirst() : first);
+                if (user_id >= 0) {
+                    arguments.consumeFirst();
+                }
             }
         }
         guild_id = Math.max(0, guild_id);
