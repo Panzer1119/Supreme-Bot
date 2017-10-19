@@ -133,7 +133,10 @@ public class Config extends AbstractConfig {
                 configData.delete();
             }
         }
-        System.err.println("REACTION " + reaction);
+        if (!reaction.startsWith(":") && !reaction.startsWith(":")) {
+            reaction = EmojiParser.parseToAliases(reaction);
+            return this;
+        }
         setValue(guild_id, 0, KEY_GUILD_REACT_ON_MENTION, reaction);
         return this;
     }
