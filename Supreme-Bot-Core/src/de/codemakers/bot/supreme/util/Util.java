@@ -1,7 +1,11 @@
 package de.codemakers.bot.supreme.util;
 
+import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.settings.Config;
 import java.io.BufferedReader;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -652,6 +656,9 @@ public class Util {
                     }
                 }
             }, withMilliseconds);
+            if (withWhitespaces && text.length() >= 1) {
+                text.deleteCharAt(text.length() - 1);
+            }
             return text.toString();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -853,6 +860,41 @@ public class Util {
             temp.append("[Footer: ").append(message.getFooter().getText()).append(" (").append(message.getFooter().getProxyIconUrl()).append(")] ");
         }
         return temp.toString();
+    }
+
+    public static final String getUptimeMessage(MessageEvent event, Instant instant) {
+        if (instant == null) {
+            return null;
+        }
+        final long longest_uptime = Config.CONFIG.getLongestUptime();
+        final long uptime = getUptime(instant);
+        final Instant longest_uptime_start = Config.CONFIG.getLongestUptimeStart(uptime);
+        final StringBuilder output = new StringBuilder();
+        if (event != null) {
+            output.append(event.getAuthor().getAsMention()).append(" ");
+        }
+        output.append("i have been online for ").append(getTimeAsString(uptime, true, true, false));
+        final String from_to = String.format("From %s to %s", Standard.STANDARD_DATE_TIME_FORMATTER.format(LocalDateTime.ofInstant(longest_uptime_start, Standard.getZoneId())), Standard.STANDARD_DATE_TIME_FORMATTER.format(LocalDateTime.ofInstant(longest_uptime_start.plusMillis(longest_uptime), Standard.getZoneId())));
+        if (uptime > longest_uptime) {
+            output.append(String.format(" (This is %s longer than the longest uptime of %s (%s))", getTimeAsString(uptime - longest_uptime, true, true, false), getTimeAsString(longest_uptime, true, true, false), from_to));
+        } else if (longest_uptime > 0) {
+            output.append(String.format(" (The longest uptime was %s (%s))", getTimeAsString(longest_uptime, true, true, false), from_to));
+        }
+        return output.toString();
+    }
+
+    public static final Duration getUptimeAsDuration(Instant instant) {
+        if (instant == null) {
+            return Duration.ZERO;
+        }
+        return Duration.between(Standard.getStarted(), instant);
+    }
+
+    public static final long getUptime(Instant instant) {
+        if (instant == null) {
+            return 0;
+        }
+        return getUptimeAsDuration(instant).toMillis();
     }
 
 }

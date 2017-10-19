@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
+import java.time.Instant;
 
 /**
  * StopCommand
@@ -72,7 +73,7 @@ public class StopCommand extends AdministrativeCommand {
             }
         }
         try {
-            event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me!", event.getAuthor().getAsMention()).build());
+            event.sendMessage(Standard.getMessageEmbed(Color.YELLOW, "%s stopped me! (%s)", event.getAuthor().getAsMention(), Util.getUptimeMessage(null, Instant.now())).build());
             stopCompletely(0);
         } catch (Exception ex) {
             stopCompletely(-1);

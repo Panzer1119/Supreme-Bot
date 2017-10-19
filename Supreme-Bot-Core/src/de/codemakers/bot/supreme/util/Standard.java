@@ -14,6 +14,7 @@ import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.awt.Color;
 import java.io.BufferedWriter;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -138,6 +139,13 @@ public class Standard {
         SHUTDOWNHOOKS.add(() -> {
             Util.killAndFireAllTimerTask();
             Updater.kill(500, TimeUnit.MILLISECONDS);
+            try {
+                final Instant instant_now = Instant.now();
+                Config.CONFIG.setLongestUptime(Util.getUptime(instant_now));
+                Config.CONFIG.setLongestUptimeStart(instant_now);
+                System.out.println(Util.getUptimeMessage(null, instant_now));
+            } catch (Exception ex) {
+            }
         });
     }
 
@@ -1212,5 +1220,6 @@ public class Standard {
     public static final Argument ARGUMENT_UNBAN = new Argument("unban", STANDARD_ARGUMENT_PREFIXES, "ub");
     public static final Argument ARGUMENT_RESTART = new Argument("restart", STANDARD_ARGUMENT_PREFIXES, "r");
     public static final Argument ARGUMENT_USER = new Argument("user", STANDARD_ARGUMENT_PREFIXES, "u");
+    public static final Argument ARGUMENT_RELOAD = new Argument("reload", STANDARD_ARGUMENT_PREFIXES, "r");
 
 }

@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.commands.impl.moderation;
 
+import com.vdurmont.emoji.EmojiParser;
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
@@ -142,6 +143,10 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
             }
             sendPrivate = isPrivateNeeded(configType, event);
             value = arguments.consumeRawFirst();
+            try {
+                value = EmojiParser.parseToAliases(value);
+            } catch (Exception ex) {
+            }
             value_temp = Config.CONFIG.getValue(guild_id, user_id, key);
             Config.CONFIG.setValue(guild_id, user_id, key, value);
             final MessageEmbed message = Standard.getMessageEmbed(Color.YELLOW, getText(guild_id, user_id, guild, user, configType, "setted", event)).addField("\"" + key + "\" old:", "" + value_temp, false).addField("\"" + key + "\" new:", "" + value, false).build();

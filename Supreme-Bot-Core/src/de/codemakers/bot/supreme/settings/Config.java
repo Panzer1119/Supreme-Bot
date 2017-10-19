@@ -4,6 +4,7 @@ import com.vdurmont.emoji.EmojiParser;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.sql.ConfigData;
 import de.codemakers.bot.supreme.util.Standard;
+import java.time.Instant;
 import java.util.regex.Matcher;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
@@ -24,6 +25,8 @@ public class Config extends AbstractConfig {
     public static final String KEY_BOT_NICKNAME = "nickname";
     public static final String KEY_BOT_STANDARD_COMMAND_PREFIX = "standard_command_prefix";
     public static final String KEY_BOT_LOG_FILE_SHOW_COUNT = "log_file_show_count";
+    public static final String KEY_BOT_LONGEST_UPTIME = "longest_uptime";
+    public static final String KEY_BOT_LONGEST_UPTIME_START = "longest_uptime_start";
     //GUILD SETTINGS
     public static final String KEY_GUILD_NICKNAME = "nickname";
     public static final String KEY_GUILD_COMMAND_PREFIX = "command_prefix";
@@ -67,6 +70,44 @@ public class Config extends AbstractConfig {
 
     public final Config setBotLogFileShowCount(int log_file_show_count) {
         setValue(0, 0, KEY_BOT_LOG_FILE_SHOW_COUNT, log_file_show_count);
+        return this;
+    }
+
+    /**
+     * Returns the longest uptime in milliseconds
+     *
+     * @return Longest uptime milliseconds
+     */
+    public final long getLongestUptime() {
+        return getValue(0, 0, KEY_BOT_LONGEST_UPTIME, 0);
+    }
+
+    /**
+     * Sets a new longest uptime in milliseconds
+     *
+     * @param uptime New longest uptime in milliseconds
+     */
+    public final Config setLongestUptime(long uptime) {
+        if (getLongestUptime() >= uptime) {
+            return this;
+        }
+        setValue(0, 0, KEY_BOT_LONGEST_UPTIME, uptime);
+        return this;
+    }
+
+    public final Instant getLongestUptimeStart(long uptime) {
+        return Instant.ofEpochMilli(getValue(0, 0, KEY_BOT_LONGEST_UPTIME_START, Instant.now().minusMillis(getLongestUptime() + uptime).toEpochMilli()));
+    }
+
+    public final Config setLongestUptimeStart(Instant instant) {
+        if (instant == null) {
+            final ConfigData configData = getConfigData(0, 0, KEY_BOT_LONGEST_UPTIME_START);
+            if (configData != null) {
+                configData.delete();
+            }
+            return this;
+        }
+        setValue(0, 0, KEY_BOT_LONGEST_UPTIME_START, instant.toEpochMilli());
         return this;
     }
 
@@ -132,10 +173,10 @@ public class Config extends AbstractConfig {
             if (configData != null) {
                 configData.delete();
             }
-        }
-        if (!reaction.startsWith(":") && !reaction.startsWith(":")) {
-            reaction = EmojiParser.parseToAliases(reaction);
             return this;
+        }
+        if (!reaction.startsWith(":") && !reaction.endsWith(":")) {
+            reaction = EmojiParser.parseToAliases(reaction);
         }
         setValue(guild_id, 0, KEY_GUILD_REACT_ON_MENTION, reaction);
         return this;

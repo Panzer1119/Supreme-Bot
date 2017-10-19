@@ -8,7 +8,6 @@ import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
-import java.time.Duration;
 import java.time.Instant;
 import net.dv8tion.jda.core.EmbedBuilder;
 
@@ -31,7 +30,7 @@ public class UptimeCommand extends Command {
 
     @Override
     public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        event.sendMessage(getUptimeMessage(event, Instant.now()));
+        event.sendMessage(Util.getUptimeMessage(event, Instant.now()));
     }
 
     @Override
@@ -58,13 +57,6 @@ public class UptimeCommand extends Command {
     @Override
     public CommandCategory getCommandCategory() {
         return Standard.COMMANDCATEGORY_NORMAL;
-    }
-
-    public static final String getUptimeMessage(MessageEvent event, Instant instant) {
-        if (event == null || instant == null) {
-            return null;
-        }
-        return String.format("%s i have been online for %s", event.getAuthor().getAsMention(), Util.getTimeAsString(Duration.between(Standard.getStarted(), instant).toMillis(), true, true, false));
     }
 
 }
