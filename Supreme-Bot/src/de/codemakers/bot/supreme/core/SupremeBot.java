@@ -18,6 +18,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.RestartCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.SayCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.ChangeNicknameCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.CopyCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.MoveAllCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.SettingsCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.StopCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.TempBanCommand;
@@ -116,6 +117,7 @@ public class SupremeBot {
             new CopyCommand();
             new GetCommandPrefixCommand();
             new GetFileCommand();
+            new MoveAllCommand();
             new ReloadCommand();
             new RestartCommand();
             new SettingsCommand();

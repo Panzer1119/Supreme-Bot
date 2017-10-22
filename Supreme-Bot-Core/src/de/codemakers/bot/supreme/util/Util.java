@@ -12,12 +12,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -895,6 +898,33 @@ public class Util {
             return 0;
         }
         return getUptimeAsDuration(instant).toMillis();
+    }
+    
+    public static final Pattern PATTERN_VOICECHANNEL = Pattern.compile("(.+)#(\\d+)");
+
+    public static final VoiceChannel resolveVoiceChannel(Guild guild, String voiceChannel_string) {
+        if (guild == null || voiceChannel_string == null || voiceChannel_string.isEmpty()) {
+            return null;
+        }
+        VoiceChannel voiceChannel = null;
+        try {
+            voiceChannel = guild.getVoiceChannelById(voiceChannel_string);
+        } catch (Exception ex) {
+            voiceChannel = null;
+        }
+        if (voiceChannel == null) {
+            int skip = 0;
+            final Matcher matcher = PATTERN_VOICECHANNEL.matcher(voiceChannel_string);
+            if (matcher.matches()) {
+                try {
+                    skip = Integer.parseInt(matcher.group(2)) - 1;
+                    voiceChannel_string = matcher.group(1);
+                } catch (Exception ex) {
+                }
+            }
+            voiceChannel = guild.getVoiceChannelsByName(voiceChannel_string, true).stream().skip(skip).findFirst().orElse(null);
+        }
+        return voiceChannel;
     }
 
 }
