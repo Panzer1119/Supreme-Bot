@@ -141,8 +141,11 @@ public class Standard {
             Updater.kill(500, TimeUnit.MILLISECONDS);
             try {
                 final Instant instant_now = Instant.now();
-                Config.CONFIG.setLongestUptime(Util.getUptime(instant_now));
-                Config.CONFIG.setLongestUptimeStart(instant_now);
+                final long uptime = Util.getUptime(instant_now);
+                if (uptime > Config.CONFIG.getLongestUptime()) {
+                    Config.CONFIG.setLongestUptime(uptime);
+                    Config.CONFIG.setLongestUptimeStart(instant_now);
+                }
                 System.out.println(Util.getUptimeMessage(null, instant_now));
             } catch (Exception ex) {
             }
