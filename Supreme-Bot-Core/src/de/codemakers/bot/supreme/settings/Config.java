@@ -96,18 +96,18 @@ public class Config extends AbstractConfig {
     }
 
     public final Instant getLongestUptimeStart(long uptime) {
-        return Instant.ofEpochMilli(getValue(0, 0, KEY_BOT_LONGEST_UPTIME_START, Instant.now().minusMillis(getLongestUptime() + uptime).toEpochMilli()));
+        return Instant.ofEpochMilli(getValue(0, 0, KEY_BOT_LONGEST_UPTIME_START, Instant.now().toEpochMilli() - getLongestUptime() + uptime));
     }
 
-    public final Config setLongestUptimeStart(Instant instant) {
-        if (instant == null) {
+    public final Config setLongestUptimeStart(Instant timestamp) {
+        if (timestamp == null) {
             final ConfigData configData = getConfigData(0, 0, KEY_BOT_LONGEST_UPTIME_START);
             if (configData != null) {
                 configData.delete();
             }
             return this;
         }
-        setValue(0, 0, KEY_BOT_LONGEST_UPTIME_START, instant.toEpochMilli());
+        setValue(0, 0, KEY_BOT_LONGEST_UPTIME_START, timestamp.toEpochMilli());
         return this;
     }
 

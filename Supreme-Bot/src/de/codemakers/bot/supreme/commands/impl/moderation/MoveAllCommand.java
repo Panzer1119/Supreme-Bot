@@ -87,8 +87,8 @@ public class MoveAllCommand extends Command {
 
     @Override
     public EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s <VoiceChannel>", invoker), "Moves everyone from your current VoiceChannel to the specified VoiceChannel.", false);
-        builder.addField(String.format("%s <VoiceChannel 1> <VoiceChannel 2>", invoker), "Moves everyone from VoiceChannel 1 to VoiceChannel 2.", false);
+        builder.addField(String.format("%s <VoiceChannel>", invoker), "Moves everyone from your current VoiceChannel to the specified VoiceChannel. Use `VoiceChannel#Number` or its id when there are multiple VoiceChannels with the same name.", false);
+        builder.addField(String.format("%s <VoiceChannel 1> <VoiceChannel 2>", invoker), "Moves everyone from VoiceChannel 1 to VoiceChannel 2. Use `VoiceChannel#Number` or its id when there are multiple VoiceChannels with the same name.", false);
         return builder;
     }
 

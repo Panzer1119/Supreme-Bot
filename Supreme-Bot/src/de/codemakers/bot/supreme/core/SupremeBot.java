@@ -58,7 +58,7 @@ public class SupremeBot {
 
     public static final void main(String[] args) {
         try {
-            final Instant instant_now = Instant.now();
+            Standard.setStarted(Instant.now());
             System.setOut(new SystemOutputStream(System.out, false));
             System.setErr(new SystemOutputStream(System.err, true));
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -66,7 +66,6 @@ public class SupremeBot {
                 Standard.saveAllGuildSettings();
             }));
             Standard.GETTER = () -> jda;
-            Standard.setStarted(instant_now);
             NetworkUtil.init();
             reload();
             builder = new JDABuilder(AccountType.BOT);

@@ -14,7 +14,6 @@ import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.awt.Color;
 import java.io.BufferedWriter;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -71,6 +70,7 @@ public class Standard {
     private static final String PLUGIN_PERMISSION_ADMIN_STRING_NAME = "plugin_permission_admin_string";
     private static String PLUGIN_PERMISSION_ADMIN_STRING = null;
     private static Instant STARTED = null;
+    private static final ZoneId UTC = ZoneId.of("UTC");
     public static Getter<JDA> GETTER = () -> null;
 
     /**
@@ -140,13 +140,13 @@ public class Standard {
             Util.killAndFireAllTimerTask();
             Updater.kill(500, TimeUnit.MILLISECONDS);
             try {
-                final Instant instant_now = Instant.now();
-                final long uptime = Util.getUptime(instant_now);
+                final Instant now = Instant.now();
+                final long uptime = Util.getUptime(now);
                 if (uptime > Config.CONFIG.getLongestUptime()) {
                     Config.CONFIG.setLongestUptime(uptime);
-                    Config.CONFIG.setLongestUptimeStart(instant_now);
+                    Config.CONFIG.setLongestUptimeStart(now);
                 }
-                System.out.println(Util.getUptimeMessage(null, instant_now));
+                System.out.println(Util.getUptimeMessage(null, now));
             } catch (Exception ex) {
             }
         });
@@ -264,7 +264,7 @@ public class Standard {
     }
 
     private static final AdvancedFile createCurrentLogFile() {
-        return getLogFile(String.format(STANDARD_LOG_FILE_FORMAT, STANDARD_DATE_TIME_FILE_FORMATTER.format(LocalDateTime.ofInstant(Instant.now(), getZoneId()))));
+        return getLogFile(String.format(STANDARD_LOG_FILE_FORMAT, STANDARD_DATE_TIME_FILE_FORMATTER.format(LocalDateTime.now(getZoneId()))));
     }
 
     public static final AdvancedFile getCurrentLogFile() {
@@ -279,11 +279,11 @@ public class Standard {
         return PATTERN_TIME;
     }
 
-    public static final void setStarted(Instant instant_started) {
+    public static final void setStarted(Instant started) {
         if (STARTED != null) {
-            throw new IllegalAccessError("The start instant is already set!");
+            throw new IllegalAccessError("The start local date time is already set!");
         }
-        STARTED = instant_started;
+        STARTED = started;
     }
 
     public static final Instant getStarted() {
@@ -344,6 +344,10 @@ public class Standard {
             ex.printStackTrace();
             return false;
         }
+    }
+
+    public static final ZoneId getUTC() {
+        return UTC;
     }
 
     public static final ZoneId getZoneId() {

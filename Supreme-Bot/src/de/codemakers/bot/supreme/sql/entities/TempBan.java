@@ -161,7 +161,6 @@ public class TempBan {
 
     public final boolean archive() {
         remove();
-        //MySQL.STANDARD_DATABASE.archive(MySQL.SQL_TABLE_TEMP_BANS, "" + id);
         MySQL.STANDARD_DATABASE.archive(this);
         return true;
     }
@@ -188,7 +187,7 @@ public class TempBan {
                     date_time_formatted_unban_date = LocalDateTime.ofInstant(unban_date, Standard.getZoneId()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                 }
                 try {
-                    ban_time_string = Util.getTimeAsString(Duration.between(Instant.now(), unban_date).toMillis(), true, true);
+                    ban_time_string = Util.getTimeAsString(Duration.between(Instant.now(), unban_date).toMillis(), true, true, false);
                 } catch (Exception ex) {
                     ban_time_string = "error";
                 }

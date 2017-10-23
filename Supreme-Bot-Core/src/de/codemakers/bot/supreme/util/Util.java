@@ -865,12 +865,12 @@ public class Util {
         return temp.toString();
     }
 
-    public static final String getUptimeMessage(MessageEvent event, Instant instant) {
-        if (instant == null) {
+    public static final String getUptimeMessage(MessageEvent event, Instant timestamp) {
+        if (timestamp == null) {
             return null;
         }
         final long longest_uptime = Config.CONFIG.getLongestUptime();
-        final long uptime = getUptime(instant);
+        final long uptime = getUptime(timestamp);
         final Instant longest_uptime_start = Config.CONFIG.getLongestUptimeStart(uptime);
         final StringBuilder output = new StringBuilder();
         if (event != null) {
@@ -879,27 +879,27 @@ public class Util {
         output.append("i have been online for ").append(getTimeAsString(uptime, true, true, false));
         final String from_to = String.format("From %s to %s", Standard.STANDARD_DATE_TIME_FORMATTER.format(LocalDateTime.ofInstant(longest_uptime_start, Standard.getZoneId())), Standard.STANDARD_DATE_TIME_FORMATTER.format(LocalDateTime.ofInstant(longest_uptime_start.plusMillis(longest_uptime), Standard.getZoneId())));
         if (uptime > longest_uptime) {
-            output.append(String.format(" (This is %s longer than the longest uptime of %s (%s))", getTimeAsString(uptime - longest_uptime, true, true, false), getTimeAsString(longest_uptime, true, true, false), from_to));
+            output.append(String.format(" (This is %s ahead the longest uptime of %s (%s))", getTimeAsString(uptime - longest_uptime, true, true, false), getTimeAsString(longest_uptime, true, true, false), from_to));
         } else if (longest_uptime > 0) {
-            output.append(String.format(" (The longest uptime was %s (%s))", getTimeAsString(longest_uptime, true, true, false), from_to));
+            output.append(String.format(" (This is %s behind the longest uptime of %s (%s))", getTimeAsString(longest_uptime - uptime, true, true, false), getTimeAsString(longest_uptime, true, true, false), from_to));
         }
         return output.toString();
     }
 
-    public static final Duration getUptimeAsDuration(Instant instant) {
-        if (instant == null) {
+    public static final Duration getUptimeAsDuration(Instant timestamp) {
+        if (timestamp == null) {
             return Duration.ZERO;
         }
-        return Duration.between(Standard.getStarted(), instant);
+        return Duration.between(Standard.getStarted(), timestamp);
     }
 
-    public static final long getUptime(Instant instant) {
-        if (instant == null) {
+    public static final long getUptime(Instant timestamp) {
+        if (timestamp == null) {
             return 0;
         }
-        return getUptimeAsDuration(instant).toMillis();
+        return getUptimeAsDuration(timestamp).toMillis();
     }
-    
+
     public static final Pattern PATTERN_VOICECHANNEL = Pattern.compile("(.+)#(\\d+)");
 
     public static final VoiceChannel resolveVoiceChannel(Guild guild, String voiceChannel_string) {

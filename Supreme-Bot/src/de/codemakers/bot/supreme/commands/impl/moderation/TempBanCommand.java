@@ -18,8 +18,6 @@ import de.codemakers.bot.supreme.util.updater.Updater;
 import java.awt.Color;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +25,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.settings.Config;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import net.dv8tion.jda.core.entities.Member;
 
 /**
@@ -181,17 +181,18 @@ public class TempBanCommand extends Command {
                 final String log_date_time_format = advancedGuild.getSettings().getProperty(LOG_DATE_TIME_FORMAT, Standard.STANDARD_DATE_TIME_FORMAT);
                 String date_time_formatted_unban_date = null;
                 String ban_time_string_ = null;
+                final Instant unban_date = ban_date.plusMillis(ban_time_ms);
                 if (ban_time_ms < 0) {
                     date_time_formatted_unban_date = "forever";
                     ban_time_string_ = "forever";
                 } else {
                     try {
-                        date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), Standard.getZoneId()).format(DateTimeFormatter.ofPattern(log_date_time_format));
+                        date_time_formatted_unban_date = LocalDateTime.ofInstant(unban_date, Standard.getZoneId()).format(DateTimeFormatter.ofPattern(log_date_time_format));
                     } catch (Exception ex) {
-                        date_time_formatted_unban_date = LocalDateTime.ofInstant(Instant.ofEpochMilli(ban_date.toEpochMilli() + ban_time_ms), Standard.getZoneId()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
+                        date_time_formatted_unban_date = LocalDateTime.ofInstant(unban_date, Standard.getZoneId()).format(DateTimeFormatter.ofPattern(Standard.STANDARD_DATE_TIME_FORMAT));
                     }
                     try {
-                        ban_time_string_ = Util.getTimeAsString(ban_time_ms, true, true);
+                        ban_time_string_ = Util.getTimeAsString(ban_time_ms, true, true, false);
                     } catch (Exception ex) {
                         ban_time_string_ = "error";
                     }
@@ -200,10 +201,10 @@ public class TempBanCommand extends Command {
                 final PreparedStatement preparedStatement = MySQL.STANDARD_DATABASE.prepareStatement("INSERT INTO %s (guild_ID, user_ID, unban_date, reason, banner_ID, ban_date, ban_type) VALUES (?, ?, ?, ?, ?, ?, ?)", MySQL.SQL_TABLE_TEMP_BANS);
                 preparedStatement.setLong(1, event.getGuild().getIdLong());
                 preparedStatement.setLong(2, Long.parseLong(user_id));
-                preparedStatement.setTimestamp(3, (ban_time_ms < 0 ? null : new Timestamp(ban_date.toEpochMilli() + ban_time_ms)));
+                preparedStatement.setTimestamp(3, (ban_time_ms < 0 ? null : Timestamp.from(unban_date)));
                 preparedStatement.setString(4, reason);
                 preparedStatement.setLong(5, event.getAuthor().getIdLong());
-                preparedStatement.setTimestamp(6, new Timestamp(ban_date.toEpochMilli()));
+                preparedStatement.setTimestamp(6, Timestamp.from(ban_date));
                 preparedStatement.setBoolean(7, ban_type);
                 preparedStatement.executeUpdate();
                 preparedStatement.closeOnCompletion();
@@ -244,7 +245,7 @@ public class TempBanCommand extends Command {
 
     private static final boolean updateAgain() {
         try {
-            final Instant instant_now = Instant.now();
+            final Instant now = Instant.now();
             final ArrayList<TempBan> tempBans = SQLUtil.deserializeObjects(TempBan.class);
             if (tempBans == null) {
                 return true;
@@ -255,7 +256,7 @@ public class TempBanCommand extends Command {
             }
             TempBan.TEMP_BANS.addAll(tempBans);
             tempBans.stream().forEach((tempBan) -> {
-                if (tempBan.isNeededToUnban(instant_now)) {
+                if (tempBan.isNeededToUnban(now)) {
                     if (!tempBan.unban() && tempBan.getGuild_id() == 0) {
                         tempBan.archive();
                     }
