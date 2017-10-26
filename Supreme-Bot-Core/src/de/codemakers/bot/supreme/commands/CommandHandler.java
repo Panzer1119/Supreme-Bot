@@ -63,7 +63,7 @@ public class CommandHandler {
                         final Object[] output_action = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, commandContainer.arguments, CommandType.ACTION});
                         command.action(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
                     } else {
-                        sendHelpMessage(commandContainer.invoker, commandContainer.event, command, false);
+                        sendHelpMessage(commandContainer.invoker, commandContainer.event, command, false, false);
                     }
                     final Object[] output_executed = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, commandContainer.arguments, CommandType.EXECUTED});
                     command.executed(safe, commandContainer.event);
@@ -114,7 +114,7 @@ public class CommandHandler {
         }
     }
 
-    public static final boolean sendHelpMessage(Invoker invoker, MessageEvent event, Command command, boolean sendPrivate) {
+    public static final boolean sendHelpMessage(Invoker invoker, MessageEvent event, Command command, boolean forceSendInChannel, boolean sendPrivate) {
         if (event == null || command == null) {
             return false;
         }
@@ -129,7 +129,7 @@ public class CommandHandler {
         if (sendPrivate || Config.CONFIG.isGuildSendingHelpAlwaysPrivate(event.getGuild().getIdLong())) {
             Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
         } else {
-            if (!PermissionHandler.isPermissionGranted(filter, event.getTextChannel())) {
+            if (!PermissionHandler.isPermissionGranted(filter, event.getTextChannel()) && !(forceSendInChannel && PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_BOT_COMMANDER, event.getMember()))) {
                 Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
                 return true;
             }

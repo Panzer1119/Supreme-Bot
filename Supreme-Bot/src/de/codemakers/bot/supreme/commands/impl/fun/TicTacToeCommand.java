@@ -59,7 +59,7 @@ public class TicTacToeCommand extends Command {
         } else if (advancedGuild != null && advancedGuild.getData("game") != null) {
             ((Game) advancedGuild.getData("game")).sendInput(arguments, event);
         } else {
-            CommandHandler.sendHelpMessage(invoker, event, this, false);
+            CommandHandler.sendHelpMessage(invoker, event, this, false, false);
         }
     }
 

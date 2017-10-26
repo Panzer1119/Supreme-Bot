@@ -26,29 +26,31 @@ public class HelpCommand extends Command {
 
     @Override
     public final boolean called(Invoker invoker, ArgumentList arguments, MessageEvent event) {
+        if (arguments == null) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        if (arguments == null || arguments.isEmpty()) {
+        final boolean here = arguments.isConsumed(Standard.ARGUMENT_HERE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean sendPrivate = arguments.isConsumed(Standard.ARGUMENT_PRIVATE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        if (arguments.isEmpty()) {
             CommandHandler.sendHelpList(event, false, false);
-        } else if (arguments.isSize(1) && arguments.isConsumed(Standard.ARGUMENT_PRIVATE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
-            CommandHandler.sendHelpList(event, false, true);
-        } else if (arguments.isSize(1) && arguments.isConsumed(Standard.ARGUMENT_HERE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE)) {
-            CommandHandler.sendHelpList(event, true, false);
         } else if (arguments.isSize(1, -1)) {
-            final boolean sendPrivate = arguments.isConsumed(Standard.ARGUMENT_PRIVATE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
             while (arguments.hasArguments()) {
                 final String command_help_invoker_string = arguments.consumeFirst();
                 final Invoker command_help_invoker = Invoker.getInvokerByInvokerString(command_help_invoker_string);
                 final Command command = CommandHandler.getCommandByInvokers(command_help_invoker);
                 if (command != null) {
-                    CommandHandler.sendHelpMessage(command_help_invoker, event, command, sendPrivate);
+                    CommandHandler.sendHelpMessage(command_help_invoker, event, command, here, sendPrivate);
                 } else {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the command \"%s\" wasn't found!", Emoji.WARNING, event.getAuthor().getAsMention(), command_help_invoker_string);
                 }
             }
+        } else {
+            CommandHandler.sendHelpList(event, here, sendPrivate);
         }
     }
 

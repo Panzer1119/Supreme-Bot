@@ -697,21 +697,21 @@ public class Standard {
         if (guild == null) {
             return null;
         }
-        return guild.getName() + "#" + guild.getId();
+        return "<" + guild.getName() + "#" + guild.getId() + ">";
     }
 
-    public static final String getCompleteName(User user) {
+    public static final String getCompleteName(User user, boolean withId) {
         if (user == null) {
             return null;
         }
-        return user.getName() + "#" + user.getDiscriminator();
+        return "<" + user.getName() + "#" + user.getDiscriminator() + (withId ? ":" + user.getId() : "") + ">";
     }
 
     public static final String getCompleteName(Role role) {
         if (role == null) {
             return null;
         }
-        return role.getName() + "#" + role.getId();
+        return "<" + role.getName() + "#" + role.getId() + ">";
     }
 
     public static final User getUserById(long user_id) {

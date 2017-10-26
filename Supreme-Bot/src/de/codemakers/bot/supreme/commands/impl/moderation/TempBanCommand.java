@@ -197,7 +197,7 @@ public class TempBanCommand extends Command {
                         ban_time_string_ = "error";
                     }
                 }
-                Standard.log(ban_date, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_TEMP_BANS, (ban_type ? LOG_TEXT_TEMP_BANS_BANNED : LOG_TEXT_TEMP_BANS_KICKED), (ban_type ? STANDARD_LOG_TEXT_TEMP_BANS_BANNED : STANDARD_LOG_TEXT_TEMP_BANS_KICKED), LOG_DATE_TIME_FORMAT, (user == null ? user_id : Config.CONFIG.getUserNameForUser(user, event.getGuild())), Config.CONFIG.getUserNameForUser(event.getAuthor(), event.getGuild()), ban_time_string_, date_time_formatted_unban_date);
+                Standard.log(ban_date, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_TEMP_BANS, (ban_type ? LOG_TEXT_TEMP_BANS_BANNED : LOG_TEXT_TEMP_BANS_KICKED), (ban_type ? STANDARD_LOG_TEXT_TEMP_BANS_BANNED : STANDARD_LOG_TEXT_TEMP_BANS_KICKED), LOG_DATE_TIME_FORMAT, (user == null ? user_id : Config.CONFIG.getUserNameForUser(user, event.getGuild(), true)), Config.CONFIG.getUserNameForUser(event.getAuthor(), event.getGuild(), true), ban_time_string_, date_time_formatted_unban_date);
                 final PreparedStatement preparedStatement = MySQL.STANDARD_DATABASE.prepareStatement("INSERT INTO %s (guild_ID, user_ID, unban_date, reason, banner_ID, ban_date, ban_type) VALUES (?, ?, ?, ?, ?, ?, ?)", MySQL.SQL_TABLE_TEMP_BANS);
                 preparedStatement.setLong(1, event.getGuild().getIdLong());
                 preparedStatement.setLong(2, Long.parseLong(user_id));

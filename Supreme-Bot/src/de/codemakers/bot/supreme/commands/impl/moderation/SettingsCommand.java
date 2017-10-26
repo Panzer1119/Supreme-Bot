@@ -265,9 +265,9 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
             case GUILD_CONFIG:
                 return String.format("%s %s for the guild \"%s\" (ID: %d)", event.getAuthor().getAsMention(), extra, guild == null ? "" : guild.getName(), guild_id);
             case GUILD_USER_CONFIG:
-                return String.format("%s %s for the user \"%s\" (ID: %d) on the guild \"%s\" (ID: %d)", event.getAuthor().getAsMention(), extra, user == null ? "" : Standard.getCompleteName(user), user_id, guild == null ? "" : guild.getName(), guild_id);
+                return String.format("%s %s for the user \"%s\" (ID: %d) on the guild \"%s\" (ID: %d)", event.getAuthor().getAsMention(), extra, user == null ? "" : Standard.getCompleteName(user, false), user_id, guild == null ? "" : guild.getName(), guild_id);
             case USER_CONFIG:
-                return String.format("%s %s for the user \"%s\" (ID: %d)", event.getAuthor().getAsMention(), extra, user == null ? "" : Standard.getCompleteName(user), user_id);
+                return String.format("%s %s for the user \"%s\" (ID: %d)", event.getAuthor().getAsMention(), extra, user == null ? "" : Standard.getCompleteName(user, false), user_id);
             default:
                 return null;
         }

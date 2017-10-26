@@ -239,11 +239,11 @@ public class Config extends AbstractConfig {
     }
 
     //MIXED
-    public final String getUserNameForUser(User user, Guild guild) {
+    public final String getUserNameForUser(User user, Guild guild, boolean withId) {
         if (user == null) {
             return null;
         }
-        return (isUserNotMentionedInLogs(user.getIdLong()) || (guild != null && isGuildUserNotMentionedInLogs(guild.getIdLong(), user.getIdLong()))) ? Standard.getCompleteName(user) : user.getAsMention();
+        return (isUserNotMentionedInLogs(user.getIdLong()) || (guild != null && isGuildUserNotMentionedInLogs(guild.getIdLong(), user.getIdLong()))) ? Standard.getCompleteName(user, withId) : user.getAsMention();
     }
 
     public final String getRoleNameForRole(Role role) {

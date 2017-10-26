@@ -29,6 +29,14 @@ public class ArgumentList {
     public static final Pattern PATTERN_MARKDOWN_CHANNEL = Pattern.compile("(?:<#(\\d+)>)");
     public static final Pattern PATTERN_MARKDOWN_ROLE = Pattern.compile("(?:<@&(\\d+)>)");
     public static final Pattern PATTERN_MARKDOWN_CUSTOM_EMOJI = Pattern.compile("(?:<:(\\w+):(\\d+)>)");
+    /**
+     * https://regexr.com/3h26u
+     */
+    public static final Pattern PATTERN_MARKDOWN_UNIQUE_USERNAME = Pattern.compile("<(.*)#(\\d{4})>");
+    /**
+     * https://regexr.com/3h26r
+     */
+    public static final Pattern PATTERN_MARKDOWN_UNIQUE_USERNAME_WITH_ID = Pattern.compile("<(.*)#(\\d{4}):(\\d+)>");
 
     private final ArrayList<String> arguments_content_raw = new ArrayList<>();
     private final ArrayList<String> arguments_content = new ArrayList<>();
