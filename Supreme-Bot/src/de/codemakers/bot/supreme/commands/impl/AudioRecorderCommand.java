@@ -89,7 +89,7 @@ public class AudioRecorderCommand extends Command { //FIXME Was ist wenn Music a
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you first have to leave the other VoiceChannel!", Emoji.WARNING, event.getAuthor().getAsMention());
                 return;
             }
-            event.getGuild().getAudioManager().closeAudioConnection();
+            event.getGuild().getAudioManager().closeAudioConnection(); //FIXME closeAudioConnection ISSUE
             killAudioHandlers(event.getGuild());
         }
     }

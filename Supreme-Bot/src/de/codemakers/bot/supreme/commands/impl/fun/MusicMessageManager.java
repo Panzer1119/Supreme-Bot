@@ -133,7 +133,7 @@ public class MusicMessageManager extends MessageManager {
 
     @Override
     public void update() {
-        if (MusicCommand.isIdle(guild)) {
+        if (MusicCommand.isIdle(guild) || !MusicCommand.existsTrackManager(trackManager)) {
             deleteThis();
             return;
         }

@@ -5,7 +5,9 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import de.codemakers.bot.supreme.audio.util.AudioQueue;
+import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
 import de.codemakers.bot.supreme.core.SupremeBot;
+import de.codemakers.bot.supreme.util.updater.Updater;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -81,7 +83,7 @@ public class TrackManager extends AudioEventAdapter {
             throw new NullPointerException("The VoiceChannel must not be null!");
         }
         if ((this.voiceChannel != null && !this.voiceChannel.equals(voiceChannel)) || (guild.getAudioManager().isConnected() && !voiceChannel.equals(guild.getAudioManager().getConnectedChannel()))) {
-            guild.getAudioManager().closeAudioConnection();
+            Updater.submit(() -> guild.getAudioManager().closeAudioConnection());
         }
         if (this.voiceChannel == null || (!guild.getAudioManager().isConnected() || !voiceChannel.equals(guild.getAudioManager().getConnectedChannel()))) {
             guild.getAudioManager().openAudioConnection(voiceChannel);
@@ -186,8 +188,11 @@ public class TrackManager extends AudioEventAdapter {
         if (!queue.hasNext()) {
             System.out.println("Stopping Music! LoopType: " + loopType);
             setPlaying(false);
-            guild.getAudioManager().closeAudioConnection();
-            SupremeBot.setStatus(null);
+            try {
+                MusicCommand.stop(guild, this);
+            } catch (Exception ex) {
+                System.err.println(ex);
+            }
             return false;
         } else {
             final AudioInfo next = queue.playNext();

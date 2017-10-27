@@ -38,6 +38,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
+import de.codemakers.bot.supreme.settings.Config;
 
 /**
  * MusicCommand
@@ -53,19 +54,19 @@ public class MusicCommand extends Command {
         AudioSourceManagers.registerRemoteSources(manager);
     }
 
-    static final TrackManager createTrackManager(Guild guild, VoiceChannel channel) {
+    static final TrackManager createTrackManager(Guild guild, VoiceChannel voiceChannel) {
         if (guild == null) {
             return null;
         }
         final AudioPlayer player = manager.createPlayer();
-        final TrackManager trackManager = new TrackManager(player, guild, channel);
+        final TrackManager trackManager = new TrackManager(player, guild, voiceChannel);
         player.addListener(trackManager);
         guild.getAudioManager().setSendingHandler(new PlayerSendHandler(player));
         trackManagers.put(guild, trackManager);
         return trackManager;
     }
 
-    static final TrackManager getTrackManager(Guild guild, VoiceChannel channel) {
+    static final TrackManager getTrackManager(Guild guild, VoiceChannel voiceChannel) {
         if (guild == null) {
             return null;
         }
@@ -73,8 +74,12 @@ public class MusicCommand extends Command {
         if (trackManager != null) {
             return trackManager;
         } else {
-            return createTrackManager(guild, channel);
+            return createTrackManager(guild, voiceChannel);
         }
+    }
+
+    static final boolean existsTrackManager(TrackManager trackManager) {
+        return trackManagers.containsValue(trackManager);
     }
 
     static final TrackManager getTrackManager(Guild guild) {
@@ -89,7 +94,7 @@ public class MusicCommand extends Command {
             return true;
         }
         final TrackManager trackManager = getTrackManager(guild);
-        return trackManager == null || trackManager.getPlayer() == null || trackManager.getPlayer().getPlayingTrack() == null;
+        return trackManager == null || trackManager.getPlayer() == null || trackManager.getPlayer().getPlayingTrack() == null || !guild.getAudioManager().isConnected();
     }
 
     private final MusicCommand loadTrack(String identifier, MessageEvent event, VoiceChannel channel, int max_tracks) {
@@ -108,7 +113,7 @@ public class MusicCommand extends Command {
         if (trackManager == null) {
             return null;
         }
-        manager.setFrameBufferDuration(5000); //FIXME Make this variable (ms)
+        manager.setFrameBufferDuration(Config.CONFIG.getBotMusicFrameBufferDuration());
         manager.loadItemOrdered(guild, identifier, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
@@ -215,11 +220,17 @@ public class MusicCommand extends Command {
         return trackManager.getPlayer().getVolume();
     }
 
-    static final void stop(Guild guild, TrackManager trackManager) {
-        trackManager.resetQueue();
-        trackManager.setPlaying(false);
-        skip(guild);
-        guild.getAudioManager().closeAudioConnection();
+    public static final void stop(Guild guild, TrackManager trackManager) {
+        try {
+            trackManager.getPlayer().destroy();
+            trackManager.resetQueue();
+            trackManager.setPlaying(false);
+            trackManagers.remove(guild);
+            skip(guild);
+        } catch (Exception ex) {
+            System.err.println(ex);
+        }
+        Updater.submit(() -> guild.getAudioManager().closeAudioConnection());
         SupremeBot.setStatus(null);
     }
 
@@ -268,9 +279,9 @@ public class MusicCommand extends Command {
         final boolean volume = arguments.isConsumed(Standard.ARGUMENT_VOLUME, ArgumentConsumeType.FIRST_IGNORE_CASE);
         if (play) {
             if (arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
-                return arguments.isSize(3, 4); //title/url [max_tracks] -live
+                return arguments.isSize(3, 4); //[VoiceChannel] title/url [max_tracks] -live
             } else {
-                return arguments.isSize(1, 3); //[title/url] [max_tracks]
+                return arguments.isSize(1, 3); //[VoiceChannel] [title/url] [max_tracks]
             }
         } else if (pause) {
             return arguments.isSize(1, 2); //[pause]
@@ -309,8 +320,20 @@ public class MusicCommand extends Command {
         final boolean queue = arguments.isConsumed(Standard.ARGUMENT_QUEUE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean volume = arguments.isConsumed(Standard.ARGUMENT_VOLUME, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final Guild guild = event.getGuild();
-        final VoiceChannel channel = event.getMember().getVoiceState().getChannel(); //TODO Make the channel selectable
-        final TrackManager trackManager = getTrackManager(guild, channel);
+        VoiceChannel voiceChannel = event.getMember().getVoiceState().getChannel();
+        if (play) {
+            voiceChannel = Util.resolveVoiceChannel(event.getGuild(), arguments.getFirst());
+            if (voiceChannel != null) {
+                arguments.consumeFirst();
+            } else {
+                voiceChannel = event.getMember().getVoiceState().getChannel();
+            }
+            if (voiceChannel == null) {
+                event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "you have to be in a VoiceChannel or specifiy one!").build());
+                return;
+            }
+        }
+        final TrackManager trackManager = getTrackManager(guild, voiceChannel);
         try {
             if (play) {
                 final boolean live = arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
@@ -328,8 +351,9 @@ public class MusicCommand extends Command {
                     if (!arguments.isEmpty()) {
                         max_tracks = Integer.parseInt(arguments.consumeFirst());
                     }
-                    loadTrack((url ? "" : "ytsearch: ") + input, event, channel, max_tracks);
+                    loadTrack((url ? "" : "ytsearch: ") + input, event, voiceChannel, max_tracks);
                     if (live) {
+                        final VoiceChannel channel = voiceChannel;
                         Util.sheduleTimerAndRemove(() -> {
                             showLiveInfo(event, guild, channel);
                         }, 3000); //TODO Make this variable (ms) ???
@@ -426,7 +450,7 @@ public class MusicCommand extends Command {
                 if (!live) {
                     event.sendMessage(Standard.getMessageEmbed(null, Standard.toBold("CURRENT TRACK INFO:")).addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build());
                 } else {
-                    showLiveInfo(event, guild, channel);
+                    showLiveInfo(event, guild, voiceChannel);
                 }
             } else if (queue) {
                 if (isIdle(guild)) {
@@ -443,7 +467,7 @@ public class MusicCommand extends Command {
                 if (trackManager.getAudioQueue().isPlaying()) {
                     infos.add(0, trackManager.getAudioQueue().getNow());
                 }
-                final int MAX_TRACKS_PER_PAGE = 20; //FIXME Make this variable (Anzahl Tracks pro Seite)
+                final int MAX_TRACKS_PER_PAGE = Config.CONFIG.getGuildMusicMaxTracksPerPage(guild.getIdLong());
                 final String queue_name = "default"; //TODO Add queues ability to save them
                 //TODO Alle Commands muessen methode machen mit stop, damit sie herunterfahren koennen
                 final int track_size = infos.size();
@@ -652,7 +676,7 @@ public class MusicCommand extends Command {
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s %s [[URL or Text] [Maximum Number of Tracks]] [%s]", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), "Unpauses the bot or plays from an URL or searches on YouTube for a video. If loading more than one video you can set the maximum number of videos that should be loaded, or -1 for all the bot can find. Optionally shows a live track info.", false);
+        builder.addField(String.format("%s %s [VoiceChannel] [[URL or Text] [Maximum Number of Tracks]] [%s]", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), "Unpauses the bot or plays from an URL or searches on YouTube for a video. If loading more than one video you can set the maximum number of videos that should be loaded, or -1 for all the bot can find. Optionally shows a live track info. Use `VoiceChannel#Number` or its id when there are multiple VoiceChannels with the same name.", false);
         builder.addField(String.format("%s %s [Pause]", invoker, Standard.ARGUMENT_PAUSE.getCompleteArgument(0, -1)), "Toggles or sets pause.", false);
         builder.addField(String.format("%s %s [Times/All]", invoker, Standard.ARGUMENT_SKIP.getCompleteArgument(0, -1)), "Skips 1 or more or even all tracks.", false);
         builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_STOP.getCompleteArgument(0, -1)), "Stops the music.", false);

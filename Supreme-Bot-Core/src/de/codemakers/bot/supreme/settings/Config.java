@@ -27,6 +27,7 @@ public class Config extends AbstractConfig {
     public static final String KEY_BOT_LOG_FILE_SHOW_COUNT = "log_file_show_count";
     public static final String KEY_BOT_LONGEST_UPTIME = "longest_uptime";
     public static final String KEY_BOT_LONGEST_UPTIME_START = "longest_uptime_start";
+    public static final String KEY_BOT_MUSIC_FRAME_BUFFER_DURATION = "music_frame_buffer_duration";
     //GUILD SETTINGS
     public static final String KEY_GUILD_NICKNAME = "nickname";
     public static final String KEY_GUILD_COMMAND_PREFIX = "command_prefix";
@@ -35,6 +36,7 @@ public class Config extends AbstractConfig {
     public static final String KEY_GUILD_AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = "auto_delete_command_not_found_message_delay";
     public static final String KEY_GUILD_AUTO_DELETE_COMMAND = "auto_delete_command";
     public static final String KEY_GUILD_SEND_HELP_ALWAYS_PRIVATE = "send_help_always_private";
+    public static final String KEY_GUILD_MUSIC_MAX_TRACKS_PER_PAGE = "music_max_tracks_per_page";
     //GUILD USER SETTINGS
     public static final String KEY_GUILD_USER_NOT_MENTIONED_IN_LOGS = "not_mentioned_in_logs";
     //USER SETTINGS
@@ -70,6 +72,15 @@ public class Config extends AbstractConfig {
 
     public final Config setBotLogFileShowCount(int log_file_show_count) {
         setValue(0, 0, KEY_BOT_LOG_FILE_SHOW_COUNT, log_file_show_count);
+        return this;
+    }
+
+    public final int getBotMusicFrameBufferDuration() {
+        return getValue(0, 0, KEY_BOT_MUSIC_FRAME_BUFFER_DURATION, 5000);
+    }
+
+    public final Config setBotMusicFrameBufferDuration(int music_frame_buffer_duration) {
+        setValue(0, 0, KEY_BOT_MUSIC_FRAME_BUFFER_DURATION, music_frame_buffer_duration);
         return this;
     }
 
@@ -206,6 +217,15 @@ public class Config extends AbstractConfig {
 
     public final Config setGuildSendingHelpAlwaysPrivate(long guild_id, boolean send_help_always_private) {
         setValue(guild_id, 0, KEY_GUILD_SEND_HELP_ALWAYS_PRIVATE, send_help_always_private);
+        return this;
+    }
+
+    public final int getGuildMusicMaxTracksPerPage(long guild_id) {
+        return getValue(guild_id, 0, KEY_GUILD_MUSIC_MAX_TRACKS_PER_PAGE, 20);
+    }
+
+    public final Config setGuildMusicMaxTracksPerPage(long guild_id, int music_max_tracks_per_page) {
+        setValue(guild_id, 0, KEY_GUILD_MUSIC_MAX_TRACKS_PER_PAGE, music_max_tracks_per_page);
         return this;
     }
 
