@@ -114,7 +114,7 @@ public class TempBanCommand extends Command {
                 final int temp_ban_count = (int) tempBans.stream().filter((tempBan) -> tempBan.isBan_type()).count();
                 final int temp_kick_count = tempBans.size() - temp_ban_count;
                 if (unban) {
-                    if (temp_ban_count != 0 && !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_ADMIN, event.getMember())) {
+                    if (temp_ban_count != 0 && !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_BOTH_ADMIN, event.getMember())) {
                         PermissionHandler.sendNoPermissionMessage(event);
                         return;
                     }
@@ -156,7 +156,7 @@ public class TempBanCommand extends Command {
                     return;
                 }
                 final Member member = event.getGuild().getMemberById(user_id);
-                if (PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_OWNER, member) || (PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER, member) && !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_OWNER, event.getMember())) || (ban_type && !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_ADMIN, event.getMember()))) { //FIXME Sollen Mods auch tempbannen duerfen?
+                if (PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_ADMIN, member) || (PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER_BOT_ADMIN, member) && !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_ADMIN, event.getMember())) || (ban_type && !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_BOTH_ADMIN, event.getMember()))) { //FIXME Sollen Mods auch tempbannen duerfen?
                     PermissionHandler.sendNoPermissionMessage(event);
                     return;
                 }
@@ -230,7 +230,7 @@ public class TempBanCommand extends Command {
 
     @Override
     public final PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONFILTER_MODERATOR;
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_MODERATOR_BOT_ADMIN;
     }
 
     @Override

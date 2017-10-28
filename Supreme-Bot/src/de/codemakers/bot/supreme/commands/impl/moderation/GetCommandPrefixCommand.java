@@ -58,7 +58,7 @@ public class GetCommandPrefixCommand extends Command {
 
     @Override
     public final PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER;
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER_BOT_ADMIN;
     }
 
     @Override

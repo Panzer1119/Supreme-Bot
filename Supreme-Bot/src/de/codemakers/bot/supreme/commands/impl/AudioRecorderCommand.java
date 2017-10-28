@@ -125,7 +125,7 @@ public class AudioRecorderCommand extends Command { //FIXME Was ist wenn Music a
 
     @Override
     public PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER;
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER_BOT_ADMIN;
     }
 
     @Override

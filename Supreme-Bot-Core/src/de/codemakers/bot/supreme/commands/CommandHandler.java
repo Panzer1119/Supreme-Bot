@@ -129,7 +129,7 @@ public class CommandHandler {
         if (sendPrivate || Config.CONFIG.isGuildSendingHelpAlwaysPrivate(event.getGuild().getIdLong())) {
             Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
         } else {
-            if (!PermissionHandler.isPermissionGranted(filter, event.getTextChannel()) && !(forceSendInChannel && PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_BOT_COMMANDER, event.getMember()))) {
+            if (!PermissionHandler.isPermissionGranted(filter, event.getTextChannel()) && !(forceSendInChannel && PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_BOT_COMMANDER_BOT_ADMIN, event.getMember()))) {
                 Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
                 return true;
             }

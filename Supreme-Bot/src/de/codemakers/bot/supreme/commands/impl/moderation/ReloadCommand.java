@@ -78,7 +78,7 @@ public class ReloadCommand extends Command {
 
     @Override
     public final PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONFILTER_BOT_COMMANDER;
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_BOT_COMMANDER_BOT_ADMIN;
     }
 
     @Override

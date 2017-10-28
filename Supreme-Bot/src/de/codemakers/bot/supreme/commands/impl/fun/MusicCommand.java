@@ -690,7 +690,7 @@ public class MusicCommand extends Command {
 
     @Override
     public final PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONFILTER_VIP;
+        return Standard.STANDARD_PERMISSIONFILTER_BOTH_VIP;
     }
 
     @Override

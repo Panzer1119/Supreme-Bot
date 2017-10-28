@@ -46,7 +46,7 @@ public class UptimeCommand extends Command {
 
     @Override
     public PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONFILTER_VIP;
+        return Standard.STANDARD_PERMISSIONFILTER_BOTH_VIP;
     }
 
     @Override

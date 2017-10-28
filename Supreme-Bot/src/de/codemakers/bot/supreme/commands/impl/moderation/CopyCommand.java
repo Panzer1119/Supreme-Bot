@@ -109,7 +109,7 @@ public class CopyCommand extends Command {
 
     @Override
     public PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONFILTER_MODERATOR_BOT_COMMANDER;
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_MODERATOR_BOT_COMMANDER_BOT_ADMIN;
     }
 
     @Override

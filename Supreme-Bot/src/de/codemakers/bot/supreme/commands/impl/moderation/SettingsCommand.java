@@ -222,7 +222,7 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
 
     @Override
     public PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONFILTER_BOT_COMMANDER;
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_BOT_COMMANDER_BOT_ADMIN;
     }
 
     @Override
@@ -241,7 +241,7 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
                 case BOT_CONFIG:
                     break;
                 case GUILD_CONFIG:
-                    if (guild_id == event.getGuild().getIdLong() && PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER, event.getMember())) {
+                    if (guild_id == event.getGuild().getIdLong() && PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER_BOT_ADMIN, event.getMember())) {
                         return true;
                     }
                 case GUILD_USER_CONFIG:
@@ -255,7 +255,7 @@ public class SettingsCommand extends Command { //TODO Info command hinzufuegen (
     }
 
     private static final boolean isPrivateNeeded(ConfigType configType, MessageEvent event) {
-        return event.isPrivate() || configType != ConfigType.GUILD_CONFIG || !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_VIP, event.getTextChannel());
+        return event.isPrivate() || configType != ConfigType.GUILD_CONFIG || !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_BOTH_VIP, event.getTextChannel());
     }
 
     private static final String getText(long guild_id, long user_id, Guild guild, User user, ConfigType configType, String extra, MessageEvent event) {

@@ -12,6 +12,7 @@ import de.codemakers.bot.supreme.util.Standard;
 import java.awt.Color;
 import net.dv8tion.jda.core.EmbedBuilder;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
+import de.codemakers.bot.supreme.permission.PermissionHandler;
 
 /**
  * SystemCommand
@@ -40,17 +41,11 @@ public class SystemCommand extends Command {
     @Override
     public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         final boolean live = arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean ip = PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_BOT_SUPER_OWNER, event.getMember()) && PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_BOT_ADMIN, event.getTextChannel(), true);
         if (live) {
-            SystemMessageManager.of(event);
+            SystemMessageManager.of(event, ip);
         } else {
-            DeleteMessageManager.monitor(event.sendAndWaitMessage(Standard.getMessageEmbed(Color.YELLOW, Standard.toBold("System Information"))
-                    .addField(String.format("%s Version", Standard.STANDARD_NAME), Standard.VERSION, false)
-                    .addField("Java Version", System.getProperty("java.version"), false)
-                    .addField("IP Address", NetworkUtil.getIPAddress(), false)
-                    .addField("CPU Cores available", "" + Runtime.getRuntime().availableProcessors(), false)
-                    .addField("Max Memory", SystemMessageManager.getMemory(Runtime.getRuntime().maxMemory()), false)
-                    .addField("Total Memory", SystemMessageManager.getMemory(Runtime.getRuntime().totalMemory()), false)
-                    .addField("Free Memory", SystemMessageManager.getMemory(Runtime.getRuntime().freeMemory()), false).build()));
+            DeleteMessageManager.monitor(event.sendAndWaitMessage(SystemMessageManager.generateMessage(false, ip)));
         }
     }
 
@@ -67,7 +62,7 @@ public class SystemCommand extends Command {
 
     @Override
     public final PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER;
+        return Standard.STANDARD_PERMISSIONFILTER_BOT_ADMIN;
     }
 
     @Override

@@ -962,10 +962,10 @@ public class Standard {
         return System.currentTimeMillis();
     }
 
-    public static final PermissionFilter STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER = new PermissionFilter() {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_BOT_SUPER_OWNER = new PermissionFilter() {
         @Override
         public String getName() {
-            return "STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER";
+            return "STANDARD_PERMISSIONFILTER_BOT_SUPER_OWNER";
         }
 
         @Override
@@ -979,10 +979,27 @@ public class Standard {
         }
     };
 
-    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_OWNER = new PermissionFilter() {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_BOT_ADMIN = new PermissionFilter() {
         @Override
         public String getName() {
-            return "STANDARD_PERMISSIONFILTER_GUILD_OWNER";
+            return "STANDARD_PERMISSIONFILTER_BOT_ADMIN";
+        }
+
+        @Override
+        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
+            return false;
+        }
+
+        @Override
+        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
+            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.ADMIN);
+        }
+    };
+
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_ADMIN = new PermissionFilter() {
+        @Override
+        public String getName() {
+            return "STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_ADMIN";
         }
 
         @Override
@@ -996,10 +1013,10 @@ public class Standard {
         }
     };
 
-    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER = new PermissionFilter() {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER_BOT_ADMIN = new PermissionFilter() {
         @Override
         public String getName() {
-            return "STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER";
+            return "STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER_BOT_ADMIN";
         }
 
         @Override
@@ -1013,27 +1030,10 @@ public class Standard {
         }
     };
 
-    public static final PermissionFilter STANDARD_PERMISSIONFILTER_OWNER_ADMIN = new PermissionFilter() {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_BOTH_ADMIN = new PermissionFilter() {
         @Override
         public String getName() {
-            return "STANDARD_PERMISSIONFILTER_OWNER_ADMIN";
-        }
-
-        @Override
-        public boolean isGuildPermissionGranted(GuildBotRole guildBotRole) {
-            return guildBotRole.hasGuildBotRoles(GuildBotRole.OWNER);
-        }
-
-        @Override
-        public boolean isGlobalPermissionGranted(GlobalBotRole globalBotRole) {
-            return globalBotRole.hasGlobalBotRoles(GlobalBotRole.ADMIN);
-        }
-    };
-
-    public static final PermissionFilter STANDARD_PERMISSIONFILTER_ADMIN = new PermissionFilter() {
-        @Override
-        public String getName() {
-            return "STANDARD_PERMISSIONFILTER_ADMIN";
+            return "STANDARD_PERMISSIONFILTER_BOTH_ADMIN";
         }
 
         @Override
@@ -1047,10 +1047,10 @@ public class Standard {
         }
     };
 
-    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER = new PermissionFilter() {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER_BOT_ADMIN = new PermissionFilter() {
         @Override
         public String getName() {
-            return "STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER";
+            return "STANDARD_PERMISSIONFILTER_GUILD_ADMIN_BOT_COMMANDER_BOT_ADMIN";
         }
 
         @Override
@@ -1064,10 +1064,10 @@ public class Standard {
         }
     };
 
-    public static final PermissionFilter STANDARD_PERMISSIONFILTER_BOT_COMMANDER = new PermissionFilter() {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_BOT_COMMANDER_BOT_ADMIN = new PermissionFilter() {
         @Override
         public String getName() {
-            return "STANDARD_PERMISSIONFILTER_BOT_COMMANDER";
+            return "STANDARD_PERMISSIONFILTER_GUILD_BOT_COMMANDER_BOT_ADMIN";
         }
 
         @Override
@@ -1081,10 +1081,10 @@ public class Standard {
         }
     };
 
-    public static final PermissionFilter STANDARD_PERMISSIONFILTER_MODERATOR_BOT_COMMANDER = new PermissionFilter() {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_MODERATOR_BOT_COMMANDER_BOT_ADMIN = new PermissionFilter() {
         @Override
         public String getName() {
-            return "STANDARD_PERMISSIONFILTER_MODERATOR_BOT_COMMANDER";
+            return "STANDARD_PERMISSIONFILTER_GUILD_MODERATOR_BOT_COMMANDER_BOT_ADMIN";
         }
 
         @Override
@@ -1098,10 +1098,10 @@ public class Standard {
         }
     };
 
-    public static final PermissionFilter STANDARD_PERMISSIONFILTER_MODERATOR = new PermissionFilter() {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_GUILD_MODERATOR_BOT_ADMIN = new PermissionFilter() {
         @Override
         public String getName() {
-            return "STANDARD_PERMISSIONFILTER_MODERATOR";
+            return "STANDARD_PERMISSIONFILTER_GUILD_MODERATOR_BOT_ADMIN";
         }
 
         @Override
@@ -1115,10 +1115,10 @@ public class Standard {
         }
     };
 
-    public static final PermissionFilter STANDARD_PERMISSIONFILTER_VIP = new PermissionFilter() {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_BOTH_VIP = new PermissionFilter() {
         @Override
         public String getName() {
-            return "STANDARD_PERMISSIONFILTER_VIP";
+            return "STANDARD_PERMISSIONFILTER_BOTH_VIP";
         }
 
         @Override
@@ -1132,10 +1132,10 @@ public class Standard {
         }
     };
 
-    public static final PermissionFilter STANDARD_PERMISSIONFILTER_NOBODY = new PermissionFilter() {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_BOTH_NOBODY = new PermissionFilter() {
         @Override
         public String getName() {
-            return "STANDARD_PERMISSIONFILTER_NOBODY";
+            return "STANDARD_PERMISSIONFILTER_BOTH_NOBODY";
         }
 
         @Override
@@ -1149,10 +1149,10 @@ public class Standard {
         }
     };
 
-    public static final PermissionFilter STANDARD_PERMISSIONFILTER_EVERYONE = new PermissionFilter() {
+    public static final PermissionFilter STANDARD_PERMISSIONFILTER_BOTH_EVERYONE = new PermissionFilter() {
         @Override
         public String getName() {
-            return "STANDARD_PERMISSIONFILTER_EVERYONE";
+            return "STANDARD_PERMISSIONFILTER_BOTH_EVERYONE";
         }
 
         @Override

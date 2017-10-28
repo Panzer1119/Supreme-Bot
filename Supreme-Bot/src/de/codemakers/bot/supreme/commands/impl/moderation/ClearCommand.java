@@ -76,7 +76,7 @@ public class ClearCommand extends Command {
 
     @Override
     public final PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONFILTER_MODERATOR;
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_MODERATOR_BOT_ADMIN;
     }
 
     @Override

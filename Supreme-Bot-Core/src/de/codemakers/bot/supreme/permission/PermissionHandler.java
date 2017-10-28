@@ -51,6 +51,10 @@ public class PermissionHandler {
     }
 
     public static final boolean isPermissionGranted(PermissionFilter filter, Channel channel) {
+        return isPermissionGranted(filter, channel, false);
+    }
+
+    public static final boolean isPermissionGranted(PermissionFilter filter, Channel channel, boolean memberOnly) {
         if (filter == null) {
             return true;
         }
@@ -59,6 +63,9 @@ public class PermissionHandler {
         }
         if (channel.getMemberPermissionOverrides().stream().filter((po) -> !po.getDenied().contains(Permission.MESSAGE_READ) || !po.getDenied().contains(Permission.MESSAGE_HISTORY)).anyMatch((po) -> (!filter.isGuildPermissionGranted(GuildBotRole.getGuildBotRolesByMember(po.getMember())) && !filter.isGlobalPermissionGranted(GlobalBotRole.getGlobalBotRolesByUser(po.getMember().getUser()))))) {
             return false;
+        }
+        if (memberOnly) {
+            return true;
         }
         return channel.getRolePermissionOverrides().stream().filter((po) -> !po.getDenied().contains(Permission.MESSAGE_READ) || !po.getDenied().contains(Permission.MESSAGE_HISTORY)).noneMatch((po) -> !filter.isGuildPermissionGranted(GuildBotRole.getGuildBotRolesByRole(po.getRole())));
     }

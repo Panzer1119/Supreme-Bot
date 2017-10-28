@@ -79,7 +79,7 @@ public class CommandCommand extends Command {
 
     @Override
     public PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER;
+        return Standard.STANDARD_PERMISSIONFILTER_GUILD_OWNER_BOT_COMMANDER_BOT_ADMIN;
     }
 
     @Override

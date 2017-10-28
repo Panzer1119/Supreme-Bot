@@ -159,7 +159,7 @@ public class PasteServerCommand extends Command {
 
     @Override
     public PermissionFilter getPermissionFilter() {
-        return Standard.STANDARD_PERMISSIONROLEFILTER_SUPER_OWNER;
+        return Standard.STANDARD_PERMISSIONFILTER_BOT_SUPER_OWNER;
     }
 
     @Override
