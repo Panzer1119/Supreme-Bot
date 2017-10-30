@@ -35,6 +35,10 @@ public enum TimeUnit {
         return name_long;
     }
 
+    public final long toMillis(long amount) {
+        return millis * amount;
+    }
+
     public final long getMillis() {
         return millis;
     }

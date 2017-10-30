@@ -5,8 +5,8 @@ import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
-import de.codemakers.bot.supreme.entities.DeleteMessageManager;
 import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.listeners.ReactionListener;
 import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
 import java.util.ArrayList;
@@ -16,7 +16,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
+import de.codemakers.bot.supreme.permission.ReactionPermissionFilter;
 import de.codemakers.bot.supreme.settings.Config;
+import de.codemakers.bot.supreme.util.TimeUnit;
 
 /**
  * GetLogCommand
@@ -93,7 +95,7 @@ public class GetLogCommand extends Command {
                     }).map((day) -> days.get(day)).forEach((logs) -> logs.stream().forEach((advancedFile) -> out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(advancedFile.getName()).append(Standard.NEW_LINE_DISCORD)));
                 });
             });
-            DeleteMessageManager.monitor(event.sendAndWaitMessage(out.toString()));
+            ReactionListener.deleteMessageWithReaction(event.sendAndWaitMessage(out.toString()), 2, TimeUnit.MINUTES, ReactionPermissionFilter.createUserFilter(event.getAuthor()));
         } else {
             String log = "";
             if (arguments.isEmpty()) {
@@ -116,7 +118,7 @@ public class GetLogCommand extends Command {
                 event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "the log file \"%s\" can't be read!", log).build());
                 return;
             }
-            DeleteMessageManager.monitor(event.sendAndWaitFile(buffer, log, null));
+            ReactionListener.deleteMessageWithReaction(event.sendAndWaitFile(buffer, log, null), 1, TimeUnit.MINUTES, ReactionPermissionFilter.createUserFilter(event.getAuthor()));
         }
     }
 

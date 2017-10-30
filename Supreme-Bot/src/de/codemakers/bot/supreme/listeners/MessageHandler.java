@@ -8,7 +8,9 @@ import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.settings.Config;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
+import de.codemakers.bot.supreme.util.updater.Updateable;
 import de.codemakers.bot.supreme.util.updater.Updater;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Emote;
@@ -19,6 +21,7 @@ import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.MessageEmbedEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveAllEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
@@ -32,6 +35,20 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 public class MessageHandler extends ListenerAdapter {
 
     private static final boolean DEBUG = false;
+
+    static {
+        Updater.addUpdateable(new Updateable() {
+            @Override
+            public long update(long timestamp) {
+                ReactionListener.update(Instant.now());
+                return 5_000;
+            }
+
+            @Override
+            public void delete() {
+            }
+        });
+    }
 
     @Override
     public final void onMessageReceived(MessageReceivedEvent event) {
@@ -71,6 +88,11 @@ public class MessageHandler extends ListenerAdapter {
         if (DEBUG && output.length > 0) {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
         }
+    }
+
+    @Override
+    public final void onGenericMessageReaction(GenericMessageReactionEvent event) {
+        ReactionListener.handle(event);
     }
 
     @Override

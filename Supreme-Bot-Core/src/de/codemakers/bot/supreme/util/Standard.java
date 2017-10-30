@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -346,6 +347,10 @@ public class Standard {
         }
     }
 
+    public static final ArrayList<AdvancedGuild> getGuilds() {
+        return GUILDS;
+    }
+
     public static final ZoneId getUTC() {
         return UTC;
     }
@@ -624,6 +629,10 @@ public class Standard {
             ex.printStackTrace();
             return false;
         }
+    }
+
+    public static final Emote parseEmote(Guild guild, String emote_id) {
+        return guild.getEmoteById(emote_id);
     }
 
     //****************************************************************//

@@ -5,14 +5,14 @@ import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
-import de.codemakers.bot.supreme.entities.DeleteMessageManager;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.util.NetworkUtil;
+import de.codemakers.bot.supreme.listeners.ReactionListener;
 import de.codemakers.bot.supreme.util.Standard;
-import java.awt.Color;
 import net.dv8tion.jda.core.EmbedBuilder;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
+import de.codemakers.bot.supreme.permission.ReactionPermissionFilter;
+import de.codemakers.bot.supreme.util.TimeUnit;
 
 /**
  * SystemCommand
@@ -42,11 +42,7 @@ public class SystemCommand extends Command {
     public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         final boolean live = arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean ip = PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_BOT_SUPER_OWNER, event.getMember()) && PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_BOT_ADMIN, event.getTextChannel(), true);
-        if (live) {
-            SystemMessageManager.of(event, ip);
-        } else {
-            DeleteMessageManager.monitor(event.sendAndWaitMessage(SystemMessageManager.generateMessage(false, ip)));
-        }
+        ReactionListener.deleteMessageWithReaction(live ? new SystemMessageUpdater(event, ip).getMessage() : event.sendAndWaitMessage(SystemMessageUpdater.generateMessage(false, ip)), 1, TimeUnit.MINUTES, ReactionPermissionFilter.createUserFilter(event.getAuthor()));
     }
 
     @Override

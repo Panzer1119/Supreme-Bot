@@ -187,11 +187,15 @@ public class SupremeBot {
             return true;
         }
         try {
-            if (now) {
-                jda.shutdownNow();
-            } else {
-                jda.shutdown();
-            }
+            final Thread thread = new Thread(() -> {
+                if (now) {
+                    jda.shutdownNow();
+                } else {
+                    jda.shutdown();
+                }
+            });
+            thread.start();
+            thread.join();
             running = false;
             reload();
             return true;

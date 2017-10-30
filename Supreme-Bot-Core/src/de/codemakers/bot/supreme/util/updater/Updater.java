@@ -3,9 +3,10 @@ package de.codemakers.bot.supreme.util.updater;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Timer;
 import de.codemakers.bot.supreme.util.TimerTask;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -21,7 +22,7 @@ public class Updater {
 
     private static final int THREAD_POOL_SIZE = Math.max(2, Runtime.getRuntime().availableProcessors());
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-    private static final HashMap<Updateable, UpdateTime> UPDATEABLES = new HashMap<>();
+    private static final Map<Updateable, UpdateTime> UPDATEABLES = new ConcurrentHashMap<>();
     private static final Timer TIMER = new Timer();
     private static final TimerTask TASK = new TimerTask() {
         @Override
@@ -111,7 +112,7 @@ public class Updater {
         return false;
     }
 
-    public static final HashMap<Updateable, UpdateTime> getUpdateablesWithTimestamps() {
+    public static final Map<Updateable, UpdateTime> getUpdateablesWithTimestamps() {
         return UPDATEABLES;
     }
 
