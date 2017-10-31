@@ -70,7 +70,10 @@ public interface ReactionListener {
         if (containers.isEmpty()) {
             LISTENERS.remove(message);
         }
-        Standard.getUpdatedMessage(message).getReactions().stream().filter((reaction) -> emote.equals(AdvancedEmote.ofReactionEmote(reaction.getEmote()))).forEach((reaction) -> reaction.removeReaction().queue());
+        message = Standard.getUpdatedMessage(message);
+        if (message != null) {
+            message.getReactions().stream().filter((reaction) -> emote.equals(AdvancedEmote.ofReactionEmote(reaction.getEmote()))).forEach((reaction) -> reaction.removeReaction().queue());
+        }
         return container;
     }
 
@@ -83,7 +86,10 @@ public interface ReactionListener {
             return true;
         }
         LISTENERS.remove(message);
-        Standard.getUpdatedMessage(message).getReactions().stream().forEach((reaction) -> reaction.removeReaction().queue());
+        message = Standard.getUpdatedMessage(message);
+        if (message != null) {
+            message.getReactions().stream().forEach((reaction) -> reaction.removeReaction().queue());
+        }
         return true;
     }
 
