@@ -1,7 +1,12 @@
 package de.codemakers.bot.supreme.game;
 
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
+import de.codemakers.bot.supreme.entities.AdvancedEmote;
 import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.entities.MultiObject;
+import de.codemakers.bot.supreme.entities.MultiObjectHolder;
+import de.codemakers.bot.supreme.listeners.ReactionListener;
+import de.codemakers.bot.supreme.permission.ReactionPermissionFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
@@ -10,6 +15,8 @@ import java.util.HashMap;
 import javax.swing.Timer;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.MessageEmbed.Field;
 
 /**
  * GameOfLife
@@ -25,6 +32,7 @@ public class GameOfLife extends Game {
     private int generation = 0;
     private Timer timer = null;
     private EmbedBuilder builder_header = null;
+    private Field field = null;
     private Message message_header = null;
     private Message message_field = null;
     private boolean running = false;
@@ -34,15 +42,29 @@ public class GameOfLife extends Game {
     private int max_z = -1;
     private int max_w = -1;
     private GameOfLifeRule rule = GameOfLife.STANDARD_GAME_OF_LIFE_2D_RULE;
+    private int generations_per_turn = 1;
+    private int turn_delay = 4000;
 
     @Override
     public final boolean startGame(ArgumentList arguments, MessageEvent event) {
         builder_header = new EmbedBuilder();
         builder_header.setColor(Color.GREEN);
-        builder_header.addField("Description", String.format("Alive Cell: %s%nDead Cell: %s", EMOJI_ALIVE, EMOJI_DEAD), false);
+        builder_header.addField("Status", "Not running", false);
+        field = new MessageEmbed.Field("Description", String.format("Alive Cell: %s%nDead Cell: %s", EMOJI_ALIVE, EMOJI_DEAD), false);
+        builder_header.addField(field);
         updateMessageHeader();
         message_header = event.sendAndWaitMessage(builder_header.build());
         message_field = event.sendAndWaitMessage("Field");
+        ReactionListener.registerListener(message_field, AdvancedEmote.parse(Emoji.PLAY), (reaction, emote, guild, user) -> setRunning(true), null, ReactionPermissionFilter.createUserFilter(event.getAuthor()), true);
+        ReactionListener.registerListener(message_field, AdvancedEmote.parse(Emoji.REWIND), (reaction, emote, guild, user) -> goGeneration(-1), null, ReactionPermissionFilter.createUserFilter(event.getAuthor()), true);
+        ReactionListener.registerListener(message_field, AdvancedEmote.parse(Emoji.FAST_FORWARD), (reaction, emote, guild, user) -> goGeneration(1), null, ReactionPermissionFilter.createUserFilter(event.getAuthor()), true);
+        ReactionListener.registerListener(message_field, AdvancedEmote.parse(Emoji.STOP), (reaction, emote, guild, user) -> setRunning(false), null, ReactionPermissionFilter.createUserFilter(event.getAuthor()), true);
+        ReactionListener.registerListener(message_field, AdvancedEmote.parse("arrow_up_small"), (reaction, emote, guild, user) -> setTurnDelay(getTurnDelay() + 250), null, ReactionPermissionFilter.createUserFilter(event.getAuthor()), true);
+        ReactionListener.registerListener(message_field, AdvancedEmote.parse("arrow_down_small"), (reaction, emote, guild, user) -> setTurnDelay(getTurnDelay() - 250), null, ReactionPermissionFilter.createUserFilter(event.getAuthor()), true);
+        ReactionListener.registerListener(message_field, AdvancedEmote.parse("arrow_up"), (reaction, emote, guild, user) -> setGenerationsPerTurn(getGenerationsPerTurn() + 1), null, ReactionPermissionFilter.createUserFilter(event.getAuthor()), true);
+        ReactionListener.registerListener(message_field, AdvancedEmote.parse("arrow_down"), (reaction, emote, guild, user) -> setGenerationsPerTurn(getGenerationsPerTurn() - 1), null, ReactionPermissionFilter.createUserFilter(event.getAuthor()), true);
+        ReactionListener.registerListener(message_field, AdvancedEmote.parse("symbols"), (reaction, emote, guild, user) -> setShowingCoordinates(!isShowingCoordinates()), null, ReactionPermissionFilter.createUserFilter(event.getAuthor()), true);
+        ReactionListener.registerListener(message_field, AdvancedEmote.parse(Emoji.NO), (reaction, emote, guild, user) -> endGame(null, event), null, ReactionPermissionFilter.createUserFilter(event.getAuthor()), true);
         max_x = 10;
         max_y = 10;
         if (arguments.isSize(1, -1)) {
@@ -83,10 +105,14 @@ public class GameOfLife extends Game {
 
     @Override
     public final boolean endGame(ArgumentList arguments, MessageEvent event) {
+        setRunning(false);
         generations.keySet().stream().forEach((g) -> {
             generations.get(g).clear();
         });
         generations.clear();
+        final MultiObjectHolder holder = MultiObjectHolder.of(event.getGuild(), event.getAuthor(), event.getTextChannel());
+        final MultiObject<GameOfLife> multiObject = MultiObject.getFirstMultiObject(GameOfLife.class.getName(), holder);
+        multiObject.unregister();
         Util.deleteMessage(message_field, 0);
         Util.deleteMessage(message_header, 0);
         builder_header = null;
@@ -202,7 +228,54 @@ public class GameOfLife extends Game {
         }
         return true;
     }
-    
+
+    public final double getSpeed() {
+        return (1_000.0 * generations_per_turn) / (turn_delay * 1.0);
+    }
+
+    public final int getGenerationsPerTurn() {
+        return generations_per_turn;
+    }
+
+    public final GameOfLife setGenerationsPerTurn(int generations_per_turn) {
+        if (this.generations_per_turn != generations_per_turn) {
+            this.generations_per_turn = generations_per_turn;
+            if (isRunning()) {
+                setRunning(false);
+                timer = null;
+                setRunning(true);
+            } else {
+                timer = null;
+            }
+            updateMessageHeader();
+        }
+        this.generations_per_turn = generations_per_turn;
+        return this;
+    }
+
+    public final int getTurnDelay() {
+        return turn_delay;
+    }
+
+    public final GameOfLife setTurnDelay(int turn_delay) {
+        if (turn_delay <= 0) {
+            return this;
+        }
+        if (this.turn_delay != turn_delay) {
+            this.turn_delay = turn_delay;
+            if (isRunning()) {
+                setRunning(false);
+                timer = null;
+                setRunning(true);
+            } else {
+                timer = null;
+            }
+            updateMessageHeader();
+        }
+        this.turn_delay = turn_delay;
+        return this;
+    }
+
     private final boolean resetField() {
         generation = 0;
         if (is1D()) {
@@ -239,18 +312,22 @@ public class GameOfLife extends Game {
         updateMessages();
         return true;
     }
-    
+
     private final GameOfLife updateMessages() {
         updateMessageHeader();
         updateMessageField();
         return this;
     }
-    
+
     private final GameOfLife updateMessageHeader() {
         if (builder_header == null || message_field == null) {
             return this;
         }
-        builder_header.setDescription(String.format("GameOfLife Generation: %d", generation));
+        builder_header.setTitle(String.format("GameOfLife Generation: %d", generation));
+        builder_header.clearFields();
+        final double speed = getSpeed();
+        builder_header.addField("Status", String.format("%sRunning, Speed: %d Generation%s per %.2f Second%s (%.2f Generation%s per Second)", (isRunning() ? "" : "Not "), generations_per_turn, generations_per_turn != 1 ? "s" : "", turn_delay / 1_000.0, turn_delay != 1_000 ? "s" : "", speed, speed != 1 ? "s" : ""), false);
+        builder_header.addField(field);
         message_header.editMessage(builder_header.build()).queue();
         return this;
     }
@@ -316,14 +393,13 @@ public class GameOfLife extends Game {
         this.running = running;
         if (this.running) {
             if (timer == null) {
-                timer = new Timer(1000, (e) -> goGeneration(1)); //FIXME Make delay and generation variable
+                timer = new Timer(turn_delay, (e) -> goGeneration(generations_per_turn));
             }
             timer.start();
-        } else {
-            if (timer != null) {
-                timer.stop();
-            }
+        } else if (timer != null) {
+            timer.stop();
         }
+        updateMessages();
         return this;
     }
 
@@ -332,12 +408,16 @@ public class GameOfLife extends Game {
     }
 
     public final GameOfLife setShowingCoordinates(boolean show_coordinates) {
+        if (this.show_coordinates != show_coordinates) {
+            this.show_coordinates = show_coordinates;
+            updateMessageField();
+        }
         this.show_coordinates = show_coordinates;
         return this;
     }
-    
+
     public final boolean goGeneration(int times) {
-        if (times < 0 && (generation - times) < 0) {
+        if (times < 0 && (generation + times) < 0) {
             return false;
         } else if (times == 0) {
             return true;
@@ -352,7 +432,7 @@ public class GameOfLife extends Game {
         updateMessages();
         return true;
     }
-    
+
     private final boolean oneGeneration() {
         generation++;
         int temp = generation;
@@ -477,7 +557,7 @@ public class GameOfLife extends Game {
         }
         return field.put(Util.joinNumbers(Standard.STANDARD_NUMBER_SEPARATOR, x, y, z, w), object);
     }
-    
+
     private static final GameOfLifeRule STANDARD_GAME_OF_LIFE_2D_RULE = new GameOfLifeRule() {
         @Override
         public Object process2DCell(Object object, GameOfLife game, int generation_new, int x, int y) {

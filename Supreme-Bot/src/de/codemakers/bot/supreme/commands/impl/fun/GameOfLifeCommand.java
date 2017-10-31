@@ -5,9 +5,9 @@ import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
-import de.codemakers.bot.supreme.entities.AdvancedMember;
-import de.codemakers.bot.supreme.entities.MemberObject;
 import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.entities.MultiObject;
+import de.codemakers.bot.supreme.entities.MultiObjectHolder;
 import de.codemakers.bot.supreme.game.GameOfLife;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
@@ -59,7 +59,7 @@ public class GameOfLifeCommand extends Command {
     }
 
     @Override
-    public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
+    public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) { //TODO reaction based control
         final boolean create = arguments.isConsumed(Standard.ARGUMENT_CREATE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean start = arguments.isConsumed(Standard.ARGUMENT_START, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean toggle = arguments.isConsumed(Standard.ARGUMENT_TOGGLE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
@@ -67,15 +67,18 @@ public class GameOfLifeCommand extends Command {
         final boolean go = arguments.isConsumed(Standard.ARGUMENT_GO, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean stop = arguments.isConsumed(Standard.ARGUMENT_STOP, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean end = arguments.isConsumed(Standard.ARGUMENT_END, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final MultiObjectHolder holder = MultiObjectHolder.of(event.getGuild(), event.getAuthor(), event.getTextChannel());
         if (create) {
-            final MemberObject memberObject = new MemberObject(AdvancedMember.ofMember(event.getMember()));
+            if (MultiObject.getFirstMultiObject(GameOfLife.class.getName(), holder) != null) {
+                event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "you already have an open game!").build());
+                return;
+            }
             final GameOfLife game = new GameOfLife();
             game.startGame(arguments, event);
-            memberObject.putData(GameOfLife.class.getSimpleName(), game);
-            memberObject.register();
+            final MultiObject<GameOfLife> multiObject = new MultiObject<>(game, GameOfLife.class.getName(), holder);
         } else {
-            final MemberObject memberObject = getMemberObject(event.getMember());
-            final GameOfLife game = getObject(memberObject, GameOfLife.class);
+            final MultiObject<GameOfLife> multiObject = MultiObject.getFirstMultiObject(GameOfLife.class.getName(), holder);
+            final GameOfLife game = multiObject == null ? null : multiObject.getData();
             if (game == null || !(game instanceof GameOfLife)) {
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you have no open %s!", Emoji.WARNING, event.getAuthor().getAsMention(), GameOfLife.class.getSimpleName());
                 return;
@@ -122,8 +125,9 @@ public class GameOfLifeCommand extends Command {
                 game.setRunning(false);
             } else if (end) {
                 game.endGame(arguments, event);
-                memberObject.delete();
-                memberObject.unregister();
+                if (multiObject != null) {
+                    multiObject.unregister();
+                }
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s closed the %s", event.getAuthor().getAsMention(), GameOfLife.class.getSimpleName());
             }
         }
@@ -136,6 +140,13 @@ public class GameOfLifeCommand extends Command {
 
     @Override
     public EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
+        builder.addField(String.format("%s %s [X [Y [Z [W]]]]", invoker, Standard.ARGUMENT_CREATE.getCompleteArgument(0, -1)), "Creates a new GameOfLife, with the specified dimensions, or standard 10x10.", false);
+        builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_START.getCompleteArgument(0, -1)), "Starts the GameOfLife.", false);
+        builder.addField(String.format("%s %s X [Y [Z [W]]]", invoker, Standard.ARGUMENT_TOGGLE.getCompleteArgument(0, -1)), "Toggles the specified point.", false);
+        builder.addField(String.format("%s %s X1 [Y1 [Z1 [W1]]]; X2 [Y2 [Z2 [W2]]];...", invoker, Standard.ARGUMENT_TOGGLE_ALL.getCompleteArgument(0, -1)), "Toggles multiple points.", false);
+        builder.addField(String.format("%s %s [Steps]", invoker, Standard.ARGUMENT_GO.getCompleteArgument(0, -1)), "Simulates 1 or more steps.", false);
+        builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_STOP.getCompleteArgument(0, -1)), "Stops the GameOfLife.", false);
+        builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_END.getCompleteArgument(0, -1)), "Closes the GameOfLife.", false);
         return builder;
     }
 

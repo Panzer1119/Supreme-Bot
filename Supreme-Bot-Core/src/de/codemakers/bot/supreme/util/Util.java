@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -925,6 +926,20 @@ public class Util {
             voiceChannel = guild.getVoiceChannelsByName(voiceChannel_string, true).stream().skip(skip).findFirst().orElse(null);
         }
         return voiceChannel;
+    }
+
+    public static final Random RANDOM = new Random();
+
+    public static final long getRandomLong() {
+        return RANDOM.nextLong();
+    }
+
+    public static final long getRandomLong(Long... nots) {
+        long random = getRandomLong();
+        while (contains(nots, random)) {
+            random = getRandomLong();
+        }
+        return random;
     }
 
 }

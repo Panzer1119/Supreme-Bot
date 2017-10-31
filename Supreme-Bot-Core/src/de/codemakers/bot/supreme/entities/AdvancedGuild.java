@@ -4,7 +4,6 @@ import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.SimpleSettings;
 import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
-import java.util.HashMap;
 import net.dv8tion.jda.core.entities.Guild;
 
 /**
@@ -18,7 +17,6 @@ public class AdvancedGuild {
     private long guild_id = 0;
     private AdvancedFile folder = null;
     private DefaultSettings settings = null;
-    private final HashMap<Object, Object> data = new HashMap<>();
 
     public AdvancedGuild(Guild guild, AdvancedFile folder) {
         this(guild);
@@ -44,33 +42,6 @@ public class AdvancedGuild {
 
     public AdvancedGuild() {
         this((AdvancedFile) null);
-    }
-
-    public Object getData(Object key) {
-        return getData(key, null);
-    }
-
-    public Object getData(Object key, Object defaultValue) {
-        final Object object = data.get(key);
-        if (object == null) {
-            return defaultValue;
-        } else {
-            return object;
-        }
-    }
-
-    public boolean putData(Object key, Object value) {
-        if (value == null) {
-            if (data.containsKey(key)) {
-                data.remove(key);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            data.put(key, value);
-            return true;
-        }
     }
 
     public final AdvancedFile getFile(String path) {

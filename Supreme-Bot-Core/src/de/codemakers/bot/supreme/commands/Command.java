@@ -3,8 +3,6 @@ package de.codemakers.bot.supreme.commands;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invokeable;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
-import de.codemakers.bot.supreme.entities.AdvancedMember;
-import de.codemakers.bot.supreme.entities.MemberObject;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.util.Util;
@@ -13,8 +11,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.User;
 
 /**
  * Command
@@ -95,27 +91,6 @@ public abstract class Command implements Invokeable {
     @Override
     public String toString() {
         return getCommandID();
-    }
-
-    protected final MemberObject getMemberObject(Member member) {
-        if (member == null) {
-            return null;
-        }
-        return MemberObject.getMemberObjectByExactMembers(AdvancedMember.ofMember(member));
-    }
-
-    protected final MemberObject getMemberObject(User user) {
-        if (user == null) {
-            return null;
-        }
-        return MemberObject.getMemberObjectByExactMembers(AdvancedMember.ofUser(user));
-    }
-
-    protected final <T> T getObject(MemberObject memberObject, Class<? extends T> type) {
-        if (memberObject == null || type == null) {
-            return null;
-        }
-        return (T) memberObject.getData(type.getSimpleName());
     }
 
 }

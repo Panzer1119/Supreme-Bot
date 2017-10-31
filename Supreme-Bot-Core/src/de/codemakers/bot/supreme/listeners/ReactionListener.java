@@ -66,12 +66,25 @@ public interface ReactionListener {
         if (containers == null) {
             return null;
         }
-        Standard.getUpdatedMessage(message).getReactions().stream().filter((reaction) -> emote.equals(AdvancedEmote.ofReactionEmote(reaction.getEmote()))).forEach((reaction) -> reaction.removeReaction().queue());
         final ReactionContainer container = containers.remove(emote);
         if (containers.isEmpty()) {
             LISTENERS.remove(message);
         }
+        Standard.getUpdatedMessage(message).getReactions().stream().filter((reaction) -> emote.equals(AdvancedEmote.ofReactionEmote(reaction.getEmote()))).forEach((reaction) -> reaction.removeReaction().queue());
         return container;
+    }
+
+    public static boolean unregisterListener(Message message) {
+        if (message == null) {
+            return false;
+        }
+        final Map<AdvancedEmote, ReactionContainer> containers = LISTENERS.get(message);
+        if (containers == null) {
+            return true;
+        }
+        LISTENERS.remove(message);
+        Standard.getUpdatedMessage(message).getReactions().stream().forEach((reaction) -> reaction.removeReaction().queue());
+        return true;
     }
 
     static void unregisterAll() {

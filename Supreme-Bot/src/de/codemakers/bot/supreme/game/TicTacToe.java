@@ -2,6 +2,8 @@ package de.codemakers.bot.supreme.game;
 
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.entities.MultiObject;
+import de.codemakers.bot.supreme.entities.MultiObjectHolder;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.awt.Color;
@@ -32,7 +34,6 @@ public class TicTacToe extends Game {
     public final boolean startGame(ArgumentList arguments, MessageEvent event) {
         try {
             event_started = event;
-            setGuildId(event.getGuild().getIdLong());
             starter = event.getAuthor();
             final List<User> mentionedUsers = event.getMessage().getMentionedUsers();
             try {
@@ -55,7 +56,11 @@ public class TicTacToe extends Game {
             if (event.getAuthor() == starter || event.getAuthor() == opponent) {
                 event.sendMessage(Standard.getMessageEmbed(Color.GREEN, null).setTitle(String.format("%s TicTacToe", Emoji.GAME), null).setFooter(String.format("%s ended the game.", event.getAuthor().getName()), null).build());
                 game.clearBoard();
-                Standard.getAdvancedGuild(getGuildIdLong()).putData("game", null);
+                final MultiObjectHolder holder = MultiObjectHolder.of(event.getGuild(), event.getAuthor(), event.getTextChannel());
+                final MultiObject<TicTacToe> multiObject = MultiObject.getFirstMultiObject(TicTacToe.class.getName(), holder);
+                if (multiObject != null) {
+                    multiObject.unregister();
+                }
                 return true;
             } else {
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s do not interfere the game!", Emoji.WARNING, event.getAuthor().getAsMention());
@@ -133,18 +138,26 @@ public class TicTacToe extends Game {
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s the place is occupied. Use your eyes!", Emoji.WARNING, event.getAuthor().getAsMention());
                 return false;
             }
+            final MultiObjectHolder holder = MultiObjectHolder.of(event.getGuild(), event.getAuthor(), event.getTextChannel());
+            final MultiObject<TicTacToe> multiObject = MultiObject.getFirstMultiObject(TicTacToe.class.getName(), holder);
             if (game.getWinner().equals("X")) {
                 event.sendMessageFormat("%s Player %s wins!", Emoji.NO, starter.getAsMention());
                 game.clearBoard();
-                Standard.getAdvancedGuild(getGuildIdLong()).putData("game", null);
+                if (multiObject != null) {
+                    multiObject.unregister();
+                }
             } else if (game.getWinner().equals("O")) {
                 event.sendMessageFormat("%s Player %s wins!", Emoji.YES, opponent.getAsMention());
                 game.clearBoard();
-                Standard.getAdvancedGuild(getGuildIdLong()).putData("game", null);
+                if (multiObject != null) {
+                    multiObject.unregister();
+                }
             } else if (game.isDraw()) {
                 event.sendMessageFormat("%s Draw, no winner. %s", Emoji.NO, Emoji.YES);
                 game.clearBoard();
-                Standard.getAdvancedGuild(getGuildIdLong()).putData("game", null);
+                if (multiObject != null) {
+                    multiObject.unregister();
+                }
             } else {
                 switchTurn();
             }

@@ -6,9 +6,9 @@ import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
-import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.entities.MessageEvent;
-import de.codemakers.bot.supreme.game.Game;
+import de.codemakers.bot.supreme.entities.MultiObject;
+import de.codemakers.bot.supreme.entities.MultiObjectHolder;
 import de.codemakers.bot.supreme.game.TicTacToe;
 import de.codemakers.bot.supreme.util.Standard;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -33,31 +33,33 @@ public class TicTacToeCommand extends Command {
 
     @Override
     public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(event.getGuild());
+        final MultiObjectHolder holder = MultiObjectHolder.of(event.getGuild(), event.getAuthor(), event.getTextChannel());
         if (event.getMessage().getMentionedUsers().size() == 1) {
-            if (advancedGuild != null) {
-                final Game game = new TicTacToe();
+            if (event.getGuild() != null) {
+                final TicTacToe game = new TicTacToe();
                 game.startGame(arguments, event);
-                advancedGuild.putData("game", game);
+                final MultiObject<TicTacToe> multiObject = new MultiObject<>(game, TicTacToe.class.getName(), holder, MultiObjectHolder.of(event.getGuild(), arguments.getUserFirst(), event.getTextChannel()));
             } else {
                 event.sendMessage("You can't play against me, im a bot!");
             }
         } else if (arguments.consumeFirst(Standard.ARGUMENT_END, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
-            if (advancedGuild != null) {
-                if (advancedGuild.getData("game") != null) {
-                    if (advancedGuild.getData("game") instanceof TicTacToe) {
-                        ((Game) advancedGuild.getData("game")).endGame(arguments, event);
-                    } else {
-                        event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, "This game isn't TicTacToe!");
-                    }
+            if (event.getGuild() != null) {
+                final MultiObject<TicTacToe> multiObject = MultiObject.getFirstMultiObject(TicTacToe.class.getName(), holder);
+                if (multiObject != null) {
+                    multiObject.getData().endGame(arguments, event);
                 } else {
-                    event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, "There is not game running!");
+                    event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, "There is no game running!");
                 }
             } else {
                 event.sendMessage("You can't play against me, im a bot!");
             }
-        } else if (advancedGuild != null && advancedGuild.getData("game") != null) {
-            ((Game) advancedGuild.getData("game")).sendInput(arguments, event);
+        } else if (event.getGuild() != null) {
+            final MultiObject<TicTacToe> multiObject = MultiObject.getFirstMultiObject(TicTacToe.class.getName(), holder);
+            if (multiObject != null) {
+                multiObject.getData().sendInput(arguments, event);
+            } else {
+                event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, "There is not game running!");
+            }
         } else {
             CommandHandler.sendHelpMessage(invoker, event, this, false, false);
         }

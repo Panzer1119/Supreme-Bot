@@ -6,9 +6,9 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentConsumeType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
-import de.codemakers.bot.supreme.entities.AdvancedMember;
-import de.codemakers.bot.supreme.entities.MemberObject;
 import de.codemakers.bot.supreme.entities.MessageEvent;
+import de.codemakers.bot.supreme.entities.MultiObject;
+import de.codemakers.bot.supreme.entities.MultiObjectHolder;
 import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
@@ -100,6 +100,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
         final boolean edit = arguments.isConsumed(Standard.ARGUMENT_EDIT, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean info = arguments.isConsumed(Standard.ARGUMENT_INFO, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean list = arguments.isConsumed(Standard.ARGUMENT_LIST, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final MultiObjectHolder holder = MultiObjectHolder.of(event.getGuild(), event.getAuthor(), event.getTextChannel());
         if (start) {
             long guild_id = 0;
             if (isThis) {
@@ -128,14 +129,12 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you can't open a folder as an .xml file!", Emoji.WARNING, event.getAuthor().getAsMention());
                 return;
             }
-            final MemberObject memberObject = new MemberObject(AdvancedMember.ofMember(event.getMember()));
             final XMLEditor xmleditor = new XMLEditor(file);
-            memberObject.putData(XMLEditor.class.getSimpleName(), xmleditor);
-            memberObject.register();
+            final MultiObject<XMLEditor> multiObject = new MultiObject<>(xmleditor, XMLEditor.class.getName(), holder);
             event.sendMessageFormat("%s you opened successfully the file \"%s\" in the %s.", event.getAuthor().getAsMention(), fileName, XMLEditor.class.getSimpleName()); //TODO Message Auto Delete?
         } else {
-            final MemberObject memberObject = getMemberObject(event.getMember());
-            final XMLEditor xmleditor = getObject(memberObject, XMLEditor.class);
+            final MultiObject<XMLEditor> multiObject = MultiObject.getFirstMultiObject(XMLEditor.class.getName(), holder);
+            final XMLEditor xmleditor = multiObject.getData();
             if (xmleditor == null || !(xmleditor instanceof XMLEditor)) {
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, you have no open %s!", Emoji.WARNING, event.getAuthor().getAsMention(), XMLEditor.class.getSimpleName());
                 return;
@@ -200,8 +199,7 @@ public class XMLEditorCommand extends Command { //Argument -start (%s) %s, -stop
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, the file couldn't get saved!", Emoji.WARNING, event.getAuthor().getAsMention());
                 }
             } else if (stop) {
-                memberObject.delete();
-                memberObject.unregister();
+                multiObject.unregister();
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s closed the file \"%s\".", event.getAuthor().getAsMention(), xmleditor.getFile());
                 //FIXME Only show relative part of the file!!!
             } else if (up) {
