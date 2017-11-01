@@ -447,7 +447,7 @@ public class MusicCommand extends Command {
                 final AudioTrack track = player_.getPlayingTrack();
                 final AudioTrackInfo trackInfo = track.getInfo();
                 if (!live) {
-                    ReactionListener.deleteMessageWithReaction(event.sendAndWaitMessage(Standard.getMessageEmbed(null, Standard.toBold("CURRENT TRACK INFO:")).addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build()), 2, TimeUnit.MINUTES, ReactionPermissionFilter.createUserFilter(event.getAuthor()));
+                    ReactionListener.deleteMessageWithReaction(event.sendAndWaitMessage(Standard.getMessageEmbed(null, Standard.toBold("CURRENT TRACK INFO:")).addField("Title", trackInfo.title, false).addField("Duration", String.format("`[%s / %s]`", getTimestamp(track.getPosition()), getTimestamp(track.getDuration())), false).addField("Author", trackInfo.author, false).build()), "x", 2, TimeUnit.MINUTES, true, ReactionPermissionFilter.createUserFilter(event.getAuthor()));
                 } else {
                     new MusicMessageManager(event, guild, voiceChannel);
                 }

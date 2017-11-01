@@ -132,11 +132,15 @@ public interface ReactionListener {
         container.listener.onReaction(event.getReaction(), emote, event.getGuild(), event.getUser());
     }
 
-    static void update(Instant instant) {
+    static void update(Instant instant, boolean delete) {
         new ConcurrentHashMap<>(LISTENERS).entrySet().stream().forEach((containers) -> {
-            containers.getValue().entrySet().stream().filter((container) -> container.getValue().timeout.isTimeout(instant)).forEach((container) -> {
-                unregisterListener(containers.getKey(), container.getKey());
-                container.getValue().timeout.runAfterTimeout();
+            containers.getValue().entrySet().stream().filter((container) -> (delete || (container.getValue().timeout != null && container.getValue().timeout.isTimeout(instant)))).forEach((container) -> {
+                try {
+                    unregisterListener(containers.getKey(), container.getKey());
+                    container.getValue().timeout.runAfterTimeout();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             });
         });
     }
@@ -162,14 +166,22 @@ public interface ReactionListener {
         return true;
     }
 
-    public static boolean deleteMessageWithReaction(Message message, long amount, TimeUnit unit) {
-        return deleteMessageWithReaction(message, amount, unit, null);
+    public static boolean deleteMessageWithReaction(Message message, String emote_name, long amount, TimeUnit unit, boolean removeAllListeners) {
+        return deleteMessageWithReaction(message, emote_name, amount, unit, removeAllListeners, null);
     }
 
-    public static boolean deleteMessageWithReaction(Message message, long amount, TimeUnit unit, ReactionPermissionFilter filter) {
-        return ReactionListener.registerListener(message, AdvancedEmote.parse("x"), (reaction, emote, guild, user) -> {
+    public static boolean deleteMessageWithReaction(Message message, String emote_name, long amount, TimeUnit unit, boolean removeAllListeners, ReactionPermissionFilter filter) {
+        return ReactionListener.registerListener(message, AdvancedEmote.parse(emote_name), (reaction, emote, guild, user) -> {
+            if (removeAllListeners) {
+                unregisterListener(message);
+            }
             message.delete().queue();
-        }, new Timeout(amount, unit, () -> message.delete().queue()), filter, true);
+        }, new Timeout(amount, unit, () -> {
+            if (removeAllListeners) {
+                unregisterListener(message);
+            }
+            message.delete().queue();
+        }), filter, true);
     }
 
 }

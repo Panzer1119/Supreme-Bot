@@ -95,7 +95,7 @@ public class GetLogCommand extends Command {
                     }).map((day) -> days.get(day)).forEach((logs) -> logs.stream().forEach((advancedFile) -> out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(advancedFile.getName()).append(Standard.NEW_LINE_DISCORD)));
                 });
             });
-            ReactionListener.deleteMessageWithReaction(event.sendAndWaitMessage(out.toString()), 2, TimeUnit.MINUTES, ReactionPermissionFilter.createUserFilter(event.getAuthor()));
+            ReactionListener.deleteMessageWithReaction(event.sendAndWaitMessage(out.toString()), "x", 2, TimeUnit.MINUTES, true, ReactionPermissionFilter.createUserFilter(event.getAuthor()));
         } else {
             String log = "";
             if (arguments.isEmpty()) {
@@ -118,7 +118,7 @@ public class GetLogCommand extends Command {
                 event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "the log file \"%s\" can't be read!", log).build());
                 return;
             }
-            ReactionListener.deleteMessageWithReaction(event.sendAndWaitFile(buffer, log, null), 1, TimeUnit.MINUTES, ReactionPermissionFilter.createUserFilter(event.getAuthor()));
+            ReactionListener.deleteMessageWithReaction(event.sendAndWaitFile(buffer, log, null), "x", 1, TimeUnit.MINUTES, true, ReactionPermissionFilter.createUserFilter(event.getAuthor()));
         }
     }
 

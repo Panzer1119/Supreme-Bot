@@ -40,12 +40,13 @@ public class MessageHandler extends ListenerAdapter {
         Updater.addUpdateable(new Updateable() {
             @Override
             public long update(long timestamp) {
-                ReactionListener.update(Instant.now());
+                ReactionListener.update(Instant.now(), false);
                 return 5_000;
             }
 
             @Override
             public void delete() {
+                ReactionListener.update(Instant.now(), true);
             }
         });
     }

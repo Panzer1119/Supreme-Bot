@@ -1,13 +1,18 @@
 package de.codemakers.bot.supreme.game;
 
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
+import de.codemakers.bot.supreme.entities.AdvancedEmote;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.entities.MultiObject;
 import de.codemakers.bot.supreme.entities.MultiObjectHolder;
+import de.codemakers.bot.supreme.listeners.ReactionListener;
+import de.codemakers.bot.supreme.permission.ReactionPermissionFilter;
+import de.codemakers.bot.supreme.settings.Config;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.bot.supreme.util.TimeUnit;
+import de.codemakers.bot.supreme.util.Util;
 import java.awt.Color;
-import java.util.List;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
@@ -21,7 +26,7 @@ public class TicTacToe extends Game {
 
     private final Board game = new Board(3, 3);
     private MessageEvent event_started;
-    private User starter;
+    private User challenger;
     private User opponent;
     private String piece;
     private int row;
@@ -34,16 +39,19 @@ public class TicTacToe extends Game {
     public final boolean startGame(ArgumentList arguments, MessageEvent event) {
         try {
             event_started = event;
-            starter = event.getAuthor();
-            final List<User> mentionedUsers = event.getMessage().getMentionedUsers();
-            try {
-                opponent = mentionedUsers.get(0);
-            } catch (Exception ex) {
-                event.sendMessage(Emoji.WARNING + " Please mention a person to start the game.");
+            challenger = event.getAuthor();
+            opponent = arguments.consumeUserFirst();
+            if (opponent == null) {
+                event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "you have to mention someone, to start a game!").build());
+                return false;
             }
-            turn = starter;
-            message_header = event.sendAndWaitMessage(Standard.getMessageEmbed(Color.GREEN, null).addField(String.format("%s TicTacToe", Emoji.GAME), String.format("Starter: %s%nOpponent%s", starter.getAsMention(), opponent.getAsMention()), true).build());
+            turn = Math.random() >= 0.5 ? challenger : opponent;
+            message_header = event.sendAndWaitMessage(Standard.getMessageEmbed(Color.GREEN, null).addField(String.format("%s TicTacToe", Emoji.GAME), String.format("Challenger: %s%nOpponent: %s%nTurn: %s", challenger.getAsMention(), opponent.getAsMention(), turn.getAsMention()), true).build());
             message_board = event.sendAndWaitMessage(game.toString());
+            ReactionListener.registerListener(message_board, AdvancedEmote.parse(Emoji.MARK_MULTIPLICATION_SIGN), (reaction, emote, guild, user) -> {
+                ReactionListener.unregisterListener(message_board);
+                endGame(null, event);
+            }, null, ReactionPermissionFilter.createUsersFilter(opponent, challenger), true);
             return true;
         } catch (Exception ex) {
             return false;
@@ -53,8 +61,8 @@ public class TicTacToe extends Game {
     @Override
     public final boolean endGame(ArgumentList arguments, MessageEvent event) {
         try {
-            if (event.getAuthor() == starter || event.getAuthor() == opponent) {
-                event.sendMessage(Standard.getMessageEmbed(Color.GREEN, null).setTitle(String.format("%s TicTacToe", Emoji.GAME), null).setFooter(String.format("%s ended the game.", event.getAuthor().getName()), null).build());
+            if (event.getAuthor() == challenger || event.getAuthor() == opponent) {
+                event.sendMessage(Standard.getMessageEmbed(Color.GREEN, null).setTitle(String.format("%s TicTacToe", Emoji.GAME), null).setDescription(String.format("Challenger: %s%nOpponent: %s", challenger.getAsMention(), opponent.getAsMention())).setFooter(String.format("%s ended the game.", event.getAuthor().getName()), null).build());
                 game.clearBoard();
                 final MultiObjectHolder holder = MultiObjectHolder.of(event.getGuild(), event.getAuthor(), event.getTextChannel());
                 final MultiObject<TicTacToe> multiObject = MultiObject.getFirstMultiObject(TicTacToe.class.getName(), holder);
@@ -119,10 +127,10 @@ public class TicTacToe extends Game {
             }
             if (event.getAuthor() == opponent) {
                 piece = "O";
-            } else if (event.getAuthor() == starter) {
+            } else if (event.getAuthor() == challenger) {
                 piece = "X";
             }
-            if (event.getAuthor() == starter || event.getAuthor() == opponent) {
+            if (event.getAuthor() == challenger || event.getAuthor() == opponent) {
                 if (event.getAuthor() != turn) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s %s it's not your turn yet!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return false;
@@ -141,19 +149,22 @@ public class TicTacToe extends Game {
             final MultiObjectHolder holder = MultiObjectHolder.of(event.getGuild(), event.getAuthor(), event.getTextChannel());
             final MultiObject<TicTacToe> multiObject = MultiObject.getFirstMultiObject(TicTacToe.class.getName(), holder);
             if (game.getWinner().equals("X")) {
-                event.sendMessageFormat("%s Player %s wins!", Emoji.NO, starter.getAsMention());
+                event.sendMessage(2 * Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.GREEN, "%s Player %s wins!", Emoji.NO, challenger.getAsMention()).build());
+                deleteMessages();
                 game.clearBoard();
                 if (multiObject != null) {
                     multiObject.unregister();
                 }
             } else if (game.getWinner().equals("O")) {
-                event.sendMessageFormat("%s Player %s wins!", Emoji.YES, opponent.getAsMention());
+                event.sendMessage(2 * Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.GREEN, "%s Player %s wins!", Emoji.YES, opponent.getAsMention()).build());
+                deleteMessages();
                 game.clearBoard();
                 if (multiObject != null) {
                     multiObject.unregister();
                 }
             } else if (game.isDraw()) {
-                event.sendMessageFormat("%s Draw, no winner. %s", Emoji.NO, Emoji.YES);
+                event.sendMessage(2 * Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.GREEN, "%s Draw, no winner. %s", Emoji.NO, Emoji.YES).build());
+                deleteMessages();
                 game.clearBoard();
                 if (multiObject != null) {
                     multiObject.unregister();
@@ -172,11 +183,27 @@ public class TicTacToe extends Game {
     }
 
     private final void switchTurn() {
-        if (starter == turn) {
+        if (challenger == turn) {
             turn = opponent;
         } else {
-            turn = starter;
+            turn = challenger;
         }
+    }
+
+    private final void deleteMessages() {
+        if (!Config.CONFIG.isGuildAutoDeletingCommand(event_started.getGuild().getIdLong())) {
+            return;
+        }
+        Util.sheduleTimerAndRemove(() -> {
+            try {
+                message_header.delete().queue();
+            } catch (Exception ex) {
+            }
+            try {
+                message_board.delete().queue();
+            } catch (Exception ex) {
+            }
+        }, 2 * Standard.STANDARD_MESSAGE_DELETING_DELAY);
     }
 
     private class Board {
@@ -201,7 +228,7 @@ public class TicTacToe extends Game {
         }
 
         public final Board drawBoard() {
-            message_header.editMessage(Standard.getMessageEmbed(Color.GREEN, null).setTitle(String.format("%s Current Board (Round %d)%n", Emoji.GAME, round), null).setFooter(String.format("%s finished his/her turn", turn.getName()), null).build()).queue();
+            message_header.editMessage(Standard.getMessageEmbed(Color.GREEN, null).setTitle(String.format("%s Current Board (Round %d)%n", Emoji.GAME, round), null).setDescription(String.format("Challenger: %s%nOpponent: %s%nTurn: %s", challenger.getAsMention(), opponent.getAsMention(), turn.equals(challenger) ? opponent.getAsMention() : challenger.getAsMention())).setFooter(String.format("%s finished his/her turn", turn.getName()), null).build()).queue();
             message_board.editMessage(toString()).queue();
             round++;
             return this;

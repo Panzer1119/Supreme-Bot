@@ -42,7 +42,7 @@ public class SystemCommand extends Command {
     public final void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
         final boolean live = arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         final boolean ip = PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_BOT_SUPER_OWNER, event.getMember()) && PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_BOT_ADMIN, event.getTextChannel(), true);
-        ReactionListener.deleteMessageWithReaction(live ? new SystemMessageUpdater(event, ip).getMessage() : event.sendAndWaitMessage(SystemMessageUpdater.generateMessage(false, ip)), 1, TimeUnit.MINUTES, ReactionPermissionFilter.createUserFilter(event.getAuthor()));
+        ReactionListener.deleteMessageWithReaction(live ? new SystemMessageUpdater(event, ip).getMessage() : event.sendAndWaitMessage(SystemMessageUpdater.generateMessage(false, ip)), "x", 1, TimeUnit.MINUTES, true, ReactionPermissionFilter.createUserFilter(event.getAuthor()));
     }
 
     @Override
