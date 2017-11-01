@@ -2,6 +2,7 @@ package de.codemakers.bot.supreme.game;
 
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.entities.AdvancedEmote;
+import de.codemakers.bot.supreme.entities.DefaultMessageEvent;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.entities.MultiObject;
 import de.codemakers.bot.supreme.entities.MultiObjectHolder;
@@ -10,7 +11,6 @@ import de.codemakers.bot.supreme.permission.ReactionPermissionFilter;
 import de.codemakers.bot.supreme.settings.Config;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
-import de.codemakers.bot.supreme.util.TimeUnit;
 import de.codemakers.bot.supreme.util.Util;
 import java.awt.Color;
 
@@ -50,7 +50,12 @@ public class TicTacToe extends Game {
             message_board = event.sendAndWaitMessage(game.toString());
             ReactionListener.registerListener(message_board, AdvancedEmote.parse(Emoji.MARK_MULTIPLICATION_SIGN), (reaction, emote, guild, user) -> {
                 ReactionListener.unregisterListener(message_board);
-                endGame(null, event);
+                endGame(null, new DefaultMessageEvent(event) {
+                    @Override
+                    public final User getAuthor() {
+                        return user;
+                    }
+                });
             }, null, ReactionPermissionFilter.createUsersFilter(opponent, challenger), true);
             return true;
         } catch (Exception ex) {
@@ -63,6 +68,7 @@ public class TicTacToe extends Game {
         try {
             if (event.getAuthor() == challenger || event.getAuthor() == opponent) {
                 event.sendMessage(Standard.getMessageEmbed(Color.GREEN, null).setTitle(String.format("%s TicTacToe", Emoji.GAME), null).setDescription(String.format("Challenger: %s%nOpponent: %s", challenger.getAsMention(), opponent.getAsMention())).setFooter(String.format("%s ended the game.", event.getAuthor().getName()), null).build());
+                deleteMessages();
                 game.clearBoard();
                 final MultiObjectHolder holder = MultiObjectHolder.of(event.getGuild(), event.getAuthor(), event.getTextChannel());
                 final MultiObject<TicTacToe> multiObject = MultiObject.getFirstMultiObject(TicTacToe.class.getName(), holder);

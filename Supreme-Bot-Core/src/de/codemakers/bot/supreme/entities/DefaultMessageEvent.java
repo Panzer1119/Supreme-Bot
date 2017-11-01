@@ -26,43 +26,47 @@ public class DefaultMessageEvent extends MessageEvent {
 
     private final Message message;
 
+    public DefaultMessageEvent(MessageEvent event) {
+        this(event.getJDA(), event.getResponseNumber(), event.getMessage());
+    }
+
     public DefaultMessageEvent(JDA api, long responseNumber, Message message) {
         super(api, responseNumber, message.getIdLong(), message.getChannel());
         this.message = message;
     }
 
     @Override
-    public final Message getMessage() {
+    public Message getMessage() {
         return message;
     }
 
     @Override
-    public final User getAuthor() {
+    public User getAuthor() {
         return message.getAuthor();
     }
 
     @Override
-    public final Member getMember() {
+    public Member getMember() {
         return (isFromType(ChannelType.TEXT) || isFromType(ChannelType.PRIVATE)) ? getGuild().getMember(getAuthor()) : null;
     }
 
     @Override
-    public final MessageChannel getMessageChannel() {
+    public MessageChannel getMessageChannel() {
         return message.getChannel();
     }
 
     @Override
-    public final TextChannel getTextChannel() {
+    public TextChannel getTextChannel() {
         return message.getTextChannel();
     }
 
     @Override
-    public final PrivateChannel getPrivateChannel() {
+    public PrivateChannel getPrivateChannel() {
         return message.getPrivateChannel();
     }
 
     @Override
-    public final boolean sendMessage(String message_) {
+    public boolean sendMessage(String message_) {
         try {
             if (isPrivate()) {
                 Util.sendPrivateMessage(message.getAuthor(), message_);
@@ -79,7 +83,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final boolean sendMessageFormat(String format, Object... args) {
+    public boolean sendMessageFormat(String format, Object... args) {
         try {
             if (isPrivate()) {
                 Util.sendPrivateMessageFormat(message.getAuthor(), format, args);
@@ -96,7 +100,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final boolean sendMessage(Message message_) {
+    public boolean sendMessage(Message message_) {
         try {
             if (isPrivate()) {
                 Util.sendPrivateMessage(message.getAuthor(), message_);
@@ -113,7 +117,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final boolean sendMessage(MessageEmbed message_) {
+    public boolean sendMessage(MessageEmbed message_) {
         try {
             if (isPrivate()) {
                 Util.sendPrivateMessage(message.getAuthor(), message_);
@@ -150,7 +154,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final Message sendAndWaitMessage(String message_) {
+    public Message sendAndWaitMessage(String message_) {
         try {
             if (isPrivate()) {
                 return Util.sendAndWaitPrivateMessage(message.getAuthor(), message_);
@@ -166,7 +170,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final Message sendAndWaitMessageFormat(String format, Object... args) {
+    public Message sendAndWaitMessageFormat(String format, Object... args) {
         try {
             if (isPrivate()) {
                 return Util.sendAndWaitPrivateMessageFormat(message.getAuthor(), format, args);
@@ -182,7 +186,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final Message sendAndWaitMessage(Message message_) {
+    public Message sendAndWaitMessage(Message message_) {
         try {
             if (isPrivate()) {
                 return Util.sendAndWaitPrivateMessage(message.getAuthor(), message_);
@@ -198,7 +202,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final Message sendAndWaitMessage(MessageEmbed message_) {
+    public Message sendAndWaitMessage(MessageEmbed message_) {
         try {
             if (isPrivate()) {
                 return Util.sendAndWaitPrivateMessage(message.getAuthor(), message_);
@@ -214,7 +218,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final boolean sendFile(File file, Message message_) {
+    public boolean sendFile(File file, Message message_) {
         try {
             message.getChannel().sendFile(file, message_).queue();
             return true;
@@ -227,7 +231,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final boolean sendFile(File file, String fileName, Message message_) {
+    public boolean sendFile(File file, String fileName, Message message_) {
         try {
             message.getChannel().sendFile(file, fileName, message_).queue();
             return true;
@@ -240,7 +244,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final boolean sendFile(InputStream inputStream, String fileName, Message message_) {
+    public boolean sendFile(InputStream inputStream, String fileName, Message message_) {
         try {
             message.getChannel().sendFile(inputStream, fileName, message_).queue();
             return true;
@@ -253,7 +257,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final boolean sendFile(byte[] data, String fileName, Message message_) {
+    public boolean sendFile(byte[] data, String fileName, Message message_) {
         try {
             message.getChannel().sendFile(data, fileName, message_).queue();
             return true;
@@ -266,27 +270,27 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final boolean sendFile(long delay, File file, Message message) {
+    public boolean sendFile(long delay, File file, Message message) {
         return Util.deleteMessage(sendAndWaitFile(file, message), delay);
     }
 
     @Override
-    public final boolean sendFile(long delay, File file, String fileName, Message message) {
+    public boolean sendFile(long delay, File file, String fileName, Message message) {
         return Util.deleteMessage(sendAndWaitFile(file, fileName, message), delay);
     }
 
     @Override
-    public final boolean sendFile(long delay, InputStream inputStream, String fileName, Message message) {
+    public boolean sendFile(long delay, InputStream inputStream, String fileName, Message message) {
         return Util.deleteMessage(sendAndWaitFile(inputStream, fileName, message), delay);
     }
 
     @Override
-    public final boolean sendFile(long delay, byte[] data, String fileName, Message message) {
+    public boolean sendFile(long delay, byte[] data, String fileName, Message message) {
         return Util.deleteMessage(sendAndWaitFile(data, fileName, message), delay);
     }
 
     @Override
-    public final Message sendAndWaitFile(File file, Message message_) {
+    public Message sendAndWaitFile(File file, Message message_) {
         try {
             return message.getChannel().sendFile(file, message_).complete();
         } catch (Exception ex) {
@@ -298,7 +302,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final Message sendAndWaitFile(File file, String fileName, Message message_) {
+    public Message sendAndWaitFile(File file, String fileName, Message message_) {
         try {
             return message.getChannel().sendFile(file, fileName, message_).complete();
         } catch (Exception ex) {
@@ -310,7 +314,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final Message sendAndWaitFile(InputStream inputStream, String fileName, Message message_) {
+    public Message sendAndWaitFile(InputStream inputStream, String fileName, Message message_) {
         try {
             return message.getChannel().sendFile(inputStream, fileName, message_).complete();
         } catch (Exception ex) {
@@ -322,7 +326,7 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final Message sendAndWaitFile(byte[] data, String fileName, Message message_) {
+    public Message sendAndWaitFile(byte[] data, String fileName, Message message_) {
         try {
             return message.getChannel().sendFile(data, fileName, message_).complete();
         } catch (Exception ex) {
@@ -334,17 +338,17 @@ public class DefaultMessageEvent extends MessageEvent {
     }
 
     @Override
-    public final boolean isPrivate() {
+    public boolean isPrivate() {
         return getGuild() == null;
     }
 
     @Override
-    public final Group getGroup() {
+    public Group getGroup() {
         return message.getGroup();
     }
 
     @Override
-    public final Guild getGuild() {
+    public Guild getGuild() {
         return message.getGuild();
     }
 

@@ -18,7 +18,6 @@ import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.permission.ReactionPermissionFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.TimeUnit;
-import de.codemakers.bot.supreme.util.Timeout;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
