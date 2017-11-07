@@ -70,6 +70,7 @@ public class SupremeBot {
             reload();
             builder = new JDABuilder(AccountType.BOT);
             builder.setAutoReconnect(true);
+            //builder.setAudioSendFactory(null);
             builder.setStatus(OnlineStatus.ONLINE);
             builder.setGame(game = Game.of("Supreme-Bot"));
             initListeners();

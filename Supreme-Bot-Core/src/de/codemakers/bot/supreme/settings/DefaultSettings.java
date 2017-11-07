@@ -335,7 +335,7 @@ public class DefaultSettings extends Settings implements Copyable {
         return autoAddProperties;
     }
 
-    public final Settings setAutoAddProperties(boolean autoAddProperties) {
+    public final DefaultSettings setAutoAddProperties(boolean autoAddProperties) {
         this.autoAddProperties = autoAddProperties;
         return this;
     }

@@ -104,7 +104,7 @@ public class AdvancedGuild {
             if (folder == null) {
                 return (DefaultSettings) Standard.STANDARD_NULL_SETTINGS;
             }
-            settings = (DefaultSettings) new DefaultSettings(getFile(Standard.STANDARD_GUILD_SETTINGS_FILE_NAME)).setAutoAddProperties(true);
+            settings = new DefaultSettings(getFile(Standard.STANDARD_GUILD_SETTINGS_FILE_NAME)).setAutoAddProperties(true);
         }
         return settings;
     }
