@@ -18,7 +18,6 @@ public class ReadyListener extends ListenerAdapter {
 
     @Override
     public final void onReady(ReadyEvent event) {
-        MySQL.init();
         final JDA jda = event.getJDA();
         final StringBuilder out = new StringBuilder();
         loadGuilds(jda, out, false);

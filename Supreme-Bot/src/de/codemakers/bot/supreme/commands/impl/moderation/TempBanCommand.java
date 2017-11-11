@@ -135,7 +135,7 @@ public class TempBanCommand extends Command {
                 }
             } catch (Exception ex) {
                 TempBan.USING = false;
-                ex.printStackTrace();
+                //ex.printStackTrace();
             }
         } else {
             try {
@@ -246,7 +246,7 @@ public class TempBanCommand extends Command {
     private static final boolean updateAgain() {
         try {
             final Instant now = Instant.now();
-            final ArrayList<TempBan> tempBans = SQLUtil.deserializeObjects(TempBan.class);
+            final ArrayList<TempBan> tempBans = SQLUtil.deserializeObjects(TempBan.class, -1);
             if (tempBans == null) {
                 return true;
             }

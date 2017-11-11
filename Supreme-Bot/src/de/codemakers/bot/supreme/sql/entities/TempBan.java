@@ -366,7 +366,7 @@ public class TempBan {
     @SQLVariable(type = SQLVariableType.SERIALIZER)
     public static final SQLSerializer SERIALIZER = new SQLSerializer() {
         @Override
-        public String serialize(Object object, Map.Entry<Field, SQLField> field, String defaultReturn) throws Exception {
+        public final String serialize(Object object, Map.Entry<Field, SQLField> field, String defaultReturn) throws Exception {
             if (object == null) {
                 return null;
             }
@@ -381,12 +381,12 @@ public class TempBan {
         }
 
         @Override
-        public boolean acceptClass(Class<?> clazz) {
+        public final boolean acceptClass(Class<?> clazz) {
             return Instant.class.equals(clazz) || LocalDateTime.class.equals(clazz) || Boolean.class.equals(clazz);
         }
 
         @Override
-        public boolean acceptField(Map.Entry<Field, SQLField> field) {
+        public final boolean acceptField(Map.Entry<Field, SQLField> field) {
             return field.getValue().index() == 8;
         }
     };
@@ -411,7 +411,7 @@ public class TempBan {
         }
 
         @Override
-        public boolean acceptField(Map.Entry<Field, SQLField> field) {
+        public final boolean acceptField(Map.Entry<Field, SQLField> field) {
             return false;
         }
     };

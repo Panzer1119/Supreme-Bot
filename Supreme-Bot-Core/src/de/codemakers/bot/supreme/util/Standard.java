@@ -48,7 +48,7 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2017.11.07_19.28";
+    public static final String VERSION = "2017.11.11_15.28";
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
     public static final String COMMAND_DELIMITER_STRING = " ";
@@ -1203,6 +1203,7 @@ public class Standard {
     public static final Argument ARGUMENT_SET = new Argument("set", STANDARD_ARGUMENT_PREFIXES, "s");
     public static final Argument ARGUMENT_GET = new Argument("get", STANDARD_ARGUMENT_PREFIXES, "g");
     public static final Argument ARGUMENT_REMOVE = new Argument("remove", STANDARD_ARGUMENT_PREFIXES, "r");
+    public static final Argument ARGUMENT_ADD = new Argument("add", STANDARD_ARGUMENT_PREFIXES, "a");
     public static final Argument ARGUMENT_LIST = new Argument("list", STANDARD_ARGUMENT_PREFIXES, "l");
     public static final Argument ARGUMENT_DOWNLOAD = new Argument("download", STANDARD_ARGUMENT_PREFIXES, "dl");
     public static final Argument ARGUMENT_DEFAULT = new Argument("default", STANDARD_ARGUMENT_PREFIXES, "df");

@@ -39,7 +39,7 @@ public class GuildBotRoleData {
     }
 
     protected static final Queue<GuildBotRoleData> reloadData() {
-        final ArrayList<GuildBotRoleData> data = SQLUtil.deserializeObjects(GuildBotRoleData.class);
+        final ArrayList<GuildBotRoleData> data = SQLUtil.deserializeObjects(GuildBotRoleData.class, -1);
         if (data != null) {
             BOT_ROLE_DATA.clear();
             BOT_ROLE_DATA.addAll(data);

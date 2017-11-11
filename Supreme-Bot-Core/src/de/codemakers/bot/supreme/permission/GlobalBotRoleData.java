@@ -33,7 +33,7 @@ public class GlobalBotRoleData {
     }
 
     protected static final Queue<GlobalBotRoleData> reloadData() {
-        final ArrayList<GlobalBotRoleData> data = SQLUtil.deserializeObjects(GlobalBotRoleData.class);
+        final ArrayList<GlobalBotRoleData> data = SQLUtil.deserializeObjects(GlobalBotRoleData.class, -1);
         if (data != null) {
             BOT_ROLE_DATA.clear();
             BOT_ROLE_DATA.addAll(data);

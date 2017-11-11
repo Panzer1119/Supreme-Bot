@@ -84,25 +84,25 @@ public class SQLUtil {
         }
     }
 
-    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz) {
-        return deserializeObjects(clazz, getSQLDeserializer(clazz));
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, int limit) {
+        return deserializeObjects(clazz, getSQLDeserializer(clazz), limit);
     }
 
-    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, SQLDeserializer deserializer) {
-        return deserializeObjects(clazz, false, deserializer);
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, SQLDeserializer deserializer, int limit) {
+        return deserializeObjects(clazz, false, deserializer, limit);
     }
 
-    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, boolean forceAll) {
-        return deserializeObjects(clazz, forceAll, getSQLDeserializer(clazz));
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, boolean forceAll, int limit) {
+        return deserializeObjects(clazz, forceAll, getSQLDeserializer(clazz), limit);
     }
 
-    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, boolean forceAll, SQLDeserializer deserializer) {
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, boolean forceAll, SQLDeserializer deserializer, int limit) {
         if (clazz == null || !clazz.isAnnotationPresent(SQLTable.class)) {
             return null;
         }
         try {
             final SQLTable table = clazz.getAnnotation(SQLTable.class);
-            return deserializeObjects(clazz, forceAll, deserializer, table.name());
+            return deserializeObjects(clazz, forceAll, deserializer, table.name(), limit);
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
@@ -110,20 +110,20 @@ public class SQLUtil {
 
     }
 
-    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, String table) {
-        return deserializeObjects(clazz, getSQLDeserializer(clazz), table);
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, String table, int limit) {
+        return deserializeObjects(clazz, getSQLDeserializer(clazz), table, limit);
     }
 
-    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, SQLDeserializer deserializer, String table) {
-        return deserializeObjects(clazz, false, deserializer, table);
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, SQLDeserializer deserializer, String table, int limit) {
+        return deserializeObjects(clazz, false, deserializer, table, limit);
     }
 
-    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, boolean forceAll, String table) {
-        return deserializeObjects(clazz, forceAll, getSQLDeserializer(clazz), table);
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, boolean forceAll, String table, int limit) {
+        return deserializeObjects(clazz, forceAll, getSQLDeserializer(clazz), table, limit);
     }
 
-    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, boolean forceAll, SQLDeserializer deserializer, String table) {
-        final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM %s;", table);
+    public static final <T> ArrayList<T> deserializeObjects(Class<? extends T> clazz, boolean forceAll, SQLDeserializer deserializer, String table, int limit) {
+        final Result result = MySQL.STANDARD_DATABASE.executeQuery("SELECT * FROM %s%s;", table, (limit > 0 ? " LIMIT " + limit : ""));
         if (result == null) {
             return null;
         }
@@ -288,8 +288,11 @@ public class SQLUtil {
             if (Database.DEBUG_SQL) {
                 System.err.println("SQL TABLE CREATION: " + sql_create);
             }
-            database.executeUpdate(sql_create);
-            return true;
+            final int result = database.executeUpdate(sql_create);
+            if (Database.DEBUG && result < 0) {
+                System.err.println("Could not create SQL table with " + sql_create);
+            }
+            return result >= 0;
         } catch (Exception ex) {
             System.err.println("SQLUtil: createTableIfNotExists error");
             ex.printStackTrace();

@@ -33,6 +33,7 @@ import de.codemakers.bot.supreme.listeners.GuildMemberLogger;
 import de.codemakers.bot.supreme.listeners.ReadyListener;
 import de.codemakers.bot.supreme.listeners.GuildVoiceLogger;
 import de.codemakers.bot.supreme.listeners.MessageHandler;
+import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.util.NetworkUtil;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.SystemOutputStream;
@@ -68,6 +69,7 @@ public class SupremeBot {
             Standard.GETTER = () -> jda;
             NetworkUtil.init();
             reload();
+            MySQL.init();
             builder = new JDABuilder(AccountType.BOT);
             builder.setAutoReconnect(true);
             //builder.setAudioSendFactory(null);
