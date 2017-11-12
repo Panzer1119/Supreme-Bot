@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.listeners;
 
+import com.vdurmont.emoji.Emoji;
 import de.codemakers.bot.supreme.commands.CommandHandler;
 import de.codemakers.bot.supreme.commands.CommandParser;
 import de.codemakers.bot.supreme.commands.CommandType;
@@ -33,9 +34,9 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
  * @author Panzer1119
  */
 public class MessageHandler extends ListenerAdapter {
-
+    
     private static final boolean DEBUG = false;
-
+    
     static {
         Updater.addUpdateable(new Updateable() {
             @Override
@@ -43,14 +44,14 @@ public class MessageHandler extends ListenerAdapter {
                 ReactionListener.update(Instant.now(), false);
                 return 5_000;
             }
-
+            
             @Override
             public void delete() {
                 ReactionListener.update(Instant.now(), true);
             }
         });
     }
-
+    
     @Override
     public final void onMessageReceived(MessageReceivedEvent event) {
         if (event == null || event.getAuthor().getIdLong() == Standard.getSelfUser().getIdLong()) {
@@ -58,7 +59,7 @@ public class MessageHandler extends ListenerAdapter {
         }
         onMessage(event, new DefaultMessageEvent(event.getJDA(), event.getResponseNumber(), event.getMessage()), true);
     }
-
+    
     @Override
     public final void onMessageUpdate(MessageUpdateEvent event) {
         if (event == null || event.getAuthor().getIdLong() == Standard.getSelfUser().getIdLong()) {
@@ -66,7 +67,7 @@ public class MessageHandler extends ListenerAdapter {
         }
         onMessage(event, new DefaultMessageEvent(event.getJDA(), event.getResponseNumber(), event.getMessage()), false);
     }
-
+    
     @Override
     public final void onMessageDelete(MessageDeleteEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, CommandHandler.ADMIN_PREDICATE, new Object[]{event, MessageType.DELETED});
@@ -74,7 +75,7 @@ public class MessageHandler extends ListenerAdapter {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
         }
     }
-
+    
     @Override
     public final void onMessageBulkDelete(MessageBulkDeleteEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, CommandHandler.ADMIN_PREDICATE, new Object[]{event, MessageType.BULK_DELETED});
@@ -82,7 +83,7 @@ public class MessageHandler extends ListenerAdapter {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
         }
     }
-
+    
     @Override
     public final void onMessageEmbed(MessageEmbedEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, CommandHandler.ADMIN_PREDICATE, new Object[]{event, MessageType.EMBEDED});
@@ -90,12 +91,12 @@ public class MessageHandler extends ListenerAdapter {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
         }
     }
-
+    
     @Override
     public final void onGenericMessageReaction(GenericMessageReactionEvent event) {
         ReactionListener.handle(event);
     }
-
+    
     @Override
     public final void onMessageReactionAdd(MessageReactionAddEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, CommandHandler.ADMIN_PREDICATE, new Object[]{event, MessageType.REACTION_ADDED});
@@ -103,7 +104,7 @@ public class MessageHandler extends ListenerAdapter {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
         }
     }
-
+    
     @Override
     public final void onMessageReactionRemove(MessageReactionRemoveEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, CommandHandler.ADMIN_PREDICATE, new Object[]{event, MessageType.REACTION_REMOVED});
@@ -111,7 +112,7 @@ public class MessageHandler extends ListenerAdapter {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
         }
     }
-
+    
     @Override
     public final void onMessageReactionRemoveAll(MessageReactionRemoveAllEvent event) {
         final Object[] output = ListenerManager.fireListeners(MessageListener.class, CommandHandler.ADMIN_PREDICATE, new Object[]{event, MessageType.REACTION_REMOVED_ALL});
@@ -119,7 +120,7 @@ public class MessageHandler extends ListenerAdapter {
             System.out.println(String.format("%d plugin%s used this message event: %s", output.length, (output.length == 1 ? "" : "s"), event));
         }
     }
-
+    
     private final void onMessage(final Object event_original, final MessageEvent event, boolean newMessage) {
         Updater.submit(() -> {
             try {
@@ -134,9 +135,9 @@ public class MessageHandler extends ListenerAdapter {
                     if (reaction_emote != null) {
                         event.getMessage().addReaction(reaction_emote).queue();
                     } else {
-                        final String reaction = Config.CONFIG.getGuildReactionOnMention(guild.getIdLong());
-                        if (reaction != null) {
-                            event.getMessage().addReaction(reaction).queue();
+                        final Emoji reaction_emoji = Config.CONFIG.getGuildReactionOnMention(guild.getIdLong());
+                        if (reaction_emoji != null) {
+                            event.getMessage().addReaction(reaction_emoji.getUnicode()).queue();
                         }
                     }
                 }
@@ -165,5 +166,5 @@ public class MessageHandler extends ListenerAdapter {
             }
         });
     }
-
+    
 }

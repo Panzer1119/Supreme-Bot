@@ -26,6 +26,7 @@ public class ArgumentList {
     public static final Pattern PATTERN_MARKDOWN_ALL = Pattern.compile("(?:(?:<@(\\d+)>)|(?:<@!(\\d+)>)|(?:<#(\\d+)>)|(?:<@&(\\d+)>)|(?:<:(\\w+):(\\d+)>))");
     public static final Pattern PATTERN_MARKDOWN_USER = Pattern.compile("(?:<@(\\d+)>)");
     public static final Pattern PATTERN_MARKDOWN_USER_RENAMED = Pattern.compile("(?:<@!(\\d+)>)");
+    public static final Pattern PATTERN_MARKDOWN_USER_GENERAL = Pattern.compile("(?:<@!?(\\d+)>)");
     public static final Pattern PATTERN_MARKDOWN_CHANNEL = Pattern.compile("(?:<#(\\d+)>)");
     public static final Pattern PATTERN_MARKDOWN_ROLE = Pattern.compile("(?:<@&(\\d+)>)");
     public static final Pattern PATTERN_MARKDOWN_CUSTOM_EMOJI = Pattern.compile("(?:<:(\\w+):(\\d+)>)");
@@ -157,7 +158,11 @@ public class ArgumentList {
     }
 
     public final String consumeNext(Argument argument, ArgumentConsumeType type) {
-        final String[] other = consumeOther(argument, type, 1);
+        return consumeNext(argument, type, type);
+    }
+
+    public final String consumeNext(Argument argument, ArgumentConsumeType type_argument, ArgumentConsumeType type_other) {
+        final String[] other = consumeOther(argument, type_argument, type_other, 1);
         if (other == null || other.length == 0) {
             return null;
         }
@@ -165,7 +170,11 @@ public class ArgumentList {
     }
 
     public final String consumePrevious(Argument argument, ArgumentConsumeType type) {
-        final String[] other = consumeOther(argument, type, -1);
+        return consumePrevious(argument, type, type);
+    }
+
+    public final String consumePrevious(Argument argument, ArgumentConsumeType type_argument, ArgumentConsumeType type_other) {
+        final String[] other = consumeOther(argument, type_argument, type_other, -1);
         if (other == null || other.length == 0) {
             return null;
         }
@@ -173,6 +182,10 @@ public class ArgumentList {
     }
 
     public final String[] consumeOther(Argument argument, ArgumentConsumeType type, int offset) {
+        return consumeOther(argument, type, type, offset);
+    }
+
+    public final String[] consumeOther(Argument argument, ArgumentConsumeType type_argument, ArgumentConsumeType type_other, int offset) {
         if (argument == null) {
             return new String[0];
         }
@@ -181,25 +194,34 @@ public class ArgumentList {
         }
         final ArrayList<String> output = new ArrayList<>();
         int index = -1;
-        while ((index = consume(argument, type, true, index + 1)) != -1) {
-            if (type.isConsume()) {
+        while ((index = consume(argument, type_argument, true, index + 1)) != -1) {
+            if (type_argument.isConsume()) {
                 index--;
             }
-            List<String> other = null;
+            List<String> other = new ArrayList<>();
             if (offset > 0) {
-                other = arguments_content.subList(index + 1, Math.min(index + offset + 1, arguments_content.size()));
-            } else if (offset < 0) {
-                other = arguments_content.subList(Math.max(0, index + offset), index);
-            }
-            if (type.isAll()) {
-                if (other != null) {
-                    output.addAll(other);
-                    other.clear();
+                for (int i = index + 1; i < Math.min(index + offset + 1, size()); i++) {
+                    if (type_other.isConsume()) {
+                        other.add(consume(i));
+                    } else {
+                        other.add(get(i));
+                    }
                 }
-            } else if (other != null) {
-                return other.toArray(new String[other.size()]);
+            } else if (offset < 0) {
+                for (int i = Math.max(0, index + offset); i < index; i++) {
+                    if (type_other.isConsume()) {
+                        other.add(consume(i));
+                        index--;
+                    } else {
+                        other.add(get(i));
+                    }
+                }
+            }
+            if (type_argument.isAll()) {
+                output.addAll(other);
+                other.clear();
             } else {
-                return new String[0];
+                return other.toArray(new String[other.size()]);
             }
         }
         return output.toArray(new String[output.size()]);
@@ -513,25 +535,25 @@ public class ArgumentList {
         }
         int times_found = 0;
         int index = 0;
-        final Iterator<String> arguments_raw_iterator = arguments_content.iterator();
-        while (arguments_raw_iterator.hasNext()) {
+        final Iterator<String> arguments_iterator = arguments_content.iterator();
+        while (arguments_iterator.hasNext()) {
             if (index < index_start) {
                 index++;
                 continue;
             }
-            final String argument_raw = arguments_raw_iterator.next();
-            if (argument_raw == null) {
+            final String argument_raw_ = arguments_iterator.next();
+            if (argument_raw_ == null) {
                 continue;
             }
-            if (argument.takes(type, argument_raw)) {
+            if (argument.takes(type, argument_raw_)) {
                 times_found++;
                 if (type.isConsume()) {
-                    arguments_raw_iterator.remove();
+                    arguments_iterator.remove();
                     arguments_content_raw.remove(index);
                     index--;
                 }
                 if (returnIndex) {
-                    return index;
+                    return index + (type.isConsume() ? 1 : 0);
                 } else if (!type.isAll()) {
                     return times_found;
                 }

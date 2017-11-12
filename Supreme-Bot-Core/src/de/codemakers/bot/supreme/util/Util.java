@@ -3,9 +3,11 @@ package de.codemakers.bot.supreme.util;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.settings.Config;
 import java.io.BufferedReader;
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -940,6 +942,54 @@ public class Util {
             random = getRandomLong();
         }
         return random;
+    }
+
+    public static final LocalDateTime stringToLocalDateTime(String text, String pattern) {
+        try {
+            return LocalDateTime.parse(text, DateTimeFormatter.ofPattern(pattern));
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public static final LocalDateTime stringToLocalDateTime(String text) {
+        try {
+            return LocalDateTime.parse(text, Standard.STANDARD_DATE_TIME_FORMATTER);
+        } catch (Exception ex) {
+            try {
+                return LocalDateTime.parse(text, Standard.STANDARD_DATE_TIME_FILE_FORMATTER);
+            } catch (Exception ex2) {
+                try {
+                    return Timestamp.valueOf(text).toLocalDateTime();
+                } catch (Exception ex3) {
+                    try {
+                        return LocalDateTime.parse(text);
+                    } catch (Exception ex4) {
+                        try {
+                            return LocalDateTime.parse(text, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                        } catch (Exception ex5) {
+                            return null;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static final Instant stringToInstant(String text) {
+        try {
+            return Instant.parse(text);
+        } catch (Exception ex) {
+            try {
+                return Instant.ofEpochMilli(Long.parseLong(text));
+            } catch (Exception ex2) {
+                try {
+                    return Timestamp.valueOf(text).toInstant();
+                } catch (Exception ex3) {
+                    return null;
+                }
+            }
+        }
     }
 
 }

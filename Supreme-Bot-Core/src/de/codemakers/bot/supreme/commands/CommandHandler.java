@@ -1,13 +1,15 @@
 package de.codemakers.bot.supreme.commands;
 
+import com.vdurmont.emoji.Emoji;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
+import de.codemakers.bot.supreme.entities.AdvancedEmote;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.listeners.CommandListener;
 import de.codemakers.bot.supreme.listeners.CommandType;
 import de.codemakers.bot.supreme.listeners.Listener;
 import de.codemakers.bot.supreme.listeners.ListenerManager;
+import de.codemakers.bot.supreme.listeners.ReactionListener;
 import de.codemakers.bot.supreme.permission.PermissionHandler;
-import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.Util;
 import java.util.ArrayList;
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.settings.Config;
+import de.codemakers.bot.supreme.util.TimeUnit;
+import de.codemakers.bot.supreme.util.Timeout;
 
 /**
  * CommandHandler
@@ -70,9 +74,16 @@ public class CommandHandler {
                     return safe;
                 }
             }
-            //FIXME Deprecated??? This line below!
-            commandContainer.event.sendMessageFormat(Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild()), "%s Sorry %s, the command \"%s\" wasn't found!", Emoji.WARNING, commandContainer.event.getAuthor().getAsMention(), commandContainer.invoker);
-            commandContainer.event.getMessage().addReaction(Emoji.QUESTION_MARK_GRAY).queue();
+            if (Standard.isShowingCommandNotFoundMessage(commandContainer.event.getGuild(), commandContainer.event.getAuthor())) {
+                commandContainer.event.sendMessage(Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild()), Standard.getNoMessage(commandContainer.event.getAuthor(), "the command \"%s\" was not found!", commandContainer.invoker).build());
+            }
+            final Emoji emoji = commandContainer.event.isPrivate() ? Config.CONFIG.getUserReactionOnCommandNotFound(commandContainer.event.getAuthor().getIdLong()) : Config.CONFIG.getGuildReactionOnCommandNotFound(commandContainer.event.getGuild().getIdLong());
+            ReactionListener.registerListener(commandContainer.event.getMessage(), new AdvancedEmote(emoji != null ? emoji.toString() : null, emoji, commandContainer.event.isPrivate() ? null : Config.CONFIG.getGuildReactionOnCommandNotFound(commandContainer.event.getGuild())), (reaction, emote, guild, user) -> {
+                ReactionListener.unregisterListener(commandContainer.event.getMessage());
+                sendHelpList(commandContainer.event, true, false);
+            }, new Timeout(30, TimeUnit.SECONDS, () -> {
+                ReactionListener.unregisterListener(commandContainer.event.getMessage());
+            }), null, true);
             return false;
         } catch (Exception ex) {
             ex.printStackTrace();

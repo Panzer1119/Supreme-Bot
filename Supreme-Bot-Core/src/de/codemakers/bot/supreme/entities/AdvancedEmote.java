@@ -47,6 +47,10 @@ public class AdvancedEmote {
         return emote;
     }
 
+    public final boolean isEmoji() {
+        return emoji != null;
+    }
+
     public final boolean isCustom() {
         return emote != null;
     }
@@ -81,7 +85,7 @@ public class AdvancedEmote {
     public final String toString() {
         return String.format("%s: name = %s, isCustom = %b, data = %s", getClass().getSimpleName(), getName(), isCustom(), isCustom() ? getEmote() : getEmoji());
     }
-    
+
     public static final AdvancedEmote parse(String text) {
         if (ArgumentList.PATTERN_MARKDOWN_CUSTOM_EMOJI.matcher(text).matches()) {
             return parse(null, text);

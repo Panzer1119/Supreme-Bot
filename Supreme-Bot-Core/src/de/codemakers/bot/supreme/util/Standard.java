@@ -48,7 +48,7 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2017.11.11_15.28";
+    public static final String VERSION = "2017.11.12_02.06";
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
     public static final String COMMAND_DELIMITER_STRING = " ";
@@ -598,6 +598,17 @@ public class Standard {
         }
         Config.CONFIG.setGuildAutoDeletingCommand(guild_id, autoDeletingCommand);
         return true;
+    }
+
+    public static final boolean isShowingCommandNotFoundMessage(Guild guild, User user) {
+        if (user == null) {
+            return false;
+        }
+        if (guild != null) {
+            return Config.CONFIG.isGuildShowingCommandNotFoundMessage(guild.getIdLong());
+        } else {
+            return Config.CONFIG.isUserShowingCommandNotFoundMessage(user.getIdLong());
+        }
     }
 
     public static final boolean log(Instant timestamp, Guild guild, String log_name, String settings_log_channel_id, String settings_log_text, String standard_log_text, String settings_log_date_time_format, Object... args) {
@@ -1230,6 +1241,11 @@ public class Standard {
     public static final Argument ARGUMENT_LIVE = new Argument("live", STANDARD_ARGUMENT_PREFIXES, "l");
     public static final Argument ARGUMENT_VOLUME = new Argument("volume", STANDARD_ARGUMENT_PREFIXES, "v");
     public static final Argument ARGUMENT_ID = new Argument("id", STANDARD_ARGUMENT_PREFIXES, "i");
+    public static final Argument ARGUMENT_ENTRY = new Argument("entry", STANDARD_ARGUMENT_PREFIXES, "e");
+    public static final Argument ARGUMENT_DESCRIPTION = new Argument("description", STANDARD_ARGUMENT_PREFIXES, "d", "desc");
+    public static final Argument ARGUMENT_EXTRA = new Argument("extra", STANDARD_ARGUMENT_PREFIXES, "ex");
+    public static final Argument ARGUMENT_CREATOR = new Argument("creator", STANDARD_ARGUMENT_PREFIXES, "creators", "c", "cs");
+    public static final Argument ARGUMENT_CREATED = new Argument("created", STANDARD_ARGUMENT_PREFIXES, "cd");
     public static final Argument ARGUMENT_ASMENTION = new Argument("asMention", STANDARD_ARGUMENT_PREFIXES, "aM");
     public static final Argument ARGUMENT_HERE = new Argument("here", STANDARD_ARGUMENT_PREFIXES, "h");
     public static final Argument ARGUMENT_KICK = new Argument("kick", STANDARD_ARGUMENT_PREFIXES, "k");

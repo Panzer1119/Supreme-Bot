@@ -40,7 +40,7 @@ public interface ReactionListener {
         }
         if (emote.isCustom()) {
             message.addReaction(emote.getEmote()).queue();
-        } else {
+        } else if (emote.isEmoji()) {
             message.addReaction(emote.getEmoji().getUnicode()).queue();
         }
         final ReactionContainer container = new ReactionContainer(timeout, listener, filter, removeReaction);

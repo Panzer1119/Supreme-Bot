@@ -1,8 +1,10 @@
 package de.codemakers.bot.supreme.settings;
 
+import com.vdurmont.emoji.EmojiManager;
 import com.vdurmont.emoji.EmojiParser;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.sql.ConfigData;
+import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.time.Instant;
 import java.util.regex.Matcher;
@@ -32,16 +34,20 @@ public class Config extends AbstractConfig {
     public static final String KEY_GUILD_NICKNAME = "nickname";
     public static final String KEY_GUILD_COMMAND_PREFIX = "command_prefix";
     public static final String KEY_GUILD_LANGUAGE = "language";
-    public static final String KEY_GUILD_REACT_ON_MENTION = "react_on_mention";
+    public static final String KEY_GUILD_REACTION_ON_MENTION = "reaction_on_mention";
     public static final String KEY_GUILD_AUTO_DELETE_COMMAND_NOT_FOUND_MESSAGE_DELAY = "auto_delete_command_not_found_message_delay";
     public static final String KEY_GUILD_AUTO_DELETE_COMMAND = "auto_delete_command";
     public static final String KEY_GUILD_SEND_HELP_ALWAYS_PRIVATE = "send_help_always_private";
     public static final String KEY_GUILD_MUSIC_MAX_TRACKS_PER_PAGE = "music_max_tracks_per_page";
+    public static final String KEY_GUILD_SHOW_COMMAND_NOT_FOUND_MESSAGE = "show_command_not_found_message";
+    public static final String KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND = "reaction_on_command_not_found";
     //GUILD USER SETTINGS
     public static final String KEY_GUILD_USER_NOT_MENTIONED_IN_LOGS = "not_mentioned_in_logs";
     //USER SETTINGS
     public static final String KEY_USER_LANGUAGE = "language";
     public static final String KEY_USER_NOT_MENTIONED_IN_LOGS = "not_mentioned_in_logs";
+    public static final String KEY_USER_SHOW_COMMAND_NOT_FOUND_MESSAGE = "show_command_not_found_message";
+    public static final String KEY_USER_REACTION_ON_COMMAND_NOT_FOUND = "reaction_on_command_not_found";
 
     public Config() {
         super(CONFIG_ID);
@@ -150,46 +156,44 @@ public class Config extends AbstractConfig {
         return this;
     }
 
-    public final boolean isGuildReactionEmote(long guild_id) {
-        final String reaction = getValue(guild_id, 0, KEY_GUILD_REACT_ON_MENTION, null);
-        if (reaction == null) {
+    public final boolean isGuildReactionOnMentionEmote(long guild_id) {
+        final String reaction_on_mention = getValue(guild_id, 0, KEY_GUILD_REACTION_ON_MENTION, null);
+        if (reaction_on_mention == null) {
             return false;
         }
-        return ArgumentList.PATTERN_MARKDOWN_CUSTOM_EMOJI.matcher(reaction).matches();
+        return ArgumentList.PATTERN_MARKDOWN_CUSTOM_EMOJI.matcher(reaction_on_mention).matches();
     }
 
-    public final String getGuildReactionOnMention(long guild_id) {
-        String reaction = getValue(guild_id, 0, KEY_GUILD_REACT_ON_MENTION, null);
-        if (reaction != null) {
-            reaction = EmojiParser.parseToUnicode((reaction.startsWith(":") ? "" : ":") + reaction + (reaction.endsWith(":") ? "" : ":"));
-        }
-        return reaction;
+    public final com.vdurmont.emoji.Emoji getGuildReactionOnMention(long guild_id) {
+        String reaction_on_mention = getValue(guild_id, 0, KEY_GUILD_REACTION_ON_MENTION, null);
+        final com.vdurmont.emoji.Emoji emoji = EmojiManager.getByUnicode(reaction_on_mention);
+        return emoji != null ? emoji : EmojiManager.getForAlias(reaction_on_mention);
     }
 
     public final Emote getGuildReactionOnMention(Guild guild) {
-        final String reaction = getValue(guild.getIdLong(), 0, KEY_GUILD_REACT_ON_MENTION, null);
-        if (reaction == null) {
+        final String reaction_on_mention = getValue(guild.getIdLong(), 0, KEY_GUILD_REACTION_ON_MENTION, null);
+        if (reaction_on_mention == null) {
             return null;
         }
-        final Matcher matcher = ArgumentList.PATTERN_MARKDOWN_CUSTOM_EMOJI.matcher(reaction);
+        final Matcher matcher = ArgumentList.PATTERN_MARKDOWN_CUSTOM_EMOJI.matcher(reaction_on_mention);
         if (!matcher.matches()) {
             return null;
         }
         return guild.getEmoteById(matcher.group(2));
     }
 
-    public final Config setGuildReactionOnMention(long guild_id, String reaction) {
-        if (reaction == null) {
-            final ConfigData configData = getConfigData(guild_id, 0, KEY_GUILD_REACT_ON_MENTION);
+    public final Config setGuildReactionOnMention(long guild_id, String reaction_on_mention) {
+        if (reaction_on_mention == null) {
+            final ConfigData configData = getConfigData(guild_id, 0, KEY_GUILD_REACTION_ON_MENTION);
             if (configData != null) {
                 configData.delete();
             }
             return this;
         }
-        if (!reaction.startsWith(":") && !reaction.endsWith(":")) {
-            reaction = EmojiParser.parseToAliases(reaction);
+        if (!reaction_on_mention.startsWith(":") && !reaction_on_mention.endsWith(":")) {
+            reaction_on_mention = EmojiParser.parseToAliases(reaction_on_mention);
         }
-        setValue(guild_id, 0, KEY_GUILD_REACT_ON_MENTION, reaction);
+        setValue(guild_id, 0, KEY_GUILD_REACTION_ON_MENTION, reaction_on_mention);
         return this;
     }
 
@@ -229,6 +233,56 @@ public class Config extends AbstractConfig {
         return this;
     }
 
+    public final boolean isGuildShowingCommandNotFoundMessage(long guild_id) {
+        return getValue(guild_id, 0, KEY_GUILD_SHOW_COMMAND_NOT_FOUND_MESSAGE, false);
+    }
+
+    public final Config setGuildShowingCommandNotFoundMessage(long guild_id, boolean show_command_not_found_message) {
+        setValue(guild_id, 0, KEY_GUILD_SHOW_COMMAND_NOT_FOUND_MESSAGE, show_command_not_found_message);
+        return this;
+    }
+
+    public final boolean isGuildReactionOnCommandNotFoundEmote(long guild_id) {
+        final String reaction_on_command_not_found = getValue(guild_id, 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK_GRAY);
+        if (reaction_on_command_not_found == null) {
+            return false;
+        }
+        return ArgumentList.PATTERN_MARKDOWN_CUSTOM_EMOJI.matcher(reaction_on_command_not_found).matches();
+    }
+
+    public final com.vdurmont.emoji.Emoji getGuildReactionOnCommandNotFound(long guild_id) {
+        String reaction_on_command_not_found = getValue(guild_id, 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK_GRAY);
+        final com.vdurmont.emoji.Emoji emoji = EmojiManager.getByUnicode(reaction_on_command_not_found);
+        return emoji != null ? emoji : EmojiManager.getForAlias(reaction_on_command_not_found);
+    }
+
+    public final Emote getGuildReactionOnCommandNotFound(Guild guild) {
+        final String reaction_on_command_not_found = getValue(guild.getIdLong(), 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK_GRAY);
+        if (reaction_on_command_not_found == null) {
+            return null;
+        }
+        final Matcher matcher = ArgumentList.PATTERN_MARKDOWN_CUSTOM_EMOJI.matcher(reaction_on_command_not_found);
+        if (!matcher.matches()) {
+            return null;
+        }
+        return guild.getEmoteById(matcher.group(2));
+    }
+
+    public final Config setGuildReactionOnCommandNotFound(long guild_id, String reaction_on_command_not_found) {
+        if (reaction_on_command_not_found == null) {
+            final ConfigData configData = getConfigData(guild_id, 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND);
+            if (configData != null) {
+                configData.delete();
+            }
+            return this;
+        }
+        if (!reaction_on_command_not_found.startsWith(":") && !reaction_on_command_not_found.endsWith(":")) {
+            reaction_on_command_not_found = EmojiParser.parseToAliases(reaction_on_command_not_found);
+        }
+        setValue(guild_id, 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND, reaction_on_command_not_found);
+        return this;
+    }
+
     //GUILD USER SETTINGS
     public final boolean isGuildUserNotMentionedInLogs(long guild_id, long user_id) {
         return getValue(guild_id, user_id, KEY_USER_NOT_MENTIONED_IN_LOGS, false);
@@ -255,6 +309,36 @@ public class Config extends AbstractConfig {
 
     public final Config setUserNotMentionedInLogs(long user_id, boolean not_mentioned_in_logs) {
         setValue(0, user_id, KEY_USER_NOT_MENTIONED_IN_LOGS, not_mentioned_in_logs);
+        return this;
+    }
+
+    public final boolean isUserShowingCommandNotFoundMessage(long user_id) {
+        return getValue(0, user_id, KEY_GUILD_SHOW_COMMAND_NOT_FOUND_MESSAGE, false);
+    }
+
+    public final Config setUserShowingCommandNotFoundMessage(long user_id, boolean show_command_not_found_message) {
+        setValue(0, user_id, KEY_GUILD_SHOW_COMMAND_NOT_FOUND_MESSAGE, show_command_not_found_message);
+        return this;
+    }
+
+    public final com.vdurmont.emoji.Emoji getUserReactionOnCommandNotFound(long user_id) {
+        String reaction_on_command_not_found = getValue(0, user_id, KEY_USER_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK_GRAY);
+        final com.vdurmont.emoji.Emoji emoji = EmojiManager.getByUnicode(reaction_on_command_not_found);
+        return emoji != null ? emoji : EmojiManager.getForAlias(reaction_on_command_not_found);
+    }
+
+    public final Config setUserReactionOnCommandNotFound(long user_id, String reaction_on_command_not_found) {
+        if (reaction_on_command_not_found == null) {
+            final ConfigData configData = getConfigData(0, user_id, KEY_USER_REACTION_ON_COMMAND_NOT_FOUND);
+            if (configData != null) {
+                configData.delete();
+            }
+            return this;
+        }
+        if (!reaction_on_command_not_found.startsWith(":") && !reaction_on_command_not_found.endsWith(":")) {
+            reaction_on_command_not_found = EmojiParser.parseToAliases(reaction_on_command_not_found);
+        }
+        setValue(0, user_id, KEY_USER_REACTION_ON_COMMAND_NOT_FOUND, reaction_on_command_not_found);
         return this;
     }
 
