@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
 public class Database implements Copyable {
 
     public static final boolean DEBUG = true;
-    public static final boolean DEBUG_SQL = true;
+    public static final boolean DEBUG_SQL = false;
     public static final String SPLITTER = ";";
 
     private String hostname;
