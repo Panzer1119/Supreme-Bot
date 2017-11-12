@@ -92,7 +92,7 @@ public class SupremeBot {
             builder.addEventListener(new GuildLogger());
             builder.addEventListener(new GuildMemberLogger());
             builder.addEventListener(new GuildVoiceLogger());
-            builder.addEventListener(new MessageHandler());
+            builder.addEventListener(MessageHandler.MESSAGE_HANDLER = new MessageHandler());
             builder.addEventListener(new ReadyListener());
             return true;
         } catch (Exception ex) {

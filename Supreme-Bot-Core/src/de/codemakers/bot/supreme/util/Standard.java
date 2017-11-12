@@ -2,6 +2,7 @@ package de.codemakers.bot.supreme.util;
 
 import de.codemakers.bot.supreme.commands.CommandCategory;
 import de.codemakers.bot.supreme.commands.arguments.Argument;
+import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.permission.GlobalBotRole;
 import de.codemakers.bot.supreme.permission.GuildBotRole;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -38,6 +40,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.managers.AccountManager;
+import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.requests.RestAction.EmptyRestAction;
 
 /**
  * Standard
@@ -48,7 +52,7 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2017.11.12_15.00";
+    public static final String VERSION = "2017.11.12_20.30";
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
     public static final String COMMAND_DELIMITER_STRING = " ";
@@ -842,6 +846,20 @@ public class Standard {
         return Long.parseLong(user_id);
     }
 
+    public static final long resolveUserId(String text) {
+        if (text == null) {
+            return -1;
+        }
+        final Matcher matcher = ArgumentList.PATTERN_MARKDOWN_USER_GENERAL.matcher(text);
+        if (matcher.matches()) {
+            return Long.parseLong(matcher.group(1));
+        }
+        if (!Util.isStringDigitsOnly(text) && !text.endsWith("L")) {
+            return -1;
+        }
+        return Long.parseLong(text);
+    }
+
     public static final List<Member> muteAll(VoiceChannel voiceChannel, boolean mute) {
         try {
             final Member self_member = getSelfMemberByGuild(voiceChannel.getGuild());
@@ -1002,14 +1020,14 @@ public class Standard {
         return true;
     }
 
-    public static final Message getUpdatedMessage(Message message) {
+    public static final RestAction<Message> getUpdatedMessage(Message message) {
         if (message == null) {
-            return null;
+            return new EmptyRestAction<>(null, null);
         }
         try {
-            return message.getChannel().getMessageById(message.getId()).complete();
+            return message.getChannel().getMessageById(message.getId());
         } catch (Exception ex) {
-            return null;
+            return new EmptyRestAction<>(message.getJDA(), null);
         }
     }
 
@@ -1289,5 +1307,7 @@ public class Standard {
     public static final Argument ARGUMENT_RESTART = new Argument("restart", STANDARD_ARGUMENT_PREFIXES, "r");
     public static final Argument ARGUMENT_USER = new Argument("user", STANDARD_ARGUMENT_PREFIXES, "u");
     public static final Argument ARGUMENT_RELOAD = new Argument("reload", STANDARD_ARGUMENT_PREFIXES, "r");
+    public static final Argument ARGUMENT_SOUNDCLOUD = new Argument("SoundCloud", STANDARD_ARGUMENT_PREFIXES, "sc");
+    public static final Argument ARGUMENT_YOUTUBE = new Argument("YouTube", STANDARD_ARGUMENT_PREFIXES, "yt");
 
 }

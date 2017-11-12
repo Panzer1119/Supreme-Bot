@@ -36,6 +36,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 public class MessageHandler extends ListenerAdapter {
 
     private static final boolean DEBUG = false;
+    public static MessageHandler MESSAGE_HANDLER = null;
 
     static {
         Updater.addUpdateable(new Updateable() {
@@ -50,6 +51,15 @@ public class MessageHandler extends ListenerAdapter {
                 ReactionListener.update(Instant.now(), true);
             }
         });
+        CommandHandler.COMMAND_RUN = MessageHandler::onMessageEvent;
+    }
+
+    public static final Void onMessageEvent(MessageEvent event) {
+        if (event == null) {
+            return null;
+        }
+        Standard.getUpdatedMessage(event.getMessage()).queue((message) -> MESSAGE_HANDLER.onMessage(null, new DefaultMessageEvent(event.getJDA(), event.getResponseNumber(), message), true));
+        return null;
     }
 
     @Override

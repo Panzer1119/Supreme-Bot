@@ -168,7 +168,8 @@ public class Database implements Copyable {
                 System.out.println(temp);
             }
             final Statement statement = createStatement();
-            final boolean result = statement.execute(temp);
+            statement.execute(temp);
+            final boolean result = statement.getUpdateCount() >= 0;
             statement.close();
             return result;
         } catch (Exception ex) {

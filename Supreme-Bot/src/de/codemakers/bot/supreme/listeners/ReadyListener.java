@@ -5,6 +5,7 @@ import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -54,26 +55,28 @@ public class ReadyListener extends ListenerAdapter {
         try {
             final LocalDateTime now = LocalDateTime.now(Standard.getZoneId());
             final StringBuilder out = new StringBuilder();
-            out.append("This Bot is running on this Guilds:").append(Standard.NEW_LINE);
-            jda.getGuilds().stream().forEach((guild) -> {
+            out.append("This Bot is running on this Guilds:");
+            out.append(jda.getGuilds().parallelStream().map((guild) -> {
+                StringBuilder temp = new StringBuilder();
                 try {
                     final AdvancedGuild advancedGuild = Standard.getAdvancedGuild(guild);
-                    out.append(String.format("%s (ID: %s)", guild.getName(), guild.getId())).append(Standard.NEW_LINE);
-                    out.append("Invites:").append(Standard.NEW_LINE);
+                    temp.append(String.format("%s (ID: %s)", guild.getName(), guild.getId())).append(Standard.NEW_LINE);
+                    temp.append(Standard.TAB).append("Invites:");
                     try {
-                        guild.getInvites().complete().stream().forEach((invite) -> out.append(Standard.TAB).append(String.format("Code: %s, URL: %s, Uses: %d of %d, Max Age: %d, Inviter: %s, isExpanded: %b, isTemporary: %b, Creation Time: %s", invite.getCode(), invite.getURL(), invite.getUses(), invite.getMaxUses(), invite.getMaxAge(), Standard.getCompleteName(invite.getInviter(), true), invite.isExpanded(), invite.isTemporary(), invite.getCreationTime().atZoneSameInstant(Standard.getZoneId()).format(Standard.STANDARD_DATE_TIME_FORMATTER))).append(Standard.NEW_LINE));
+                        temp.append(guild.getInvites().complete().stream().map((invite) -> String.format("Code: %s, URL: %s, Uses: %d of %d, Max Age: %d, Inviter: %s, isExpanded: %b, isTemporary: %b, Creation Time: %s", invite.getCode(), invite.getURL(), invite.getUses(), invite.getMaxUses(), invite.getMaxAge(), Standard.getCompleteName(invite.getInviter(), true), invite.isExpanded(), invite.isTemporary(), invite.getCreationTime().atZoneSameInstant(Standard.getZoneId()).format(Standard.STANDARD_DATE_TIME_FORMATTER))).collect(Collectors.joining(Standard.NEW_LINE + Standard.TAB + Standard.TAB, Standard.NEW_LINE + Standard.TAB + Standard.TAB, Standard.NEW_LINE)));
+                    } catch (Exception ex) {
+                        temp.append(Standard.NEW_LINE);
+                    }
+                    temp.append(Standard.TAB).append("Roles:");
+                    try {
+                        temp.append(guild.getRoles().stream().map((role) -> String.format("%s (ID: %s) (%s)", role.getName(), role.getId(), role.getAsMention())).collect(Collectors.joining(Standard.NEW_LINE + Standard.TAB + Standard.TAB, Standard.NEW_LINE + Standard.TAB + Standard.TAB, "")));
                     } catch (Exception ex) {
                     }
-                    out.append("Roles:").append(Standard.NEW_LINE);
-                    try {
-                        guild.getRoles().stream().forEach((role) -> out.append(Standard.TAB).append(String.format("%s (ID: %s) (%s)", role.getName(), role.getId(), role.getAsMention())).append(Standard.NEW_LINE));
-                    } catch (Exception ex) {
-                    }
-                    out.append(Standard.NEW_LINE);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-            });
+                return temp.toString();
+            }).collect(Collectors.joining(Standard.NEW_LINE, Standard.NEW_LINE, "")));
             System.out.println(out.toString());
             final AdvancedFile file = new AdvancedFile(SERVERS_FOLDER, String.format("servers_%s.txt", now.format(Standard.STANDARD_DATE_TIME_FILE_FORMATTER)));
             Standard.addToFile(file, out.toString(), false);

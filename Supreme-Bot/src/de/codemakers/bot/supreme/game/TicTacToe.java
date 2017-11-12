@@ -49,7 +49,7 @@ public class TicTacToe extends Game {
             message_header = event.sendAndWaitMessage(Standard.getMessageEmbed(Color.GREEN, null).addField(String.format("%s TicTacToe", Emoji.GAME), String.format("Challenger: %s%nOpponent: %s%nTurn: %s", challenger.getAsMention(), opponent.getAsMention(), turn.getAsMention()), true).build());
             message_board = event.sendAndWaitMessage(game.toString());
             ReactionListener.registerListener(message_board, AdvancedEmote.parse(Emoji.MARK_MULTIPLICATION_SIGN), (reaction, emote, guild, user) -> {
-                ReactionListener.unregisterListener(message_board);
+                ReactionListener.unregisterListener(message_board, true);
                 endGame(null, new DefaultMessageEvent(event) {
                     @Override
                     public final User getAuthor() {

@@ -1,6 +1,7 @@
 package de.codemakers.bot.supreme.commands;
 
 import com.vdurmont.emoji.Emoji;
+import com.vdurmont.emoji.EmojiManager;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.AdvancedEmote;
 import de.codemakers.bot.supreme.entities.MessageEvent;
@@ -20,9 +21,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.EmbedBuilder;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
+import de.codemakers.bot.supreme.permission.ReactionPermissionFilter;
 import de.codemakers.bot.supreme.settings.Config;
 import de.codemakers.bot.supreme.util.TimeUnit;
 import de.codemakers.bot.supreme.util.Timeout;
+import java.util.function.Function;
 
 /**
  * CommandHandler
@@ -30,6 +33,9 @@ import de.codemakers.bot.supreme.util.Timeout;
  * @author Panzer1119
  */
 public class CommandHandler {
+
+    public static final AdvancedEmote REPEAT_EMOTE = AdvancedEmote.parse(de.codemakers.bot.supreme.util.Emoji.REPEAT);
+    public static Function<MessageEvent, Void> COMMAND_RUN = null;
 
     public static final Predicate<Listener> ADMIN_PREDICATE = (listener) -> {
         if (listener == null) {
@@ -50,6 +56,14 @@ public class CommandHandler {
         try {
             if (commandContainer == null) {
                 return false;
+            }
+            if (COMMAND_RUN != null) {
+                ReactionListener.registerListener(commandContainer.event.getMessage(), REPEAT_EMOTE, (reaction, emote_, guild, user) -> {
+                    ReactionListener.unregisterListener(commandContainer.event.getMessage(), REPEAT_EMOTE, false);
+                    COMMAND_RUN.apply(commandContainer.event);
+                }, new Timeout(2, TimeUnit.MINUTES, () -> {
+                    ReactionListener.unregisterListener(commandContainer.event.getMessage(), REPEAT_EMOTE, true);
+                }), ReactionPermissionFilter.createUserFilter(commandContainer.event.getAuthor()), true);
             }
             if (commandContainer.invoker != null) {
                 final Command command = ((Command) commandContainer.invoker.getInvokeable());
@@ -78,11 +92,12 @@ public class CommandHandler {
                 commandContainer.event.sendMessage(Standard.getAutoDeleteCommandNotFoundMessageDelayByGuild(commandContainer.event.getGuild()), Standard.getNoMessage(commandContainer.event.getAuthor(), "the command \"%s\" was not found!", commandContainer.invoker).build());
             }
             final Emoji emoji = commandContainer.event.isPrivate() ? Config.CONFIG.getUserReactionOnCommandNotFound(commandContainer.event.getAuthor().getIdLong()) : Config.CONFIG.getGuildReactionOnCommandNotFound(commandContainer.event.getGuild().getIdLong());
-            ReactionListener.registerListener(commandContainer.event.getMessage(), new AdvancedEmote(emoji != null ? emoji.toString() : null, emoji, commandContainer.event.isPrivate() ? null : Config.CONFIG.getGuildReactionOnCommandNotFound(commandContainer.event.getGuild())), (reaction, emote, guild, user) -> {
-                ReactionListener.unregisterListener(commandContainer.event.getMessage());
+            final AdvancedEmote emote = new AdvancedEmote(emoji != null ? emoji.toString() : null, emoji, commandContainer.event.isPrivate() ? null : Config.CONFIG.getGuildReactionOnCommandNotFound(commandContainer.event.getGuild()));
+            ReactionListener.registerListener(commandContainer.event.getMessage(), emote, (reaction, emote_, guild, user) -> {
+                ReactionListener.unregisterListener(commandContainer.event.getMessage(), emote, true);
                 sendHelpList(commandContainer.event, true, false);
-            }, new Timeout(30, TimeUnit.SECONDS, () -> {
-                ReactionListener.unregisterListener(commandContainer.event.getMessage());
+            }, new Timeout(1, TimeUnit.MINUTES, () -> {
+                ReactionListener.unregisterListener(commandContainer.event.getMessage(), emote, true);
             }), null, true);
             return false;
         } catch (Exception ex) {

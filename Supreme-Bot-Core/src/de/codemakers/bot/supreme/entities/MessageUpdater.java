@@ -61,7 +61,7 @@ public abstract class MessageUpdater {
             return false;
         }
         try {
-            message = Standard.getUpdatedMessage(message);
+            message = Standard.getUpdatedMessage(message).complete();
             if (message == null) {
                 deleteThis();
                 return false;

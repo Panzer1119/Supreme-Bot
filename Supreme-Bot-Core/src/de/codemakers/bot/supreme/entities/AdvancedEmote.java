@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.MessageReaction.ReactionEmote;
 
 /**
@@ -76,6 +77,20 @@ public class AdvancedEmote {
                 }
             } else {
                 return Objects.equals(getEmoji(), emote_.getEmoji());
+            }
+        } else {
+            if (object instanceof MessageReaction) {
+                object = ((MessageReaction) object).getEmote();
+            }
+            if (object instanceof ReactionEmote) {
+                final ReactionEmote emote_ = (ReactionEmote) object;
+                if (emote_.isEmote() != isCustom()) {
+                    return false;
+                } else if (emote_.isEmote() && isCustom()) {
+                    return emote_.getEmote().getIdLong() == emote.getIdLong();
+                } else if (!emote_.isEmote() && isEmoji()) {
+                    return emoji.getUnicode().equals(emote_.getName());
+                }
             }
         }
         return false;

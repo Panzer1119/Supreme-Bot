@@ -15,6 +15,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.core.requests.RestAction;
 
 /**
  * ReactionListener
@@ -58,7 +59,7 @@ public interface ReactionListener {
         return true;
     }
 
-    public static ReactionContainer unregisterListener(Message message, AdvancedEmote emote) {
+    public static ReactionContainer unregisterListener(Message message, AdvancedEmote emote, boolean removeReactions) {
         if (message == null || emote == null) {
             return null;
         }
@@ -70,14 +71,13 @@ public interface ReactionListener {
         if (containers.isEmpty()) {
             LISTENERS.remove(message);
         }
-        message = Standard.getUpdatedMessage(message);
-        if (message != null) {
-            message.getReactions().stream().filter((reaction) -> emote.equals(AdvancedEmote.ofReactionEmote(reaction.getEmote()))).forEach((reaction) -> reaction.removeReaction().queue());
+        if (removeReactions) {
+            Standard.getUpdatedMessage(message).queue((message_) -> message_.getReactions().stream().filter((reaction) -> emote.equals(reaction)).forEach((reaction) -> reaction.getUsers().stream().map(reaction::removeReaction).forEach(RestAction::queue)));
         }
         return container;
     }
 
-    public static boolean unregisterListener(Message message) {
+    public static boolean unregisterListener(Message message, boolean removeReactions) {
         if (message == null) {
             return false;
         }
@@ -86,15 +86,14 @@ public interface ReactionListener {
             return true;
         }
         LISTENERS.remove(message);
-        message = Standard.getUpdatedMessage(message);
-        if (message != null) {
-            message.getReactions().stream().forEach((reaction) -> reaction.removeReaction().queue());
+        if (removeReactions) {
+            Standard.getUpdatedMessage(message).queue((message_) -> message_.clearReactions().queue());
         }
         return true;
     }
 
     static void unregisterAll() {
-        LISTENERS.entrySet().stream().forEach((containers) -> containers.getValue().keySet().stream().forEach((emote) -> unregisterListener(containers.getKey(), emote)));
+        LISTENERS.entrySet().stream().forEach((containers) -> containers.getValue().keySet().stream().forEach((emote) -> unregisterListener(containers.getKey(), emote, true)));
         LISTENERS.clear();
     }
 
@@ -125,7 +124,7 @@ public interface ReactionListener {
             return;
         }
         if (container.timeout.isTimeout()) {
-            unregisterListener(message, emote);
+            unregisterListener(message, emote, false);
             container.timeout.runAfterTimeout();
             return;
         }
@@ -136,8 +135,11 @@ public interface ReactionListener {
         new ConcurrentHashMap<>(LISTENERS).entrySet().stream().forEach((containers) -> {
             containers.getValue().entrySet().stream().filter((container) -> (delete || (container.getValue().timeout != null && container.getValue().timeout.isTimeout(instant)))).forEach((container) -> {
                 try {
-                    unregisterListener(containers.getKey(), container.getKey());
-                    container.getValue().timeout.runAfterTimeout();
+                    if (container.getValue().timeout.isRunningAfterTimeout()) {
+                        container.getValue().timeout.runAfterTimeout();
+                    } else {
+                        unregisterListener(containers.getKey(), container.getKey(), false);
+                    }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -173,12 +175,14 @@ public interface ReactionListener {
     public static boolean deleteMessageWithReaction(Message message, String emote_name, long amount, TimeUnit unit, boolean removeAllListeners, ReactionPermissionFilter filter) {
         return ReactionListener.registerListener(message, AdvancedEmote.parse(emote_name), (reaction, emote, guild, user) -> {
             if (removeAllListeners) {
-                unregisterListener(message);
+                unregisterListener(message, true);
             }
             message.delete().queue();
         }, new Timeout(amount, unit, () -> {
             if (removeAllListeners) {
-                unregisterListener(message);
+                unregisterListener(message, true);
+            } else {
+                unregisterListener(message, AdvancedEmote.parse(emote_name), true);
             }
             message.delete().queue();
         }), filter, true);

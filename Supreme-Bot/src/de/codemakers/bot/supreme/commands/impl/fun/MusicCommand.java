@@ -280,7 +280,7 @@ public class MusicCommand extends Command {
             if (arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
                 return arguments.isSize(3, 4); //[VoiceChannel] title/url [max_tracks] -live
             } else {
-                return arguments.isSize(1, 3); //[VoiceChannel] [title/url] [max_tracks]
+                return arguments.isSize(1, 4); //[VoiceChannel] [title/url] [-yt/-sc] [max_tracks]
             }
         } else if (pause) {
             return arguments.isSize(1, 2); //[pause]
@@ -344,13 +344,15 @@ public class MusicCommand extends Command {
                     final boolean done = setPause(guild, false);
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY * 2, "%s %scontinued the music!", event.getAuthor().getAsMention(), (done ? "" : "not "));
                 } else {
+                    final boolean youTube = arguments.isConsumed(Standard.ARGUMENT_YOUTUBE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+                    final boolean soundCloud = arguments.isConsumed(Standard.ARGUMENT_SOUNDCLOUD, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
                     final String input = arguments.consumeFirst();
                     final boolean url = (input.startsWith("http://") || input.startsWith("https://"));
                     int max_tracks = (url ? -1 : 1);
                     if (!arguments.isEmpty()) {
                         max_tracks = Integer.parseInt(arguments.consumeFirst());
                     }
-                    loadTrack((url ? "" : "ytsearch: ") + input, event, voiceChannel, max_tracks);
+                    loadTrack((url ? "" : ((youTube || !soundCloud) ? "yt" : "sc") + "search: ") + input, event, voiceChannel, max_tracks);
                     if (live) {
                         final VoiceChannel channel = voiceChannel;
                         Util.sheduleTimerAndRemove(() -> {
@@ -519,7 +521,7 @@ public class MusicCommand extends Command {
 
     @Override
     public final EmbedBuilder getHelp(Invoker invoker, EmbedBuilder builder) {
-        builder.addField(String.format("%s %s [VoiceChannel] [[URL or Text] [Maximum Number of Tracks]] [%s]", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), "Unpauses the bot or plays from an URL or searches on YouTube for a video. If loading more than one video you can set the maximum number of videos that should be loaded, or -1 for all the bot can find. Optionally shows a live track info. Use `VoiceChannel#Number` or its id when there are multiple VoiceChannels with the same name.", false);
+        builder.addField(String.format("%s %s [VoiceChannel] [[URL or Text] [%s/%s] [Maximum Number of Tracks]] [%s]", invoker, Standard.ARGUMENT_PLAY.getCompleteArgument(0, -1), Standard.ARGUMENT_YOUTUBE.getCompleteArgument(0, -1), Standard.ARGUMENT_SOUNDCLOUD.getCompleteArgument(0, -1), Standard.ARGUMENT_LIVE.getCompleteArgument(0, -1)), "Unpauses the bot or plays from an URL or searches on YouTube for a video. If loading more than one video you can set the maximum number of videos that should be loaded, or -1 for all the bot can find. Optionally shows a live track info. Use `VoiceChannel#Number` or its id when there are multiple VoiceChannels with the same name.", false);
         builder.addField(String.format("%s %s [Pause]", invoker, Standard.ARGUMENT_PAUSE.getCompleteArgument(0, -1)), "Toggles or sets pause.", false);
         builder.addField(String.format("%s %s [Times/All]", invoker, Standard.ARGUMENT_SKIP.getCompleteArgument(0, -1)), "Skips 1 or more or even all tracks.", false);
         builder.addField(String.format("%s %s", invoker, Standard.ARGUMENT_STOP.getCompleteArgument(0, -1)), "Stops the music.", false);

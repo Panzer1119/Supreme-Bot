@@ -18,6 +18,7 @@ import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.permission.ReactionPermissionFilter;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.TimeUnit;
+import de.codemakers.bot.supreme.util.Timeout;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
@@ -53,10 +54,13 @@ public class TicTacToeCommand extends Command {
                     if (!startGame(arguments, event, holder, opponent)) {
                         reaction.removeReaction(user).queue();
                     } else {
-                        ReactionListener.unregisterListener(message);
+                        ReactionListener.unregisterListener(message, true);
                         message.delete().queue();
                     }
-                }, null, ReactionPermissionFilter.createUserFilter(opponent), true);
+                }, new Timeout(5, TimeUnit.MINUTES, () -> {
+                    ReactionListener.unregisterListener(message, true);
+                    message.delete().queue();
+                }), ReactionPermissionFilter.createUserFilter(opponent), true);
                 ReactionListener.deleteMessageWithReaction(message, Emoji.MARK_MULTIPLICATION_SIGN, 1, TimeUnit.MINUTES, true, ReactionPermissionFilter.createUsersFilter(opponent, event.getAuthor()));
             } else {
                 event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getNoMessage(event.getAuthor(), "you can't play against me, im a bot!").build());
