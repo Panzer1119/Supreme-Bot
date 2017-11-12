@@ -29,6 +29,7 @@ public class ReadyListener extends ListenerAdapter {
     public final void onReady(ReadyEvent event) {
         final JDA jda = event.getJDA();
         loadGuilds(jda);
+        Standard.initAdvancedGuilds();
     }
 
     @Override
@@ -46,6 +47,7 @@ public class ReadyListener extends ListenerAdapter {
         out.append("Bot just reconnected and needs to reload everyting").append(Standard.NEW_LINE_DISCORD);
         System.out.print(out.toString());
         loadGuilds(jda);
+        Standard.initAdvancedGuilds();
     }
 
     private final void loadGuilds(JDA jda) {
@@ -75,7 +77,9 @@ public class ReadyListener extends ListenerAdapter {
             System.out.println(out.toString());
             final AdvancedFile file = new AdvancedFile(SERVERS_FOLDER, String.format("servers_%s.txt", now.format(Standard.STANDARD_DATE_TIME_FILE_FORMATTER)));
             Standard.addToFile(file, out.toString(), false);
-            jda.getGuildById(336876056265097237L).getTextChannelById(379255301561516032L).sendFile(file.toFile(), new MessageBuilder().append("Server Information for ").append(jda.getSelfUser().getAsMention()).build()).queue();
+            if (Standard.getConsoleTextChannel() != null) {
+                Standard.getConsoleTextChannel().sendFile(file.toFile(), new MessageBuilder().append("Startup Server Information for ").append(jda.getSelfUser().getAsMention()).build()).queue();
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

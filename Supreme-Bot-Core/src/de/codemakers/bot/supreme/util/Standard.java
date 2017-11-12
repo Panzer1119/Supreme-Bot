@@ -48,7 +48,7 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2017.11.12_02.06";
+    public static final String VERSION = "2017.11.12_15.00";
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
     public static final String COMMAND_DELIMITER_STRING = " ";
@@ -73,6 +73,11 @@ public class Standard {
     private static Instant STARTED = null;
     private static final ZoneId UTC = ZoneId.of("UTC");
     public static Getter<JDA> GETTER = () -> null;
+    private static long HOME_GUILD_ID = -1;
+    private static Guild HOME_GUILD = null;
+    public static final String HOME_TEXT_CHANNEL_NAME = "console";
+    private static long CONSOLE_TEXT_CHANNEL_ID = -1;
+    private static TextChannel CONSOLE_TEXT_CHANNEL = null;
 
     /**
      * https://regexr.com/
@@ -163,6 +168,14 @@ public class Standard {
             ZONE_ID = ZoneId.of(STANDARD_SETTINGS.getProperty("zone_id", ZoneId.systemDefault().getId()));
             System.out.println("Loaded ZoneId: " + ZONE_ID.getId());
             CURRENT_LOG_FILE = Standard.createCurrentLogFile();
+            if (STANDARD_SETTINGS.getProperty("home_guild_id", null) == null) {
+                STANDARD_SETTINGS.setProperty("home_guild_id", -1L);
+            }
+            HOME_GUILD_ID = STANDARD_SETTINGS.getProperty("home_guild_id", -1L);
+            if (STANDARD_SETTINGS.getProperty("console_textchannel_id", null) == null) {
+                STANDARD_SETTINGS.setProperty("console_textchannel_id", -1L);
+            }
+            CONSOLE_TEXT_CHANNEL_ID = STANDARD_SETTINGS.getProperty("console_textchannel_id", -1L);
             reloadPluginPermissionAdminString();
             System.out.println("Reloaded Settings!");
             return true;
@@ -289,6 +302,28 @@ public class Standard {
 
     public static final Instant getStarted() {
         return STARTED;
+    }
+
+    public static final long getHomeGuildId() {
+        return HOME_GUILD_ID;
+    }
+
+    public static final Guild getHomeGuild() {
+        if (HOME_GUILD == null && HOME_GUILD_ID != -1) {
+            HOME_GUILD = getJDA().getGuildById(HOME_GUILD_ID);
+        }
+        return HOME_GUILD;
+    }
+
+    public static final long getConsoleTextChannelId() {
+        return CONSOLE_TEXT_CHANNEL_ID;
+    }
+
+    public static final TextChannel getConsoleTextChannel() {
+        if (CONSOLE_TEXT_CHANNEL == null && CONSOLE_TEXT_CHANNEL_ID != -1 && getHomeGuild() != null) {
+            CONSOLE_TEXT_CHANNEL = getHomeGuild().getTextChannelById(CONSOLE_TEXT_CHANNEL_ID);
+        }
+        return CONSOLE_TEXT_CHANNEL;
     }
 
     //****************************************************************//

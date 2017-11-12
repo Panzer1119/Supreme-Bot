@@ -29,6 +29,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.util.SystemCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.XMLEditorCommand;
 import de.codemakers.bot.supreme.commands.impl.secret.PasteServerCommand;
 import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
+import de.codemakers.bot.supreme.listeners.GuildLogger;
 import de.codemakers.bot.supreme.listeners.GuildMemberLogger;
 import de.codemakers.bot.supreme.listeners.ReadyListener;
 import de.codemakers.bot.supreme.listeners.GuildVoiceLogger;
@@ -88,9 +89,10 @@ public class SupremeBot {
 
     private static final boolean initListeners() {
         try {
-            builder.addEventListener(new MessageHandler());
+            builder.addEventListener(new GuildLogger());
             builder.addEventListener(new GuildMemberLogger());
             builder.addEventListener(new GuildVoiceLogger());
+            builder.addEventListener(new MessageHandler());
             builder.addEventListener(new ReadyListener());
             return true;
         } catch (Exception ex) {
@@ -164,16 +166,7 @@ public class SupremeBot {
         running = true;
         try {
             builder.setToken(new String(Standard.getToken()));
-            jda = builder.buildBlocking();
-            Standard.GETTER = () -> jda;
-            try {
-                Thread.sleep(500);
-                initAdvancedGuilds();
-                SupremeBot.reload();
-            } catch (Exception ex) {
-                System.err.print("Error while reloading at startup: ");
-                ex.printStackTrace();
-            }
+            jda = builder.buildAsync();
             return true;
         } catch (Exception ex) {
             if (!(ex instanceof InterruptedException)) {
