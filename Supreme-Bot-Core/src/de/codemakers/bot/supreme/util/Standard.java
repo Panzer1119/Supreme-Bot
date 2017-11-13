@@ -52,7 +52,7 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2017.11.13_18.30";
+    public static final String VERSION = "2017.11.13_20.10";
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
     public static final String COMMAND_DELIMITER_STRING = " ";
