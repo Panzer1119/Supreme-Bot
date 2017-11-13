@@ -75,6 +75,7 @@ public class MessageHandler extends ListenerAdapter {
         if (event == null || event.getAuthor().getIdLong() == Standard.getSelfUser().getIdLong()) {
             return;
         }
+        ReactionListener.unregisterListener(event.getMessage(), false);
         onMessage(event, new DefaultMessageEvent(event.getJDA(), event.getResponseNumber(), event.getMessage()), false);
     }
 
