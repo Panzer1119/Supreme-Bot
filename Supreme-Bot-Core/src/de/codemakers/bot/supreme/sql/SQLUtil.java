@@ -540,7 +540,7 @@ public class SQLUtil {
         if (text.isEmpty()) {
             return "";
         }
-        return ((Util.isStringDigitsOnly(text) || (text.startsWith("'") && text.endsWith("'"))) ? text : "'" + text + "'");
+        return ((Util.isStringDigitsOnly(text) || (text.startsWith("'") && text.endsWith("'"))) ? text : "'" + text + "'").replace("\\", "\\\\");
     }
 
     private static enum FieldType {
