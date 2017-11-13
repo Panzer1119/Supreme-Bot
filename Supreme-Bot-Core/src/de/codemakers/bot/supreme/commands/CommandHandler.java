@@ -61,8 +61,8 @@ public class CommandHandler {
                 ReactionListener.registerListener(commandContainer.event.getMessage(), REPEAT_EMOTE, (reaction, emote_, guild, user) -> {
                     ReactionListener.unregisterListener(commandContainer.event.getMessage(), REPEAT_EMOTE, false);
                     COMMAND_RUN.apply(commandContainer.event);
-                }, new Timeout(2, TimeUnit.MINUTES, () -> {
-                    ReactionListener.unregisterListener(commandContainer.event.getMessage(), REPEAT_EMOTE, true);
+                }, new Timeout(5, TimeUnit.MINUTES, () -> {
+                    ReactionListener.unregisterListener(commandContainer.event.getMessage(), REPEAT_EMOTE, !commandContainer.event.isPrivate());
                 }), ReactionPermissionFilter.createUserFilter(commandContainer.event.getAuthor()), true);
             }
             if (commandContainer.invoker != null) {
@@ -94,10 +94,10 @@ public class CommandHandler {
             final Emoji emoji = commandContainer.event.isPrivate() ? Config.CONFIG.getUserReactionOnCommandNotFound(commandContainer.event.getAuthor().getIdLong()) : Config.CONFIG.getGuildReactionOnCommandNotFound(commandContainer.event.getGuild().getIdLong());
             final AdvancedEmote emote = new AdvancedEmote(emoji != null ? emoji.toString() : null, emoji, commandContainer.event.isPrivate() ? null : Config.CONFIG.getGuildReactionOnCommandNotFound(commandContainer.event.getGuild()));
             ReactionListener.registerListener(commandContainer.event.getMessage(), emote, (reaction, emote_, guild, user) -> {
-                ReactionListener.unregisterListener(commandContainer.event.getMessage(), emote, true);
+                ReactionListener.unregisterListener(commandContainer.event.getMessage(), emote, !commandContainer.event.isPrivate());
                 sendHelpList(commandContainer.event, true, false);
-            }, new Timeout(1, TimeUnit.MINUTES, () -> {
-                ReactionListener.unregisterListener(commandContainer.event.getMessage(), emote, true);
+            }, new Timeout(2, TimeUnit.MINUTES, () -> {
+                ReactionListener.unregisterListener(commandContainer.event.getMessage(), emote, !commandContainer.event.isPrivate());
             }), null, true);
             return false;
         } catch (Exception ex) {

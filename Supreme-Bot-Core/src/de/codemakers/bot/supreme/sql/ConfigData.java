@@ -21,9 +21,9 @@ public class ConfigData {
     public final long user_id;
     @SQLField(index = 3, column = "config_ID", nullBehavior = NullBehavior.NOT_NULL, primaryKey = true, type = JDBCType.BIGINT)
     public final long config_id;
-    @SQLField(index = 4, column = "config_key", nullBehavior = NullBehavior.NOT_NULL, primaryKey = true, type = JDBCType.VARCHAR)
+    @SQLField(index = 4, column = "config_key", length = "255", nullBehavior = NullBehavior.NOT_NULL, primaryKey = true, type = JDBCType.VARCHAR)
     public final String key;
-    @SQLField(index = 5, column = "config_value", nullBehavior = NullBehavior.NULL, defaultValue = "NULL", type = JDBCType.VARCHAR)
+    @SQLField(index = 5, column = "config_value", length = "7000", nullBehavior = NullBehavior.NULL, defaultValue = "NULL", type = JDBCType.VARCHAR)
     public String value;
     private AbstractConfig config = null;
 

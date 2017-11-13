@@ -72,7 +72,11 @@ public interface ReactionListener {
             LISTENERS.remove(message);
         }
         if (removeReactions) {
-            Standard.getUpdatedMessage(message).queue((message_) -> message_.getReactions().stream().filter((reaction) -> emote.equals(reaction)).forEach((reaction) -> reaction.getUsers().stream().map(reaction::removeReaction).forEach(RestAction::queue)));
+            try {
+                Standard.getUpdatedMessage(message).queue((message_) -> message_.getReactions().stream().filter((reaction) -> emote.equals(reaction)).forEach((reaction) -> reaction.getUsers().stream().map(reaction::removeReaction).forEach(RestAction::queue)));
+            } catch (Exception ex) {
+                System.err.println("ReactionListener unregisterListener1 error: " + ex);
+            }
         }
         return container;
     }
@@ -87,7 +91,11 @@ public interface ReactionListener {
         }
         LISTENERS.remove(message);
         if (removeReactions) {
-            Standard.getUpdatedMessage(message).queue((message_) -> message_.clearReactions().queue());
+            try {
+                Standard.getUpdatedMessage(message).queue((message_) -> message_.clearReactions().queue());
+            } catch (Exception ex) {
+                System.err.println("ReactionListener unregisterListener2 error: " + ex);
+            }
         }
         return true;
     }
@@ -118,7 +126,7 @@ public interface ReactionListener {
             return;
         }
         if (container.removeReaction) {
-            //event.getReaction().removeReaction(event.getUser()).queue(); //FIXME Currently not supported
+            //event.getReaction().removeReaction(event.getUser()).queue(); //FIXME Currently not supported, because this would trigger the reaction again
         }
         if (container.filter != null && !container.filter.isPermissionGranted(event.getGuild(), event.getUser())) {
             return;
@@ -175,14 +183,14 @@ public interface ReactionListener {
     public static boolean deleteMessageWithReaction(Message message, String emote_name, long amount, TimeUnit unit, boolean removeAllListeners, ReactionPermissionFilter filter) {
         return ReactionListener.registerListener(message, AdvancedEmote.parse(emote_name), (reaction, emote, guild, user) -> {
             if (removeAllListeners) {
-                unregisterListener(message, true);
+                unregisterListener(message, message.getGuild() != null);
             }
             message.delete().queue();
         }, new Timeout(amount, unit, () -> {
             if (removeAllListeners) {
-                unregisterListener(message, true);
+                unregisterListener(message, message.getGuild() != null);
             } else {
-                unregisterListener(message, AdvancedEmote.parse(emote_name), true);
+                unregisterListener(message, AdvancedEmote.parse(emote_name), message.getGuild() != null);
             }
             message.delete().queue();
         }), filter, true);

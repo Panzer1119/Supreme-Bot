@@ -145,14 +145,18 @@ public class Database implements Copyable {
         if (!isConnected()) {
             return null;
         }
+        String temp = null;
         try {
-            String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
+            temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
             if (DEBUG_SQL) {
                 System.out.println(temp);
             }
             return connection.prepareStatement(temp);
         } catch (Exception ex) {
             System.err.println("Database: Statement preparing error");
+            if (DEBUG) {
+                System.err.println("SQL: " + temp);
+            }
             ex.printStackTrace();
             return null;
         }
@@ -162,8 +166,9 @@ public class Database implements Copyable {
         if (!isConnected()) {
             return false;
         }
+        String temp = null;
         try {
-            String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
+            temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
             if (DEBUG_SQL) {
                 System.out.println(temp);
             }
@@ -174,6 +179,9 @@ public class Database implements Copyable {
             return result;
         } catch (Exception ex) {
             System.err.println("Database: Executing error");
+            if (DEBUG) {
+                System.err.println("SQL: " + temp);
+            }
             ex.printStackTrace();
             return false;
         }
@@ -183,8 +191,9 @@ public class Database implements Copyable {
         if (!isConnected()) {
             return null;
         }
+        String temp = null;
         try {
-            String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
+            temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
             if (DEBUG_SQL) {
                 System.out.println(temp);
             }
@@ -193,6 +202,9 @@ public class Database implements Copyable {
             return new Result(statement, resultSet);
         } catch (Exception ex) {
             System.err.println("Database: Executing query error");
+            if (DEBUG) {
+                System.err.println("SQL: " + temp);
+            }
             ex.printStackTrace();
             return null;
         }
@@ -202,8 +214,9 @@ public class Database implements Copyable {
         if (!isConnected()) {
             return -1;
         }
+        String temp = null;
         try {
-            String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
+            temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
             if (DEBUG_SQL) {
                 System.out.println(temp);
             }
@@ -213,6 +226,9 @@ public class Database implements Copyable {
             return result;
         } catch (Exception ex) {
             System.err.println("Database: Executing update error");
+            if (DEBUG) {
+                System.err.println("SQL: " + temp);
+            }
             ex.printStackTrace();
             return -1;
         }
@@ -222,8 +238,9 @@ public class Database implements Copyable {
         if (!isConnected()) {
             return -1;
         }
+        String temp = null;
         try {
-            String temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
+            temp = (args != null && args.length != 0) ? String.format(sql, args) : sql;
             if (DEBUG_SQL) {
                 System.out.println(temp);
             }
@@ -233,6 +250,9 @@ public class Database implements Copyable {
             return result;
         } catch (Exception ex) {
             System.err.println("Database: Executing large update error");
+            if (DEBUG) {
+                System.err.println("SQL: " + temp);
+            }
             ex.printStackTrace();
             return -1;
         }

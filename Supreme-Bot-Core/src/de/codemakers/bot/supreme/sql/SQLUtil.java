@@ -284,7 +284,7 @@ public class SQLUtil {
     public static final <T> boolean createTableIfNotExists(Class<? extends T> clazz, Database database, String table) {
         try {
             final List<Map.Entry<Field, SQLField>> fields_all = getFields(clazz, FieldType.ALL);
-            final String sql_create = String.format("CREATE TABLE IF NOT EXISTS %s (%s, PRIMARY KEY (%s));", table, fields_all.stream().map((field) -> field.getValue()).map((field) -> (String.format("%s %s%s%s%s", field.column(), fromJDBCType(field.type()), field.nullBehavior() == NullBehavior.NOT_NULL ? " NOT NULL" : (field.nullBehavior() == NullBehavior.NULL ? " NULL" : ""), (field.defaultValue().isEmpty() ? "" : " DEFAULT " + field.defaultValue()), field.extra()))).collect(Collectors.joining(", ")), fields_all.stream().map((field) -> field.getValue()).filter((field) -> field.primaryKey()).map((field) -> field.column()).collect(Collectors.joining(", ")));
+            final String sql_create = String.format("CREATE TABLE IF NOT EXISTS %s (%s, PRIMARY KEY (%s));", table, fields_all.stream().map((field) -> field.getValue()).map((field) -> (String.format("%s %s%s%s%s", field.column(), fromJDBCType(field.type(), field.length()), field.nullBehavior() == NullBehavior.NOT_NULL ? " NOT NULL" : (field.nullBehavior() == NullBehavior.NULL ? " NULL" : ""), (field.defaultValue().isEmpty() ? "" : " DEFAULT " + field.defaultValue()), field.extra()))).collect(Collectors.joining(", ")), fields_all.stream().map((field) -> field.getValue()).filter((field) -> field.primaryKey()).map((field) -> field.column()).collect(Collectors.joining(", ")));
             if (Database.DEBUG_SQL) {
                 System.err.println("SQL TABLE CREATION: " + sql_create);
             }
@@ -461,51 +461,75 @@ public class SQLUtil {
         }
     }
 
-    public static final String fromJDBCType(JDBCType type) {
-        switch (type) {
-            case VARCHAR:
-                return type.name() + "(255)";
-            case BIT:
-            case TINYINT:
-            case SMALLINT:
-            case INTEGER:
-            case BIGINT:
-            case FLOAT:
-            case REAL:
-            case DOUBLE:
-            case NUMERIC:
-            case DECIMAL:
-            case CHAR:
-            case LONGVARCHAR:
-            case DATE:
-            case TIME:
-            case TIMESTAMP:
-            case BINARY:
-            case VARBINARY:
-            case LONGVARBINARY:
-            case NULL:
-            case OTHER:
-            case JAVA_OBJECT:
-            case DISTINCT:
-            case STRUCT:
-            case ARRAY:
-            case BLOB:
-            case CLOB:
-            case REF:
-            case DATALINK:
-            case BOOLEAN:
-            case ROWID:
-            case NCHAR:
-            case NVARCHAR:
-            case LONGNVARCHAR:
-            case NCLOB:
-            case SQLXML:
-            case REF_CURSOR:
-            case TIME_WITH_TIMEZONE:
-            case TIMESTAMP_WITH_TIMEZONE:
-            default:
-                return type.name();
+    public static final String fromJDBCType(JDBCType type, String length) {
+        if (length == null || length.equals("-1")) {
+            return type.getName();
+        } else if (length.equals("0")) {
+            switch (type) {
+                case VARCHAR:
+                    length = "255";
+                    break;
+                case BIT:
+                    length = "1";
+                    break;
+                case TINYINT:
+                    length = "4";
+                    break;
+                case SMALLINT:
+                    length = "6";
+                    break;
+                case INTEGER:
+                    length = "11";
+                    break;
+                case BIGINT:
+                    length = "20";
+                    break;
+                case DECIMAL:
+                    length = "10,0";
+                    break;
+                case LONGVARCHAR:
+                    length = "32000";
+                    break;
+                case FLOAT:
+                case REAL:
+                case DOUBLE:
+                case NUMERIC:
+                case CHAR:
+                case DATE:
+                case TIME:
+                case TIMESTAMP:
+                case BINARY:
+                case VARBINARY:
+                case LONGVARBINARY:
+                case NULL:
+                case OTHER:
+                case JAVA_OBJECT:
+                case DISTINCT:
+                case STRUCT:
+                case ARRAY:
+                case BLOB:
+                case CLOB:
+                case REF:
+                case DATALINK:
+                case BOOLEAN:
+                case ROWID:
+                case NCHAR:
+                case NVARCHAR:
+                case LONGNVARCHAR:
+                case NCLOB:
+                case SQLXML:
+                case REF_CURSOR:
+                case TIME_WITH_TIMEZONE:
+                case TIMESTAMP_WITH_TIMEZONE:
+                default:
+                    length = null;
+                    break;
+            }
         }
+        if (length == null || length.equals("-1")) {
+            return type.getName();
+        }
+        return type.getName() + "(" + length + ")";
     }
 
     public static final String quote(Object object) {

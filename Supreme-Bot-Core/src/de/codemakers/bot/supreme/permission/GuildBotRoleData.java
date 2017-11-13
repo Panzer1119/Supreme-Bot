@@ -27,7 +27,7 @@ public class GuildBotRoleData {
     public final long botRole_id;
     @SQLField(index = 4, column = "granter_ID", nullBehavior = NullBehavior.NULL, defaultValue = "NULL", type = JDBCType.BIGINT)
     public final long granter_id;
-    @SQLField(index = 5, column = "isRole", nullBehavior = NullBehavior.NOT_NULL, defaultValue = "1", type = JDBCType.TINYINT)
+    @SQLField(index = 5, column = "isRole", length = "1", nullBehavior = NullBehavior.NOT_NULL, defaultValue = "1", type = JDBCType.TINYINT)
     public final boolean isRole;
 
     public GuildBotRoleData(long guild_id, long id, long botRole_id, long granter_id, boolean isRole) {

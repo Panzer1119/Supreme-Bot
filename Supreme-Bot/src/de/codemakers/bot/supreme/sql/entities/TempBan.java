@@ -35,7 +35,7 @@ import net.dv8tion.jda.core.entities.User;
  *
  * @author Panzer1119
  */
-@SQLTable(name = MySQL.SQL_TABLE_TEMP_BANS, extras = {MySQL.SQL_TABLE_TEMP_BANS_ARCHIVE}, types = {JDBCType.INTEGER, JDBCType.BIGINT, JDBCType.BIGINT, JDBCType.TIMESTAMP, JDBCType.VARCHAR, JDBCType.BIGINT, JDBCType.TIMESTAMP, JDBCType.TINYINT})
+@SQLTable(name = MySQL.SQL_TABLE_TEMP_BANS, extras = {MySQL.SQL_TABLE_TEMP_BANS_ARCHIVE}, types = {JDBCType.BIGINT, JDBCType.BIGINT, JDBCType.BIGINT, JDBCType.TIMESTAMP, JDBCType.VARCHAR, JDBCType.BIGINT, JDBCType.TIMESTAMP, JDBCType.TINYINT})
 public class TempBan {
 
     public static final String STANDARD_REASON = "No reason available!";
@@ -43,32 +43,32 @@ public class TempBan {
     private static boolean getting = false;
     public static boolean USING = false;
 
-    @SQLField(index = 1, column = "ID", send = false, nullBehavior = NullBehavior.NOT_NULL, primaryKey = true, extra = " AUTO_INCREMENT", type = JDBCType.INTEGER)
-    public int id;
+    @SQLField(index = 1, column = "ID", send = false, nullBehavior = NullBehavior.NOT_NULL, primaryKey = true, extra = " AUTO_INCREMENT", type = JDBCType.BIGINT)
+    public long id;
     @SQLField(index = 2, column = "guild_ID", nullBehavior = NullBehavior.NULL, type = JDBCType.BIGINT)
     public long guild_id;
     @SQLField(index = 3, column = "user_ID", nullBehavior = NullBehavior.NOT_NULL, type = JDBCType.BIGINT)
     public long user_id;
     @SQLField(index = 4, column = "unban_date", nullBehavior = NullBehavior.NULL, defaultValue = "NULL", type = JDBCType.TIMESTAMP)
     public Instant unban_date;
-    @SQLField(index = 5, column = "reason", nullBehavior = NullBehavior.NULL, type = JDBCType.VARCHAR)
+    @SQLField(index = 5, column = "reason", length = "512", nullBehavior = NullBehavior.NULL, type = JDBCType.VARCHAR)
     public String reason;
     @SQLField(index = 6, column = "banner_ID", nullBehavior = NullBehavior.NOT_NULL, type = JDBCType.BIGINT)
     public long banner_id;
     @SQLField(index = 7, column = "ban_date", nullBehavior = NullBehavior.NOT_NULL, defaultValue = "CURRENT_TIMESTAMP", type = JDBCType.TIMESTAMP)
     public Instant ban_date;
-    @SQLField(index = 8, column = "ban_type", nullBehavior = NullBehavior.NOT_NULL, defaultValue = "1", type = JDBCType.TINYINT)
+    @SQLField(index = 8, column = "ban_type", length = "1", nullBehavior = NullBehavior.NOT_NULL, defaultValue = "1", type = JDBCType.TINYINT)
     public boolean ban_type;
 
     public TempBan() {
         this(0, 0, 0, null, true);
     }
 
-    public TempBan(int id, long user_id, long banner_id, Instant ban_date, boolean ban_type) {
+    public TempBan(long id, long user_id, long banner_id, Instant ban_date, boolean ban_type) {
         this(id, 0, user_id, null, null, banner_id, ban_date, ban_type);
     }
 
-    public TempBan(int id, long guild_id, long user_id, Instant unban_date, String reason, long banner_id, Instant ban_date, boolean ban_type) {
+    public TempBan(long id, long guild_id, long user_id, Instant unban_date, String reason, long banner_id, Instant ban_date, boolean ban_type) {
         this.id = id;
         this.guild_id = guild_id;
         this.user_id = user_id;
@@ -79,7 +79,7 @@ public class TempBan {
         this.ban_type = ban_type;
     }
 
-    public final int getId() {
+    public final long getId() {
         return id;
     }
 

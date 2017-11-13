@@ -20,6 +20,8 @@ public @interface SQLField {
 
     String column();
 
+    String length() default "0";
+
     boolean send() default true;
 
     boolean receive() default true;
