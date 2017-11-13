@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 
 /**
  * SystemOutputStream
@@ -15,6 +16,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author Panzer1119
  */
 public class SystemOutputStream extends PrintStream {
+
+    private static boolean SEND_TO_CONSOLE = false;
+    public static Consumer<Boolean> SEND_TO_CONSOLE_CONSUMER = null;
 
     private final Queue<String> buffer = new ConcurrentLinkedQueue<>();
     private final boolean error;
@@ -155,6 +159,12 @@ public class SystemOutputStream extends PrintStream {
         final String msg = String.format("[%s]: %s", LocalDateTime.ofInstant(instant, Standard.getZoneId()).format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), g);
         String temp = msg + (newLine ? Standard.NEW_LINE : "");
         super.print(temp);
+        if (SEND_TO_CONSOLE && Standard.getConsoleTextChannel() != null) {
+            try {
+                Standard.getConsoleTextChannel().sendMessage(temp).queue();
+            } catch (Exception ex) {
+            }
+        }
         final AdvancedFile log_file = Standard.getCurrentLogFile();
         if (log_file != null) {
             while (!buffer.isEmpty()) {
@@ -175,6 +185,17 @@ public class SystemOutputStream extends PrintStream {
                     buffer.add(temp);
                 }
             }
+        }
+    }
+
+    public static final boolean isRedirecting() {
+        return SEND_TO_CONSOLE;
+    }
+
+    public static final void setRedirecting(boolean send_to_console) {
+        SEND_TO_CONSOLE = send_to_console;
+        if (SEND_TO_CONSOLE_CONSUMER != null) {
+            SEND_TO_CONSOLE_CONSUMER.accept(send_to_console);
         }
     }
 

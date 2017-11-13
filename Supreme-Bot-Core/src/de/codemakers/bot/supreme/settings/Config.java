@@ -243,7 +243,7 @@ public class Config extends AbstractConfig {
     }
 
     public final boolean isGuildReactionOnCommandNotFoundEmote(long guild_id) {
-        final String reaction_on_command_not_found = getValue(guild_id, 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK_GRAY);
+        final String reaction_on_command_not_found = getValue(guild_id, 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK);
         if (reaction_on_command_not_found == null) {
             return false;
         }
@@ -251,13 +251,13 @@ public class Config extends AbstractConfig {
     }
 
     public final com.vdurmont.emoji.Emoji getGuildReactionOnCommandNotFound(long guild_id) {
-        String reaction_on_command_not_found = getValue(guild_id, 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK_GRAY);
+        String reaction_on_command_not_found = getValue(guild_id, 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK);
         final com.vdurmont.emoji.Emoji emoji = EmojiManager.getByUnicode(reaction_on_command_not_found);
         return emoji != null ? emoji : EmojiManager.getForAlias(reaction_on_command_not_found);
     }
 
     public final Emote getGuildReactionOnCommandNotFound(Guild guild) {
-        final String reaction_on_command_not_found = getValue(guild.getIdLong(), 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK_GRAY);
+        final String reaction_on_command_not_found = getValue(guild.getIdLong(), 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK);
         if (reaction_on_command_not_found == null) {
             return null;
         }
@@ -322,7 +322,7 @@ public class Config extends AbstractConfig {
     }
 
     public final com.vdurmont.emoji.Emoji getUserReactionOnCommandNotFound(long user_id) {
-        String reaction_on_command_not_found = getValue(0, user_id, KEY_USER_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK_GRAY);
+        String reaction_on_command_not_found = getValue(0, user_id, KEY_USER_REACTION_ON_COMMAND_NOT_FOUND, () -> Emoji.QUESTION_MARK);
         final com.vdurmont.emoji.Emoji emoji = EmojiManager.getByUnicode(reaction_on_command_not_found);
         return emoji != null ? emoji : EmojiManager.getForAlias(reaction_on_command_not_found);
     }

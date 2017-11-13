@@ -27,6 +27,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.util.BackupCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.GetLogCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.SystemCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.XMLEditorCommand;
+import de.codemakers.bot.supreme.commands.impl.secret.ConsoleCommand;
 import de.codemakers.bot.supreme.commands.impl.secret.PasteServerCommand;
 import de.codemakers.bot.supreme.exceptions.ExitTrappedException;
 import de.codemakers.bot.supreme.listeners.GuildLogger;
@@ -67,7 +68,7 @@ public class SupremeBot {
                 //Standard.STANDARD_SETTINGS.saveSettings(); //FIXME WTF This is deleting the settings file all the time?!
                 Standard.saveAllGuildSettings();
             }));
-            Standard.GETTER = () -> jda;
+            Standard.JDA_SUPPLIER = () -> jda;
             NetworkUtil.init();
             reload();
             MySQL.init();
@@ -78,6 +79,7 @@ public class SupremeBot {
             builder.setGame(game = Game.of("Supreme-Bot"));
             initListeners();
             initCommands();
+            init();
             initPlugins();
             loadAllGuilds();
             startJDA();
@@ -134,7 +136,19 @@ public class SupremeBot {
             new SystemCommand();
             new XMLEditorCommand();
             //Secret Commands
+            new ConsoleCommand();
             new PasteServerCommand();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+    
+    private static final boolean init() {
+        try {
+            SystemOutputStream.SEND_TO_CONSOLE_CONSUMER = (send_to_console) -> {
+                setStatus(send_to_console ? "Redirecting to Console" : null);
+            };
             return true;
         } catch (Exception ex) {
             return false;

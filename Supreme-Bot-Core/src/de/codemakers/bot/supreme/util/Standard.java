@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -52,7 +53,7 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2017.11.13_20.10";
+    public static final String VERSION = "2017.11.13_21.35";
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
     public static final String COMMAND_DELIMITER_STRING = " ";
@@ -76,7 +77,7 @@ public class Standard {
     private static String PLUGIN_PERMISSION_ADMIN_STRING = null;
     private static Instant STARTED = null;
     private static final ZoneId UTC = ZoneId.of("UTC");
-    public static Getter<JDA> GETTER = () -> null;
+    public static Supplier<JDA> JDA_SUPPLIER = () -> null;
     private static long HOME_GUILD_ID = -1;
     private static Guild HOME_GUILD = null;
     public static final String HOME_TEXT_CHANNEL_NAME = "console";
@@ -191,7 +192,7 @@ public class Standard {
     }
 
     public static final JDA getJDA() {
-        return GETTER.get();
+        return JDA_SUPPLIER.get();
     }
 
     public static final boolean reloadPluginPermissionAdminString() {
@@ -832,7 +833,7 @@ public class Standard {
         } else if (guild_id == null || guild_id.equalsIgnoreCase("0")) {
             return 0;
         }
-        return Long.parseLong(guild_id);
+        return resolveGuildId(guild_id);
     }
 
     public static final long resolveUserId(User user, String user_id) {
@@ -843,7 +844,7 @@ public class Standard {
         } else if (user_id == null || user_id.equalsIgnoreCase("0")) {
             return 0;
         }
-        return Long.parseLong(user_id);
+        return resolveUserId(user_id);
     }
 
     public static final long resolveUserId(String text) {
@@ -873,6 +874,48 @@ public class Standard {
         } catch (Exception ex) {
             return new ArrayList<>();
         }
+    }
+
+    public static final long resolveTextChannelId(String text) {
+        if (text == null) {
+            return -1;
+        }
+        final Matcher matcher = ArgumentList.PATTERN_MARKDOWN_CHANNEL.matcher(text);
+        if (matcher.matches()) {
+            return Long.parseLong(matcher.group(1));
+        }
+        if (!Util.isStringDigitsOnly(text) && !text.endsWith("L")) {
+            return -1;
+        }
+        return Long.parseLong(text);
+    }
+
+    public static final long resolveGuildId(String text) {
+        if (text == null) {
+            return -1;
+        }
+        final Matcher matcher = ArgumentList.PATTERN_MARKDOWN_GUILD_COMPLETE.matcher(text);
+        if (matcher.matches()) {
+            return Long.parseLong(matcher.group(2));
+        }
+        if (!Util.isStringDigitsOnly(text) && !text.endsWith("L")) {
+            return -1;
+        }
+        return Long.parseLong(text);
+    }
+
+    public static final long resolveId(String text) {
+        if (text == null) {
+            return -1;
+        }
+        final Matcher matcher = ArgumentList.PATTERN_MARKDOWN_ALL.matcher(text);
+        if (matcher.matches()) {
+            return Long.parseLong(matcher.group(1));
+        }
+        if (!Util.isStringDigitsOnly(text) && !text.endsWith("L")) {
+            return -1;
+        }
+        return Long.parseLong(text);
     }
 
     public static final List<Member> muteAll(List<Member> members, boolean mute) {

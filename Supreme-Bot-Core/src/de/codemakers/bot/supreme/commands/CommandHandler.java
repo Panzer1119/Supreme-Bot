@@ -1,7 +1,6 @@
 package de.codemakers.bot.supreme.commands;
 
 import com.vdurmont.emoji.Emoji;
-import com.vdurmont.emoji.EmojiManager;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.AdvancedEmote;
 import de.codemakers.bot.supreme.entities.MessageEvent;
@@ -35,6 +34,8 @@ import java.util.function.Function;
 public class CommandHandler {
 
     public static final AdvancedEmote REPEAT_EMOTE = AdvancedEmote.parse(de.codemakers.bot.supreme.util.Emoji.REPEAT);
+    public static final AdvancedEmote DELETE_EMOTE = AdvancedEmote.parse(de.codemakers.bot.supreme.util.Emoji.NO);
+    public static final AdvancedEmote HELP_EMOTE = AdvancedEmote.parse(de.codemakers.bot.supreme.util.Emoji.QUESTION_MARK_GRAY);
     public static Function<MessageEvent, Void> COMMAND_RUN = null;
 
     public static final Predicate<Listener> ADMIN_PREDICATE = (listener) -> {
@@ -58,6 +59,15 @@ public class CommandHandler {
                 return false;
             }
             if (COMMAND_RUN != null) {
+                if (!Standard.isAutoDeletingCommandByGuild(commandContainer.event.getGuild())) {
+                    ReactionListener.registerListener(commandContainer.event.getMessage(), DELETE_EMOTE, (reaction, emote_, guild, user) -> {
+                        ReactionListener.unregisterListener(commandContainer.event.getMessage(), false);
+                        commandContainer.event.getMessage().delete().queue();
+                    }, new Timeout(5, TimeUnit.MINUTES, () -> {
+                        ReactionListener.unregisterListener(commandContainer.event.getMessage(), !commandContainer.event.isPrivate());
+                        commandContainer.event.getMessage().delete().queue();
+                    }), ReactionPermissionFilter.createUserFilter(commandContainer.event.getAuthor()), true);
+                }
                 ReactionListener.registerListener(commandContainer.event.getMessage(), REPEAT_EMOTE, (reaction, emote_, guild, user) -> {
                     ReactionListener.unregisterListener(commandContainer.event.getMessage(), REPEAT_EMOTE, false);
                     COMMAND_RUN.apply(commandContainer.event);
@@ -75,6 +85,12 @@ public class CommandHandler {
                         PermissionHandler.sendNoPermissionMessage(commandContainer.event);
                         return false;
                     }
+                    ReactionListener.registerListener(commandContainer.event.getMessage(), HELP_EMOTE, (reaction, emote_, guild, user) -> {
+                        ReactionListener.unregisterListener(commandContainer.event.getMessage(), HELP_EMOTE, !commandContainer.event.isPrivate());
+                        sendHelpMessage(commandContainer.invoker, commandContainer.event, command, true, false);
+                    }, new Timeout(2, TimeUnit.MINUTES, () -> {
+                        ReactionListener.unregisterListener(commandContainer.event.getMessage(), HELP_EMOTE, !commandContainer.event.isPrivate());
+                    }), null, true);
                     final Object[] output_called = ListenerManager.fireListeners(CommandListener.class, ADMIN_PREDICATE, new Object[]{command, commandContainer.arguments, CommandType.CALLED});
                     final boolean safe = command.called(commandContainer.invoker, commandContainer.arguments, commandContainer.event);
                     if (safe) {

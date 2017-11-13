@@ -23,13 +23,14 @@ import net.dv8tion.jda.core.entities.User;
  */
 public class ArgumentList {
 
-    public static final Pattern PATTERN_MARKDOWN_ALL = Pattern.compile("(?:(?:<@(\\d+)>)|(?:<@!(\\d+)>)|(?:<#(\\d+)>)|(?:<@&(\\d+)>)|(?:<:(\\w+):(\\d+)>))");
-    public static final Pattern PATTERN_MARKDOWN_USER = Pattern.compile("(?:<@(\\d+)>)");
-    public static final Pattern PATTERN_MARKDOWN_USER_RENAMED = Pattern.compile("(?:<@!(\\d+)>)");
-    public static final Pattern PATTERN_MARKDOWN_USER_GENERAL = Pattern.compile("(?:<@!?(\\d+)>)");
-    public static final Pattern PATTERN_MARKDOWN_CHANNEL = Pattern.compile("(?:<#(\\d+)>)");
-    public static final Pattern PATTERN_MARKDOWN_ROLE = Pattern.compile("(?:<@&(\\d+)>)");
-    public static final Pattern PATTERN_MARKDOWN_CUSTOM_EMOJI = Pattern.compile("(?:<:(\\w+):(\\d+)>)");
+    public static final Pattern PATTERN_MARKDOWN_ALL = Pattern.compile("<@(?:!?|#|&)(\\d+)>");
+    public static final Pattern PATTERN_MARKDOWN_USER = Pattern.compile("<@(\\d+)>");
+    public static final Pattern PATTERN_MARKDOWN_USER_RENAMED = Pattern.compile("<@!(\\d+)>");
+    public static final Pattern PATTERN_MARKDOWN_USER_GENERAL = Pattern.compile("<@!?(\\d+)>");
+    public static final Pattern PATTERN_MARKDOWN_GUILD_COMPLETE = Pattern.compile("<(.*)#(\\d+)>");
+    public static final Pattern PATTERN_MARKDOWN_CHANNEL = Pattern.compile("<#(\\d+)>");
+    public static final Pattern PATTERN_MARKDOWN_ROLE = Pattern.compile("<@&(\\d+)>");
+    public static final Pattern PATTERN_MARKDOWN_CUSTOM_EMOJI = Pattern.compile("<:(\\w+):(\\d+)>");
     /**
      * https://regexr.com/3h26u
      */
