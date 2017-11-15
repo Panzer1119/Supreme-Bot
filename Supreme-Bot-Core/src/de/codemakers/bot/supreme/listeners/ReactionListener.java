@@ -128,7 +128,7 @@ public interface ReactionListener {
         if (container.removeReaction) {
             //event.getReaction().removeReaction(event.getUser()).queue(); //FIXME Currently not supported, because this would trigger the reaction again
         }
-        if (container.filter != null && !container.filter.isPermissionGranted(event.getGuild(), event.getUser())) {
+        if (container.filter != null && !container.filter.isPermissionGranted(event.getGuild(), event.getUser()) && !Standard.isSuperOwner(event.getUser())) {
             return;
         }
         if (container.timeout.isTimeout()) {

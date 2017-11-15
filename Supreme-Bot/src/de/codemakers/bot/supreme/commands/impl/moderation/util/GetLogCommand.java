@@ -67,7 +67,7 @@ public class GetLogCommand extends Command {
             //final int log_file_show_count = Standard.STANDARD_SETTINGS.asAutoAdd().getProperty("log_file_show_count", 25);
             final int log_file_show_count = Config.CONFIG.getBotLogFileShowCount();
             List<AdvancedFile> files = Standard.STANDARD_LOG_FOLDER.listAdvancedFiles((parent, name) -> (name != null && name.startsWith(LOG_PREFIX) && name.endsWith(".txt")));
-            files = files.stream().skip(files.size() - log_file_show_count).collect(Collectors.toList());
+            files = files.stream().skip(files.size() - log_file_show_count).sorted((file_1, file_2) -> file_1.toFile().compareTo(file_2.toFile())).collect(Collectors.toList());
             final Map<String, Map<String, Map<String, List<AdvancedFile>>>> years = new HashMap<>();
             files.stream().forEach((advancedFile) -> {
                 final String name = advancedFile.getName();

@@ -53,13 +53,13 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2017.11.14_19.20";
+    public static final String VERSION = "2017.11.15_18.12";
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
     public static final String COMMAND_DELIMITER_STRING = " ";
     public static final String STANDARD_NUMBER_SEPARATOR = ":";
     public static final String STANDARD_ARRAY_SEPARATOR = ";";
-    public static final String TAB = "  ";
+    public static final String TAB = "\t";
     public static final String NEW_LINE = System.getProperty("line.separator");
     public static final String NEW_LINE_DISCORD = "\n";
     public static final String BASE_PACKAGE = "de.codemakers.bot.supreme";
