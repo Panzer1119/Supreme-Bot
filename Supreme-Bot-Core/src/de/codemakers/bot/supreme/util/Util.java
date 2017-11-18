@@ -3,11 +3,13 @@ package de.codemakers.bot.supreme.util;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.settings.Config;
 import java.io.BufferedReader;
+import java.io.File;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.Role;
@@ -990,6 +993,10 @@ public class Util {
                 }
             }
         }
+    }
+
+    public static final List<AdvancedFile> getAndDownloadAttachmentsOfMessage(Message message) {
+        return message.getAttachments().stream().map((attachment) -> new AbstractMap.SimpleEntry<AdvancedFile, Attachment>(Standard.getTempFile(attachment.getFileName()), attachment)).filter((image) -> image.getValue().download(image.getKey().toFile())).map((image) -> image.getKey()).collect(Collectors.toList());
     }
 
 }

@@ -15,6 +15,7 @@ import de.codemakers.bot.supreme.settings.Settings;
 import de.codemakers.bot.supreme.util.updater.Updater;
 import java.awt.Color;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -53,7 +54,7 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2017.11.18_02.00";
+    public static final String VERSION = "2017.11.18_18.22";
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
     public static final String COMMAND_DELIMITER_STRING = " ";
@@ -104,6 +105,9 @@ public class Standard {
     public static final AdvancedFile STANDARD_SETTINGS_FILE = getFile(STANDARD_SETTINGS_FILE_NAME);
     public static final Settings STANDARD_SETTINGS = new DefaultSettings(STANDARD_SETTINGS_FILE);
 
+    public static final String STANDARD_DATA_TEMP_FOLDER_NAME = "temp";
+    public static final AdvancedFile STANDARD_DATA_TEMP_FOLDER = getFile(STANDARD_DATA_TEMP_FOLDER_NAME);
+
     public static final String STANDARD_GUILDS_FOLDER_NAME = "guilds";
     public static final AdvancedFile STANDARD_GUILDS_FOLDER = getFile(STANDARD_GUILDS_FOLDER_NAME);
     public static final String STANDARD_GUILD_SETTINGS_FILE_NAME = "settings.txt";
@@ -151,6 +155,10 @@ public class Standard {
         SHUTDOWNHOOKS.add(() -> {
             Util.killAndFireAllTimerTask();
             Updater.kill(500, TimeUnit.MILLISECONDS);
+            try {
+                STANDARD_DATA_TEMP_FOLDER.forEachChild(AdvancedFile::delete);
+            } catch (Exception ex) {
+            }
             try {
                 final Instant now = Instant.now();
                 final long uptime = Util.getUptime(now);
@@ -293,6 +301,32 @@ public class Standard {
 
     public static final AdvancedFile getLogFile(String name) {
         return new AdvancedFile(STANDARD_LOG_FOLDER, name);
+    }
+
+    public static final Pattern TEMP_FILE_NAME_PATTERN = Pattern.compile(".*[^#]#(.*)");
+
+    public static final AdvancedFile getTempFile() {
+        return getTempFile(null);
+    }
+
+    public static final AdvancedFile getTempFile(String name) {
+        try {
+            STANDARD_DATA_TEMP_FOLDER.createAdvancedFile();
+            return new AdvancedFile(STANDARD_DATA_TEMP_FOLDER, Util.generateRandomString(15) + (name == null ? Util.generateRandomString(10) : "#" + name));
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public static final String getNameOfTempFile(AdvancedFile tempFile) {
+        if (tempFile == null) {
+            return null;
+        }
+        final Matcher matcher = TEMP_FILE_NAME_PATTERN.matcher(tempFile.getName());
+        if (!matcher.matches()) {
+            return "";
+        }
+        return matcher.group(1);
     }
 
     public static final Pattern getTimePattern() {
