@@ -65,6 +65,8 @@ public class GuildsCommand extends Command {
             event.getMessageChannel().sendMessageFormat("%s do you really want to leave the guild %s?", event.getAuthor().getAsMention(), Standard.getCompleteName(guild)).queue((message) -> {
                 ReactionListener.registerListener(message, AdvancedEmote.parse(Emoji.CHECK_MARK), (reaction, emote, guild_, user) -> {
                     guild.leave().queue();
+                    ReactionListener.unregisterListener(message, true);
+                    message.delete().queue();
                 }, null, ReactionPermissionFilter.createUserFilter(event.getAuthor()), true);
                 ReactionListener.registerListener(message, AdvancedEmote.parse(Emoji.MARK_MULTIPLICATION_SIGN), (reaction, emote, guild_, user) -> {
                     ReactionListener.unregisterListener(message, true);
