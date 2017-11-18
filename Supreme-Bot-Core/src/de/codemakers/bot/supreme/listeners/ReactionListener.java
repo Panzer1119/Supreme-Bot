@@ -24,7 +24,17 @@ import net.dv8tion.jda.core.requests.RestAction;
  */
 public interface ReactionListener {
 
-    static final Map<Message, Map<AdvancedEmote, ReactionContainer>> LISTENERS = new ConcurrentHashMap<>();
+    static final Map<Message, Map<AdvancedEmote, ReactionContainer>> MESSAGE_REACTION_LISTENERS = new ConcurrentHashMap<>();
+    static final Map<AdvancedEmote, ReactionContainer> REACTION_LISTENERS = new ConcurrentHashMap<AdvancedEmote, ReactionContainer>() {
+        @Override
+        public ReactionContainer get(Object emote) {
+            final ReactionContainer temp = super.get(emote);
+            if (temp != null) {
+                return temp;
+            }
+            return entrySet().stream().filter((containers) -> containers.getKey().equals(emote)).findFirst().orElse(new AbstractMap.SimpleEntry<>(null, null)).getValue();
+        }
+    };
 
     void onReaction(MessageReaction reaction, AdvancedEmote emote, Guild guild, User user);
 
@@ -45,7 +55,7 @@ public interface ReactionListener {
             message.addReaction(emote.getEmoji().getUnicode()).queue();
         }
         final ReactionContainer container = new ReactionContainer(timeout, listener, filter, removeReaction);
-        LISTENERS.computeIfAbsent(message, message_ -> new ConcurrentHashMap<AdvancedEmote, ReactionContainer>() {
+        MESSAGE_REACTION_LISTENERS.computeIfAbsent(message, message_ -> new ConcurrentHashMap<AdvancedEmote, ReactionContainer>() {
             @Override
             public ReactionContainer get(Object emote) {
                 final ReactionContainer temp = super.get(emote);
@@ -59,17 +69,32 @@ public interface ReactionListener {
         return true;
     }
 
+    public static boolean registerListener(AdvancedEmote emote, ReactionListener listener, boolean removeReaction) {
+        return registerListener(emote, listener, null, null, removeReaction);
+    }
+
+    public static boolean registerListener(AdvancedEmote emote, ReactionListener listener, Timeout timeout, ReactionPermissionFilter filter, boolean removeReaction) {
+        if (emote == null || listener == null || REACTION_LISTENERS.containsKey(emote)) {
+            return false;
+        }
+        if (timeout == null) {
+            timeout = new Timeout(-1, TimeUnit.MILLISECONDS, null);
+        }
+        REACTION_LISTENERS.put(emote, new ReactionContainer(timeout, listener, filter, removeReaction));
+        return true;
+    }
+
     public static ReactionContainer unregisterListener(Message message, AdvancedEmote emote, boolean removeReactions) {
         if (message == null || emote == null) {
             return null;
         }
-        final Map<AdvancedEmote, ReactionContainer> containers = LISTENERS.get(message);
+        final Map<AdvancedEmote, ReactionContainer> containers = MESSAGE_REACTION_LISTENERS.get(message);
         if (containers == null) {
             return null;
         }
         final ReactionContainer container = containers.remove(emote);
         if (containers.isEmpty()) {
-            LISTENERS.remove(message);
+            MESSAGE_REACTION_LISTENERS.remove(message);
         }
         if (removeReactions) {
             try {
@@ -85,11 +110,11 @@ public interface ReactionListener {
         if (message == null) {
             return false;
         }
-        final Map<AdvancedEmote, ReactionContainer> containers = LISTENERS.get(message);
+        final Map<AdvancedEmote, ReactionContainer> containers = MESSAGE_REACTION_LISTENERS.get(message);
         if (containers == null) {
             return true;
         }
-        LISTENERS.remove(message);
+        MESSAGE_REACTION_LISTENERS.remove(message);
         if (removeReactions) {
             try {
                 Standard.getUpdatedMessage(message).queue((message_) -> message_.clearReactions().queue());
@@ -100,20 +125,45 @@ public interface ReactionListener {
         return true;
     }
 
-    static void unregisterAll() {
-        LISTENERS.entrySet().stream().forEach((containers) -> containers.getValue().keySet().stream().forEach((emote) -> unregisterListener(containers.getKey(), emote, true)));
-        LISTENERS.clear();
+    public static ReactionContainer unregisterListener(AdvancedEmote emote, boolean removeReactions) {
+        if (emote == null || !REACTION_LISTENERS.containsKey(emote)) {
+            return null;
+        }
+        return REACTION_LISTENERS.remove(emote);
+    }
+
+    static void unregisterAllMessageReactionListeners() {
+        MESSAGE_REACTION_LISTENERS.entrySet().stream().forEach((containers) -> containers.getValue().keySet().stream().forEach((emote) -> unregisterListener(containers.getKey(), emote, true)));
+        MESSAGE_REACTION_LISTENERS.clear();
+    }
+
+    static void unregisterAllReactionListeners() {
+        REACTION_LISTENERS.keySet().stream().forEach((emote) -> unregisterListener(emote, true));
+        REACTION_LISTENERS.clear();
     }
 
     public static void handle(GenericMessageReactionEvent event) {
         if (event == null || Standard.getSelfUser().getIdLong() == event.getUser().getIdLong()) {
             return;
         }
+        try {
+            handleMessageReaction(event);
+        } catch (Exception ex) {
+            System.err.println(ex);
+        }
+        try {
+            handleReaction(event);
+        } catch (Exception ex) {
+            System.err.println(ex);
+        }
+    }
+
+    static void handleMessageReaction(GenericMessageReactionEvent event) {
         final Message message = (event.getTextChannel() != null ? event.getTextChannel().getMessageById(event.getMessageIdLong()).complete() : (event.getPrivateChannel() != null ? event.getPrivateChannel().getMessageById(event.getMessageIdLong()).complete() : null));
         if (message == null) {
             return;
         }
-        final Map<AdvancedEmote, ReactionContainer> containers = LISTENERS.get(message);
+        final Map<AdvancedEmote, ReactionContainer> containers = MESSAGE_REACTION_LISTENERS.get(message);
         if (containers == null) {
             return;
         }
@@ -139,8 +189,31 @@ public interface ReactionListener {
         container.listener.onReaction(event.getReaction(), emote, event.getGuild(), event.getUser());
     }
 
+    static void handleReaction(GenericMessageReactionEvent event) {
+        final AdvancedEmote emote = AdvancedEmote.ofReactionEmote(event.getReactionEmote());
+        if (emote == null) {
+            return;
+        }
+        final ReactionContainer container = REACTION_LISTENERS.get(emote);
+        if (container == null) {
+            return;
+        }
+        if (container.removeReaction) {
+            //event.getReaction().removeReaction(event.getUser()).queue(); //FIXME Currently not supported, because this would trigger the reaction again
+        }
+        if (container.filter != null && !container.filter.isPermissionGranted(event.getGuild(), event.getUser()) && !Standard.isSuperOwner(event.getUser())) {
+            return;
+        }
+        if (container.timeout.isTimeout()) {
+            unregisterListener(emote, false);
+            container.timeout.runAfterTimeout();
+            return;
+        }
+        container.listener.onReaction(event.getReaction(), emote, event.getGuild(), event.getUser());
+    }
+
     static void update(Instant instant, boolean delete) {
-        new ConcurrentHashMap<>(LISTENERS).entrySet().stream().forEach((containers) -> {
+        new ConcurrentHashMap<>(MESSAGE_REACTION_LISTENERS).entrySet().stream().forEach((containers) -> {
             containers.getValue().entrySet().stream().filter((container) -> (delete || (container.getValue().timeout != null && container.getValue().timeout.isTimeout(instant)))).forEach((container) -> {
                 try {
                     if (container.getValue().timeout.isRunningAfterTimeout()) {
@@ -152,6 +225,17 @@ public interface ReactionListener {
                     ex.printStackTrace();
                 }
             });
+        });
+        new ConcurrentHashMap<>(REACTION_LISTENERS).entrySet().stream().filter((container) -> (delete || (container.getValue().timeout != null && container.getValue().timeout.isTimeout(instant)))).forEach((container) -> {
+            try {
+                if (container.getValue().timeout.isRunningAfterTimeout()) {
+                    container.getValue().timeout.runAfterTimeout();
+                } else {
+                    unregisterListener(container.getKey(), false);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
     }
 

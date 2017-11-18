@@ -2,8 +2,11 @@ package de.codemakers.bot.supreme.commands.impl;
 
 import de.codemakers.bot.supreme.commands.Command;
 import de.codemakers.bot.supreme.commands.CommandCategory;
+import de.codemakers.bot.supreme.commands.CommandParser;
+import de.codemakers.bot.supreme.commands.CommandType;
 import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
+import de.codemakers.bot.supreme.entities.AdvancedEmote;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.listeners.ReactionListener;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
@@ -24,6 +27,10 @@ import net.dv8tion.jda.core.EmbedBuilder;
  * @author Panzer1119
  */
 public class SolveCommand extends Command {
+
+    static {
+        //ReactionListener.registerListener(AdvancedEmote.parse("1234"), (reaction, emote, guild, user) -> reaction.getChannel().getMessageById(reaction.getMessageIdLong()).queue((message) -> reaction.getChannel().sendMessage(message).queue()), false); //TESTING ONLY
+    }
 
     @Override
     public void initInvokers() {
