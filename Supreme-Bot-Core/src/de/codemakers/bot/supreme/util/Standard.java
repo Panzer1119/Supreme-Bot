@@ -53,7 +53,7 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2017.11.15_18.12";
+    public static final String VERSION = "2017.11.18_02.00";
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
     public static final String COMMAND_DELIMITER_STRING = " ";
@@ -88,8 +88,8 @@ public class Standard {
      * ((\d*[.,])?\d+)((?:w(?:eek(?:s)?)?)|(?:d(?:ay(?:s)?)?)|(?:h(?:our(?:s)?)?)|(?:m(?:in(?:ute(?:s)?)?)?)|(?:s(?:ec(?:ond(?:s)?)?)?))
      * ((\d*[.,])?\d+)((?:y(?:ear(?:s)?)?)|(?:w(?:eek(?:s)?)?)|(?:d(?:ay(?:s)?)?)|(?:h(?:our(?:s)?)?)|(?:m(?:in(?:ute(?:s)?)?)?)|(?:s(?:ec(?:ond(?:s)?)?)?))
      * ((\d*[.,])?\d+)((?:y(?:ear(?:s)?)?)|(?:w(?:eek(?:s)?)?)|(?:d(?:ay(?:s)?)?)|(?:h(?:our(?:s)?)?)|(?:m(?:in(?:(?:ute(?:s)?)|(?:s))?)?)|(?:s(?:ec(?:(?:ond(?:s)?)|(?:s))?)?))
-     * https://regexr.com/3gu94
-     * ((?:\d*[.,])?\d+) ?((?:y(?:ear(?:s)?)?)|(?:w(?:eek(?:s)?)?)|(?:d(?:ay(?:s)?)?)|(?:h(?:our(?:s)?)?)|(?:m(?:in(?:(?:ute(?:s)?)|(?:s))?)?)|(?:s(?:ec(?:(?:ond(?:s)?)|(?:s))?)?))
+     * https://regexr.com/3gu94 ((?:\d*[.,])?\d+)
+     * ?((?:y(?:ear(?:s)?)?)|(?:w(?:eek(?:s)?)?)|(?:d(?:ay(?:s)?)?)|(?:h(?:our(?:s)?)?)|(?:m(?:in(?:(?:ute(?:s)?)|(?:s))?)?)|(?:s(?:ec(?:(?:ond(?:s)?)|(?:s))?)?))
      * https://regexr.com/3h695
      */
     public static final Pattern PATTERN_TIME = Pattern.compile("((?:\\d*[.,])?\\d+) ?((?:y(?:ear(?:s)?)?)|(?:w(?:eek(?:s)?)?)|(?:d(?:ay(?:s)?)?)|(?:h(?:our(?:s)?)?)|(?:m(?:in(?:(?:ute(?:s)?)|(?:s))?)?)|(?:s(?:ec(?:(?:ond(?:s)?)|(?:s))?)?))", Pattern.CASE_INSENSITIVE);
@@ -1353,5 +1353,6 @@ public class Standard {
     public static final Argument ARGUMENT_RELOAD = new Argument("reload", STANDARD_ARGUMENT_PREFIXES, "r");
     public static final Argument ARGUMENT_SOUNDCLOUD = new Argument("SoundCloud", STANDARD_ARGUMENT_PREFIXES, "sc");
     public static final Argument ARGUMENT_YOUTUBE = new Argument("YouTube", STANDARD_ARGUMENT_PREFIXES, "yt");
+    public static final Argument ARGUMENT_LEAVE = new Argument("leave", STANDARD_ARGUMENT_PREFIXES);
 
 }

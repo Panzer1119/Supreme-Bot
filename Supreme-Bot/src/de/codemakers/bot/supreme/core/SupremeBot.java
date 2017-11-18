@@ -5,6 +5,7 @@ import de.codemakers.bot.supreme.commands.impl.HelpCommand;
 import de.codemakers.bot.supreme.commands.impl.RolesCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
 import de.codemakers.bot.supreme.commands.impl.PingCommand;
+import de.codemakers.bot.supreme.commands.impl.SolveCommand;
 import de.codemakers.bot.supreme.commands.impl.UptimeCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.GameOfLifeCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.TicTacToeCommand;
@@ -25,6 +26,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.TempBanCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.UploadFileCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.BackupCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.GetLogCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.util.GuildsCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.SystemCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.XMLEditorCommand;
 import de.codemakers.bot.supreme.commands.impl.secret.ConsoleCommand;
@@ -109,6 +111,7 @@ public class SupremeBot {
             new HelpCommand();
             new PingCommand();
             new RolesCommand();
+            new SolveCommand();
             new UptimeCommand();
             //Fun Commands
             new GameOfLifeCommand();
@@ -133,6 +136,7 @@ public class SupremeBot {
             //Util Commands
             new BackupCommand();
             new GetLogCommand();
+            new GuildsCommand();
             new SystemCommand();
             new XMLEditorCommand();
             //Secret Commands
@@ -143,7 +147,7 @@ public class SupremeBot {
             return false;
         }
     }
-    
+
     private static final boolean init() {
         try {
             SystemOutputStream.SEND_TO_CONSOLE_CONSUMER = (send_to_console) -> {
