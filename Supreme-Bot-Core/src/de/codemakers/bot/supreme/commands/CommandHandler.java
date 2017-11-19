@@ -171,7 +171,7 @@ public class CommandHandler {
         if (sendPrivate || Config.CONFIG.isGuildSendingHelpAlwaysPrivate(event.getGuild().getIdLong())) {
             Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
         } else {
-            if (!PermissionHandler.isPermissionGranted(filter, event.getTextChannel()) || !(forceSendInChannel && PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_BOT_COMMANDER_BOT_ADMIN, event.getMember()))) {
+            if (!PermissionHandler.isPermissionGranted(filter, event.getTextChannel()) || (forceSendInChannel && !PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_BOT_COMMANDER_BOT_ADMIN, event.getMember()))) {
                 Util.sendPrivateMessage(event.getAuthor(), generateHelpMessage(invoker, event, command).build());
                 return true;
             }
@@ -190,7 +190,7 @@ public class CommandHandler {
         try {
             final boolean sendPrivate_ = sendPrivate;
             final List<Command> commands = CommandHandler.COMMANDS.stream().filter((command) -> {
-                if (!sendPrivate_ || forceSendInChannel && !PermissionHandler.isPermissionGranted(command.getPermissionFilter(), event.getTextChannel())) {
+                if (!sendPrivate_ || (forceSendInChannel && !PermissionHandler.isPermissionGranted(command.getPermissionFilter(), event.getTextChannel()))) {
                     return false;
                 }
                 return PermissionHandler.isPermissionGranted(command.getPermissionFilter(), event);
