@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.util;
 
+import de.codemakers.io.file.AdvancedFile;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.time.Instant;

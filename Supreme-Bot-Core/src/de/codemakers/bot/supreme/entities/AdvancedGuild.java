@@ -2,8 +2,8 @@ package de.codemakers.bot.supreme.entities;
 
 import de.codemakers.bot.supreme.settings.DefaultSettings;
 import de.codemakers.bot.supreme.settings.SimpleSettings;
-import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
+import de.codemakers.io.file.AdvancedFile;
 import net.dv8tion.jda.core.entities.Guild;
 
 /**

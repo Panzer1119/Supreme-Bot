@@ -2,8 +2,8 @@ package de.codemakers.bot.supreme.util;
 
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.settings.Config;
+import de.codemakers.io.file.AdvancedFile;
 import java.io.BufferedReader;
-import java.io.File;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;

@@ -1,6 +1,6 @@
 package de.codemakers.bot.supreme.settings;
 
-import de.codemakers.bot.supreme.util.AdvancedFile;
+import de.codemakers.io.file.AdvancedFile;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;

@@ -9,7 +9,6 @@ import de.codemakers.bot.supreme.entities.AdvancedGuild;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.entities.MultiObject;
 import de.codemakers.bot.supreme.entities.MultiObjectHolder;
-import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Emoji;
 import de.codemakers.bot.supreme.util.Standard;
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import java.util.Objects;
 import net.dv8tion.jda.core.EmbedBuilder;
 import org.jdom2.Element;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
+import de.codemakers.io.file.AdvancedFile;
 
 /**
  * XMLEditorCommand

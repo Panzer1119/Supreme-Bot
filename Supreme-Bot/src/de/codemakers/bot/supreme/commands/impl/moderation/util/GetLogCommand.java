@@ -7,7 +7,6 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.listeners.ReactionListener;
-import de.codemakers.bot.supreme.util.AdvancedFile;
 import de.codemakers.bot.supreme.util.Standard;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +18,7 @@ import de.codemakers.bot.supreme.permission.PermissionFilter;
 import de.codemakers.bot.supreme.permission.ReactionPermissionFilter;
 import de.codemakers.bot.supreme.settings.Config;
 import de.codemakers.bot.supreme.util.TimeUnit;
+import de.codemakers.io.file.AdvancedFile;
 
 /**
  * GetLogCommand
