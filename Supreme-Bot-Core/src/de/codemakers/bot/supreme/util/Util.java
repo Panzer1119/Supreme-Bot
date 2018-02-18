@@ -426,7 +426,7 @@ public class Util {
         }
         AdvancedFile advancedFile = null;
         while (advancedFile == null || advancedFile.exists()) {
-            advancedFile = new AdvancedFile(parent, String.format("%s%s%s", prefix, (length != 0 ? generateRandomString(alphabet, length) : ""), suffix));
+            advancedFile = new AdvancedFile(false, parent, String.format("%s%s%s", prefix, (length != 0 ? generateRandomString(alphabet, length) : ""), suffix));
         }
         return advancedFile;
     }

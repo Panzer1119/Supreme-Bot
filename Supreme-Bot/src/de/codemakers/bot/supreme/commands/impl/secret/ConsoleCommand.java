@@ -7,13 +7,11 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
-import de.codemakers.bot.supreme.util.Returner;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.SystemOutputStream;
+import de.codemakers.util.Returner;
 import java.awt.Color;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
 
 /**
  * ConsoleCommand
@@ -68,7 +66,7 @@ public class ConsoleCommand extends Command {
             String extra = "";
             if (setting_both) {
                 Standard.STANDARD_SETTINGS.setProperty("home_guild_id", guild_id);
-                extra = String.format("home Guild to %s and the ", guild_id == -1 ? "nothing" : Returner.of(Standard.getCompleteName(Standard.getGuildById(guild_id))).or("" + guild_id));
+                extra = String.format("home Guild to %s and the ", guild_id == -1 ? "nothing" : Returner.of(Standard.getCompleteName(Standard.getGuildById(guild_id))).or(() -> "" + guild_id));
             }
             Standard.STANDARD_SETTINGS.setProperty("console_textchannel_id", textChannel_id);
             event.sendMessage(Standard.STANDARD_MESSAGE_DELETING_DELAY, Standard.getMessageEmbed(Color.YELLOW, "%s setted the %sconsole TextChannel to %s", event.getAuthor().getAsMention(), extra, textChannel_id == -1 ? "nothing" : "<#" + textChannel_id + ">").build());

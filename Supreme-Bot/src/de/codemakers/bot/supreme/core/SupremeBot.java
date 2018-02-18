@@ -41,7 +41,6 @@ import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.util.NetworkUtil;
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.bot.supreme.util.SystemOutputStream;
-import de.codemakers.plugin.PluginLoader;
 import java.security.Permission;
 import java.time.Instant;
 import net.dv8tion.jda.core.AccountType;

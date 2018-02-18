@@ -47,7 +47,7 @@ public class UploadFileCommand extends Command {
             try {
                 Thread.sleep(500);
                 final String filePath = arguments.consumeFirst();
-                final AdvancedFile file = new AdvancedFile(Standard.STANDARD_UPLOAD_FOLDER, (filePath != null ? filePath : attachment.getFileName()));
+                final AdvancedFile file = new AdvancedFile(false, Standard.STANDARD_UPLOAD_FOLDER, (filePath != null ? filePath : attachment.getFileName()));
                 file.getParent().createAdvancedFile();
                 attachment.download(file.toFile());
                 event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY * 2, "%s uploaded \"%s\"%s", event.getAuthor().getAsMention(), attachment.getFileName(), (filePath != null ? String.format(" as \"%s\"", filePath) : ""));

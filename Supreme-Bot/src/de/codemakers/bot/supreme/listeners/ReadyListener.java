@@ -20,7 +20,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
  */
 public class ReadyListener extends ListenerAdapter {
 
-    private static final AdvancedFile SERVERS_FOLDER = new AdvancedFile(Standard.STANDARD_DATA_FOLDER, "servers");
+    private static final AdvancedFile SERVERS_FOLDER = new AdvancedFile(false, Standard.STANDARD_DATA_FOLDER, "servers");
 
     static {
         SERVERS_FOLDER.createAdvancedFile();
@@ -78,7 +78,7 @@ public class ReadyListener extends ListenerAdapter {
                 return temp.toString();
             }).collect(Collectors.joining(Standard.NEW_LINE, Standard.NEW_LINE, "")));
             System.out.println(out.toString());
-            final AdvancedFile file = new AdvancedFile(SERVERS_FOLDER, String.format("servers_%s.txt", now.format(Standard.STANDARD_DATE_TIME_FILE_FORMATTER)));
+            final AdvancedFile file = new AdvancedFile(false, SERVERS_FOLDER, String.format("servers_%s.txt", now.format(Standard.STANDARD_DATE_TIME_FILE_FORMATTER)));
             Standard.addToFile(file, out.toString(), false);
             if (Standard.getConsoleTextChannel() != null) {
                 Standard.getConsoleTextChannel().sendFile(file.toFile(), new MessageBuilder().append("Startup Server Information for ").append(jda.getSelfUser().getAsMention()).build()).queue();

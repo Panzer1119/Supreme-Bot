@@ -100,7 +100,7 @@ public class Standard {
     public static final Settings STANDARD_NULL_SETTINGS = new DefaultSettings();
 
     public static final String STANDARD_DATA_FOLDER_NAME = "data";
-    public static final AdvancedFile STANDARD_DATA_FOLDER = new AdvancedFile(false, (Object) STANDARD_DATA_FOLDER_NAME);
+    public static final AdvancedFile STANDARD_DATA_FOLDER = new AdvancedFile(false, STANDARD_DATA_FOLDER_NAME);
     public static final String STANDARD_SETTINGS_FILE_NAME = "settings.txt";
     public static final AdvancedFile STANDARD_SETTINGS_FILE = getFile(STANDARD_SETTINGS_FILE_NAME);
     public static final Settings STANDARD_SETTINGS = new DefaultSettings(STANDARD_SETTINGS_FILE);
@@ -288,7 +288,7 @@ public class Standard {
         if (fileName == null) {
             return null;
         }
-        return new AdvancedFile(STANDARD_DATA_FOLDER, fileName);
+        return new AdvancedFile(false, STANDARD_DATA_FOLDER, fileName);
     }
 
     private static final AdvancedFile createCurrentLogFile() {
@@ -300,7 +300,7 @@ public class Standard {
     }
 
     public static final AdvancedFile getLogFile(String name) {
-        return new AdvancedFile(STANDARD_LOG_FOLDER, name);
+        return new AdvancedFile(false, STANDARD_LOG_FOLDER, name);
     }
 
     public static final Pattern TEMP_FILE_NAME_PATTERN = Pattern.compile(".*[^#]#(.*)");
@@ -312,7 +312,7 @@ public class Standard {
     public static final AdvancedFile getTempFile(String name) {
         try {
             STANDARD_DATA_TEMP_FOLDER.createAdvancedFile();
-            return new AdvancedFile(STANDARD_DATA_TEMP_FOLDER, Util.generateRandomString(15) + (name == null ? Util.generateRandomString(10) : "#" + name));
+            return new AdvancedFile(false, STANDARD_DATA_TEMP_FOLDER, Util.generateRandomString(15) + (name == null ? Util.generateRandomString(10) : "#" + name));
         } catch (Exception ex) {
             return null;
         }

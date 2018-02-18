@@ -48,7 +48,7 @@ public class AdvancedGuild {
         if (getFolder() == null) {
             return null;
         }
-        return new AdvancedFile(folder, path);
+        return new AdvancedFile(false, folder, path);
     }
 
     public final AdvancedFile getFolder() {
