@@ -233,7 +233,7 @@ public class MusicCommand extends Command {
         SupremeBot.setStatus(null);
     }
 
-    static final long[] getTimestampAsArray(long millis) {
+    protected static final long[] getTimestampAsArray(long millis) {
         long seconds = millis / 1000;
         long hours = Math.floorDiv(seconds, 3600);
         seconds -= hours * 3600;
@@ -242,7 +242,7 @@ public class MusicCommand extends Command {
         return new long[]{seconds, minutes, hours};
     }
 
-    static final String getTimestamp(long millis) {
+    protected static final String getTimestamp(long millis) {
         final long[] timestamp = getTimestampAsArray(millis);
         final long seconds = timestamp[0];
         final long minutes = timestamp[1];
@@ -250,11 +250,11 @@ public class MusicCommand extends Command {
         return (hours == 0 ? "" : hours + ":") + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
     }
 
-    static final String buildQueueMessage(AudioInfo info) {
+    protected static final String buildQueueMessage(AudioInfo info) {
         final AudioTrackInfo trackInfo = info.getTrack().getInfo();
         final String title = trackInfo.title;
         final long length = trackInfo.length;
-        return String.format("`[ %s ]` %s%n", getTimestamp(length), title);
+        return String.format("`[ %s ]` %s%n", MusicCommand.getTimestamp(length), title);
     }
 
     @Override
@@ -276,6 +276,7 @@ public class MusicCommand extends Command {
         final boolean info = arguments.isConsumed(Standard.ARGUMENT_INFO, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean queue = arguments.isConsumed(Standard.ARGUMENT_QUEUE, ArgumentConsumeType.FIRST_IGNORE_CASE);
         final boolean volume = arguments.isConsumed(Standard.ARGUMENT_VOLUME, ArgumentConsumeType.FIRST_IGNORE_CASE);
+        final boolean remove = arguments.isConsumed(Standard.ARGUMENT_REMOVE, ArgumentConsumeType.FIRST_IGNORE_CASE);
         if (play) {
             if (arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
                 return arguments.isSize(3, 4); //[VoiceChannel] title/url [max_tracks] -live
@@ -294,12 +295,16 @@ public class MusicCommand extends Command {
             return arguments.isSize(1, 3); //[toggle]
         } else if (info) {
             if (arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
-                return arguments.isSize(2, 3); //-live [playlist]
+                return arguments.isSize(2, 3); //[playlist] -live
             } else {
                 return arguments.isSize(1, 2); //[playlist]
             }
         } else if (queue) {
-            return arguments.isSize(1, 2); //[pagenumber]
+            if (arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.FIRST_IGNORE_CASE)) {
+                return arguments.isSize(2, 3); //[pagenumber] -live
+            } else {
+                return arguments.isSize(1, 2); //[pagenumber]
+            }
         } else if (volume) {
             return arguments.isSize(1, 2); //[New volume]
         } else {
@@ -458,34 +463,51 @@ public class MusicCommand extends Command {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there are no tracks waiting!", Emoji.WARNING, event.getAuthor().getAsMention());
                     return;
                 }
+                final boolean live = arguments.isConsumed(Standard.ARGUMENT_LIVE, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+                if (live) {
+                    new MusicQueueMessageManager(event, guild, voiceChannel);
+                    return;
+                }
                 int pageNumber = 1;
                 try {
                     pageNumber = (arguments.isEmpty() ? 1 : Integer.parseInt(arguments.consumeFirst()));
                 } catch (Exception ex) {
                 }
-                final ArrayList<String> tracks = new ArrayList<>();
-                List<AudioInfo> infos = new ArrayList<>(trackManager.getAudioQueue().getFuture());
-                if (trackManager.getAudioQueue().isPlaying()) {
+                final ArrayList<String> tracks_pre = new ArrayList<>();
+                final ArrayList<String> tracks_post = new ArrayList<>();
+                //List<AudioInfo> infos = new ArrayList<>(trackManager.getAudioQueue().getFuture());
+                List<AudioInfo> infos_pre = new ArrayList<>(trackManager.getAudioQueue().getPast());
+                List<AudioInfo> infos_post = new ArrayList<>(trackManager.getAudioQueue().getFuture());
+                /*if (trackManager.getAudioQueue().isPlaying()) {
                     infos.add(0, trackManager.getAudioQueue().getNow());
-                }
+                }*/
                 final int MAX_TRACKS_PER_PAGE = Config.CONFIG.getGuildMusicMaxTracksPerPage(guild.getIdLong());
-                final String queue_name = "default"; //TODO Add queues ability to save them
+                //final String queue_name = "default"; //TODO Add queues ability to save them
                 //TODO Alle Commands muessen methode machen mit stop, damit sie herunterfahren koennen
-                final int track_size = infos.size();
+                final int track_size = trackManager.getAudioQueue().size();
+                int size = track_size;
                 final int pageNumberAll = (track_size > MAX_TRACKS_PER_PAGE ? (int) (track_size / MAX_TRACKS_PER_PAGE + 1.0) : 1);
                 pageNumber = Math.max(1, Math.min(pageNumberAll, pageNumber));
-                if (infos.size() > MAX_TRACKS_PER_PAGE) {
-                    infos = infos.subList(Math.max(0, (pageNumber - 1) * MAX_TRACKS_PER_PAGE), Math.min(pageNumber * MAX_TRACKS_PER_PAGE, track_size));
+                while (size > MAX_TRACKS_PER_PAGE && !infos_pre.isEmpty()) {
+                    infos_pre.remove(0);
+                    size = infos_pre.size() + infos_post.size();
+                }
+                if (size > MAX_TRACKS_PER_PAGE) {
+                    infos_post = infos_post.subList(Math.max(0, (pageNumber - 1) * MAX_TRACKS_PER_PAGE), Math.min(pageNumber * MAX_TRACKS_PER_PAGE, track_size));
+                    size = infos_pre.size() + infos_post.size();
                 }
                 AtomicLong length_all = new AtomicLong(0);
-                infos.stream().forEach((audioInfo) -> {
+                infos_pre.stream().forEach((audioInfo) -> {
                     length_all.addAndGet(audioInfo.getTrack().getDuration());
-                    tracks.add(buildQueueMessage(audioInfo));
+                    tracks_pre.add(buildQueueMessage(audioInfo));
                 });
-                final String out = tracks.stream().collect(Collectors.joining(Standard.NEW_LINE_DISCORD));
-                tracks.clear();
-                infos.clear();
-                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE: \"%s\"**%n%n*[%s Tracks | Complete Duration `[ %s ]` | Page %d / %d]*%n%n**Currently Playing ->** %s", queue_name, track_size, getTimestamp(length_all.get()), pageNumber, pageNumberAll, out).build());
+                infos_post.stream().forEach((audioInfo) -> {
+                    length_all.addAndGet(audioInfo.getTrack().getDuration());
+                    tracks_post.add(buildQueueMessage(audioInfo));
+                });
+                final String out_pre = tracks_pre.stream().collect(Collectors.joining(Standard.NEW_LINE_DISCORD));
+                final String out_post = tracks_post.stream().collect(Collectors.joining(Standard.NEW_LINE_DISCORD));
+                event.sendMessage(Standard.getMessageEmbed(null, "**CURRENT QUEUE: **%n%n*[%d/%d Tracks | Complete Duration `[ %s ]` | Page %d / %d]*%n%n%s**Currently Playing ->** %s", size, track_size, getTimestamp(length_all.get()), pageNumber, pageNumberAll, out_pre.isEmpty() ? "" : out_pre + "\n", out_post).build());
             } else if (volume) {
                 if (trackManager == null) {
                     event.sendMessageFormat(Standard.STANDARD_MESSAGE_DELETING_DELAY, "%s Sorry %s, there is no player running!", Emoji.WARNING, event.getAuthor().getAsMention());

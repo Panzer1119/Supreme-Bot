@@ -19,8 +19,14 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
  */
 public class TrackManager extends AudioEventAdapter {
 
+    private final TrackManager ME = this;
     private final AudioPlayer player;
-    private final AudioQueue queue = new AudioQueue(); //FIXME Is this thread safe????
+    private final AudioQueue queue = new AudioQueue() {
+        @Override
+        public final boolean isPlaying() {
+            return ME.isPlaying();
+        }
+    };
     private LoopType loopType = LoopType.NONE;
     private Guild guild = null;
     private VoiceChannel voiceChannel = null;
@@ -153,14 +159,14 @@ public class TrackManager extends AudioEventAdapter {
     }
 
     public final boolean isPlaying() {
-        return queue.isPlaying() && !player.isPaused();
+        return player != null && !player.isPaused();
     }
 
     @Override
     public final void onTrackStart(AudioPlayer player, AudioTrack track) {
         SupremeBot.setStatus(track.getInfo().title);
-        System.out.println("voiceChannel: " + voiceChannel);
-        if (voiceChannel == null) { //FIXME Wtf why would this happen??!
+        System.out.println("VoiceChannel: " + voiceChannel);
+        if (voiceChannel == null) { //FIXME Wtf, why would this happen??!
             try {
                 if (player.getPlayingTrack() != null) {
                     player.stopTrack();
@@ -185,7 +191,7 @@ public class TrackManager extends AudioEventAdapter {
     }
 
     private final boolean playNext() {
-        if (!queue.hasNext()) {
+        if (!queue.hasNext() && !queue.hasTrack()) {
             System.out.println("Stopping Music! LoopType: " + loopType);
             setPlaying(false);
             try {

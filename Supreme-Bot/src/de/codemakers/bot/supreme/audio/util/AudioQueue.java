@@ -12,31 +12,23 @@ import java.util.stream.Stream;
  *
  * @author Panzer1119
  */
-public class AudioQueue {
+public abstract class AudioQueue {
 
-    private final ArrayList<AudioInfo> queue = new ArrayList<>();
+    private final List<AudioInfo> queue = Collections.synchronizedList(new ArrayList<>());
     private int pointer = 0;
-    private boolean isPlaying = false;
 
     public AudioQueue(AudioInfo... infos) {
         add(infos);
     }
 
-    public final boolean isPlaying() {
-        return isPlaying;
-    }
-
-    public final AudioQueue setPlaying(boolean isPlaying) {
-        this.isPlaying = isPlaying;
-        return this;
-    }
+    public abstract boolean isPlaying();
 
     public final boolean hasNext() {
-        if (isPlaying) {
-            return correctPointer() && ((pointer + 1) < queue.size());
-        } else {
-            return correctPointer() && (pointer < queue.size());
-        }
+        return correctPointer() && ((pointer + 1) < queue.size());
+    }
+
+    public final boolean hasTrack() {
+        return queue.size() > 0;
     }
 
     public final boolean hasPrevious() {
@@ -48,7 +40,7 @@ public class AudioQueue {
     }
 
     public final boolean isEnd() {
-        return correctPointer() && (pointer < queue.size());
+        return !correctPointer() || ((pointer + 1) == queue.size());
     }
 
     public final boolean isEmpty() {
@@ -77,12 +69,6 @@ public class AudioQueue {
     public final AudioInfo get(int delta) {
         if (!correctPointer()) {
             return null;
-        }
-        if (!isPlaying) {
-            if (delta == 0) {
-                return null;
-            }
-            delta--;
         }
         if (correctPointer(pointer + delta) != (pointer + delta)) {
             return null;
@@ -114,10 +100,6 @@ public class AudioQueue {
     }
 
     public final AudioInfo play(int delta) {
-        if (!isPlaying) {
-            delta--;
-            isPlaying = true;
-        }
         pointer += delta;
         return getNow();
     }
@@ -130,15 +112,15 @@ public class AudioQueue {
         return play(-1);
     }
 
+    public final AudioQueue add(AudioInfo... infos) {
+        return add(false, infos);
+    }
+
     public final AudioQueue add(boolean shuffle, AudioInfo... infos) {
         if (infos == null || infos.length == 0) {
             return this;
         }
         return add(shuffle, Arrays.asList(infos));
-    }
-
-    public final AudioQueue add(AudioInfo... infos) {
-        return add(false, infos);
     }
 
     public final AudioQueue add(boolean shuffle, List<AudioInfo> infos) {
@@ -155,6 +137,18 @@ public class AudioQueue {
 
     public final AudioQueue add(List<AudioInfo> infos) {
         return add(false, infos);
+    }
+
+    public final AudioQueue add(boolean shuffle, int index, List<AudioInfo> infos) {
+        if (infos == null || infos.isEmpty()) {
+            return this;
+        }
+        if (shuffle) {
+            infos = new ArrayList<>(infos);
+            Collections.shuffle(infos);
+        }
+        queue.addAll(index, infos);
+        return this;
     }
 
     public final AudioQueue clear() {
@@ -252,20 +246,16 @@ public class AudioQueue {
         return shuffle(1);
     }
 
-    public final ArrayList<AudioInfo> getQueue() {
-        return (ArrayList<AudioInfo>) queue.clone();
+    public final List<AudioInfo> getQueue() {
+        return new ArrayList<>(queue);
     }
 
     public final List<AudioInfo> getFuture() {
-        if (isPlaying) {
-            return queue.subList(Math.max(0, pointer + 1), queue.size());
-        } else {
-            return queue.subList(Math.max(0, pointer), queue.size());
-        }
+        return queue.subList(Math.max(0, pointer), queue.size());
     }
 
     public final List<AudioInfo> getPast() {
-        return queue.subList(0, Math.max(0, Math.min((pointer - 1), queue.size())));
+        return queue.subList(0, Math.max(0, Math.min(pointer, queue.size())));
     }
 
     public final Stream<AudioInfo> stream() {
@@ -276,13 +266,13 @@ public class AudioQueue {
         return queue.parallelStream();
     }
 
-    private final int correctPointer(int pointer) {
-        return correctPointer(pointer, queue.size() - 1);
-    }
-
     private final boolean correctPointer() {
         pointer = correctPointer(pointer);
         return !queue.isEmpty();
+    }
+
+    private final int correctPointer(int pointer) {
+        return correctPointer(pointer, queue.size() - 1);
     }
 
     public static final int correctPointer(int pointer, int max) {
