@@ -81,15 +81,15 @@ public class GetLogCommand extends Command {
             });
             final StringBuilder out = new StringBuilder();
             out.append(Standard.toUnderlineBold(String.format("Logs (last %d):", log_file_show_count))).append(Standard.NEW_LINE_DISCORD).append(Standard.NEW_LINE_DISCORD);
-            years.keySet().stream().map((year) -> {
+            years.keySet().stream().sorted().map((year) -> {
                 out.append(Standard.toBold(Standard.toUnderline("YEAR:") + " " + year)).append(Standard.NEW_LINE_DISCORD);
                 return year;
             }).map((year) -> years.get(year)).forEach((months) -> {
-                months.keySet().stream().map((month) -> {
+                months.keySet().stream().sorted().map((month) -> {
                     out.append(Standard.TAB).append(Standard.TAB).append(Standard.toBold(Standard.toUnderline("MONTH:") + " " + month)).append(Standard.NEW_LINE_DISCORD);
                     return month;
                 }).map((month) -> months.get(month)).forEach((days) -> {
-                    days.keySet().stream().map((day) -> {
+                    days.keySet().stream().sorted().map((day) -> {
                         out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.toBold(Standard.toUnderline("DAY:") + " " + day)).append(Standard.NEW_LINE_DISCORD);
                         return day;
                     }).map((day) -> days.get(day)).forEach((logs) -> logs.stream().forEach((advancedFile) -> out.append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(Standard.TAB).append(advancedFile.getName()).append(Standard.NEW_LINE_DISCORD)));
