@@ -6,7 +6,7 @@ import de.codemakers.bot.supreme.commands.arguments.ArgumentList;
 import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.util.Standard;
-import de.codemakers.bot.supreme.util.XMLUtil;
+import de.codemakers.util.XMLUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import net.dv8tion.jda.core.EmbedBuilder;
