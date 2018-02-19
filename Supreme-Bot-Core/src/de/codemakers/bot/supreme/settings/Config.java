@@ -96,7 +96,7 @@ public class Config extends AbstractConfig {
      * @return Longest uptime milliseconds
      */
     public final long getLongestUptime() {
-        return getValue(0, 0, KEY_BOT_LONGEST_UPTIME, 0);
+        return getValue(0, 0, KEY_BOT_LONGEST_UPTIME, 0L);
     }
 
     /**
