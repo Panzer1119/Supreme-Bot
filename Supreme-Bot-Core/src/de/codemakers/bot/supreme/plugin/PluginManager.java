@@ -9,9 +9,11 @@ import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.io.file.AdvancedFile;
 import de.codemakers.plugin.PluginLoader;
 import de.codemakers.plugin.impl.StandardPluginFilter;
+import de.codemakers.util.MultiFunction;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,8 +24,9 @@ import java.util.Map;
 public class PluginManager implements PluginProvider {
 
     private final PluginLoader pluginLoader;
-    private final ArrayList<Plugin> plugins = new ArrayList<>();
-    private final HashMap<Object, Map.Entry<RegisterType, Object>> registeredObjects = new HashMap<>();
+    private final List<Plugin> plugins = new ArrayList<>();
+    private final Map<Object, Map.Entry<RegisterType, Object>> registeredObjects = new HashMap<>();
+    private final Map<Object, MultiFunction<Object, Object>> functions = new HashMap<>();
 
     public PluginManager() {
         this(new PluginLoader().setPluginFilter(StandardPluginFilter.createInstance(Plugin.class)));
@@ -127,13 +130,13 @@ public class PluginManager implements PluginProvider {
     }
 
     @Override
-    public boolean print(Plugin plugin, String print, Object... args) {
+    public final boolean print(Plugin plugin, String print, Object... args) {
         System.out.print(format(plugin, print, args));
         return true;
     }
 
     @Override
-    public boolean println(Plugin plugin, String print, Object... args) {
+    public final boolean println(Plugin plugin, String print, Object... args) {
         System.out.println(format(plugin, print, args));
         return true;
     }
@@ -147,7 +150,7 @@ public class PluginManager implements PluginProvider {
      * @return
      */
     @Override
-    public boolean register(Plugin plugin, Object id, Object object, RegisterType type) {
+    public final boolean register(Plugin plugin, Object id, Object object, RegisterType type) {
         if (plugin == null || id == null || (registeredObjects.containsKey(id) && object != null)) {
             return false;
         }
@@ -183,11 +186,28 @@ public class PluginManager implements PluginProvider {
     }
 
     @Override
-    public AdvancedGuild getAdvancedGuild(Plugin plugin, long guild_id) {
+    public final Object get(Plugin plugin, Object id, Object... options) {
+        return functions.get(id).apply(options);
+    }
+
+    @Override
+    public final AdvancedGuild getAdvancedGuild(Plugin plugin, long guild_id) {
         if (plugin == null || guild_id == 0) {
             return null;
         }
         return Standard.getAdvancedGuild(guild_id);
+    }
+
+    final List<Plugin> getPlugins() {
+        return plugins;
+    }
+
+    public final Map<Object, Map.Entry<RegisterType, Object>> getRegisteredObjects() {
+        return registeredObjects;
+    }
+
+    public final Map<Object, MultiFunction<Object, Object>> getFunctions() {
+        return functions;
     }
 
 }

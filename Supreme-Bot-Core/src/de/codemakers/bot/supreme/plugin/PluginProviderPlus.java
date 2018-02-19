@@ -34,6 +34,10 @@ public class PluginProviderPlus implements Serializable {
         return provider.register(plugin, id, object, type);
     }
 
+    public final Object get(Object id, Object... options) {
+        return provider.get(plugin, id, options);
+    }
+
     public final AdvancedGuild getAdvancedGuild(long guild_id) {
         return provider.getAdvancedGuild(plugin, guild_id);
     }
