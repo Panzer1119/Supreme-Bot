@@ -174,6 +174,7 @@ public class MusicCommand extends Command {
         if (trackManager == null) {
             return false;
         }
+        trackManager.getPlayer().setVolume(Config.CONFIG.getGuildVolume(guild.getIdLong()));
         if (trackManager.isPlaying() == !pause) {
             return false;
         }
@@ -205,6 +206,7 @@ public class MusicCommand extends Command {
             return false;
         }
         trackManager.getPlayer().setVolume(volume);
+        Config.CONFIG.setGuildVolume(guild.getIdLong(), volume);
         return true;
     }
 

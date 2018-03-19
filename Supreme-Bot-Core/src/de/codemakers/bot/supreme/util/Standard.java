@@ -19,7 +19,6 @@ import java.io.BufferedWriter;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +54,7 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2018-02-19T16:00:00.000Z"; //UTC TIME
+    public static final String VERSION = "2018-03-19T15:17:14.000Z"; //UTC TIME
     public static final Instant VERSION_INSTANT = Instant.parse(VERSION);
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
@@ -802,6 +801,13 @@ public class Standard {
             return null;
         }
         return "<" + user.getName() + "#" + user.getDiscriminator() + (withId ? ":" + user.getId() : "") + ">";
+    }
+
+    public static final String getCompleteName(Member member, boolean withId) {
+        if (member == null) {
+            return null;
+        }
+        return "<" + (member.getNickname() == null ? member.getEffectiveName() : member.getNickname()) + "#" + member.getUser().getDiscriminator() + (withId ? ":" + member.getUser().getId() : "") + ">";
     }
 
     public static final String getCompleteName(Role role) {

@@ -41,6 +41,8 @@ public class Config extends AbstractConfig {
     public static final String KEY_GUILD_MUSIC_MAX_TRACKS_PER_PAGE = "music_max_tracks_per_page";
     public static final String KEY_GUILD_SHOW_COMMAND_NOT_FOUND_MESSAGE = "show_command_not_found_message";
     public static final String KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND = "reaction_on_command_not_found";
+    public static final String KEY_GUILD_MUSIC_STANDARD_VOLUME = "music_standard_volume";
+    public static final String KEY_GUILD_MUSIC_CUSTOM_VOLUME = "music_custom_volume";
     //GUILD USER SETTINGS
     public static final String KEY_GUILD_USER_NOT_MENTIONED_IN_LOGS = "not_mentioned_in_logs";
     //USER SETTINGS
@@ -280,6 +282,32 @@ public class Config extends AbstractConfig {
             reaction_on_command_not_found = EmojiParser.parseToAliases(reaction_on_command_not_found);
         }
         setValue(guild_id, 0, KEY_GUILD_REACTION_ON_COMMAND_NOT_FOUND, reaction_on_command_not_found);
+        return this;
+    }
+
+    public final boolean isGuildKeepingVolume(long guild_id) {
+        return getValue(guild_id, 0, KEY_GUILD_MUSIC_STANDARD_VOLUME, 100) == -1;
+    }
+
+    public final int getGuildVolume(long guild_id) {
+        int volume = getValue(guild_id, 0, KEY_GUILD_MUSIC_STANDARD_VOLUME, 100);
+        if (volume == -1) {
+            volume = getValue(guild_id, 0, KEY_GUILD_MUSIC_CUSTOM_VOLUME, 100);
+        }
+        volume = Math.min(Math.max(0, volume), 150);
+        return volume;
+    }
+
+    public final Config setGuildVolume(long guild_id, int volume, boolean keep_volume) {
+        volume = Math.min(Math.max(0, volume), 150);
+        setValue(guild_id, 0, KEY_GUILD_MUSIC_CUSTOM_VOLUME, volume);
+        setValue(guild_id, 0, KEY_GUILD_MUSIC_STANDARD_VOLUME, keep_volume ? volume : -1);
+        return this;
+    }
+
+    public final Config setGuildVolume(long guild_id, int volume) {
+        volume = Math.min(Math.max(0, volume), 150);
+        setValue(guild_id, 0, KEY_GUILD_MUSIC_CUSTOM_VOLUME, volume);
         return this;
     }
 

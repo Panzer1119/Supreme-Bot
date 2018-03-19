@@ -25,6 +25,7 @@ public class ArgumentList {
 
     public static final Pattern PATTERN_MARKDOWN_ALL = Pattern.compile("<@(?:!?|#|&)(\\d+)>");
     public static final Pattern PATTERN_MARKDOWN_USER = Pattern.compile("<@(\\d+)>");
+    public static final Pattern PATTERN_MARKDOWN_USER_ME = Pattern.compile("ME");
     public static final Pattern PATTERN_MARKDOWN_USER_RENAMED = Pattern.compile("<@!(\\d+)>");
     public static final Pattern PATTERN_MARKDOWN_USER_GENERAL = Pattern.compile("<@!?(\\d+)>");
     public static final Pattern PATTERN_MARKDOWN_GUILD_COMPLETE = Pattern.compile("<(.*)#(\\d+)>");
@@ -43,9 +44,11 @@ public class ArgumentList {
     private final ArrayList<String> arguments_content_raw = new ArrayList<>();
     private final ArrayList<String> arguments_content = new ArrayList<>();
     private final Guild guild;
+    private final User user;
 
-    public ArgumentList(Guild guild) {
+    public ArgumentList(Guild guild, User user) {
         this.guild = guild;
+        this.user = user;
     }
 
     public final ArgumentList addArguments(String... arguments) {
@@ -310,17 +313,23 @@ public class ArgumentList {
         if (temp == null) {
             return null;
         }
+        boolean me = false;
         Matcher matcher = PATTERN_MARKDOWN_USER.matcher(temp);
         if (!matcher.matches()) {
             matcher = PATTERN_MARKDOWN_USER_RENAMED.matcher(temp);
             if (!matcher.matches()) {
-                return null;
+                matcher = PATTERN_MARKDOWN_USER_ME.matcher(temp);
+                if (!matcher.matches()) {
+                    return null;
+                } else {
+                    me = true;
+                }
             }
         }
         if (consume) {
             consumeRaw(index);
         }
-        return Standard.getUserById(matcher.group(1));
+        return me ? user : Standard.getUserById(matcher.group(1));
     }
 
     public final Member consumeMemberFirst() {

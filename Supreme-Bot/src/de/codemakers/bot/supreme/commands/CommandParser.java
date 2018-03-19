@@ -67,7 +67,7 @@ public class CommandParser {
             final ArrayList<String> split_raw = new ArrayList<>(Arrays.asList(beheaded_split_raw));
             final String[] args = split.subList(1, split.size()).toArray(new String[split.size() - 1]);
             final String[] args_raw = split_raw.subList(1, split_raw.size()).toArray(new String[split_raw.size() - 1]);
-            final ArgumentList arguments = new ArgumentList(event.getGuild());
+            final ArgumentList arguments = new ArgumentList(event.getGuild(), event.getAuthor());
             arguments.setContentArguments(args);
             arguments.setContentRawArguments(args_raw);
             split.clear();

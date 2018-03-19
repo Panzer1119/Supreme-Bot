@@ -89,14 +89,14 @@ public class GameOfLifeCommand extends Command {
                 game.sendInput(arguments, event);
             } else if (toggle_all) {
                 final ArrayList<ArgumentList> lists = new ArrayList<>();
-                ArgumentList list_temp = new ArgumentList(event.getGuild());
+                ArgumentList list_temp = new ArgumentList(event.getGuild(), event.getAuthor());
                 while (arguments.hasArguments()) {
                     final String argument_raw = arguments.consumeFirst();
                     if (Standard.STANDARD_ARRAY_SEPARATOR.equals(argument_raw)) {
                         if (!list_temp.isEmpty()) {
                             lists.add(list_temp);
                         }
-                        list_temp = new ArgumentList(event.getGuild());
+                        list_temp = new ArgumentList(event.getGuild(), event.getAuthor());
                     } else {
                         list_temp.addArguments(argument_raw);
                     }
