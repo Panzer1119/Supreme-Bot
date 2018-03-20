@@ -37,7 +37,7 @@ public class UserCommand extends Command {
 
     @Override
     public void action(Invoker invoker, ArgumentList arguments, MessageEvent event) {
-        final boolean advanced = arguments.consumeFirst(Standard.ARGUMENT_ADVANCED, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
+        final boolean advanced = arguments.isConsumed(Standard.ARGUMENT_ADVANCED, ArgumentConsumeType.CONSUME_FIRST_IGNORE_CASE);
         if (advanced) {
             if (!PermissionHandler.isPermissionGranted(Standard.STANDARD_PERMISSIONFILTER_GUILD_MODERATOR_BOT_COMMANDER_BOT_ADMIN, event.getMember())) {
                 PermissionHandler.sendNoPermissionMessage(event);

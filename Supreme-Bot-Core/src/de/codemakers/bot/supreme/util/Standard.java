@@ -54,7 +54,7 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2018-03-20T00:17:00.000Z"; //UTC TIME
+    public static final String VERSION = "2018-03-20T01:12:00.000Z"; //UTC TIME
     public static final Instant VERSION_INSTANT = Instant.parse(VERSION);
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
