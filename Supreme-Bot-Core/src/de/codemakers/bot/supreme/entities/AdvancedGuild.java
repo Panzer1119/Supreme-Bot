@@ -121,7 +121,7 @@ public class AdvancedGuild {
         getSettings().loadSettings();
         String hi = getSettings().getProperty("startup_message", null);
         if (hi != null) {
-            guild.getPublicChannel().sendMessage(hi).queue();
+            (guild.getSystemChannel() != null ? guild.getSystemChannel() : guild.getDefaultChannel()).sendMessage(hi).queue();
         } else {
             System.out.println(String.format("No startup message wanted: \"%s\"", guild));
         }

@@ -54,7 +54,7 @@ public class Standard {
 
     public static final String STANDARD_NAME = "Supreme-Bot";
     public static final String STANDARD_COMMAND_PREFIX = "!";
-    public static final String VERSION = "2018-03-19T15:17:14.000Z"; //UTC TIME
+    public static final String VERSION = "2018-03-20T00:17:00.000Z"; //UTC TIME
     public static final Instant VERSION_INSTANT = Instant.parse(VERSION);
     public static final String COMMAND_ESCAPE_STRING = "\\";
     public static final String[] COMMAND_ESCAPE_SPACE_STRINGS = new String[]{"\"", "'", "»", "«", "„", "”", "“"};
@@ -974,6 +974,20 @@ public class Standard {
             return new ArrayList<>();
         }
     }
+    
+    public static final Instant getUTCCreationTime(long user_id) {
+        String temp = Long.toString(user_id, 2);
+        final String increment = temp.substring(temp.length() - 12, temp.length());
+        temp = temp.substring(0, temp.length() - 12);
+        final String internal_process_id = temp.substring(temp.length() - 5, temp.length());
+        temp = temp.substring(0, temp.length() - 5);
+        final String internal_worker_id = temp.substring(temp.length() - 5, temp.length());
+        temp = temp.substring(0, temp.length() - 5);
+        final String discord_epoch = temp;
+        final long discord_epoch_ = Long.parseLong(discord_epoch, 2);
+        final long unix = discord_epoch_ + 1420070400000L;
+        return Instant.ofEpochMilli(unix);
+    }
 
     public static final String DISCORD_STYLE_ITALICS = "*%s*";
     public static final String DISCORD_STYLE_BOLD = "**%s**";
@@ -1077,7 +1091,7 @@ public class Standard {
             return null;
         }
         return message.getReactions().stream().filter((reaction) -> {
-            return emoji.equals(reaction.getEmote().getName());
+            return emoji.equals(reaction.getReactionEmote().getName());
         }).findFirst().orElse(null);
     }
 
@@ -1396,5 +1410,6 @@ public class Standard {
     public static final Argument ARGUMENT_SOUNDCLOUD = new Argument("SoundCloud", STANDARD_ARGUMENT_PREFIXES, "sc");
     public static final Argument ARGUMENT_YOUTUBE = new Argument("YouTube", STANDARD_ARGUMENT_PREFIXES, "yt");
     public static final Argument ARGUMENT_LEAVE = new Argument("leave", STANDARD_ARGUMENT_PREFIXES);
+    public static final Argument ARGUMENT_ADVANCED = new Argument("advanced", STANDARD_ARGUMENT_PREFIXES, "adv");
 
 }

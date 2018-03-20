@@ -8,6 +8,7 @@ import de.codemakers.bot.supreme.audio.util.AudioQueue;
 import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
 import de.codemakers.bot.supreme.core.SupremeBot;
 import de.codemakers.bot.supreme.util.updater.Updater;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -164,7 +165,7 @@ public class TrackManager extends AudioEventAdapter {
 
     @Override
     public final void onTrackStart(AudioPlayer player, AudioTrack track) {
-        SupremeBot.setStatus(track.getInfo().title);
+        SupremeBot.setStatus(Game.GameType.LISTENING, track.getInfo().title);
         System.out.println("VoiceChannel: " + voiceChannel);
         if (voiceChannel == null) { //FIXME Wtf, why would this happen??!
             try {

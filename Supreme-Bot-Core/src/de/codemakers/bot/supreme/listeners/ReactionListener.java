@@ -243,7 +243,7 @@ public interface ReactionListener {
         if (messageReaction == null || emoji == null) {
             return false;
         }
-        if (!emoji.equals(messageReaction.getEmote().getName())) {
+        if (!emoji.equals(messageReaction.getReactionEmote().getName())) {
             return false;
         }
         return messageReaction.getCount() > 1;

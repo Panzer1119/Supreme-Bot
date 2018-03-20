@@ -129,7 +129,7 @@ public class BackupCommand extends Command {
                         element.addContent(new Element(POSITION_RAW).setText("" + textChannel.getPositionRaw()));
                         element.addContent(new Element(TOPIC).setText(((textChannel.getTopic()) == null) ? "" : textChannel.getTopic()));
                         element.addContent(new Element(NSFW).setText("" + textChannel.isNSFW()));
-                        if (textChannel.getIdLong() == guild.getPublicChannel().getIdLong()) {
+                        if (textChannel.getIdLong() == (guild.getSystemChannel() != null ? guild.getSystemChannel() : guild.getDefaultChannel()).getIdLong()) {
                             element.addContent(new Element(STANDARD));
                         }
                         textChannel.getPermissionOverrides().stream().forEach((permissionOverride) -> {

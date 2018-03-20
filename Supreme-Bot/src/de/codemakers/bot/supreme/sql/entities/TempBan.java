@@ -27,6 +27,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Guild.Ban;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 
@@ -193,7 +194,7 @@ public class TempBan {
                 }
             }
             if (ban_type) {
-                if (guild.getBans().complete().stream().noneMatch((user_) -> user_.getIdLong() == user_id)) {
+                if (guild.getBanList().complete().stream().map(Ban::getUser).noneMatch((user_) -> user_.getIdLong() == user_id)) {
                     if (reason == null) {
                         guild.getController().ban("" + user_id, 0).queue();
                     } else {

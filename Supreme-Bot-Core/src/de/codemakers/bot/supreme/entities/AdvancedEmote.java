@@ -80,7 +80,7 @@ public class AdvancedEmote {
             }
         } else {
             if (object instanceof MessageReaction) {
-                object = ((MessageReaction) object).getEmote();
+                object = ((MessageReaction) object).getReactionEmote();
             }
             if (object instanceof ReactionEmote) {
                 final ReactionEmote emote_ = (ReactionEmote) object;

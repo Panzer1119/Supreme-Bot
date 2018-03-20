@@ -51,6 +51,14 @@ public class ArgumentList {
         this.user = user;
     }
 
+    public final Guild getGuild() {
+        return guild;
+    }
+
+    public final User getUser() {
+        return user;
+    }
+
     public final ArgumentList addArguments(String... arguments) {
         addContentArguments(arguments);
         addContentRawArguments(arguments);

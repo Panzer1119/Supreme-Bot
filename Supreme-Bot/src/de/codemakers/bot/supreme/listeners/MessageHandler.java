@@ -135,8 +135,8 @@ public class MessageHandler extends ListenerAdapter {
     private final void onMessage(final Object event_original, final MessageEvent event, boolean newMessage) {
         Updater.submit(() -> {
             try {
-                final String content_raw = event.getMessage().getRawContent().trim();
-                final String content = event.getMessage().getContent().trim();
+                final String content_raw = event.getMessage().getContentRaw().trim();
+                final String content = event.getMessage().getContentDisplay().trim();
                 final Guild guild = event.getGuild();
                 final CommandType commandType = CommandType.getCommandType(content, content_raw, event);
                 if (commandType.isCommand()) {

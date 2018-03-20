@@ -1,5 +1,6 @@
 package de.codemakers.bot.supreme.core;
 
+import de.codemakers.bot.supreme.audio.recording.test.ARCommand;
 import de.codemakers.bot.supreme.commands.impl.AudioRecorderCommand;
 import de.codemakers.bot.supreme.commands.impl.HelpCommand;
 import de.codemakers.bot.supreme.commands.impl.RolesCommand;
@@ -7,6 +8,7 @@ import de.codemakers.bot.supreme.commands.impl.fun.MusicCommand;
 import de.codemakers.bot.supreme.commands.impl.PingCommand;
 import de.codemakers.bot.supreme.commands.impl.SolveCommand;
 import de.codemakers.bot.supreme.commands.impl.UptimeCommand;
+import de.codemakers.bot.supreme.commands.impl.UserCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.GameOfLifeCommand;
 import de.codemakers.bot.supreme.commands.impl.fun.TicTacToeCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.ChangeCommandPrefixCommand;
@@ -49,6 +51,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Game.GameType;
 
 /**
  * Supreme-Bot
@@ -79,7 +82,7 @@ public class SupremeBot {
             builder.setAutoReconnect(true);
             //builder.setAudioSendFactory(null);
             builder.setStatus(OnlineStatus.ONLINE);
-            builder.setGame(game = Game.of("Supreme-Bot"));
+            builder.setGame(game = Game.of(GameType.DEFAULT, "Supreme-Bot"));
             initListeners();
             initCommands();
             init();
@@ -114,6 +117,7 @@ public class SupremeBot {
             new RolesCommand();
             new SolveCommand();
             new UptimeCommand();
+            new UserCommand();
             //Fun Commands
             new GameOfLifeCommand();
             new MusicCommand();
@@ -144,6 +148,8 @@ public class SupremeBot {
             //Secret Commands
             new ConsoleCommand();
             new PasteServerCommand();
+            //Test Commands
+            new ARCommand(); //FIXME REMOVE THIS!!!
             return true;
         } catch (Exception ex) {
             return false;
@@ -153,7 +159,7 @@ public class SupremeBot {
     private static final boolean init() {
         try {
             SystemOutputStream.SEND_TO_CONSOLE_CONSUMER = (send_to_console) -> {
-                setStatus(send_to_console ? "Redirecting to Console" : null);
+                setStatus(GameType.STREAMING, send_to_console ? "Redirecting to Console" : null);
             };
             return true;
         } catch (Exception ex) {
@@ -170,8 +176,8 @@ public class SupremeBot {
         }
     }
 
-    public static final boolean setStatus(String status) {
-        jda.getPresence().setGame(status == null ? game : Game.of(status));
+    public static final boolean setStatus(GameType type, String status) {
+        jda.getPresence().setGame(status == null ? game : Game.of(type != null ? type : GameType.DEFAULT, status));
         return true;
     }
 

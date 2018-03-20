@@ -25,7 +25,7 @@ public class AudioReceiveListener implements AudioReceiveHandler {
     public double volume = 1.0;
     private final VoiceChannel voiceChannel;
 
-    public byte[] uncompiledVoiceData = new byte[(int) (BYTES_PER_ARRAY * ARRAY_PER_SECOND * SECONDS * PCM_MINS)]; //3840 byte/array * 50 arrays/second * 60 second * 2 = 2 MINS
+    public byte[] uncompiledVoiceData = new byte[(int) (BYTES_PER_ARRAY * ARRAY_PER_SECOND * SECONDS * PCM_MINS)]; //3840 byte/array * 50 array/second * 60 second * 2 = 2 MINS
     public int uncompiledVoiceDataIndex = 0;
 
     public byte[] compiledVoiceData = new byte[(int) (1024 * 1024 * STARTING_MB)]; //Start with 0.5 MB

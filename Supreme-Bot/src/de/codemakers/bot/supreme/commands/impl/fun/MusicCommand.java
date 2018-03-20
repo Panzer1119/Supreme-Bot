@@ -232,7 +232,7 @@ public class MusicCommand extends Command {
             System.err.println(ex);
         }
         Updater.submit(() -> guild.getAudioManager().closeAudioConnection());
-        SupremeBot.setStatus(null);
+        SupremeBot.setStatus(null, null);
     }
 
     protected static final long[] getTimestampAsArray(long millis) {
