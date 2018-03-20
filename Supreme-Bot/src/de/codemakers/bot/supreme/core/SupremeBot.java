@@ -40,6 +40,7 @@ import de.codemakers.bot.supreme.listeners.GuildMemberLogger;
 import de.codemakers.bot.supreme.listeners.ReadyListener;
 import de.codemakers.bot.supreme.listeners.GuildVoiceLogger;
 import de.codemakers.bot.supreme.listeners.MessageHandler;
+import de.codemakers.bot.supreme.listeners.UserLogger;
 import de.codemakers.bot.supreme.sql.MySQL;
 import de.codemakers.bot.supreme.util.NetworkUtil;
 import de.codemakers.bot.supreme.util.Standard;
@@ -102,6 +103,7 @@ public class SupremeBot {
             builder.addEventListener(new GuildVoiceLogger());
             builder.addEventListener(MessageHandler.MESSAGE_HANDLER = new MessageHandler());
             builder.addEventListener(new ReadyListener());
+            builder.addEventListener(new UserLogger());
             return true;
         } catch (Exception ex) {
             return false;
