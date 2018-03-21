@@ -67,10 +67,10 @@ public abstract class AudioQueue {
      * @return AudioInfo
      */
     public final AudioInfo get(int delta) {
-        if (!correctPointer()) {
+        if (correctPointer(pointer + delta) != (pointer + delta)) {
             return null;
         }
-        if (correctPointer(pointer + delta) != (pointer + delta)) {
+        if (!correctPointer()) {
             return null;
         }
         return queue.get(pointer + delta);

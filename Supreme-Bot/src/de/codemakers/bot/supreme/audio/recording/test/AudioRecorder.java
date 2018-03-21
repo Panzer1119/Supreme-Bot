@@ -7,12 +7,10 @@ package de.codemakers.bot.supreme.audio.recording.test;
 
 import de.codemakers.bot.supreme.util.Standard;
 import de.codemakers.logger.Logger;
-import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.Arrays;
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import net.dv8tion.jda.core.audio.AudioReceiveHandler;
 import net.dv8tion.jda.core.audio.CombinedAudio;
 import net.dv8tion.jda.core.audio.UserAudio;
@@ -35,12 +33,30 @@ public class AudioRecorder implements AudioReceiveHandler {
 
     private final byte[] buffer = new byte[BUFFER_LENGTH];
     private int counter = 0;
+    private final File file = new File(folder.getPath() + File.separator + "audio_recording.pcm");
+    private FileOutputStream fos;
 
     static {
         folder.mkdir();
     }
 
-    private boolean recording = true;
+    public AudioRecorder() {
+        try {
+            fos = new FileOutputStream(file, false);
+        } catch (FileNotFoundException ex) {
+            Logger.logErr("FOS: " + ex, ex);
+        }
+    }
+
+    public boolean recording = true;
+
+    public void close() {
+        try {
+            fos.close();
+        } catch (Exception ex) {
+            Logger.logErr("Closing: " + ex, ex);
+        }
+    }
 
     @Override
     public boolean canReceiveCombined() {
@@ -54,12 +70,17 @@ public class AudioRecorder implements AudioReceiveHandler {
 
     @Override
     public void handleCombinedAudio(CombinedAudio combinedAudio) {
+        try {
+            fos.write(combinedAudio.getAudioData(1.0));
+        } catch (Exception ex) {
+            Logger.logErr("...." + ex, ex);
+        }
+        /*
         if (counter >= STEPS) {
             return;
         }
         if (counter == STEPS - 1) {
             try {
-                final File file = new File(folder.getPath() + File.separator + "audio_recording.wav");
                 final ByteArrayInputStream bais = new ByteArrayInputStream(buffer);
                 final AudioInputStream ais = new AudioInputStream(bais, OUTPUT_FORMAT, buffer.length);
                 AudioSystem.write(ais, AudioFileFormat.Type.WAVE, file);
@@ -82,6 +103,7 @@ public class AudioRecorder implements AudioReceiveHandler {
         }
         System.arraycopy(data, 0, buffer, counter * STEP_LENGTH, data.length);
         counter++;
+         */
     }
 
     @Override

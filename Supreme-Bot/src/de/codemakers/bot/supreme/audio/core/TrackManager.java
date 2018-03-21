@@ -90,9 +90,13 @@ public class TrackManager extends AudioEventAdapter {
             throw new NullPointerException("The VoiceChannel must not be null!");
         }
         if ((this.voiceChannel != null && !this.voiceChannel.equals(voiceChannel)) || (guild.getAudioManager().isConnected() && !voiceChannel.equals(guild.getAudioManager().getConnectedChannel()))) {
-            Updater.submit(() -> guild.getAudioManager().closeAudioConnection());
-        }
-        if (this.voiceChannel == null || (!guild.getAudioManager().isConnected() || !voiceChannel.equals(guild.getAudioManager().getConnectedChannel()))) {
+            Updater.submit(() -> { //FIXME Is this fixing the random lefting of the bot?
+                guild.getAudioManager().closeAudioConnection();
+                if (this.voiceChannel == null || (!guild.getAudioManager().isConnected() || !voiceChannel.equals(guild.getAudioManager().getConnectedChannel()))) {
+                    guild.getAudioManager().openAudioConnection(voiceChannel);
+                }
+            });
+        } else if (this.voiceChannel == null || (!guild.getAudioManager().isConnected() || !voiceChannel.equals(guild.getAudioManager().getConnectedChannel()))) {
             guild.getAudioManager().openAudioConnection(voiceChannel);
         }
         this.voiceChannel = voiceChannel;
@@ -183,7 +187,7 @@ public class TrackManager extends AudioEventAdapter {
     @Override
     public final void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if (endReason != AudioTrackEndReason.REPLACED) {
-            if (loopType.isLoop() && loopType.isSingle()) {
+            if (endReason != AudioTrackEndReason.LOAD_FAILED && loopType.isLoop() && loopType.isSingle()) {
                 player.playTrack(track.makeClone());
             } else {
                 playNext();
@@ -192,7 +196,7 @@ public class TrackManager extends AudioEventAdapter {
     }
 
     private final boolean playNext() {
-        if (!queue.hasNext() && !queue.hasTrack()) {
+        if (!queue.hasNext() || !queue.hasTrack()) {
             System.out.println("Stopping Music! LoopType: " + loopType);
             setPlaying(false);
             try {

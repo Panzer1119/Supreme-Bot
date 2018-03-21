@@ -24,6 +24,7 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 public class ARCommand extends Command {
 
     private boolean temp = false;
+    private AudioRecorder audioRecorder = new AudioRecorder();
 
     @Override
     public void initInvokers() {
@@ -41,10 +42,12 @@ public class ARCommand extends Command {
         if (temp) {
             final VoiceChannel voiceChannel = event.getMember().getVoiceState().getChannel();
             event.getGuild().getAudioManager().openAudioConnection(voiceChannel);
-            event.getGuild().getAudioManager().setReceivingHandler(new AudioRecorder());
+            event.getGuild().getAudioManager().setReceivingHandler(audioRecorder);
             Logger.log("Activated AR");
         } else {
+            audioRecorder.recording = false;
             event.getGuild().getAudioManager().setReceivingHandler(null);
+            audioRecorder.close();
             event.getGuild().getAudioManager().closeAudioConnection();
             Logger.log("Deactivated AR");
         }
