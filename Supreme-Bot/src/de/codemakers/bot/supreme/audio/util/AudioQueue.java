@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public abstract class AudioQueue {
 
     private final List<AudioInfo> queue = Collections.synchronizedList(new ArrayList<>());
-    private int pointer = 0;
+    private int pointer = -1;
 
     public AudioQueue(AudioInfo... infos) {
         add(infos);
@@ -32,15 +32,15 @@ public abstract class AudioQueue {
     }
 
     public final boolean hasPrevious() {
-        return correctPointer() && (pointer > 0);
+        return correctPointer() && (pointer >= 0);
     }
 
     public final boolean isStart() {
-        return correctPointer() && (pointer == 0);
+        return correctPointer() && (pointer == -1);
     }
 
     public final boolean isEnd() {
-        return !correctPointer() || ((pointer + 1) == queue.size());
+        return !correctPointer() || ((pointer + 1) >= queue.size());
     }
 
     public final boolean isEmpty() {
@@ -57,7 +57,7 @@ public abstract class AudioQueue {
     }
 
     public final boolean reset() {
-        return setPointer(0);
+        return setPointer(-1);
     }
 
     /**
@@ -276,7 +276,12 @@ public abstract class AudioQueue {
     }
 
     public static final int correctPointer(int pointer, int max) {
-        return Math.max(0, Math.min(pointer, max));
+        return Math.max(-1, Math.min(pointer, max));
+    }
+
+    @Override
+    public String toString() {
+        return "AudioQueue{" + "queue=" + queue + ", pointer=" + pointer + '}';
     }
 
 }

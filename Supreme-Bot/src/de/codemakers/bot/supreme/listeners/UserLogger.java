@@ -3,6 +3,7 @@ package de.codemakers.bot.supreme.listeners;
 import de.codemakers.bot.supreme.settings.Config;
 import de.codemakers.bot.supreme.util.Standard;
 import java.time.Instant;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.events.user.UserAvatarUpdateEvent;
 import net.dv8tion.jda.core.events.user.UserGameUpdateEvent;
 import net.dv8tion.jda.core.events.user.UserNameUpdateEvent;
@@ -43,12 +44,16 @@ public class UserLogger extends ListenerAdapter {
     public final void onUserGameUpdate(UserGameUpdateEvent event) {
         if (!event.isRelationshipUpdate()) {
             final Instant timestamp = Instant.now();
-            Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_USER, LOG_TEXT_USER_GAME_UPDATE, "[%1$s] [%2$s] %3$s changed game from \"%4$s\" to \"%5$s\"", LOG_DATE_TIME_FORMAT, Config.CONFIG.getUserNameForUser(event.getUser(), event.getGuild(), true), event.getPreviousGame().getName(), event.getCurrentGame().getName());
+            Standard.log(timestamp, event.getGuild(), LOG_NAME, LOG_CHANNEL_ID_USER, LOG_TEXT_USER_GAME_UPDATE, "[%1$s] [%2$s] %3$s changed game from \"%4$s\" to \"%5$s\"", LOG_DATE_TIME_FORMAT, Config.CONFIG.getUserNameForUser(event.getUser(), event.getGuild(), true), toString(event.getPreviousGame()), toString(event.getCurrentGame()));
         }
     }
 
     @Override
     public final void onUserTyping(UserTypingEvent event) {
+    }
+
+    private final String toString(Game game) {
+        return game == null ? "" + null : game.getName();
     }
 
 }

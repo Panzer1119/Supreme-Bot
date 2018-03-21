@@ -187,8 +187,13 @@ public class TrackManager extends AudioEventAdapter {
     @Override
     public final void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if (endReason != AudioTrackEndReason.REPLACED) {
-            if (endReason != AudioTrackEndReason.LOAD_FAILED && loopType.isLoop() && loopType.isSingle()) {
-                player.playTrack(track.makeClone());
+            if (endReason != AudioTrackEndReason.LOAD_FAILED && loopType.isLoop()) {
+                if (loopType.isSingle()) {
+                    player.playTrack(track.makeClone());
+                } else {
+                    queue.reset();
+                    playNext();
+                }
             } else {
                 playNext();
             }
@@ -196,7 +201,8 @@ public class TrackManager extends AudioEventAdapter {
     }
 
     private final boolean playNext() {
-        if (!queue.hasNext() || !queue.hasTrack()) {
+        System.out.println(queue);
+        if (!queue.hasNext()) {
             System.out.println("Stopping Music! LoopType: " + loopType);
             setPlaying(false);
             try {
