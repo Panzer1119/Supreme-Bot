@@ -7,6 +7,7 @@ import de.codemakers.bot.supreme.commands.invoking.Invoker;
 import de.codemakers.bot.supreme.entities.MessageEvent;
 import de.codemakers.bot.supreme.listeners.ModLogger;
 import de.codemakers.bot.supreme.permission.PermissionFilter;
+import de.codemakers.bot.supreme.settings.Config;
 import de.codemakers.bot.supreme.util.Standard;
 import java.time.Instant;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -51,7 +52,7 @@ public class VoiceKickCommand extends Command {
         final VoiceChannel voiceChannel = (VoiceChannel) controller.createVoiceChannel("kick").complete();
         final Instant timestamp = Instant.now();
         controller.moveVoiceMember(member, voiceChannel).queue((t) -> voiceChannel.delete().queue(), (t) -> voiceChannel.delete().queue());
-        ModLogger.log(timestamp, event.getGuild(), ModLogger.LOG_TEXT_MOD_VOICE_KICK, "[%1$s] [%2$s] %3$s voice kicked %4$s from #%5$s (Reason: %6$s)", Standard.getCompleteName(event.getMember(), true), Standard.getCompleteName(member, true), voiceChannel_, ((reason == null || reason.isEmpty()) ? "not given" : reason));
+        ModLogger.log(timestamp, event.getGuild(), ModLogger.LOG_TEXT_MOD_VOICE_KICK, "[%1$s] [%2$s] %3$s voice kicked %4$s from #%5$s (Reason: %6$s)", Config.CONFIG.getUserNameForUser(event.getMember().getUser(), event.getGuild(), true), Config.CONFIG.getUserNameForUser(member.getUser(), event.getGuild(), true), voiceChannel_, ((reason == null || reason.isEmpty()) ? "not given" : "\"" + reason + "\""));
     }
 
     @Override
