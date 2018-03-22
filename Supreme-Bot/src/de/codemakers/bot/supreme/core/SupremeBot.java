@@ -27,6 +27,7 @@ import de.codemakers.bot.supreme.commands.impl.moderation.SettingsCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.StopCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.TempBanCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.UploadFileCommand;
+import de.codemakers.bot.supreme.commands.impl.moderation.VoiceKickCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.BackupCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.GetLogCommand;
 import de.codemakers.bot.supreme.commands.impl.moderation.util.GuildsCommand;
@@ -141,6 +142,7 @@ public class SupremeBot {
             new StopCommand();
             new TempBanCommand();
             new UploadFileCommand();
+            new VoiceKickCommand();
             //Util Commands
             new BackupCommand();
             new GetLogCommand();
